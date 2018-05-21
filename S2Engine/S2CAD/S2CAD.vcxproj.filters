@@ -1,0 +1,196 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="VObjects">
+      <UniqueIdentifier>{6afcafff-531b-415c-92ca-88a9bd1105a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Selection">
+      <UniqueIdentifier>{5fc069e3-25ae-4d29-8433-edc5e3230716}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CADTools">
+      <UniqueIdentifier>{6c8f4f05-31b2-4c9c-85d8-264c8fec249f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\VObjects\VPolygon.h">
+      <Filter>VObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VObjects\VPolyLine.h">
+      <Filter>VObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VObjects\VRectangle.h">
+      <Filter>VObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VObjects\VSplineStrip.h">
+      <Filter>VObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VObjects\VStyle.h">
+      <Filter>VObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VObjects\VCircle.h">
+      <Filter>VObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VObjects\VGroup.h">
+      <Filter>VObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VObjects\VLine.h">
+      <Filter>VObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VObjects\VMesh.h">
+      <Filter>VObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VObjects\VObject.h">
+      <Filter>VObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VObjects\VObjectManager.h">
+      <Filter>VObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VObjects\VPoint.h">
+      <Filter>VObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\S2CAD_API.h" />
+    <ClInclude Include="src\Selection\SelectionSet.h">
+      <Filter>Selection</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Selection\SelectionRequest.h">
+      <Filter>Selection</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CADTools\CadEngine.h">
+      <Filter>CADTools</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CADTools\CadSettings.h">
+      <Filter>CADTools</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CADTools\CadTool.h">
+      <Filter>CADTools</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CADTools\CadToolCircle.h">
+      <Filter>CADTools</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CADTools\CadToolEdit.h">
+      <Filter>CADTools</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CADTools\CadToolErase.h">
+      <Filter>CADTools</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CADTools\CadToolLine.h">
+      <Filter>CADTools</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CADTools\CadToolPoint.h">
+      <Filter>CADTools</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CADTools\CadToolPolygon.h">
+      <Filter>CADTools</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CADTools\CadToolPolyLine.h">
+      <Filter>CADTools</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CADTools\CadToolRectangle.h">
+      <Filter>CADTools</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CADTools\CadToolRedo.h">
+      <Filter>CADTools</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CADTools\CadToolSelect.h">
+      <Filter>CADTools</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CADTools\CadToolUndo.h">
+      <Filter>CADTools</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CADTools\SelectionSet.h">
+      <Filter>CADTools</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CADTools\SnapEngine.h">
+      <Filter>CADTools</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\VObjects\VCircle.cpp">
+      <Filter>VObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VObjects\VGroup.cpp">
+      <Filter>VObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VObjects\VLine.cpp">
+      <Filter>VObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VObjects\VMesh.cpp">
+      <Filter>VObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VObjects\VObject.cpp">
+      <Filter>VObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VObjects\VObjectManager.cpp">
+      <Filter>VObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VObjects\VPoint.cpp">
+      <Filter>VObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VObjects\VPolygon.cpp">
+      <Filter>VObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VObjects\VPolyLine.cpp">
+      <Filter>VObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VObjects\VRectangle.cpp">
+      <Filter>VObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VObjects\VSplineStrip.cpp">
+      <Filter>VObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VObjects\VStyle.cpp">
+      <Filter>VObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Selection\SelectionSet.cpp">
+      <Filter>Selection</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CADTools\CadEngine.cpp">
+      <Filter>CADTools</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CADTools\CadSettings.cpp">
+      <Filter>CADTools</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CADTools\CadTool.cpp">
+      <Filter>CADTools</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CADTools\CadToolCircle.cpp">
+      <Filter>CADTools</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CADTools\CadToolEdit.cpp">
+      <Filter>CADTools</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CADTools\CadToolErase.cpp">
+      <Filter>CADTools</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CADTools\CadToolLine.cpp">
+      <Filter>CADTools</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CADTools\CadToolPoint.cpp">
+      <Filter>CADTools</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CADTools\CadToolPolygon.cpp">
+      <Filter>CADTools</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CADTools\CadToolPolyLine.cpp">
+      <Filter>CADTools</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CADTools\CadToolRectangle.cpp">
+      <Filter>CADTools</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CADTools\CadToolRedo.cpp">
+      <Filter>CADTools</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CADTools\CadToolSelect.cpp">
+      <Filter>CADTools</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CADTools\CadToolUndo.cpp">
+      <Filter>CADTools</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CADTools\SelectionSet.cpp">
+      <Filter>CADTools</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CADTools\SnapEngine.cpp">
+      <Filter>CADTools</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

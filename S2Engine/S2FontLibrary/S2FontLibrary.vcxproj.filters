@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="freetype-gl">
+      <UniqueIdentifier>{7b1627f1-5ffb-426b-b667-5fe0cf446f1b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fonts">
+      <UniqueIdentifier>{2581b8ec-d6b4-4106-a38f-02bf2558b22f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\SDK\S2Ext\freetype-gl\freetype-gl.h">
+      <Filter>freetype-gl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\S2Ext\freetype-gl\opengl.h">
+      <Filter>freetype-gl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\S2Ext\freetype-gl\texture-atlas.h">
+      <Filter>freetype-gl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\S2Ext\freetype-gl\texture-font.h">
+      <Filter>freetype-gl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\S2Ext\freetype-gl\vec234.h">
+      <Filter>freetype-gl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\S2Ext\freetype-gl\vector.h">
+      <Filter>freetype-gl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Fonts\FontNew.h">
+      <Filter>Fonts</Filter>
+    </ClInclude>
+    <ClInclude Include="src\S2FontLibraryAPI.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\SDK\S2Ext\freetype-gl\texture-atlas.c">
+      <Filter>freetype-gl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\S2Ext\freetype-gl\texture-font.c">
+      <Filter>freetype-gl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\S2Ext\freetype-gl\vector.c">
+      <Filter>freetype-gl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\S2Ext\glew\src\glew.c" />
+    <ClCompile Include="src\Fonts\FontNew.cpp">
+      <Filter>Fonts</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

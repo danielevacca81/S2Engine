@@ -1,0 +1,130 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{4EBE6028-3331-4D7E-8F56-43A5F42322AF}</ProjectGuid>
+    <RootNamespace>S2Common</RootNamespace>
+    <ProjectName>S2Common</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>bin\$(Configuration)\</OutDir>
+    <IntDir>tmp\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>bin\$(Configuration)\</OutDir>
+    <IntDir>tmp\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>.\src;$(SolutionDir)..\SDK\S2Ext\glm\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>S2COMMON_EXPORTS;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PreBuildEvent>
+      <Command>MakeSDK.bat</Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>.\src;$(SolutionDir)..\SDK\S2Ext\glm\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>S2COMMON_EXPORTS;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PreBuildEvent>
+      <Command>MakeSDK.bat</Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="src\Common\Callback.h" />
+    <ClInclude Include="src\Common\Color.h" />
+    <ClInclude Include="src\Common\Strings.h" />
+    <ClInclude Include="src\Common\TimedBlock.h" />
+    <ClInclude Include="src\Common\Types.h" />
+    <ClInclude Include="src\Common\Utils.h" />
+    <ClInclude Include="src\Design\Observer.h" />
+    <ClInclude Include="src\Design\State.h" />
+    <ClInclude Include="src\Geometry\Geometry.h" />
+    <ClInclude Include="src\Geometry\Interpolation.h" />
+    <ClInclude Include="src\Geometry\Intersection.h" />
+    <ClInclude Include="src\Math\Box.h" />
+    <ClInclude Include="src\Math\Math.h" />
+    <ClInclude Include="src\Math\Plane.h" />
+    <ClInclude Include="src\Math\Ray.h" />
+    <ClInclude Include="src\Math\Rectangle.h" />
+    <ClInclude Include="src\Resources\R.h" />
+    <ClInclude Include="src\S2CommonAPI.h" />
+    <ClInclude Include="src\Threads\Event.h" />
+    <ClInclude Include="src\Threads\Mutex.h" />
+    <ClInclude Include="src\Threads\MutexLocker.h" />
+    <ClInclude Include="src\Threads\Thread.h" />
+    <ClInclude Include="src\Win32\EmbeddedResources.h" />
+    <ClInclude Include="src\Win32\MemCheck.h" />
+    <ClInclude Include="src\Win32\Timer.h" />
+    <ClInclude Include="src\Win32\Win32.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Common\Color.cpp" />
+    <ClCompile Include="src\Design\Observer.cpp" />
+    <ClCompile Include="src\Geometry\Geometry.cpp" />
+    <ClCompile Include="src\Geometry\Interpolation.cpp" />
+    <ClCompile Include="src\Geometry\Intersection.cpp" />
+    <ClCompile Include="src\Resources\R.cpp" />
+    <ClCompile Include="src\Threads\Event.cpp" />
+    <ClCompile Include="src\Threads\Mutex.cpp" />
+    <ClCompile Include="src\Threads\MutexLocker.cpp" />
+    <ClCompile Include="src\Threads\Thread.cpp" />
+    <ClCompile Include="src\Win32\EmbeddedResources.cpp" />
+    <ClCompile Include="src\Win32\Timer.cpp" />
+    <ClCompile Include="src\Win32\Win32.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

@@ -1,0 +1,100 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="input">
+      <UniqueIdentifier>{ffec523e-fa4f-4c2e-bff1-f41193214374}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="application">
+      <UniqueIdentifier>{1aa6d370-fe07-423c-a70c-93d4b5040b5c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="system">
+      <UniqueIdentifier>{01877161-168d-41d1-ae7b-a043b3fcd1f1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="threads">
+      <UniqueIdentifier>{4809c4bd-b96f-4523-a7c1-9bf4adac04ef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="net">
+      <UniqueIdentifier>{655ba429-950e-4d91-8c83-5984e3e2b445}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\application\Application.cpp">
+      <Filter>application</Filter>
+    </ClCompile>
+    <ClCompile Include="src\input\InputEventHandler.cpp">
+      <Filter>input</Filter>
+    </ClCompile>
+    <ClCompile Include="src\input\InputManager.cpp">
+      <Filter>input</Filter>
+    </ClCompile>
+    <ClCompile Include="src\system\GLContext.cpp">
+      <Filter>system</Filter>
+    </ClCompile>
+    <ClCompile Include="src\system\GLWindow.cpp">
+      <Filter>system</Filter>
+    </ClCompile>
+    <ClCompile Include="src\system\Timer.cpp">
+      <Filter>system</Filter>
+    </ClCompile>
+    <ClCompile Include="src\threads\Event.cpp">
+      <Filter>threads</Filter>
+    </ClCompile>
+    <ClCompile Include="src\threads\Mutex.cpp">
+      <Filter>threads</Filter>
+    </ClCompile>
+    <ClCompile Include="src\threads\MutexLocker.cpp">
+      <Filter>threads</Filter>
+    </ClCompile>
+    <ClCompile Include="src\threads\Thread.cpp">
+      <Filter>threads</Filter>
+    </ClCompile>
+    <ClCompile Include="src\input\MouseStatus.cpp">
+      <Filter>input</Filter>
+    </ClCompile>
+    <ClCompile Include="src\input\KeyboardStatus.cpp">
+      <Filter>input</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\application\Application.h">
+      <Filter>application</Filter>
+    </ClInclude>
+    <ClInclude Include="src\input\InputEventHandler.h">
+      <Filter>input</Filter>
+    </ClInclude>
+    <ClInclude Include="src\input\InputManager.h">
+      <Filter>input</Filter>
+    </ClInclude>
+    <ClInclude Include="src\S2FrameworkAPI.h" />
+    <ClInclude Include="src\system\Callback.h">
+      <Filter>system</Filter>
+    </ClInclude>
+    <ClInclude Include="src\system\GLContext.h">
+      <Filter>system</Filter>
+    </ClInclude>
+    <ClInclude Include="src\system\GLWindow.h">
+      <Filter>system</Filter>
+    </ClInclude>
+    <ClInclude Include="src\system\Timer.h">
+      <Filter>system</Filter>
+    </ClInclude>
+    <ClInclude Include="src\threads\Event.h">
+      <Filter>threads</Filter>
+    </ClInclude>
+    <ClInclude Include="src\threads\Mutex.h">
+      <Filter>threads</Filter>
+    </ClInclude>
+    <ClInclude Include="src\threads\MutexLocker.h">
+      <Filter>threads</Filter>
+    </ClInclude>
+    <ClInclude Include="src\threads\Thread.h">
+      <Filter>threads</Filter>
+    </ClInclude>
+    <ClInclude Include="src\input\MouseStatus.h">
+      <Filter>input</Filter>
+    </ClInclude>
+    <ClInclude Include="src\input\KeyboardStatus.h">
+      <Filter>input</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

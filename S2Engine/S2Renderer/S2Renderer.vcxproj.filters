@@ -1,0 +1,248 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="OpenGL">
+      <UniqueIdentifier>{48819c35-3eb1-4aca-ad11-4fad8b5c84aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Renderer">
+      <UniqueIdentifier>{25c11b07-b058-450f-9b8b-066071201703}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="View">
+      <UniqueIdentifier>{343791ed-e7e5-4799-8435-f24faddf6818}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenGL\UniformTypes">
+      <UniqueIdentifier>{48434ad6-a884-41d1-8fb8-7cbbc9f7e63e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{b38ba922-f0e5-49f8-a1ec-1ae231483b95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\Shaders">
+      <UniqueIdentifier>{2ee0d55e-87cc-48f2-b8cf-93bceb9e2f0d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fonts">
+      <UniqueIdentifier>{738b23c8-9c78-4efd-89f1-305c0dc379e4}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\OpenGL\Program.h">
+      <Filter>OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OpenGL\OpenGL.h">
+      <Filter>OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OpenGL\Texture.h">
+      <Filter>OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OpenGL\FrameBuffer.h">
+      <Filter>OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OpenGL\Selection.h">
+      <Filter>OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OpenGL\Tessellation.h">
+      <Filter>OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\ClearState.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\RenderState.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\TextRenderer.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\Renderer_old.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\Renderer.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OpenGL\OpenGLWrap.h">
+      <Filter>OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OpenGL\Context.h">
+      <Filter>OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\DrawState.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OpenGL\Uniform.h">
+      <Filter>OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\ViewState.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\S2RendererAPI.h" />
+    <ClInclude Include="src\View\Camera.h">
+      <Filter>View</Filter>
+    </ClInclude>
+    <ClInclude Include="src\View\TrackBall.h">
+      <Filter>View</Filter>
+    </ClInclude>
+    <ClInclude Include="src\View\View.h">
+      <Filter>View</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OpenGL\UniformFloat.h">
+      <Filter>OpenGL\UniformTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OpenGL\UniformFloatVector2.h">
+      <Filter>OpenGL\UniformTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OpenGL\UniformFloatVector3.h">
+      <Filter>OpenGL\UniformTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OpenGL\UniformFloatVector4.h">
+      <Filter>OpenGL\UniformTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OpenGL\UniformInt.h">
+      <Filter>OpenGL\UniformTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OpenGL\UniformIntVector2.h">
+      <Filter>OpenGL\UniformTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OpenGL\UniformIntVector3.h">
+      <Filter>OpenGL\UniformTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OpenGL\UniformIntVector4.h">
+      <Filter>OpenGL\UniformTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OpenGL\UniformBool.h">
+      <Filter>OpenGL\UniformTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OpenGL\UniformBoolVector2.h">
+      <Filter>OpenGL\UniformTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OpenGL\UniformBoolVector3.h">
+      <Filter>OpenGL\UniformTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OpenGL\UniformBoolVector4.h">
+      <Filter>OpenGL\UniformTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OpenGL\UniformFloatMatrix22.h">
+      <Filter>OpenGL\UniformTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OpenGL\UniformFloatMatrix33.h">
+      <Filter>OpenGL\UniformTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OpenGL\UniformFloatMatrix44.h">
+      <Filter>OpenGL\UniformTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OpenGL\UniformSampler.h">
+      <Filter>OpenGL\UniformTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Fonts\FontNew.h">
+      <Filter>Fonts</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OpenGL\VertexArray.h">
+      <Filter>OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OpenGL\AttributeBuffer.h">
+      <Filter>OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OpenGL\BufferObject.h">
+      <Filter>OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OpenGL\IndexBuffer.h">
+      <Filter>OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OpenGL\VertexBuffer.h">
+      <Filter>OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OpenGL\Mesh.h">
+      <Filter>OpenGL</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\OpenGL\Program.cpp">
+      <Filter>OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\OpenGL\OpenGL.cpp">
+      <Filter>OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\OpenGL\FrameBuffer.cpp">
+      <Filter>OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\OpenGL\Selection.cpp">
+      <Filter>OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\OpenGL\Tessellation.cpp">
+      <Filter>OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\TextRenderer.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\Renderer_old.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\Renderer.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\OpenGL\Texture.cpp">
+      <Filter>OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\OpenGL\OpenGLWrap.cpp">
+      <Filter>OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ExtLibs\glew\src\glew.c">
+      <Filter>OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\OpenGL\Context.cpp">
+      <Filter>OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\OpenGL\Uniform.cpp">
+      <Filter>OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\ViewState.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\View\Camera.cpp">
+      <Filter>View</Filter>
+    </ClCompile>
+    <ClCompile Include="src\View\Camera_old.cpp">
+      <Filter>View</Filter>
+    </ClCompile>
+    <ClCompile Include="src\View\TrackBall.cpp">
+      <Filter>View</Filter>
+    </ClCompile>
+    <ClCompile Include="src\View\View.cpp">
+      <Filter>View</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Fonts\FontNew.cpp">
+      <Filter>Fonts</Filter>
+    </ClCompile>
+    <ClCompile Include="src\OpenGL\VertexArray.cpp">
+      <Filter>OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\OpenGL\AttributeBuffer.cpp">
+      <Filter>OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\OpenGL\BufferObject.cpp">
+      <Filter>OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\OpenGL\IndexBuffer.cpp">
+      <Filter>OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\OpenGL\VertexBuffer.cpp">
+      <Filter>OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\OpenGL\Mesh.cpp">
+      <Filter>OpenGL</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\FontShader.fs">
+      <Filter>Resources\Shaders</Filter>
+    </None>
+    <None Include="res\FontShader.vs">
+      <Filter>Resources\Shaders</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="S2Renderer.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>
