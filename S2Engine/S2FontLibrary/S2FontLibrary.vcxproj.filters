@@ -42,7 +42,6 @@
     <ClCompile Include="..\..\SDK\S2Ext\freetype-gl\vector.c">
       <Filter>freetype-gl</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\SDK\S2Ext\glew\src\glew.c" />
     <ClCompile Include="src\Fonts\FontNew.cpp">
       <Filter>Fonts</Filter>
     </ClCompile>

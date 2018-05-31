@@ -186,9 +186,6 @@
     <ClCompile Include="src\OpenGL\OpenGLWrap.cpp">
       <Filter>OpenGL</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\ExtLibs\glew\src\glew.c">
-      <Filter>OpenGL</Filter>
-    </ClCompile>
     <ClCompile Include="src\OpenGL\Context.cpp">
       <Filter>OpenGL</Filter>
     </ClCompile>
@@ -229,6 +226,9 @@
       <Filter>OpenGL</Filter>
     </ClCompile>
     <ClCompile Include="src\OpenGL\Mesh.cpp">
+      <Filter>OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ExtLibs\glew-2.1.0\src\glew.c">
       <Filter>OpenGL</Filter>
     </ClCompile>
   </ItemGroup>
