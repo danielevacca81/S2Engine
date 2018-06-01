@@ -1,17 +1,17 @@
 // GraphicsItem.h
 //
-#ifndef S2QT_GRAPHICSITEM_ONCE
-#define S2QT_GRAPHICSITEM_ONCE
+#ifndef QTBRIDGE_GRAPHICSITEM_ONCE
+#define QTBRIDGE_GRAPHICSITEM_ONCE
 
-#include "S2QtAPI.h"
+#include "QtBridge_API.h"
 
 #include <QGraphicsItem>
 #include <QPropertyAnimation>
 #include <QTimer>
 
-namespace s2Qt {
+namespace QtBridge {
 
-class S2QT_API GraphicsItem : public QObject, public QGraphicsItem
+class QTBRIDGE_API GraphicsItem : public QObject, public QGraphicsItem
 {
 	Q_OBJECT
 	Q_PROPERTY(double opacity READ opacity WRITE setOpacity)

@@ -1,0 +1,123 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Generated Files">
+      <UniqueIdentifier>{71ED8ED8-ACB9-4CE9-BBE1-E00B30144E11}</UniqueIdentifier>
+      <Extensions>moc;h;cpp</Extensions>
+      <SourceControlFiles>False</SourceControlFiles>
+    </Filter>
+    <Filter Include="Generated Files\Debug">
+      <UniqueIdentifier>{32ddaefb-0426-4b5f-bc81-0b5fcae37333}</UniqueIdentifier>
+      <Extensions>cpp;moc</Extensions>
+      <SourceControlFiles>False</SourceControlFiles>
+    </Filter>
+    <Filter Include="Generated Files\Release">
+      <UniqueIdentifier>{ec43e82e-04a6-456f-9906-a4600dd0ea9c}</UniqueIdentifier>
+      <Extensions>cpp;moc</Extensions>
+      <SourceControlFiles>False</SourceControlFiles>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;cxx;c;def</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\GLGraphicsView.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\KeyboardStatus.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MouseStatus.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Settings.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UserInteractionManager.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GestureStatus.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UIMCommand.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GLContext.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\QtBridge_API.h">
+      <Filter>src</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="tmp\GeneratedFiles\Debug\moc_GLGraphicsScene.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="tmp\GeneratedFiles\Release\moc_GLGraphicsScene.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="tmp\GeneratedFiles\Debug\moc_GraphicsItem.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="tmp\GeneratedFiles\Release\moc_GraphicsItem.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GLGraphicsScene.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GLGraphicsView.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GLWidget.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GraphicsItem.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\KeyboardStatus.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MouseStatus.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UserInteractionManager.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GestureStatus.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UIMCommand.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="tmp\GeneratedFiles\Debug\moc_GLGraphicsSceneUpdater.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="tmp\GeneratedFiles\Release\moc_GLGraphicsSceneUpdater.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GLContext.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GLGraphicsSceneUpdater.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="src\GraphicsItem.h">
+      <Filter>src</Filter>
+    </CustomBuild>
+    <CustomBuild Include="src\GLWidget.h">
+      <Filter>src</Filter>
+    </CustomBuild>
+    <CustomBuild Include="src\GLGraphicsScene.h">
+      <Filter>src</Filter>
+    </CustomBuild>
+    <CustomBuild Include="src\GLGraphicsSceneUpdater.h">
+      <Filter>src</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="MakeSDK.bat" />
+  </ItemGroup>
+</Project>

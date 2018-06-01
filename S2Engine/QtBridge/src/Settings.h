@@ -1,13 +1,13 @@
 // Settings.h
 // 
-#ifndef SETTINGS_ONCE
-#define SETTINGS_ONCE
+#ifndef QTBRIDGE_SETTINGS_ONCE
+#define QTBRIDGE_SETTINGS_ONCE
 
-#include "S2QtAPI.h"
+#include "QtBridge_API.h"
 
 #include "MouseStatus.h"
 
-namespace s2Qt {
+namespace QtBridge {
 
 enum MouseButtons
 {
