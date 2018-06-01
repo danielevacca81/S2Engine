@@ -13,7 +13,11 @@
 #include "gtc/type_ptr.hpp"
 #include "gtc/type_precision.hpp"
 
-//#include "gtx/color_space.hpp"
+#ifndef GLM_ENABLE_EXPERIMENTAL
+#define GLM_ENABLE_EXPERIMENTAL
+#endif // GLM_ENABLE_EXPERIMENTAL
+
+#include "gtx/color_space.hpp"
 #include "gtx/closest_point.hpp"
 #include "gtx/gradient_paint.hpp"
 #include "gtx/io.hpp"
