@@ -9,7 +9,7 @@ mkdir %DESTFOLDER%
 mkdir %DESTFOLDER%\bin\x64\Debug
 mkdir %DESTFOLDER%\bin\x64\Release
 
-
+mkdir %DESTFOLDER%\include\
 mkdir %DESTFOLDER%\include\commandline\
 mkdir %DESTFOLDER%\include\containers\
 mkdir %DESTFOLDER%\include\events\
