@@ -8,10 +8,10 @@
 #ifdef _WIN32
 #include "Shlobj.h"
 #else
-#include <string.h>
+#include <string>
 #include <sys/types.h>
 #include <unistd.h>
-#include <limits.h>
+#include <limits>
 #endif
 
 #include <iostream>

@@ -6,8 +6,6 @@
 #include <string>
 #include <fstream>
 
-namespace s2 {
-
 // ----------------------------------------------------------------------------------------------
 inline 	void dumpTGA(const std::string &targaFilename, unsigned char *pixels, short numChannels, short w, short h)
 {
@@ -64,8 +62,5 @@ inline 	void dumpTGA(const std::string &targaFilename, unsigned char *pixels, sh
 	// Close file again
 	file.close();
 	delete [] pxl;
-}
-
-
 }
 #endif
