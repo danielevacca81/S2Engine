@@ -93,7 +93,6 @@
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\..\SDK\ExtLibs\glew-2.1.0\include;..\..\SDK\ExtLibs\glm-0.9.9.0\glm;..\..\SDK\Core\include;src</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>GLEW_STATIC;NOMINMAX;RENDERER_EXPORTS;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -114,7 +113,6 @@
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\..\SDK\ExtLibs\glew-2.1.0\include;..\..\SDK\ExtLibs\glm-0.9.9.0\glm;..\..\SDK\Core\include;src</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>GLEW_STATIC;NOMINMAX;RENDERER_EXPORTS;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -137,7 +135,6 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalIncludeDirectories>..\..\SDK\ExtLibs\glew-2.1.0\include;..\..\SDK\ExtLibs\glm-0.9.9.0\glm;..\..\SDK\Core\include;src</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>GLEW_STATIC;NOMINMAX;RENDERER_EXPORTS;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -162,7 +159,6 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalIncludeDirectories>..\..\SDK\ExtLibs\glew-2.1.0\include;..\..\SDK\ExtLibs\glm-0.9.9.0\glm;..\..\SDK\Core\include;src</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>GLEW_STATIC;NOMINMAX;RENDERER_EXPORTS;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -185,6 +181,7 @@
     <ClInclude Include="src\OpenGL\AttributeBuffer.h" />
     <ClInclude Include="src\OpenGL\BufferObject.h" />
     <ClInclude Include="src\OpenGL\Context.h" />
+    <ClInclude Include="src\opengl\Extensions.h" />
     <ClInclude Include="src\OpenGL\FrameBuffer.h" />
     <ClInclude Include="src\OpenGL\IndexBuffer.h" />
     <ClInclude Include="src\OpenGL\Mesh.h" />
@@ -236,6 +233,7 @@
     <ClCompile Include="src\OpenGL\AttributeBuffer.cpp" />
     <ClCompile Include="src\OpenGL\BufferObject.cpp" />
     <ClCompile Include="src\OpenGL\Context.cpp" />
+    <ClCompile Include="src\opengl\Extensions.cpp" />
     <ClCompile Include="src\OpenGL\FrameBuffer.cpp" />
     <ClCompile Include="src\OpenGL\IndexBuffer.cpp" />
     <ClCompile Include="src\OpenGL\Mesh.cpp" />

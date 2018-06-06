@@ -18,14 +18,7 @@ class RENDERER_API ViewState
 public:
 	enum ProjectionMode { Perspective,Orthographic };
 
-protected:
-	ProjectionMode _projectionMode;
-
 public:
-	s2::View        view;
-	Math::Rectangle viewport;
-	Math::dmat4     model;
-
 	// ------------------------------------------------------------------------------------------------
 	ViewState( const ProjectionMode &pm = Perspective )
 	: _projectionMode(pm)
@@ -75,6 +68,7 @@ public:
 	// ------------------------------------------------------------------------------------------------
 	//Math::dmat4 viewMatrix()                              const { return Math::lookAt( view.eye(), view.target(), view.up()); }
 	Math::dmat4 viewMatrix()                              const { return view.matrix(); }
+	Math::dmat3 normalMatrix()                            const { return Math::inverseTranspose( modelViewMatrix() ); }
 	Math::dmat4 perspectiveMatrix()                       const { return Math::perspective( view.fieldOfViewY(), view.aspectRatio(), view.perspectiveNearPlaneDistance(), view.perspectiveFarPlaneDistance() ); }
 	Math::dmat4 projectionMatrix()                        const { return isOrthographic() ? orthographicMatrix() : perspectiveMatrix(); }
 	Math::dmat4 modelViewMatrix()                         const { return viewMatrix() * model; }
@@ -82,9 +76,17 @@ public:
 	Math::dmat4 modelViewOrthographicMatrix()             const { return orthographicMatrix() * modelViewMatrix(); }
 
 	// ------------------------------------------------------------------------------------------------
-	double      pixelSize( const Math::dvec3 &p )                     const;
-	Math::dray  rayAt( int pxlX, int pxlY )                           const;
-	Math::dvec3 worldPoint( int pxlX, int pxlY, bool flipY = true )  const;
+	double      pixelSize( const Math::dvec3 &p ) const;
+	Math::dray  rayAt( int pxlX, int pxlY )       const;
+	Math::dvec3 worldPoint( int pxlX, int pxlY )  const;
+
+public:
+	s2::View        view;
+	Math::Rectangle viewport;
+	Math::dmat4     model;
+
+protected:
+	ProjectionMode _projectionMode;
 };
 
 }

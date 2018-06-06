@@ -61,7 +61,7 @@ bool TextRenderer::init()
 	}
 	));
 
-	_shader->compile("TextRenderer");
+	_shader->link("TextRenderer");
 	std::cout << _shader->name() << ":" << _shader->info() << std::endl;
 
 	OpenGL::Blending b;

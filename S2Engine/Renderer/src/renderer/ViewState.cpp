@@ -37,12 +37,9 @@ Math::dray  ViewState::rayAt( int pxlX, int pxlY ) const
 }
 
 // -------------------------------------------------------------------------------------
-Math::dvec3 ViewState::worldPoint( int pxlX, int pxlY, bool flipY )  const
+Math::dvec3 ViewState::worldPoint( int pxlX, int pxlY )  const
 {
 	Math::dvec3 t(pxlX,pxlY,0);
-
-	if( flipY )
-		t.y = viewport.height() - pxlY - 1;
 
 	const Math::ivec4 vp( viewport.left(),viewport.bottom(),viewport.width(),viewport.height() );
 

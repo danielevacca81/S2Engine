@@ -13,17 +13,9 @@ namespace s2 {
 
 class RENDERER_API Camera
 {
-protected:
-	//Math::dquat _orientation;
-	Math::dvec3 _position;
-	Math::dvec3 _target;
-	Math::dvec3 _up;
-	//Math::dvec3 _pivot;
-	double      _targetRadius;
-
 public:
 	Camera();
-	~Camera();
+	virtual ~Camera();
 
 	Math::dvec3 position()      const;
 	Math::dvec3 target()        const;
@@ -45,6 +37,14 @@ public:
 	void fitSphere( const Math::dvec3 &center, double radius );
 	void fitBoundingBox( const Math::box3 &box );
 	void fitScreenRegion( const Math::Rectangle &rectangle );
+
+protected:
+	//Math::dquat _orientation;
+	Math::dvec3 _position;
+	Math::dvec3 _target;
+	Math::dvec3 _up;
+	//Math::dvec3 _pivot;
+	double      _targetRadius;
 };
 
 }

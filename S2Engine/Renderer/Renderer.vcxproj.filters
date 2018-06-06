@@ -157,6 +157,9 @@
       <Filter>src\opengl</Filter>
     </ClInclude>
     <ClInclude Include="src\Renderer_API.h" />
+    <ClInclude Include="src\opengl\Extensions.h">
+      <Filter>src\opengl</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\OpenGL\Program.cpp">
@@ -232,6 +235,9 @@
       <Filter>src\opengl</Filter>
     </ClCompile>
     <ClCompile Include="..\..\ExtLibs\glew-2.1.0\src\glew.c">
+      <Filter>src\opengl</Filter>
+    </ClCompile>
+    <ClCompile Include="src\opengl\Extensions.cpp">
       <Filter>src\opengl</Filter>
     </ClCompile>
   </ItemGroup>

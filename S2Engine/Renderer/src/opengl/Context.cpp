@@ -2,7 +2,8 @@
 //
 #include "Context.h"
 
-#include "OpenGL/OpenGL.h"
+#include "opengl/OpenGL.h"
+#include "opengl/Extensions.h"
 
 #include <windows.h>
 
@@ -85,19 +86,19 @@ void Context::destroy()
 // ------------------------------------------------------------------------------------------------
 bool Context::initExtensions()
 {
-	return OpenGL::glInitExtensions();
+	return OpenGL::initExtensions();
 }
 
 // ------------------------------------------------------------------------------------------------
 std::vector<std::string> Context::extensions() const
 {
-	return OpenGL::glExtensions();
+	return OpenGL::extensions();
 }
 
 // ------------------------------------------------------------------------------------------------
 std::string Context::info() const
 {
-	return OpenGL::glContextInfo();
+	return OpenGL::contextInfo();
 }
 
 

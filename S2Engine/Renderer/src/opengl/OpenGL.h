@@ -26,14 +26,7 @@ namespace OpenGL{
 	#define glValidate      true
 #endif
 
-std::vector<std::string> RENDERER_API glExtensions();
-bool                     RENDERER_API glInitExtensions();
-std::string              RENDERER_API glContextInfo();
 void                     RENDERER_API glCheckError(const char* file, unsigned line);
-bool                     RENDERER_API glSupportMemoryQuery();
-int                      RENDERER_API glGetFreeMemory();
-int                      RENDERER_API glGetTotalMemory();
-int                      RENDERER_API glGetDedicatedTotalMemory();
 
 }
 

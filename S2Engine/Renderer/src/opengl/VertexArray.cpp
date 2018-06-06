@@ -8,7 +8,7 @@
 
 using namespace OpenGL;
 
-static int maxVertexAttrib = 0;
+static int maxVertexAttrib = 16;
 
 //-------------------------------------------------------------------------------------------------
 VertexArray::VertexArray()
@@ -26,13 +26,16 @@ VertexArray::VertexArray()
 //-------------------------------------------------------------------------------------------------
 VertexArray::~VertexArray()
 {
-	//glDeleteVertexArrays(1, &_id );
+	glDeleteVertexArrays(1, &_id );
 }
 
 //-------------------------------------------------------------------------------------------------
 void VertexArray::bind() const
 {
-	//glBindVertexArray( _id ); // opengl >= 3.0
+	if( _id == 0 )
+		glGenVertexArrays( 1, &_id );
+
+	glBindVertexArray( _id ); // opengl >= 3.0
 
 	if( _indexBuffer.isValid() )
 		_indexBuffer.bind();

@@ -28,11 +28,11 @@ public:
 	bool attachFragmentShader( const std::string &fragmentSource );
 	bool attachGeometryShader( const std::string &geometrySource );
 
-	bool compile( const std::string &name = std::string("") );
+	bool link( const std::string &name = std::string("") );
 
 	bool isValid()     const;
 	bool isLinked()    const;
-	std::string info() const;
+	std::string info( bool verbose = false ) const;
 	std::string name() const;
 	bool operator==( const Program &) const;
 	bool operator!=( const Program &) const;
@@ -43,7 +43,7 @@ public:
 	//Uniform *uniform( const std::string &name );
 	
 	template< typename T >
-	inline UniformValue<T> *uniform( const std::string &name )
+	inline UniformValue<T> *uniform( const std::string &name ) const
 	{
 		auto it = _uniforms.find(name);
 
@@ -69,6 +69,7 @@ protected:
 	unsigned int _progID;
 	bool         _linked;
 	std::string  _name;
+	std::string  _compileMessage;
 
 	std::map< std::string, unsigned int > _attributes;
 	std::map< std::string, Uniform*>       _uniforms;

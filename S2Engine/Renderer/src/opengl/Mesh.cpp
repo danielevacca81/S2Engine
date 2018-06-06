@@ -4,6 +4,12 @@
 
 using namespace OpenGL;
 
+// ------------------------------------------------------------------------------------------------
+// Mesh Attribute location:
+//	 (0) vertices
+//   (1) colors
+//   (2) normals
+//   (3) texture coords
 
 // ------------------------------------------------------------------------------------------------
 Mesh::Mesh()
@@ -55,6 +61,7 @@ void Mesh::setTextureCoords( const std::vector<Math::vec2>  &texCoords)
 // ------------------------------------------------------------------------------------------------
 //void Mesh::setAttribute( int attribID, void *data, int elementsCount, AttributeBuffer::ComponentDatatype dataType, int componentsCount )
 //{
+// @tbd (
 //	VertexBuffer vb;
 //	vb.set( elementsCount * dataType * componentsCount, BufferObject::StaticDraw );
 //	vb.sendData( data, elementsCount * dataType * componentsCount, 0 );

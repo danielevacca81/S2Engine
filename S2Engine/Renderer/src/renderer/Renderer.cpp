@@ -10,7 +10,7 @@
 using namespace OpenGL;
 
 #define SHADOWING 0
-#define OPENGL_DEPRECATED 
+//#define OPENGL_DEPRECATED
 
 static void enable( GLenum cap, bool enabled )
 {
@@ -374,9 +374,9 @@ void Renderer::applyViewState( const ViewState &vs )
 	glMatrixMode( GL_PROJECTION );
 	glLoadMatrixd( Math::value_ptr( vs.projectionMatrix() ) );
 	glMatrixMode( GL_MODELVIEW );
+#endif
 
 	_viewState = vs;
-#endif
 }
 
 // ------------------------------------------------------------------------------------------------

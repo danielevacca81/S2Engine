@@ -11,23 +11,6 @@ namespace s2 {
 
 class RENDERER_API View
 {
-private:
-	Math::dmat4 _matrix;    // world to view matrix
-	
-	double      _fovY;
-	double      _aspectRatio;
-	double      _perspectiveNearDistance;
-	double      _perspectiveFarDistance;
-	
-	double      _orthographicNearDistance;
-	double      _orthographicFarDistance;
-	double      _orthographicLeft;
-	double      _orthographicRight;
-	double      _orthographicBottom;
-	double      _orthographicTop;
-
-	Math::dvec3 computeEyePosition( const Math::dmat4 &m ) const;
-	
 public:
 	View();
 	~View();
@@ -71,6 +54,25 @@ public:
 	double      orthographicTop()               const { return _orthographicTop;    }
 
 	//void        zoomToTarget( double targetRadius ); // move to camera
+
+private:
+	Math::dvec3 computeEyePosition( const Math::dmat4 &m ) const;
+
+private:
+	Math::dmat4 _matrix;    // world to view matrix
+	
+	double      _fovY;
+	double      _aspectRatio;
+	double      _perspectiveNearDistance;
+	double      _perspectiveFarDistance;
+	
+	double      _orthographicNearDistance;
+	double      _orthographicFarDistance;
+	double      _orthographicLeft;
+	double      _orthographicRight;
+	double      _orthographicBottom;
+	double      _orthographicTop;
+
 };
 
 }

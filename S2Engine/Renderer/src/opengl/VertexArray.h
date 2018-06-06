@@ -18,7 +18,7 @@ namespace OpenGL {
 /************************************************************************************************/
 /*                                       VertexArray                                            */
 /************************************************************************************************/
-class RENDERER_API VertexArray// : public std::enable_shared_from_this<VertexArray>
+class RENDERER_API VertexArray
 {
 public:
 	VertexArray();
@@ -33,7 +33,7 @@ public:
 	void bind() const;
 
 private:
-	unsigned int _id; // opengl > 3.0
+	mutable unsigned int _id; // opengl > 3.0
 
 	mutable std::vector<AttributeBuffer> _attributes;
 	mutable IndexBuffer                  _indexBuffer; //optional

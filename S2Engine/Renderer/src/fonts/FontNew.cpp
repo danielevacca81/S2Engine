@@ -12,8 +12,6 @@
 #include "ftoutln.h"
 #include "fttrigon.h"
 
-using namespace s2;
-
 // Global fonts collection
 FontsLibrary::FontCollection FontsLibrary::_fonts;
 

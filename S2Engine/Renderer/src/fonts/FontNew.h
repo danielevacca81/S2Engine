@@ -11,8 +11,6 @@
 #include <map>
 #include <memory>
 
-namespace s2 {
-
 class Font;
 typedef std::shared_ptr<Font> FontPtr;
 
@@ -88,7 +86,6 @@ public:
 
 };
 
-}
 
 #endif
 
