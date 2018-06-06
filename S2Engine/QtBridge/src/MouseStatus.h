@@ -15,6 +15,20 @@ class QGraphicsSceneWheelEvent;
 
 namespace QtBridge {
 
+/*
+	"Alt",         MouseStatus::ModifierAlt
+	"Ctrl",        MouseStatus::ModifierCtrl
+	"Shift",       MouseStatus::ModifierShift
+	"LeftButton",  MouseStatus::ButtonLeft
+	"RightButton", MouseStatus::ButtonRight
+	"MidButton",   MouseStatus::ButtonMiddle
+	"DoubleClick", MouseStatus::DoubleClick
+	"Moving",      MouseStatus::Moving
+	"Drag",        MouseStatus::Drag
+	"Wheel",       MouseStatus::Wheel
+	"Released",    MouseStatus::Released
+*/
+
 class QTBRIDGE_API MouseStatus
 {
 public:

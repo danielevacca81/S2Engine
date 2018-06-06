@@ -165,9 +165,9 @@ unsigned int MouseStatus::getCode() const
 	if( _pressedButton & ButtonRight  )           code |= ButtonRight;
 	if( _pressedButton & ButtonMiddle )           code |= ButtonMiddle;
 	
-	if( _releasedButton & ButtonLeft   && !_dragging) code |= ButtonLeft|Released;
-	if( _releasedButton & ButtonRight  && !_dragging) code |= ButtonRight|Released;
-	if( _releasedButton & ButtonMiddle && !_dragging) code |= ButtonMiddle|Released;
+	if( _releasedButton & ButtonLeft   ) code |= ButtonLeft|Released;
+	if( _releasedButton & ButtonRight  ) code |= ButtonRight|Released;
+	if( _releasedButton & ButtonMiddle ) code |= ButtonMiddle|Released;
 	
 	if( _pressedButton & ButtonAny   && _moving ) code |= Drag;
 	if( _pressedButton == ButtonNone && _moving ) code |= Moving;
