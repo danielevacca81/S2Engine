@@ -62,6 +62,7 @@ protected:
 
 private slots:
 	void onResize( const QRectF &r );
+	virtual void initializeOpenGL();
 
 protected:
 	friend class GLSceneUpdateThread;

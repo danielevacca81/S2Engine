@@ -31,9 +31,6 @@
     <ClInclude Include="src\MouseStatus.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="src\Settings.h">
-      <Filter>src</Filter>
-    </ClInclude>
     <ClInclude Include="src\UserInteractionManager.h">
       <Filter>src</Filter>
     </ClInclude>
@@ -101,6 +98,12 @@
     </ClCompile>
     <ClCompile Include="src\GLGraphicsSceneUpdater.cpp">
       <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="tmp\GeneratedFiles\Debug\moc_GLWidget.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="tmp\GeneratedFiles\Release\moc_GLWidget.cpp">
+      <Filter>Generated Files\Release</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

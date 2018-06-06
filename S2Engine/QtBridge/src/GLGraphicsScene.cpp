@@ -22,6 +22,7 @@ using namespace QtBridge;
 
 // -----------------------------------------------------------------------------------------------
 GLGraphicsScene::GLGraphicsScene( QWidget *parent )
+//: _glWidget( new GLWidget( parent ) )
 : _glWidget( new GLWidget( parent ) )
 , _centralWidget( new QGraphicsWidget )
 {
@@ -31,13 +32,19 @@ GLGraphicsScene::GLGraphicsScene( QWidget *parent )
 
 	QGraphicsScene::addItem( _centralWidget );
 
-	connect( this, SIGNAL( sceneRectChanged( const QRectF& ) ), SLOT( onResize( const QRectF& ) ) );
+	connect( this, &GLGraphicsScene::sceneRectChanged, this, &GLGraphicsScene::onResize );
+	connect( static_cast<GLWidget*>( _glWidget ), &GLWidget::openGLInitialized, this, &GLGraphicsScene::initializeOpenGL );
 }
 
 // -----------------------------------------------------------------------------------------------
 GLGraphicsScene::~GLGraphicsScene()
 {
-	delete _sceneUpdater;
+	delete _sceneUpdater; // needed?
+}
+
+// -----------------------------------------------------------------------------------------------
+void GLGraphicsScene::initializeOpenGL()
+{
 }
 
 // -----------------------------------------------------------------------------------------------
@@ -130,7 +137,7 @@ void GLGraphicsScene::onMouseLeave() {}
 // -----------------------------------------------------------------------------------------------
 bool GLGraphicsScene::event( QEvent *e )
 {
-	makeCurrent();
+	//makeCurrent();
 
 
 	if( e->type() == QEvent::Enter )
@@ -152,7 +159,7 @@ bool GLGraphicsScene::event( QEvent *e )
 // -----------------------------------------------------------------------------------------------
 void GLGraphicsScene::mousePressEvent( QGraphicsSceneMouseEvent *e )
 {
-	makeCurrent();
+	//makeCurrent();
 	
 	// Propagate event to graphics items
 	QGraphicsScene::mousePressEvent( e );
@@ -168,7 +175,7 @@ void GLGraphicsScene::mousePressEvent( QGraphicsSceneMouseEvent *e )
 // -----------------------------------------------------------------------------------------------
 void GLGraphicsScene::mouseMoveEvent( QGraphicsSceneMouseEvent *e )
 {
-	makeCurrent();
+	//makeCurrent();
 	//auto listView = views();
 	//bool track = listView.at( 0 )->hasMouseTracking();
 	
@@ -188,7 +195,7 @@ void GLGraphicsScene::mouseMoveEvent( QGraphicsSceneMouseEvent *e )
 // -----------------------------------------------------------------------------------------------
 void GLGraphicsScene::mouseReleaseEvent( QGraphicsSceneMouseEvent *e )
 {
-	makeCurrent();
+	//makeCurrent();
 	
 	// Propagate event to graphics items
 	QGraphicsScene::mouseReleaseEvent( e );
@@ -206,7 +213,7 @@ void GLGraphicsScene::mouseReleaseEvent( QGraphicsSceneMouseEvent *e )
 // -----------------------------------------------------------------------------------------------
 void GLGraphicsScene::wheelEvent( QGraphicsSceneWheelEvent *e )
 {
-	makeCurrent();
+	//makeCurrent();
 	
 	QGraphicsScene::wheelEvent( e );
 	
@@ -232,7 +239,7 @@ bool GLGraphicsScene::gestureEvent( QGestureEvent *event )
 // -----------------------------------------------------------------------------------------------
 void GLGraphicsScene::mouseDoubleClickEvent( QGraphicsSceneMouseEvent *e )
 {
-	makeCurrent();
+	//makeCurrent();
 	
 	QGraphicsScene::mouseDoubleClickEvent( e );
 
@@ -252,7 +259,7 @@ void GLGraphicsScene::contextMenuEvent( QGraphicsSceneContextMenuEvent *e ) {}
 // -----------------------------------------------------------------------------------------------
 void GLGraphicsScene::keyPressEvent( QKeyEvent *e )
 {
-	makeCurrent();
+	//makeCurrent();
 	
 	QGraphicsScene::keyPressEvent( e );
 	if( e->isAccepted() )
@@ -264,7 +271,7 @@ void GLGraphicsScene::keyPressEvent( QKeyEvent *e )
 // -----------------------------------------------------------------------------------------------
 void GLGraphicsScene::keyReleaseEvent( QKeyEvent *e )
 {
-	makeCurrent();
+	//makeCurrent();
 	
 	QGraphicsScene::keyReleaseEvent( e );
 	if( e->isAccepted() )
@@ -276,5 +283,5 @@ void GLGraphicsScene::keyReleaseEvent( QKeyEvent *e )
 // -----------------------------------------------------------------------------------------------
 void GLGraphicsScene::makeCurrent()
 {
-	static_cast<GLWidget*>( _glWidget )->makeCurrent();
+	static_cast<QOpenGLWidget*>( _glWidget )->makeCurrent();
 }

@@ -6,36 +6,39 @@
 
 using namespace QtBridge;
 
-// ------------------------------------------------------------------------------------------------
-// ------------------------------------------------------------------------------------------------
-static QGLWidget *gSharedGLWidget = Q_NULLPTR;
-static QGLWidget *getSharedGLWidget()
-{
-    if( !gSharedGLWidget )
-    {
-        QGLFormat f = QGLFormat::defaultFormat();
-		f.setDoubleBuffer( true );
-		f.setSampleBuffers( true );
-        f.setAlpha( true );
-        QGLFormat::setDefaultFormat( f );
 
-        gSharedGLWidget = new QGLWidget( f );
-    }
-    return gSharedGLWidget;
-}
+//QSurfaceFormat format;
+//format.setDepthBufferSize(24);
+//format.setStencilBufferSize(8);
+//format.setVersion(3, 2);
+//format.setProfile(QSurfaceFormat::CoreProfile);
+//widget->setFormat(format); // must be called before the widget or its parent window gets shown
+
+// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
+//static QGLWidget *gSharedGLWidget = Q_NULLPTR;
+//static QGLWidget *getSharedGLWidget()
+//{
+//    if( !gSharedGLWidget )
+//    {
+//        QGLFormat f = QGLFormat::defaultFormat();
+//		f.setDoubleBuffer( true );
+//		f.setSampleBuffers( true );
+//        f.setAlpha( true );
+//        QGLFormat::setDefaultFormat( f );
+//
+//        gSharedGLWidget = new QGLWidget( f );
+//    }
+//    return gSharedGLWidget;
+//}
 
 
 // ------------------------------------------------------------------------------------------------
 GLWidget::GLWidget( QWidget *parent )
-: QGLWidget( parent, getSharedGLWidget() )
+: QOpenGLWidget( parent )//, getSharedGLWidget() )
 {
     makeCurrent();
-
-	std::wcout << "OpenGL Version "    << format().majorVersion() << "." << format().minorVersion() << std::endl;
-	std::wcout << "   Doublebuffer: "  << format().doubleBuffer() << std::endl;
-	std::wcout << "   Stencilbuffer: " << format().stencil() << std::endl;
-	std::wcout << "   SampleBuffers: " << format().sampleBuffers() << std::endl;
-	std::wcout << std::endl;
+	auto  c = context();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -45,7 +48,8 @@ GLWidget::~GLWidget()
 // ------------------------------------------------------------------------------------------------
 void GLWidget::initializeGL()
 {
-    //OpenGL::glDumpContextInfo();
+	QOpenGLWidget::initializeGL();
+	emit openGLInitialized();
 }
 
 // ------------------------------------------------------------------------------------------------
