@@ -2,9 +2,7 @@
 //
 #pragma once
 
-#include "S2Qt/GLGraphicsScene.h"
-
-#include "VObjects/VObjectManager.h"
+#include "qtbridge/GLGraphicsScene.h"
 
 #include "Renderer/Renderer.h"
 #include "OpenGL/VertexArray.h"
@@ -16,15 +14,44 @@
 #include "OpenGL/Program.h"
 
 
-class TestScene : public s2Qt::GLGraphicsScene
+class TestScene : public QtBridge::GLGraphicsScene
 {
-private:
+public:
+	TestScene( QWidget *parent );
+	~TestScene();
 
+	void postInitialization();
+
+	void toggleWireframe();
+
+	void resizeScene( int w, int h ) override;
+	void renderScene() override;
+	void refreshScene() override;
+
+
+private:
+	void onMousePressed();
+	void onMouseReleased();
+	void onMouseMoved();
+	void onMouseWheel();
+	void onMouseDoubleClick();
+
+	//void initContext();
+	void initShaders();
+	void initFonts();
+
+	void createMeshes();
+	void createObjects();
+
+private slots:
+	void initializeOpenGL() override;
+
+
+private:
+	bool              _wireframe;
 
 	OpenGL::Renderer  _renderer;
 	OpenGL::ViewState _viewState;
-
-	s2::VObjectManager _objectManager;
 	
 	s2::TrackBall     _trackball;
 	s2::TextRenderer  _textRenderer;
@@ -35,40 +62,9 @@ private:
 	//Math::dvec3 _up;
 
 	//OpenGL::DrawState  _drawState;
-	OpenGL::Context    _context;
-	OpenGL::ProgramPtr _shader;
-	OpenGL::Mesh        _cubeMesh;
-
-	bool _wireframe;
-
-	void initContext();
-	void initShaders();
-	void initFonts();
-
-	void createMeshes();
-	void createObjects();
-
-public:
-	TestScene( QWidget *parent );
-	~TestScene();
-
-	void postInitialization();
-
-	//CadEngine *cadEngine() { return _cadEngine; }
-
-	//void rotateScene( double degrees );
-	//void zoomScene();
-	//void translateScene();
-	//void confirm();
-	void toggleWireframe();
-
-	void drawBackground( QPainter *painter, const QRectF &rect );
-
-	void resizeScene( int w, int h );
-
-	void onMousePressed();
-	void onMouseReleased();
-	void onMouseMoved();
-	void onMouseWheel();
-	void onMouseDoubleClick();
+	//OpenGL::Context    _context;
+	OpenGL::ProgramPtr _shaderBlinnPhong;
+	OpenGL::ProgramPtr _shaderSimple;
+	OpenGL::Mesh       _cubeMesh;
+	OpenGL::Mesh       _triangle;
 };

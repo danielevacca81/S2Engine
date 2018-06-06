@@ -1,5 +1,4 @@
 #version 120
-
 attribute vec3 in_Vertex;
 attribute vec4 in_Color;
 attribute vec3 in_Normal;

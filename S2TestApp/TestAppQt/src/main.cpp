@@ -4,34 +4,45 @@
 //#define ENABLE_MEMORY_LEAKS_DETECTION
 //#endif
 
-#include <QtGui/QApplication>
+#include <QApplication>
 
+#include "qtbridge/GLContext.h"
 #include "GUI/MainWindow.h"
-#include "Resources/R.h"
+#include "resources/R.h"
 
-#include "Win32/MemCheck.h"
-#include "Win32/Win32.h"
+#include <Windows.h>
 
 #include <iostream>
 
 int main( int argc, char *argv[] )
 {
-	Win32::enableMemoryLeakDetection();
-	//Win32::enableCrashReport();
-	
+//****************************************
+	AllocConsole();
+
+	FILE* fp;
+	freopen_s(&fp, "CONOUT$", "w", stdout);
+
+	std::cout.clear();
+	std::wcout.clear();
+//****************************************
+	//QtBridge::createOpenGLContext( 4, 5, true );
+
+
+	//Win32::enableMemoryLeakDetection();
+	//Win32::enableCrashReport();	
 	int ret = 0;
 	
-	R::init();
-	{
+	//R::init();
+	{		
 		QApplication a(argc, argv);
 
 		MainWindow w;
 		w.show();
 		ret = a.exec();
 	}
-	R::free();
+	//R::free();
 	
-	Win32::dumpMemoryLeaks();
+	//Win32::dumpMemoryLeaks();
 	
 	return ret;
 }

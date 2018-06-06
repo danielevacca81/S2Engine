@@ -1,5 +1,4 @@
 #version 120
-
 uniform vec4  u_LightPosition;
 uniform vec4  u_LightAmbient;
 uniform vec4  u_LightDiffuse;
