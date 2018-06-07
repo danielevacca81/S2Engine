@@ -20,6 +20,8 @@
 #include <regex>
 #include <experimental/filesystem>
 
+namespace s2 {
+
 namespace FileSystem {
 
 // ------------------------------------------------------------------------------------------------
@@ -213,9 +215,9 @@ FileInfoList _doIterRecursive( const std::wstring &dirPath, const ContentsType &
 */
 FileInfoList dirContents( const std::wstring &dirPath, bool recursive, const ContentsType &contents, const FileFilterType &filterType, const std::wstring &filter, std::error_code& ec )
 {
-	
+
 	if( std::experimental::filesystem::is_directory( dirPath, ec ) )
-		return recursive 
+		return recursive
 		? _doIterRecursive( dirPath, contents, filterType, filter, ec )
 		: _doIter( dirPath, contents, filterType, filter, ec );
 
@@ -501,6 +503,8 @@ std::wstring exeLocation()
 #endif
 
 	return _dir;
+}
+
 }
 
 }

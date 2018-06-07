@@ -15,8 +15,10 @@
 
 #define BUFFER_OFFSET(i) ((void*)(i))
 
-namespace OpenGL
-{
+
+namespace s2 {
+
+namespace OpenGL {
 /************************************************************************************************/
 /*                                          IndexBuffer                                         */
 /************************************************************************************************/
@@ -30,7 +32,7 @@ unsigned int glWrap( const AttributeBuffer::ComponentDatatype &datatype );
 /************************************************************************************************/
 /*                                        VertexBufferObject                                    */
 /************************************************************************************************/
-unsigned int glWrap( const BufferObject::BufferUsageHint &hint);
+unsigned int glWrap( const BufferObject::BufferUsageHint &hint );
 unsigned int glWrap( const BufferObject::BufferType      &type );
 unsigned int glWrap( const BufferObject::BufferMapMode   &mode );
 
@@ -61,13 +63,14 @@ unsigned int glWrap( const DepthTest::DepthTestFunction         &winding );
 unsigned int glWrap( const Blending::BlendingFactor             &factor );
 unsigned int glWrap( const Blending::BlendEquation              &equation );
 unsigned int glWrap( const ClearBuffers                         &buffers );
-unsigned int glWrap( const RenderState::RasterizationMode       &mode);
+unsigned int glWrap( const RenderState::RasterizationMode       &mode );
 
 /************************************************************************************************/
 /*                                            Primitive                                         */
 /************************************************************************************************/
 unsigned int glWrap( const PrimitiveType &primitive );
 
+}
 }
 
 #endif

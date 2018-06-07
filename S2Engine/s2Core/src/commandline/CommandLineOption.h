@@ -8,14 +8,16 @@
 #include <string>
 #include <vector>
 
+namespace s2 {
+
 class S2CORE_API CommandLineOption
 {
 public:
 	CommandLineOption( const std::string &name, const std::vector<std::string> &parameters = std::vector<std::string>() )
-	: _name( name )
-	, _parameters(parameters)
+		: _name( name )
+		, _parameters( parameters )
 	{}
-	
+
 	~CommandLineOption()
 	{};
 
@@ -27,5 +29,6 @@ private:
 	std::vector<std::string> _parameters;
 };
 
+}
 
 #endif

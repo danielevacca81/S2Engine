@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-using namespace s2Qt;
+using namespace s2::Qt;
 
 
 //QSurfaceFormat format;

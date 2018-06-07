@@ -7,7 +7,7 @@
 
 #include <cmath>
 
-using namespace s2Qt;
+using namespace s2::Qt;
 
 // ------------------------------------------------------------------------------------------------
 MouseStatus::MouseStatus()
@@ -26,24 +26,24 @@ MouseStatus::Status MouseStatus::getButton( QGraphicsSceneEvent *e ) const
 		return Status( ButtonNone );
 
 	int btn               = ButtonNone;
-	Qt::MouseButton qtbtn = static_cast<QGraphicsSceneMouseEvent*>(e)->button();
+	::Qt::MouseButton qtbtn = static_cast<QGraphicsSceneMouseEvent*>(e)->button();
 
-	if( qtbtn & Qt::LeftButton )  btn |= ButtonLeft;
-	if( qtbtn & Qt::RightButton ) btn |= ButtonRight;
-	if( qtbtn & Qt::MidButton )   btn |= ButtonMiddle;
+	if( qtbtn & ::Qt::LeftButton )  btn |= ButtonLeft;
+	if( qtbtn & ::Qt::RightButton ) btn |= ButtonRight;
+	if( qtbtn & ::Qt::MidButton )   btn |= ButtonMiddle;
 
 	return Status(btn);
 }
 
 // -----------------------------------------------------------------------------------------------
-MouseStatus::Status MouseStatus::getModifier( const Qt::KeyboardModifiers &kbMod ) const
+MouseStatus::Status MouseStatus::getModifier( const ::Qt::KeyboardModifiers &kbMod ) const
 {
 	int mod = ModifierNone;
 
-	if( kbMod & Qt::ShiftModifier )	  mod |= ModifierShift;
-	if( kbMod & Qt::ControlModifier ) mod |= ModifierCtrl;
-	if( kbMod & Qt::AltModifier )	  mod |= ModifierAlt;
-	if( kbMod & Qt::MetaModifier )	  mod |= ModifierMeta;
+	if( kbMod & ::Qt::ShiftModifier )	mod |= ModifierShift;
+	if( kbMod & ::Qt::ControlModifier ) mod |= ModifierCtrl;
+	if( kbMod & ::Qt::AltModifier )	    mod |= ModifierAlt;
+	if( kbMod & ::Qt::MetaModifier )	mod |= ModifierMeta;
 	
 	return Status(mod);
 }

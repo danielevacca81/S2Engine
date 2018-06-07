@@ -6,6 +6,8 @@
 #include <string>
 #include <memory>
 
+namespace s2 {
+
 template<typename T>
 class ImageBuffer
 {
@@ -45,6 +47,8 @@ private:
 
 template< typename T >
 using ImageBufferPtr = std::shared_ptr< ImageBuffer<T> >;
+
+}
 
 #include "ImageBuffer.hpp"
 

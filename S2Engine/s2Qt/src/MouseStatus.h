@@ -13,7 +13,10 @@ class QGraphicsSceneEvent;
 class QGraphicsSceneMouseEvent;
 class QGraphicsSceneWheelEvent;
 
-namespace s2Qt {
+namespace s2 {
+
+namespace Qt {
+
 
 /*
 	"Alt",         MouseStatus::ModifierAlt
@@ -70,19 +73,19 @@ public:
 	// -----------------------------------------------------------------------------------------------
 	double       wheel()            const { return _wheel; }
 	bool         isMoving()         const { return _moving; }
-	bool         isDragging()       const { return _dragging;}
-	Math::ivec2  currentPosition()  const { return Math::ivec2( _currPos.x(),_currPos.y() ); }
-    Math::ivec2  previousPosition() const { return Math::ivec2( _prevPos.x(), _prevPos.y() ); }
-	int          buttonDown()       const { return _pressedButton;}
-	int          buttonUp()         const { return _releasedButton;}
+	bool         isDragging()       const { return _dragging; }
+	Math::ivec2  currentPosition()  const { return Math::ivec2( _currPos.x(), _currPos.y() ); }
+	Math::ivec2  previousPosition() const { return Math::ivec2( _prevPos.x(), _prevPos.y() ); }
+	int          buttonDown()       const { return _pressedButton; }
+	int          buttonUp()         const { return _releasedButton; }
 	int          modifiers()        const { return _keyModifier; }
 	unsigned int getCode()          const;
 	// -----------------------------------------------------------------------------------------------
 
 
 private:
-	Status getButton  ( QGraphicsSceneEvent *e ) const;
-	Status getModifier( const Qt::KeyboardModifiers &kbMod ) const;
+	Status getButton( QGraphicsSceneEvent *e ) const;
+	Status getModifier( const ::Qt::KeyboardModifiers &kbMod ) const;
 
 	QPointF	_currPos;
 	QPointF	_prevPos;
@@ -97,6 +100,7 @@ private:
 	int		_keyModifier;
 };
 
+}
 }
 
 #endif

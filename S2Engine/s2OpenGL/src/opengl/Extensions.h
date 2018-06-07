@@ -8,9 +8,8 @@
 #include <string>
 #include <vector>
 
-
-namespace OpenGL
-{
+namespace s2 {
+namespace OpenGL {
 
 std::vector<std::string> S2OPENGL_API extensions();
 bool                     S2OPENGL_API initExtensions();
@@ -20,7 +19,7 @@ int                      S2OPENGL_API getFreeMemory();
 int                      S2OPENGL_API getTotalMemory();
 int                      S2OPENGL_API getDedicatedTotalMemory();
 
-}
+}}
 
 #endif // !RENDERER_EXTENSIONS_H
 

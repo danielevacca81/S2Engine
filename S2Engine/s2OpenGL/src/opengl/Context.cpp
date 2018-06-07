@@ -10,7 +10,9 @@
 #include <string>
 #include <iostream>
 
-using namespace OpenGL;
+using namespace s2;
+
+using namespace s2::OpenGL;
 
 // ------------------------------------------------------------------------------------------------
 Context::Context( void *winID )

@@ -7,13 +7,15 @@
 
 #include "Uniform.h"
 
+namespace s2 {
+
 namespace OpenGL {
 
-class S2OPENGL_API UniformInt : public UniformValue<int>
+class S2OPENGL_API UniformInt: public UniformValue<int>
 {
 public:
 	UniformInt( int location, const std::string  &name )
-	: UniformValue<int>( location,name )
+		: UniformValue<int>( location, name )
 	{}
 
 	virtual ~UniformInt()
@@ -21,6 +23,8 @@ public:
 
 	void set();
 };
+
+}
 
 }
 #endif

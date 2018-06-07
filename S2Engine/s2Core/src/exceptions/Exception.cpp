@@ -10,6 +10,8 @@
 #include <iostream>
 #include <memory>
 
+namespace s2 {
+
 typedef std::shared_ptr<Exception> ExceptionPtr;
 
 //#define _VERBOSE
@@ -23,7 +25,7 @@ class ExceptionHandler
 public:
 	//---------------------------------------------------------------------------------------------
 	ExceptionHandler()
-	: _running( false )
+		: _running( false )
 	{}
 
 	//---------------------------------------------------------------------------------------------
@@ -98,19 +100,19 @@ private:
 			{
 				std::rethrow_exception( e->_exceptionPtr );
 			}
-			catch (...)
+			catch( ... )
 			{
 				Event::Priority priority;
-				switch (e->_severity)
+				switch( e->_severity )
 				{
 				case Exception::Severity::Critical: priority = Event::Priority::Critical; break;
-				case Exception::Severity::Warning:  
+				case Exception::Severity::Warning:
 				default:                            priority = Event::Priority::Warning;  break;
 				}
 #ifdef _VERBOSE
 				std::cout << e->_message << " " << e->_details << std::endl;
 #endif
-				EventHandler::addEvent(priority, e->_moduleName, e->_message, e->_details, e->_timestamp);
+				EventHandler::addEvent( priority, e->_moduleName, e->_message, e->_details, e->_timestamp );
 			}
 		} while( !empty );
 	}
@@ -132,22 +134,24 @@ Exception::Exception(
 	const Severity& severity,
 	const std::string& moduleName,
 	const std::string& msg,
-	const std::string& details)
-: _exceptionPtr( std::current_exception() )
-, _message(msg)
-, _details(details)
-, _moduleName(moduleName)
-, _severity(severity)
+	const std::string& details )
+	: _exceptionPtr( std::current_exception() )
+	, _message( msg )
+	, _details( details )
+	, _moduleName( moduleName )
+	, _severity( severity )
 {
-	_timestamp = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-} 
+	_timestamp = std::chrono::system_clock::to_time_t( std::chrono::system_clock::now() );
+}
 
 //----------------------------------------------------------------------------------------------
 void Exception::create(
 	const Severity& severity,
 	const std::string& moduleName,
 	const std::string& msg,
-	const std::string& details)
+	const std::string& details )
 {
 	gExceptionHandler.enqueue( Exception( severity, moduleName, msg, details ) );
+}
+
 }

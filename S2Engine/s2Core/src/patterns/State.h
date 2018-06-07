@@ -17,10 +17,6 @@ class S2CORE_API StateChange
 template< int N >
 class S2CORE_API State
 {
-private:
-	std::bitset<N>         _state;
-	mutable std::bitset<N> _changes;
-
 public:
 	// ----------------------------------------------------------------------------------------
 	State()  { clear(); }
@@ -67,6 +63,10 @@ public:
 	// ----------------------------------------------------------------------------------------
 	bool  changes( const StateChange &sc ) const    { return _changes.at(sc); }
 	bool  isEmpty()                        const    { return _state.none();   }
+
+private:
+	std::bitset<N>         _state;
+	mutable std::bitset<N> _changes;
 };
 
 }

@@ -13,7 +13,17 @@
 
 #include <vector>
 
+namespace s2 {
+
 namespace OpenGL {
+
+// ------------------------------------------------------------------------------------------------
+// Mesh Attribute location:
+//	 (0) vertices
+//   (1) colors
+//   (2) normals
+//   (3) texture coords
+
 
 class S2OPENGL_API Mesh
 {
@@ -61,5 +71,6 @@ private:
 	friend class Renderer;
 };
 
+}
 }
 #endif

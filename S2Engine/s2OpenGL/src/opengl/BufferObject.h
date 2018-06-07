@@ -7,6 +7,8 @@
 
 #include <memory>
 
+namespace s2 {
+
 namespace OpenGL {
 
 class BufferObject;
@@ -41,11 +43,11 @@ public:
 	{
 		ReadOnly,
 		WriteOnly,
-		ReadWrite,	
+		ReadWrite,
 	};
 
 public:
-	static BufferObjectPtr New( int size, const BufferType &type, const BufferUsageHint &usageHint ) { return std::make_shared<BufferObject>(size,type,usageHint); }
+	static BufferObjectPtr New( int size, const BufferType &type, const BufferUsageHint &usageHint ) { return std::make_shared<BufferObject>( size, type, usageHint ); }
 
 	BufferObject( int size, const BufferType &type, const BufferUsageHint &usageHint );
 	~BufferObject();
@@ -55,7 +57,7 @@ public:
 
 	int size()                  const { return _size; }
 	BufferUsageHint usageHint() const { return _usageHint; }
-	BufferType      type()      const { return _type;}
+	BufferType      type()      const { return _type; }
 
 	void  sendData( void *data, int length, int offset = 0 );
 	void* receiveData( int length, int offset = 0 );
@@ -72,4 +74,5 @@ private:
 
 } // namespace OpenGL
 
+}
 #endif

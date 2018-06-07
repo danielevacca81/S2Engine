@@ -5,7 +5,7 @@
 #include <iostream>
 
 //----------------------------------------------------------------------------------------------
-void OpenGL::glCheckError(const char* file, unsigned line)
+void s2::OpenGL::glCheckError(const char* file, unsigned line)
 {
 	GLenum err = glGetError();
 	if( err != GL_NO_ERROR )

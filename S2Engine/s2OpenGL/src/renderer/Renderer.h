@@ -16,43 +16,11 @@
 #include "OpenGL/VertexArray.h"
 #include "OpenGL/Mesh.h"
 
-//#include "Math/Rectangle.h"
-
-//namespace OpenGL {
-//	class FrameBuffer;
-//}
-
+namespace s2 {
 namespace OpenGL {
 
 class S2OPENGL_API Renderer
 {
-private:
-	Color          _clearColor;
-	float              _clearDepth;
-	int                _clearStencil;
-	//Math::Rectangle  _viewport;
-	RenderState        _renderState;
-	ViewState          _viewState;
-	OpenGL::ProgramPtr _currentShaderProgram;
-	
-	void applyRenderState       ( const RenderState &rs );
-	void applyPrimitiveRestart  ( const PrimitiveRestart &pr );
-	void applyFaceCulling       ( const FaceCulling &fc );
-	void applyProgramPointSize  ( const ProgramPointSize &programPointSize );
-	void applyRasterizationMode ( const RenderState::RasterizationMode &rasterizationMode );
-	void applyScissorTest       ( const ScissorTest &scissorTest );
-	void applyStencilTest       ( const StencilTest &stencilTest );
-	void applyStencil           ( const FaceCulling::Face &face, StencilTestFace &currentTest, const StencilTestFace &test );
-	void applyDepthTest         ( const DepthTest &depthTest );
-	void applyDepthRange        ( const DepthRange &depthRange );
-	void applyBlending          ( const Blending &blending );
-	void applyColorMask         ( const ColorMask &colorMask );
-	void applyDepthMask         ( bool depthMask );
-	void applyShaderProgram     ( const OpenGL::ProgramPtr &program );
-	void applyViewState         ( const ViewState &viewState );
-	//void applyFramebuffer();
-	void setViewport            ( const Math::Rectangle &r );
-
 public:
 	Renderer();
 	~Renderer();
@@ -141,10 +109,40 @@ public:
 	//void endRendering();
 	/************************************************************************/
 	/*  FLOATING ORIGIN                                                     */
-	/************************************************************************/ 
+	/************************************************************************/
+
+private:
+	void applyRenderState       ( const RenderState &rs );
+	void applyPrimitiveRestart  ( const PrimitiveRestart &pr );
+	void applyFaceCulling       ( const FaceCulling &fc );
+	void applyProgramPointSize  ( const ProgramPointSize &programPointSize );
+	void applyRasterizationMode ( const RenderState::RasterizationMode &rasterizationMode );
+	void applyScissorTest       ( const ScissorTest &scissorTest );
+	void applyStencilTest       ( const StencilTest &stencilTest );
+	void applyStencil           ( const FaceCulling::Face &face, StencilTestFace &currentTest, const StencilTestFace &test );
+	void applyDepthTest         ( const DepthTest &depthTest );
+	void applyDepthRange        ( const DepthRange &depthRange );
+	void applyBlending          ( const Blending &blending );
+	void applyColorMask         ( const ColorMask &colorMask );
+	void applyDepthMask         ( bool depthMask );
+	void applyShaderProgram     ( const OpenGL::ProgramPtr &program );
+	void applyViewState         ( const ViewState &viewState );
+	//void applyFramebuffer();
+	void setViewport            ( const Math::Rectangle &r );
+
+
+private:
+	Color              _clearColor;
+	float              _clearDepth;
+	int                _clearStencil;
+	//Math::Rectangle  _viewport;
+	RenderState        _renderState;
+	ViewState          _viewState;
+	OpenGL::ProgramPtr _currentShaderProgram;
 };
 
 
+}
 }
 
 #endif

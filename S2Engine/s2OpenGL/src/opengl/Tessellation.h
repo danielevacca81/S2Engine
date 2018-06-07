@@ -10,7 +10,9 @@
 
 #include <vector>
 
-namespace OpenGL{
+namespace s2 {
+
+namespace OpenGL {
 
 /**
  * @param vertices [in out]: array di vertici; questa funzione aggiunge dei
@@ -23,8 +25,9 @@ namespace OpenGL{
  * @return true in caso di successo, false in caso di errore
  */
 
-bool S2OPENGL_API Tessellation(std::vector<Math::dvec3> &vertices, std::vector<int> &triangles);
+bool S2OPENGL_API Tessellation( std::vector<Math::dvec3> &vertices, std::vector<int> &triangles );
 
+}
 }
 
 #endif

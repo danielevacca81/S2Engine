@@ -7,7 +7,10 @@
 
 #include <QGraphicsView>
 
-namespace s2Qt{
+namespace s2 {
+
+namespace Qt {
+
 
 class GLGraphicsScene;
 
@@ -27,7 +30,7 @@ protected:
 	void enterEvent	 ( QEvent *e );
 };
 
-}
+}}
 
 
 #endif

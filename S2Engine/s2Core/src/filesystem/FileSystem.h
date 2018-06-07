@@ -8,6 +8,7 @@
 #include <limits>
 #include <experimental/filesystem>
 
+namespace s2 {
 
 namespace FileSystem {
 
@@ -100,6 +101,8 @@ int64_t      dirSize( const std::wstring &folder, std::error_code& ec );
 int64_t      dirSize( const std::wstring &path );
 std::wstring standardLocation( const LocationType &type );
 std::wstring exeLocation();
+
+}
 
 }
 #endif //CORE_FILESYSTEM_H

@@ -9,49 +9,48 @@
 
 namespace s2 {
 
-class IObserver;
-class IObservable;
+class Observer;
+class Observable;
 
 // ------------------------------------------------------------------------------------------------
-class S2CORE_API IObserver
+class S2CORE_API Observer
 {
 public:
-	IObserver()
+	Observer()
 	: _enabled(true)
 	{}
 
-	~IObserver()
+	~Observer()
 	{}
 
 	void    enableNotify( bool enable ) { _enabled = enable; }
 	bool    isEnabled() const           { return _enabled;}
 
-	virtual void notify( IObservable *o ) = 0;
+	virtual void notify( Observable *o ) = 0;
 
 protected:
 	bool _enabled;
-
 };
 
 // ------------------------------------------------------------------------------------------------
-class S2CORE_API IObservable
+class S2CORE_API Observable
 {
 public:
-	IObservable()
+	Observable()
 	{}
 
-	~IObservable()
+	~Observable()
 	{}
 
 	// ------------------------------------------------------------------------------------------------
-	void registerObserver  ( IObserver *o )
+	void registerObserver  ( Observer *o )
 	{
 		unregisterObserver(o);
 		_observerCollection.push_back( o );
 	}
 
 	// ------------------------------------------------------------------------------------------------
-	bool unregisterObserver( IObserver *o )
+	bool unregisterObserver( Observer *o )
 	{
 		bool success = false;
 		for( auto it = _observerCollection.begin();
@@ -80,7 +79,7 @@ public:
 	}
 
 private:
-	std::vector<IObserver*> _observerCollection;
+	std::vector<Observer*> _observerCollection;
 };
 
 

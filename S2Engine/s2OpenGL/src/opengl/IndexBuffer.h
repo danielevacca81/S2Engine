@@ -7,6 +7,8 @@
 
 #include "BufferObject.h"
 
+namespace s2 {
+
 namespace OpenGL {
 
 /************************************************************************************************/
@@ -51,4 +53,5 @@ private:
 
 } // namespace OpenGL
 
+}
 #endif

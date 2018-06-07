@@ -6,6 +6,7 @@
 #include "graphics/Color.h"
 #include "Math/Rectangle.h"
 
+namespace s2 {
 namespace OpenGL {
 
 enum PrimitiveType
@@ -324,5 +325,6 @@ struct RenderState
 	bool              depthMask;
 };
 
+}
 }
 #endif

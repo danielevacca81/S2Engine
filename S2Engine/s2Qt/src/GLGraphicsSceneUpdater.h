@@ -6,7 +6,10 @@
 #include <QThread>
 #include <QTimer>
 
-namespace s2Qt{
+namespace s2 {
+
+namespace Qt {
+
 
 class GLGraphicsScene;
 
@@ -37,7 +40,7 @@ private:
 };
 
 
-}
+}}
 
 
 #endif

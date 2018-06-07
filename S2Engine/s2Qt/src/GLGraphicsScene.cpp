@@ -18,7 +18,7 @@
 
 #include <iostream>
 
-using namespace s2Qt;
+using namespace s2::Qt;
 
 // -----------------------------------------------------------------------------------------------
 GLGraphicsScene::GLGraphicsScene( QWidget *parent )
@@ -65,11 +65,11 @@ void GLGraphicsScene::setInputPreferences( const UserInteractionManager::Prefere
 	_uim.setPreferences( p );
 
 	// no need for the pan gesture if we handle the pan component in pinch
-	//if( p.gesturePanEnabled )   _glWidget->grabGesture( Qt::PanGesture   );
-	if( p.gestureSwipeEnabled   ) _glWidget->grabGesture( Qt::SwipeGesture );
-	if( p.gesturePinchEnabled   ) _glWidget->grabGesture( Qt::PinchGesture );
-	if( p.gestureTapEnabled     ) _glWidget->grabGesture( Qt::TapGesture );
-    if( p.gestureTapHoldEnabled ) _glWidget->grabGesture( Qt::TapAndHoldGesture );
+	//if( p.gesturePanEnabled )   _glWidget->grabGesture( ::Qt::PanGesture   );
+	if( p.gestureSwipeEnabled   ) _glWidget->grabGesture( ::Qt::SwipeGesture );
+	if( p.gesturePinchEnabled   ) _glWidget->grabGesture( ::Qt::PinchGesture );
+	if( p.gestureTapEnabled     ) _glWidget->grabGesture( ::Qt::TapGesture );
+    if( p.gestureTapHoldEnabled ) _glWidget->grabGesture( ::Qt::TapAndHoldGesture );
 }
 
 // -----------------------------------------------------------------------------------------------

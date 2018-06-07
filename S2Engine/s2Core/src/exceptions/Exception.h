@@ -9,7 +9,8 @@
 #include <ctime>
 #include <string>
 
-// ------------------------------------------------------------------------------------------------
+namespace s2 {
+
 //exceptions
 class S2CORE_API Exception
 {
@@ -21,21 +22,21 @@ public:
 	};
 
 private:
-	Exception( const Severity& severity, 
-			   const std::string& moduleName, 
-		       const std::string& msg,
-		       const std::string& details);
+	Exception( const Severity& severity,
+			   const std::string& moduleName,
+			   const std::string& msg,
+			   const std::string& details );
 
 public:
-	std::string message() const {return _message;}
-	std::string details() const {return _details;}
-	std::string moduleName() const {return _moduleName;}
+	std::string message() const { return _message; }
+	std::string details() const { return _details; }
+	std::string moduleName() const { return _moduleName; }
 
 	static void create(
 		const Severity& severity,
 		const std::string& moduleName,
 		const std::string& msg,
-		const std::string& details);
+		const std::string& details );
 
 protected:
 	friend class ExceptionHandler;
@@ -48,5 +49,7 @@ protected:
 	Severity _severity;
 
 };
+
+}
 
 #endif

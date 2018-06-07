@@ -5,15 +5,17 @@
 #include "OpenGL.h" 
 #include "OpenGLWrap.h"
 
-namespace OpenGL{
+namespace s2 {
+
+namespace OpenGL {
 
 // ------------------------------------------------------------------------------------------------
 FrameBuffer::FrameBuffer()
-: _width(0)
-, _height(0)
-, _fbo(0)
-, _depthFormat(DepthNone)
-, _bound(false)
+	: _width( 0 )
+	, _height( 0 )
+	, _fbo( 0 )
+	, _depthFormat( DepthNone )
+	, _bound( false )
 {
 }
 
@@ -28,23 +30,23 @@ void FrameBuffer::destroy()
 {
 	if( !isValid() ) return;
 
-	glDeleteFramebuffers(1, &_fbo);
+	glDeleteFramebuffers( 1, &_fbo );
 
-	if( glWrap(_depthFormat) != GL_NONE )
+	if( glWrap( _depthFormat ) != GL_NONE )
 		glDeleteRenderbuffers( 1, &_depthBuffer );
 }
 
 // ------------------------------------------------------------------------------------------------
 std::string FrameBuffer::info() const
 {
-	std::string ret("FBO Failed: Unknown Error");
+	std::string ret( "FBO Failed: Unknown Error" );
 
 	const GLenum r = glCheckFramebufferStatus( GL_FRAMEBUFFER_EXT );
 	switch( r )
 	{
 	case GL_FRAMEBUFFER_COMPLETE_EXT:                       ret = "FBO Ok";                        break;
 	case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:			ret = "FBO Failed: Attachment Error";  break;
-	case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:	ret = "FBO Failed: Missing attachment";break;
+	case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:	ret = "FBO Failed: Missing attachment"; break;
 	case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:	    	ret = "FBO Failed: Dimensions Error";  break;
 	case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:			    ret = "FBO Failed: Formats Error";     break;
 	case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:			ret = "FBO Failed: Draw buffer Error"; break;
@@ -66,8 +68,8 @@ bool FrameBuffer::checkStatus() const
 bool FrameBuffer::create()
 {
 	destroy();
-	
-	glGenFramebuffersEXT(1, &_fbo);
+
+	glGenFramebuffersEXT( 1, &_fbo );
 	return true;
 }
 
@@ -105,7 +107,7 @@ bool FrameBuffer::create()
 		}
 		glTexImage2D(  _attachments[0].attachmentType, 0, _attachments[0].attachmentFormat, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0 );
 		glBindTexture( _attachments[0].attachmentType, 0 );
-			
+
 		_numAttachments = 1;
 	}
 
@@ -161,13 +163,13 @@ bool FrameBuffer::create()
 }*/
 
 // ------------------------------------------------------------------------------------------------
-bool   FrameBuffer::isValid()     const  { return _fbo != 0;   }
-bool   FrameBuffer::isBound()     const  { return _bound;      }
+bool   FrameBuffer::isValid()     const { return _fbo != 0; }
+bool   FrameBuffer::isBound()     const { return _bound; }
 
 // ------------------------------------------------------------------------------------------------
-/*void FrameBuffer::bindColorAttachment( unsigned int i )	
+/*void FrameBuffer::bindColorAttachment( unsigned int i )
 {
-	if( i<_numAttachments ) 
+	if( i<_numAttachments )
 		glBindTexture( _attachments[i].attachmentType, _attachments[i].attachmentID );
 }*/
 
@@ -185,17 +187,17 @@ void FrameBuffer::bind( int width, int height )
 
 	// Specify what to render an start acquiring
 	std::vector<GLenum> buffers;
-	for( size_t i=0; i<_attachments.size(); ++i )
-		if( glWrap(_attachments[i].attachmentName) != GL_DEPTH_ATTACHMENT )
-			buffers.push_back( glWrap(_attachments[i].attachmentName) );
+	for( size_t i=0; i < _attachments.size(); ++i )
+		if( glWrap( _attachments[i].attachmentName ) != GL_DEPTH_ATTACHMENT )
+			buffers.push_back( glWrap( _attachments[i].attachmentName ) );
 
 	if( buffers.empty() )
 		return;
 
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, _fbo);
-	glPushAttrib(GL_VIEWPORT_BIT);
-	glViewport(0, 0, width, height);
-	glDrawBuffers( buffers.size(), &buffers[0]);
+	glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, _fbo );
+	glPushAttrib( GL_VIEWPORT_BIT );
+	glViewport( 0, 0, width, height );
+	glDrawBuffers( buffers.size(), &buffers[0] );
 
 	_bound = glValidate;
 }
@@ -205,8 +207,8 @@ void FrameBuffer::clear( float r, float g, float b, float a )
 {
 	if( isBound() )
 	{
-		glClearColor( r,g,b,a );
-		glClear(GL_COLOR_BUFFER_BIT | (glWrap(_depthFormat) != GL_NONE ? GL_DEPTH_BUFFER_BIT : 0) );	
+		glClearColor( r, g, b, a );
+		glClear( GL_COLOR_BUFFER_BIT | ( glWrap( _depthFormat ) != GL_NONE ? GL_DEPTH_BUFFER_BIT : 0 ) );
 	}
 }
 
@@ -216,7 +218,7 @@ void FrameBuffer::unBind()
 	if( !isBound() )
 		return;
 
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0); 	
+	glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, 0 );
 	glPopAttrib();
 }
 
@@ -231,7 +233,7 @@ void FrameBuffer::unBind()
 {
 	if( attachPoint > _numAttachments )
 		return;
-	
+
 	glPushAttrib( GL_ENABLE_BIT );
 	glEnable( _attachments[attachPoint].attachmentType );
 	glBindTexture( _attachments[attachPoint].attachmentType, _attachments[attachPoint].attachmentID);
@@ -302,17 +304,17 @@ bool FrameBuffer::attachTextureTarget( const TexturePtr &texture, const Attachme
 	//		return false;
 	//}
 
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, _fbo);
+	glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, _fbo );
 
 	switch( texture->type() )
 	{
-	case Texture::Texture_1D:	glFramebufferTexture1DEXT(GL_FRAMEBUFFER_EXT, attachPoint, GL_TEXTURE_1D, texture->id(), 0); break;
-	case Texture::Texture_2D:	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, attachPoint, GL_TEXTURE_2D, texture->id(), 0); break;
-	
-	// @TODO:
-	//case Texture3D::target():	glFramebufferTexture2D(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0+_numAttachments, texture->target(), texture->id(), 0); break;
+	case Texture::Texture_1D:	glFramebufferTexture1DEXT( GL_FRAMEBUFFER_EXT, attachPoint, GL_TEXTURE_1D, texture->id(), 0 ); break;
+	case Texture::Texture_2D:	glFramebufferTexture2DEXT( GL_FRAMEBUFFER_EXT, attachPoint, GL_TEXTURE_2D, texture->id(), 0 ); break;
+
+		// @TODO:
+		//case Texture3D::target():	glFramebufferTexture2D(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0+_numAttachments, texture->target(), texture->id(), 0); break;
 	}
-	
+
 	//GLenum *drawBuffers = new GLenum[numAttachments+1];
 	//for(int i=0;i<numAttachments+1; ++i)
 	//{
@@ -325,7 +327,7 @@ bool FrameBuffer::attachTextureTarget( const TexturePtr &texture, const Attachme
 	const bool statusOk = checkStatus();
 
 	// Bind no FBO
-	glBindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
+	glBindFramebuffer( GL_FRAMEBUFFER_EXT, 0 );
 
 
 	if( !statusOk )
@@ -340,23 +342,23 @@ bool FrameBuffer::attachTextureTarget( const TexturePtr &texture, const Attachme
 // ------------------------------------------------------------------------------------------------
 bool FrameBuffer::attachDepthRenderTarget( const DepthFormat &depthFormat, int width, int height )
 {
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, _fbo);
+	glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, _fbo );
 
-	glGenRenderbuffersEXT(1, &_depthBuffer);
-	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, _depthBuffer);
-	glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, glWrap(depthFormat), width, height);
-	glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, _depthBuffer);
-	
+	glGenRenderbuffersEXT( 1, &_depthBuffer );
+	glBindRenderbufferEXT( GL_RENDERBUFFER_EXT, _depthBuffer );
+	glRenderbufferStorageEXT( GL_RENDERBUFFER_EXT, glWrap( depthFormat ), width, height );
+	glFramebufferRenderbufferEXT( GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, _depthBuffer );
+
 	const bool statusOk = checkStatus();
 
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+	glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, 0 );
 
 	if( !statusOk )
 	{
 		glDeleteRenderbuffers( 1, &_depthBuffer );
 		return false;
 	}
-	
+
 	_depthFormat = depthFormat;
 	return true;
 }
@@ -395,4 +397,6 @@ bool FrameBuffer::attachDepthRenderTarget( const DepthFormat &depthFormat, int w
 //	glReadBuffer(buffer);
 //	glBindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
 //}
+}
+
 }

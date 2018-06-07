@@ -6,18 +6,20 @@
 #include <cassert>
 #include <algorithm>
 
+namespace s2 {
+
 // ------------------------------------------------------------------------------------------------
 template<typename T>
 Array2D<T>::Array2D()
-: _rows( 0 )
-, _cols( 0 )
+	: _rows( 0 )
+	, _cols( 0 )
 {}
 
 // ------------------------------------------------------------------------------------------------
 template<typename T>
 Array2D<T>::Array2D( int size )
-: _rows( size )
-, _cols( 1 )
+	: _rows( size )
+	, _cols( 1 )
 {
 	_values = std::vector<T>( size, 0 );
 }
@@ -25,8 +27,8 @@ Array2D<T>::Array2D( int size )
 // ------------------------------------------------------------------------------------------------
 template<typename T>
 Array2D<T>::Array2D( int rows, int cols )
-: _rows( rows )
-, _cols( cols )
+	: _rows( rows )
+	, _cols( cols )
 {
 	_values = std::vector<T>( rows*cols, 0 );
 }
@@ -34,9 +36,9 @@ Array2D<T>::Array2D( int rows, int cols )
 // ------------------------------------------------------------------------------------------------
 template<typename T>
 Array2D<T>::Array2D( const std::vector<T> &data, int rows, int cols )
-: _values( data )
-, _rows( rows )
-, _cols( cols )
+	: _values( data )
+	, _rows( rows )
+	, _cols( cols )
 {}
 
 
@@ -58,13 +60,13 @@ void Array2D<T>::setValues( const std::vector<T> &data, int rows, int cols )
 template<typename T>
 void Array2D<T>::setColumnValues( const std::vector<T>& values, int c )
 {
-	assert(c < _cols);
+	assert( c < _cols );
 
 	const int size = values.size();
 
-	assert(size <= _rows);
+	assert( size <= _rows );
 
-	std::copy_n(values.begin(), size, _values.begin() + c*_rows);
+	std::copy_n( values.begin(), size, _values.begin() + c*_rows );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -236,8 +238,8 @@ void Array2D<T>::pushColumnFront( const std::vector<T> &data )
 	if( data.empty() )
 		return;
 
-	if( _rows == 0 ) _rows = (int)data.size();
-	else             assert( _rows == (int)data.size() );
+	if( _rows == 0 ) _rows = (int) data.size();
+	else             assert( _rows == (int) data.size() );
 
 	_values.insert( _values.begin(), data.begin(), data.end() );
 	++_cols;
@@ -250,8 +252,8 @@ void Array2D<T>::appendColumn( const std::vector<T> &data )
 	if( data.empty() )
 		return;
 
-	if( _rows == 0 ) _rows = (int)data.size();
-	else             assert( _rows == (int)data.size() );
+	if( _rows == 0 ) _rows = (int) data.size();
+	else             assert( _rows == (int) data.size() );
 
 	_values.insert( _values.end(), data.begin(), data.end() );
 	++_cols;
@@ -312,22 +314,24 @@ Array2D<T> Array2D<T>::transposed() const
 
 	for( int i = 0; i < rowsCount(); ++i )
 		for( int j = 0; j < columnsCount(); ++j )
-			out( j, i ) = (*this)( i, j );
+			out( j, i ) = ( *this )( i, j );
 
 	return std::move( out );
 }
 
 // ------------------------------------------------------------------------------------------------
 template<typename T>
-Array2D<T> Array2D<T>::zeroPaddedRows(int numZeroPaddingRows) const
+Array2D<T> Array2D<T>::zeroPaddedRows( int numZeroPaddingRows ) const
 {
-	if (numZeroPaddingRows < 1)
-		return (*this);
+	if( numZeroPaddingRows < 1 )
+		return ( *this );
 
-	Array2D<T> out( rowsCount() + numZeroPaddingRows, columnsCount());
-	for (int j = 0; j < columnsCount(); ++j)
-		for (int i = 0; i < rowsCount(); ++i)
-			out(i, j) = (*this)(i, j);
+	Array2D<T> out( rowsCount() + numZeroPaddingRows, columnsCount() );
+	for( int j = 0; j < columnsCount(); ++j )
+		for( int i = 0; i < rowsCount(); ++i )
+			out( i, j ) = ( *this )( i, j );
 
-	return std::move(out);
+	return std::move( out );
+}
+
 }

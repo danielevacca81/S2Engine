@@ -20,10 +20,15 @@
 
 #endif
 
+namespace s2
+{
+
 namespace MemCheck {
 
 S2CORE_API void enableMemoryLeaksDetection();
 S2CORE_API void dumpMemoryLeaks();
+
+}
 
 }
 

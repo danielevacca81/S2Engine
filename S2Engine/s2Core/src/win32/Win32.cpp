@@ -13,15 +13,17 @@
 #pragma comment(lib, "version.lib")
 #pragma comment(lib, "shlwapi.lib")
 
+namespace s2
+{
 
 // ------------------------------------------------------------------------------------------------
 std::string Win32::productName( const std::string &fileName )
 {
-	const std::wstring wFileName(fileName.begin(),fileName.end() );
+	const std::wstring wFileName( fileName.begin(), fileName.end() );
 
 	// get info size
 	DWORD handle;
-	DWORD len = GetFileVersionInfoSize( wFileName.c_str() , &handle );
+	DWORD len = GetFileVersionInfoSize( wFileName.c_str(), &handle );
 	if( !len )
 		return "";
 
@@ -29,29 +31,29 @@ std::string Win32::productName( const std::string &fileName )
 	TCHAR *data  = new TCHAR[len];
 	{
 		BOOL  ok = GetFileVersionInfo( wFileName.c_str(), 0, len, data );
-		if( !ok|| len==0 )
+		if( !ok || len == 0 )
 		{
 			delete[] data;
 			return "";
 		}
 	}
 
-	
+
 	// get version fields
 	LPVOID prodName = NULL;
 	UINT sz;
 	{
-		BOOL ok = VerQueryValue( data , TEXT("\\StringFileInfo\\040904b0\\ProductName") , &prodName, &sz );
-		if( !ok|| sz==0 )
+		BOOL ok = VerQueryValue( data, TEXT( "\\StringFileInfo\\040904b0\\ProductName" ), &prodName, &sz );
+		if( !ok || sz == 0 )
 		{
 			delete[] data;
 			return "";
 		}
 	}
 
-	const std::wstring wProductName( (LPCTSTR)prodName );
+	const std::wstring wProductName( (LPCTSTR) prodName );
 	const std::string productName( wProductName.begin(), wProductName.end() );
-	delete [] data;
+	delete[] data;
 
 	return productName;
 }
@@ -65,9 +67,9 @@ std::string Win32::executableFileName()
 	if( !GetModuleFileName( 0, fileName, MAX_PATH ) )
 		return "";
 
-	const std::wstring wFilename(fileName);
+	const std::wstring wFilename( fileName );
 
-	const std::string s(wFilename.begin(),wFilename.end() );
+	const std::string s( wFilename.begin(), wFilename.end() );
 
 	return s;
 }
@@ -75,11 +77,11 @@ std::string Win32::executableFileName()
 // ------------------------------------------------------------------------------------------------
 std::string Win32::fileVersion( const std::string &fileName )
 {
-	const std::wstring wFileName(fileName.begin(),fileName.end() );
+	const std::wstring wFileName( fileName.begin(), fileName.end() );
 
 	// get info size
 	DWORD handle;
-	DWORD len = GetFileVersionInfoSize( wFileName.c_str() , &handle );
+	DWORD len = GetFileVersionInfoSize( wFileName.c_str(), &handle );
 	if( !len )
 		return "";
 
@@ -87,7 +89,7 @@ std::string Win32::fileVersion( const std::string &fileName )
 	TCHAR *data  = new TCHAR[len];
 	{
 		BOOL  ok = GetFileVersionInfo( wFileName.c_str(), 0, len, data );
-		if( !ok|| len==0 )
+		if( !ok || len == 0 )
 		{
 			delete[] data;
 			return "";
@@ -98,8 +100,8 @@ std::string Win32::fileVersion( const std::string &fileName )
 	VS_FIXEDFILEINFO *lpFfi;
 	{
 		UINT sz;
-		BOOL ok = VerQueryValue( data , TEXT("\\") , (void**)&lpFfi , &sz);
-		if( !ok|| sz==0 )
+		BOOL ok = VerQueryValue( data, TEXT( "\\" ), (void**) &lpFfi, &sz );
+		if( !ok || sz == 0 )
 		{
 			delete[] data;
 			return "";
@@ -110,17 +112,17 @@ std::string Win32::fileVersion( const std::string &fileName )
 	DWORD dwFileVersionMS = lpFfi->dwFileVersionMS;
 	DWORD dwFileVersionLS = lpFfi->dwFileVersionLS;
 
-	unsigned int majorVersion    = HIWORD(dwFileVersionMS);
-	unsigned int minorVersion    = LOWORD(dwFileVersionMS);
-	unsigned int buildNumber     = HIWORD(dwFileVersionLS);
-	unsigned int revisionNumber  = LOWORD(dwFileVersionLS);
-	delete [] data;
+	unsigned int majorVersion    = HIWORD( dwFileVersionMS );
+	unsigned int minorVersion    = LOWORD( dwFileVersionMS );
+	unsigned int buildNumber     = HIWORD( dwFileVersionLS );
+	unsigned int revisionNumber  = LOWORD( dwFileVersionLS );
+	delete[] data;
 
 	std::stringstream ss;
-	ss << majorVersion   << "."
-	   << minorVersion   << "."
-	   << buildNumber    << "."
-	   << revisionNumber ;
+	ss << majorVersion << "."
+		<< minorVersion << "."
+		<< buildNumber << "."
+		<< revisionNumber;
 
 	return ss.str();
 }
@@ -130,20 +132,20 @@ std::string Win32::systemName()
 {
 	OSVERSIONINFO osvi;
 
-	ZeroMemory(&osvi, sizeof(OSVERSIONINFO));
-	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+	ZeroMemory( &osvi, sizeof( OSVERSIONINFO ) );
+	osvi.dwOSVersionInfoSize = sizeof( OSVERSIONINFO );
 
-	GetVersionEx(&osvi);
+	GetVersionEx( &osvi );
 
 	SYSTEM_INFO siSysInfo;
 
 	// Copy the hardware information to the SYSTEM_INFO structure. 
-	GetSystemInfo(&siSysInfo); 
+	GetSystemInfo( &siSysInfo );
 
 	/************************************************************************/
 	/*                                                                      */
 	/************************************************************************/
-	/* 
+	/*
 	* Windows 8.1	            6.3*
 	* Windows Server 2012 R2	6.3*
 	* Windows 8	                6.2
@@ -159,21 +161,21 @@ std::string Win32::systemName()
 	* Windows 2000	            5.0
 	*/
 
-	const std::string baseName("Windows");
-	
+	const std::string baseName( "Windows" );
+
 	std::string osVersion;
-	if( osvi.dwMajorVersion == 6 && osvi.dwMinorVersion == 3 )	osVersion = IsOS(OS_SERVER) ? "Server 2012 R2" : "8.1";
-	if( osvi.dwMajorVersion == 6 && osvi.dwMinorVersion == 2 )	osVersion = IsOS(OS_SERVER) ? "Server 2012"    : "8";
-	if( osvi.dwMajorVersion == 6 && osvi.dwMinorVersion == 1 )	osVersion = IsOS(OS_SERVER) ? "Server 2008 R2" : "7";
-	if( osvi.dwMajorVersion == 6 && osvi.dwMinorVersion == 0 )	osVersion = IsOS(OS_SERVER) ? "Server 2008"    : "Vista";
+	if( osvi.dwMajorVersion == 6 && osvi.dwMinorVersion == 3 )	osVersion = IsOS( OS_SERVER ) ? "Server 2012 R2" : "8.1";
+	if( osvi.dwMajorVersion == 6 && osvi.dwMinorVersion == 2 )	osVersion = IsOS( OS_SERVER ) ? "Server 2012" : "8";
+	if( osvi.dwMajorVersion == 6 && osvi.dwMinorVersion == 1 )	osVersion = IsOS( OS_SERVER ) ? "Server 2008 R2" : "7";
+	if( osvi.dwMajorVersion == 6 && osvi.dwMinorVersion == 0 )	osVersion = IsOS( OS_SERVER ) ? "Server 2008" : "Vista";
 
 	if( osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 2 )
 	{
-		if     ( GetSystemMetrics(SM_SERVERR2) != 0 )	osVersion = "Server 2003 R2";
-		else if( GetSystemMetrics(SM_SERVERR2) == 0 )   osVersion = "Server 2003";
-		else if( IsOS(OS_SERVER) )                      osVersion = "Home Server 2003";
-		else if( IsOS(OS_SERVER) && 
-			   (siSysInfo.wProcessorArchitecture==PROCESSOR_ARCHITECTURE_AMD64) ) osVersion = "XP 64-Bit Edition";
+		if( GetSystemMetrics( SM_SERVERR2 ) != 0 )	osVersion = "Server 2003 R2";
+		else if( GetSystemMetrics( SM_SERVERR2 ) == 0 )   osVersion = "Server 2003";
+		else if( IsOS( OS_SERVER ) )                      osVersion = "Home Server 2003";
+		else if( IsOS( OS_SERVER ) &&
+			( siSysInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64 ) ) osVersion = "XP 64-Bit Edition";
 	}
 
 	if( osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 1 )	osVersion = "XP";
@@ -190,55 +192,55 @@ std::string Win32::systemName()
 // ------------------------------------------------------------------------------------------------
 bool Win32::sendMail( const std::vector<std::string> &recipient, const std::string &subject, const std::string &body, const std::string &fileName )
 {
-	HINSTANCE hMAPI = ::LoadLibrary(L"MAPI32.DLL");
-	if (!hMAPI)
+	HINSTANCE hMAPI = ::LoadLibrary( L"MAPI32.DLL" );
+	if( !hMAPI )
 		return false;
 
 	HWND hWndParent = HWND_DESKTOP;
 
-	ULONG (PASCAL *SendMail)(ULONG, ULONG_PTR, MapiMessage*, FLAGS, ULONG);
-	(FARPROC&)SendMail = GetProcAddress(hMAPI, "MAPISendMail");
+	ULONG( PASCAL *SendMail )( ULONG, ULONG_PTR, MapiMessage*, FLAGS, ULONG );
+	(FARPROC&) SendMail = GetProcAddress( hMAPI, "MAPISendMail" );
 
-	if (!SendMail)
+	if( !SendMail )
 		return false;
 
 	if( recipient.empty() )
 		return false;
 
 	std::vector<MapiRecipDesc> recips;
-	for( size_t i=0; i<recipient.size(); ++i )
+	for( size_t i=0; i < recipient.size(); ++i )
 	{
 		MapiRecipDesc recipDesc;
-		::ZeroMemory(&recipDesc, sizeof(recipDesc));
+		::ZeroMemory( &recipDesc, sizeof( recipDesc ) );
 		recipDesc.ulRecipClass = MAPI_TO;
-		recipDesc.lpszName     = (LPSTR)recipient[i].c_str();
+		recipDesc.lpszName     = (LPSTR) recipient[i].c_str();
 
-		recips.push_back(recipDesc);
+		recips.push_back( recipDesc );
 	}
 
 	MapiMessage message;
-	::ZeroMemory(&message, sizeof(message));
-	message.lpszSubject = (LPSTR)subject.c_str();
-	message.lpszNoteText= (LPSTR)body.c_str();
+	::ZeroMemory( &message, sizeof( message ) );
+	message.lpszSubject = (LPSTR) subject.c_str();
+	message.lpszNoteText= (LPSTR) body.c_str();
 	message.nRecipCount = recips.size();
 	message.lpRecips    = &recips[0];
 
 	MapiFileDesc fileDesc;
 	if( !fileName.empty() )
 	{
-		::ZeroMemory(&fileDesc, sizeof(fileDesc));
-		fileDesc.nPosition    = (ULONG)-1;
-		fileDesc.lpszPathName = (LPSTR)fileName.c_str();
-		fileDesc.lpszFileName = (LPSTR)fileName.c_str();
+		::ZeroMemory( &fileDesc, sizeof( fileDesc ) );
+		fileDesc.nPosition    = (ULONG) -1;
+		fileDesc.lpszPathName = (LPSTR) fileName.c_str();
+		fileDesc.lpszFileName = (LPSTR) fileName.c_str();
 
 		message.nFileCount  = 1;
 		message.lpFiles     = &fileDesc;
 	}
 
 
-	int nError = SendMail(0, (ULONG_PTR)hWndParent, &message, MAPI_LOGON_UI|MAPI_DIALOG, 0);
+	int nError = SendMail( 0, (ULONG_PTR) hWndParent, &message, MAPI_LOGON_UI | MAPI_DIALOG, 0 );
 
-	if (nError != SUCCESS_SUCCESS && nError != MAPI_USER_ABORT && nError != MAPI_E_LOGIN_FAILURE)
+	if( nError != SUCCESS_SUCCESS && nError != MAPI_USER_ABORT && nError != MAPI_E_LOGIN_FAILURE )
 		return false;
 
 	return true;
@@ -250,40 +252,40 @@ bool Win32::sendMail( const std::vector<std::string> &recipient, const std::stri
 #include <Dbghelp.h>
 #include <tchar.h>
 // minidump function pointer
-typedef BOOL (WINAPI *MINIDUMPWRITEDUMP)(HANDLE hProcess,
-	                                     DWORD dwPid, HANDLE hFile, 
-										 MINIDUMP_TYPE DumpType,
-										 CONST PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam,
-										 CONST PMINIDUMP_USER_STREAM_INFORMATION UserStreamParam,
-										 CONST PMINIDUMP_CALLBACK_INFORMATION CallbackParam);
+typedef BOOL( WINAPI *MINIDUMPWRITEDUMP )( HANDLE hProcess,
+										   DWORD dwPid, HANDLE hFile,
+										   MINIDUMP_TYPE DumpType,
+										   CONST PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam,
+										   CONST PMINIDUMP_USER_STREAM_INFORMATION UserStreamParam,
+										   CONST PMINIDUMP_CALLBACK_INFORMATION CallbackParam );
 
 // ------------------------------------------------------------------------------------------------
 static void createMinidump( EXCEPTION_POINTERS* apExceptionInfo )
 {
 	// load dbghelp
-	HMODULE mhLib = ::LoadLibraryA("dbghelp.dll");
+	HMODULE mhLib = ::LoadLibraryA( "dbghelp.dll" );
 	if( !mhLib )
 		return;
 
 	// get procedure address
-	MINIDUMPWRITEDUMP pDump = (MINIDUMPWRITEDUMP)::GetProcAddress(mhLib, "MiniDumpWriteDump");
+	MINIDUMPWRITEDUMP pDump = ( MINIDUMPWRITEDUMP )::GetProcAddress( mhLib, "MiniDumpWriteDump" );
 	if( !pDump )
 		return;
-	
+
 	// create filename
 	char name[MAX_PATH];
 	{
-		char *nameEnd = name + GetModuleFileNameA(GetModuleHandleA(0), name, MAX_PATH);
+		char *nameEnd = name + GetModuleFileNameA( GetModuleHandleA( 0 ), name, MAX_PATH );
 		SYSTEMTIME t;
-		GetSystemTime(&t);
-		wsprintfA(nameEnd - strlen(".exe"),
-			"_%4d%02d%02d_%02d%02d%02d.dmp",
-			t.wYear, t.wMonth, t.wDay, t.wHour, t.wMinute, t.wSecond);
+		GetSystemTime( &t );
+		wsprintfA( nameEnd - strlen( ".exe" ),
+				   "_%4d%02d%02d_%02d%02d%02d.dmp",
+				   t.wYear, t.wMonth, t.wDay, t.wHour, t.wMinute, t.wSecond );
 	}
 
 	// open file for writing
 	HANDLE  hFile = ::CreateFileA( name, GENERIC_WRITE, FILE_SHARE_READ, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0 );
-	if(hFile == INVALID_HANDLE_VALUE)
+	if( hFile == INVALID_HANDLE_VALUE )
 		return;
 
 	// fill minidump info
@@ -294,28 +296,28 @@ static void createMinidump( EXCEPTION_POINTERS* apExceptionInfo )
 
 	// dump
 	BOOL dumped = pDump( GetCurrentProcess(),
-		                 GetCurrentProcessId(), 
-						 hFile, 
-						 MINIDUMP_TYPE(MiniDumpWithIndirectlyReferencedMemory | MiniDumpScanMemory),
+						 GetCurrentProcessId(),
+						 hFile,
+						 MINIDUMP_TYPE( MiniDumpWithIndirectlyReferencedMemory | MiniDumpScanMemory ),
 						 apExceptionInfo ? &ExInfo : 0,
 						 0,
-						 0);
+						 0 );
 	// close file
-	::CloseHandle(hFile);
+	::CloseHandle( hFile );
 }
 
 
 // ------------------------------------------------------------------------------------------------
-static LONG WINAPI unhandledExceptionHandler( _EXCEPTION_POINTERS* apExceptionInfo)
+static LONG WINAPI unhandledExceptionHandler( _EXCEPTION_POINTERS* apExceptionInfo )
 {
-	createMinidump(apExceptionInfo);
+	createMinidump( apExceptionInfo );
 	return EXCEPTION_CONTINUE_SEARCH;
 }
 
 // ------------------------------------------------------------------------------------------------
 void Win32::enableCrashReport()
 {
-	::SetUnhandledExceptionFilter(unhandledExceptionHandler);
+	::SetUnhandledExceptionFilter( unhandledExceptionHandler );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -326,8 +328,8 @@ size_t Win32::peakMemoryUsage()
 {
 	/* Windows -------------------------------------------------- */
 	PROCESS_MEMORY_COUNTERS info;
-	GetProcessMemoryInfo( GetCurrentProcess( ), &info, sizeof(info) );
-	return (size_t)info.PeakWorkingSetSize;
+	GetProcessMemoryInfo( GetCurrentProcess(), &info, sizeof( info ) );
+	return (size_t) info.PeakWorkingSetSize;
 }
 
 
@@ -338,6 +340,8 @@ size_t Win32::currentMemoryUsage()
 {
 	/* Windows -------------------------------------------------- */
 	PROCESS_MEMORY_COUNTERS info;
-	GetProcessMemoryInfo( GetCurrentProcess( ), &info, sizeof(info) );
-	return (size_t)info.WorkingSetSize;
+	GetProcessMemoryInfo( GetCurrentProcess(), &info, sizeof( info ) );
+	return (size_t) info.WorkingSetSize;
+}
+
 }

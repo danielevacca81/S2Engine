@@ -15,6 +15,7 @@
 #include <vector>
 #include <string>
 
+namespace s2 {
 
 namespace OpenGL{
 
@@ -28,6 +29,7 @@ namespace OpenGL{
 
 void                     S2OPENGL_API glCheckError(const char* file, unsigned line);
 
+}
 }
 
 #endif

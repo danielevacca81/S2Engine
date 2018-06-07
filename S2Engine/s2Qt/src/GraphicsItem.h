@@ -9,7 +9,10 @@
 #include <QPropertyAnimation>
 #include <QTimer>
 
-namespace s2Qt {
+namespace s2 {
+
+namespace Qt {
+
 
 class S2QT_API GraphicsItem : public QObject, public QGraphicsItem
 {
@@ -22,12 +25,12 @@ protected:
 
 	QTimer timeout;
 
-	virtual void hoverEnterEvent  (QGraphicsSceneHoverEvent *event);
-	virtual void hoverLeaveEvent  (QGraphicsSceneHoverEvent *event);
-	virtual void mousePressEvent  (QGraphicsSceneMouseEvent *event);
-	virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
-	virtual void wheelEvent		  (QGraphicsSceneWheelEvent *event);
-	virtual void mouseMoveEvent   (QGraphicsSceneMouseEvent *event);
+	virtual void hoverEnterEvent      (QGraphicsSceneHoverEvent *event);
+	virtual void hoverLeaveEvent      (QGraphicsSceneHoverEvent *event);
+	virtual void mousePressEvent      (QGraphicsSceneMouseEvent *event);
+	virtual void mouseReleaseEvent    (QGraphicsSceneMouseEvent *event);
+	virtual void wheelEvent		      (QGraphicsSceneWheelEvent *event);
+	virtual void mouseMoveEvent       (QGraphicsSceneMouseEvent *event);
 	virtual void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
 
 
@@ -42,7 +45,7 @@ protected slots:
 	void onTimeout();
 };
 
-}
+}}
 
 
 #endif

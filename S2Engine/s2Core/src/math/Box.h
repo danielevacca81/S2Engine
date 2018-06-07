@@ -9,10 +9,6 @@ namespace glm{
 
 	class box3
 	{
-	private:
-		dvec3 _minPoint;
-		dvec3 _maxPoint;
-
 	public:
 		// -----------------------------------------------------------------------------------------------
 		box3()									   : _minPoint(1.0),_maxPoint(-1.0)  {}
@@ -20,7 +16,7 @@ namespace glm{
 		~box3(){};
 
 		// -----------------------------------------------------------------------------------------------
-		void reset() { _minPoint = Math::dvec3(1.0); _maxPoint = Math::dvec3(-1.0);}
+		void reset() { _minPoint = dvec3(1.0); _maxPoint = dvec3(-1.0);}
 
 		// -----------------------------------------------------------------------------------------------
 		void setMinPoint( const dvec3 &p ) { _minPoint = p; }
@@ -364,7 +360,7 @@ namespace glm{
 
 		// -----------------------------------------------------------------------------------------------
 		// Returns global coords of a local point expressed in [0..1]^3
-		dvec3 localToGlobal( const Math::dvec3 &p ) const
+		dvec3 localToGlobal( const dvec3 &p ) const
 		{
 			if( isNull() )
 				return p;
@@ -444,7 +440,10 @@ namespace glm{
 				_minPoint.y + ((i / 2)%2) * sizeY(),
 				_minPoint.z + (i>3)       * sizeZ());
 		}
-
+	
+	private:
+		dvec3 _minPoint;
+		dvec3 _maxPoint;
 	};
 
 }

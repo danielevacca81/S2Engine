@@ -11,15 +11,15 @@
 
 #include <iostream>
 
-using namespace s2Qt;
+using namespace s2::Qt;
 
 // ------------------------------------------------------------------------------------------------
 GLGraphicsView::GLGraphicsView( QWidget *parent, QFrame::Shape shape )
 : QGraphicsView( parent )
 {
 	setViewportUpdateMode( QGraphicsView::FullViewportUpdate );
-	setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	setHorizontalScrollBarPolicy( ::Qt::ScrollBarAlwaysOff );
+	setVerticalScrollBarPolicy( ::Qt::ScrollBarAlwaysOff );
 	setMouseTracking( true );
 	setFrameShape( shape );
 }
@@ -29,8 +29,8 @@ GLGraphicsView::GLGraphicsView( GLGraphicsScene *scene, QWidget *parent, QFrame:
 : QGraphicsView( parent )
 {
 	setViewportUpdateMode( QGraphicsView::FullViewportUpdate );
-	setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	setHorizontalScrollBarPolicy( ::Qt::ScrollBarAlwaysOff );
+	setVerticalScrollBarPolicy( ::Qt::ScrollBarAlwaysOff );
 	setMouseTracking( true );
 	setFrameShape( shape );
 
@@ -85,5 +85,5 @@ void GLGraphicsView::enterEvent( QEvent *e )
 	QGraphicsView::enterEvent( e );
 
 	if( scene() )
-		scene()->setFocus( Qt::OtherFocusReason );
+		scene()->setFocus( ::Qt::OtherFocusReason );
 }

@@ -7,13 +7,15 @@
 
 #include "Uniform.h"
 
+namespace s2 {
+
 namespace OpenGL {
 
-class S2OPENGL_API UniformBool : public UniformValue<bool>
+class S2OPENGL_API UniformBool: public UniformValue<bool>
 {
 public:
 	UniformBool( int location, const std::string  &name )
-	: UniformValue<bool>( location,name )
+		: UniformValue<bool>( location, name )
 	{}
 
 	virtual ~UniformBool()
@@ -22,5 +24,6 @@ public:
 	void set();
 };
 
+}
 }
 #endif

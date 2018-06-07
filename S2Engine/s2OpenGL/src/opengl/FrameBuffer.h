@@ -10,6 +10,8 @@
 #include <string>
 #include <vector>
 
+namespace s2 {
+
 namespace OpenGL {
 
 class S2OPENGL_API FrameBuffer
@@ -81,5 +83,5 @@ private:
 	std::vector<Attachment> _attachments;
 };
 
-}
+}}
 #endif

@@ -4,6 +4,9 @@
 #ifndef COMMON_FPSCOUNTER_H
 #define COMMON_FPSCOUNTER_H
 
+namespace s2 
+{
+
 class FPSCounter 
 {
 public:
@@ -50,6 +53,6 @@ private:
     float	_elapsedTime;
 };
 
-}}
+}
 
 #endif

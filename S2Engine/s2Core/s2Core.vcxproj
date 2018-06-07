@@ -150,7 +150,6 @@
     <ClInclude Include="src\exceptions\Exception.h" />
     <ClInclude Include="src\filesystem\FileSystem.h" />
     <ClInclude Include="src\geometry\Geometry.h" />
-    <ClInclude Include="src\geometry\Interpolation.h" />
     <ClInclude Include="src\geometry\Intersection.h" />
     <ClInclude Include="src\graphics\Color.h" />
     <ClInclude Include="src\graphics\ImageBuffer.h" />
@@ -177,7 +176,6 @@
     <ClInclude Include="src\utils\Types.h" />
     <ClInclude Include="src\utils\Utils.h" />
     <ClInclude Include="src\win32\EmbeddedResources.h" />
-    <ClInclude Include="src\win32\MemCheck.h" />
     <ClInclude Include="src\win32\Win32.h" />
   </ItemGroup>
   <ItemGroup>
@@ -188,7 +186,6 @@
     <ClCompile Include="src\exceptions\Exception.cpp" />
     <ClCompile Include="src\filesystem\FileSystem.cpp" />
     <ClCompile Include="src\geometry\Geometry.cpp" />
-    <ClCompile Include="src\geometry\Interpolation.cpp" />
     <ClCompile Include="src\geometry\Intersection.cpp" />
     <ClCompile Include="src\graphics\Color.cpp" />
     <ClCompile Include="src\patterns\Observer.cpp" />

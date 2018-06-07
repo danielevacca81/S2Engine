@@ -2,7 +2,8 @@
 //
 #include "Mesh.h"
 
-using namespace OpenGL;
+using namespace s2;
+using namespace s2::OpenGL;
 
 // ------------------------------------------------------------------------------------------------
 // Mesh Attribute location:

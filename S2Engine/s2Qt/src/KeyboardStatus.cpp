@@ -4,7 +4,7 @@
 
 #include <QKeyEvent>
 
-using namespace s2Qt;
+using namespace s2::Qt;
 
 // -----------------------------------------------------------------------------------------------
 KeyboardStatus::KeyboardStatus()
@@ -41,12 +41,12 @@ void KeyboardStatus::update( QKeyEvent *e, bool pressed )
 	if (modifiers & Qt::AltModifier)	 modifiers |= ModifierAlt;
 #endif
 	modifiers = 0;
-	Qt::KeyboardModifiers mod = e->modifiers();
+	::Qt::KeyboardModifiers mod = e->modifiers();
 
-	if (mod & Qt::ShiftModifier)	modifiers |= ModifierShift;
-	if (mod & Qt::ControlModifier)	modifiers |= ModifierCtrl;
-	if (mod & Qt::AltModifier)		modifiers |= ModifierAlt;
-	if (mod & Qt::MetaModifier)		modifiers |= ModifierMeta;
+	if (mod & ::Qt::ShiftModifier)	    modifiers |= ModifierShift;
+	if (mod & ::Qt::ControlModifier)	modifiers |= ModifierCtrl;
+	if (mod & ::Qt::AltModifier)		modifiers |= ModifierAlt;
+	if (mod & ::Qt::MetaModifier)		modifiers |= ModifierMeta;
 
 	keySequence = QKeySequence( e->key() );
 	e->accept();
@@ -61,10 +61,10 @@ unsigned int KeyboardStatus::getCode() const
     {
         ks = keySequence[0];
 
-        if (modifiers & ModifierShift) ks += Qt::SHIFT;
-        if (modifiers & ModifierCtrl)  ks += Qt::CTRL;
-        if (modifiers & ModifierAlt)   ks += Qt::ALT;
-        if (modifiers & ModifierMeta)  ks += Qt::META;
+        if (modifiers & ModifierShift) ks += ::Qt::SHIFT;
+        if (modifiers & ModifierCtrl)  ks += ::Qt::CTRL;
+        if (modifiers & ModifierAlt)   ks += ::Qt::ALT;
+        if (modifiers & ModifierMeta)  ks += ::Qt::META;
     }
 	return ks;
 }

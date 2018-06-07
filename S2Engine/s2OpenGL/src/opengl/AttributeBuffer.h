@@ -7,6 +7,8 @@
 
 #include "s2OpenGL_API.h"
 
+namespace s2 {
+
 namespace OpenGL {
 
 /************************************************************************************************/
@@ -32,7 +34,7 @@ public:
 	AttributeBuffer();
 	~AttributeBuffer();
 
-	void set( 
+	void set(
 		const VertexBuffer      &buffer,
 		const ComponentDatatype &componentDatatype,
 		int                     numberOfComponents,
@@ -42,20 +44,20 @@ public:
 
 	void attach( int loc );
 	void detach();
-	
+
 	ComponentDatatype componentDatatype()  const { return _componentDatatype; }
-	bool              isValid()            const { return _valid;             }
-	int               numberOfComponents() const { return _numberOfComponents;}
-	int               offset()             const { return _offset;            }
-	bool              normalize()          const { return _normalize;         }
+	bool              isValid()            const { return _valid; }
+	int               numberOfComponents() const { return _numberOfComponents; }
+	int               offset()             const { return _offset; }
+	bool              normalize()          const { return _normalize; }
 	//int               sizeInBytes()        const { return _size;              }
-	int               strideInBytes()      const { return _stride;            }
+	int               strideInBytes()      const { return _stride; }
 	int               numberOfVertices()   const { return _vertexBuffer.sizeInBytes() / _stride; }
 
 private:
 	VertexBuffer      _vertexBuffer;
 	ComponentDatatype _componentDatatype;
-	
+
 	int  _location;
 	int  _numberOfComponents;
 	int  _offset;
@@ -65,5 +67,5 @@ private:
 };
 
 } // namespace OpenGL
-
+}
 #endif

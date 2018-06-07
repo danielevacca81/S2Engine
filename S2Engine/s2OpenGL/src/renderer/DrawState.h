@@ -9,7 +9,7 @@
 #include "ClearState.h"
 #include "OpenGL/Program.h"
 
-
+namespace s2 {
 namespace OpenGL {
 
 	struct DrawState
@@ -28,5 +28,5 @@ namespace OpenGL {
 	};
 
 }
-
+}
 #endif

@@ -10,16 +10,18 @@
 #include <string>
 #include <vector>
 
+namespace s2 {
+
 class S2CORE_API CommandLineParser
 {
 public:
 	CommandLineParser( int argc, char *argv[] );
 	virtual ~CommandLineParser();
 
-	
+
 	std::string lastError() const;
-	
-	std::vector<CommandLineOption> options() const { return _commandLineOptions; } 
+
+	std::vector<CommandLineOption> options() const { return _commandLineOptions; }
 
 private:
 	std::string _lastError;
@@ -31,5 +33,6 @@ private:
 
 };
 
+}
 
 #endif

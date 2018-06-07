@@ -10,6 +10,7 @@
 
 #include <vector>
 
+namespace s2 {
 namespace OpenGL {
 
 //class VertexArray;
@@ -24,7 +25,7 @@ public:
 	VertexArray();
 	~VertexArray();
 
-	AttributeBuffer *attribute(int i) const;
+	AttributeBuffer *attribute( int i ) const;
 	IndexBuffer     *indexBuffer()    const;
 
 	bool isIndexed() const;
@@ -41,5 +42,5 @@ private:
 };
 
 } // namespace OpenGL
-
+}
 #endif

@@ -2,7 +2,8 @@
 // 
 #include "ViewState.h"
 
-using namespace OpenGL;
+using namespace s2;
+using namespace s2::OpenGL;
 
 // -------------------------------------------------------------------------------------
 double ViewState::pixelSize( const Math::dvec3 &p) const

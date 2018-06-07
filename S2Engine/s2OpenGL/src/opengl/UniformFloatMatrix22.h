@@ -7,13 +7,15 @@
 
 #include "Uniform.h"
 
+namespace s2 {
+
 namespace OpenGL {
 
-class S2OPENGL_API UniformFloatMatrix22 : public UniformValue<Math::mat2>
+class S2OPENGL_API UniformFloatMatrix22: public UniformValue<Math::mat2>
 {
 public:
 	UniformFloatMatrix22( int location, const std::string  &name )
-	: UniformValue<Math::mat2>( location,name )
+		: UniformValue<Math::mat2>( location, name )
 	{}
 
 	virtual ~UniformFloatMatrix22()
@@ -22,5 +24,6 @@ public:
 	void set();
 };
 
+}
 }
 #endif

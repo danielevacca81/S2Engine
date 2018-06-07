@@ -11,12 +11,11 @@
 #include <ctime>
 #include <memory>
 
-// ------------------------------------------------------------------------------------------------
+namespace s2 {
+
 class S2CORE_API EventHandler
 {
 private:
-	//static EventHandler *instance; // singleton instance
-
 	EventHandler();
 
 public:
@@ -26,7 +25,7 @@ public:
 
 	static int eventsCount();
 	static int eventsCount( const std::string& moduleName );
-	
+
 	static std::list<EventPtr> eventsList();
 	static std::list<EventPtr> eventsList( const std::string& moduleName );
 
@@ -34,5 +33,5 @@ public:
 };
 
 
-
+}
 #endif

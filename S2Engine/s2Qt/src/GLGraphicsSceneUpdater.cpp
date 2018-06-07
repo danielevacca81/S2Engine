@@ -9,7 +9,9 @@
 #ifdef _DEBUG
 #include <iostream>
 #endif
-using namespace s2Qt;
+
+
+using namespace s2::Qt;
 
 // ------------------------------------------------------------------------------------------------
 GLGraphicsSceneUpdater::GLGraphicsSceneUpdater( GLGraphicsScene *scene, unsigned int refreshTime )

@@ -10,7 +10,9 @@
 #include <QPoint>
 #include <QGestureEvent>
 
-namespace s2Qt {
+namespace s2 {
+
+namespace Qt {
 
 class S2QT_API GestureStatus
 {
@@ -39,29 +41,30 @@ public:
 	GestureStatus();
 	~GestureStatus() {}
 
-    void update( QGestureEvent *e );
+	void update( QGestureEvent *e );
 
 	// -----------------------------------------------------------------------------------------------
 	double    scaleFactor() const { return _scaleFactor; }
 	double    angle()       const { return _angleDeg; }
 	//QPointF   center()      const { return _center;   }
-    Math::ivec2  center()   const { return Math::ivec2(_center.x(), _center.y()); }
-    Math::ivec2  deltaPan() const { return Math::ivec2(_delta.x(), _delta.y()); }
-    Math::ivec2  prevCenter()   const { return Math::ivec2(_prevCenter.x(), _prevCenter.y()); }
-    Direction direction()   const;
-	
+	Math::ivec2  center()   const { return Math::ivec2( _center.x(), _center.y() ); }
+	Math::ivec2  deltaPan() const { return Math::ivec2( _delta.x(), _delta.y() ); }
+	Math::ivec2  prevCenter()   const { return Math::ivec2( _prevCenter.x(), _prevCenter.y() ); }
+	Direction direction()   const;
+
 	unsigned int getCode() const { return _gestureCode; }
 
 private:
 	double  _scaleFactor;
 	double  _angleDeg;
-    QPointF _center;
-    QPointF _delta;
-    QPointF _prevCenter;
+	QPointF _center;
+	QPointF _delta;
+	QPointF _prevCenter;
 
 	unsigned int _gestureCode;
 };
 
+}
 }
 
 #endif

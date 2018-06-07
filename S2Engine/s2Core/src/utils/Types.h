@@ -8,7 +8,7 @@
 #include <memory>
 
 // ********************************************************
-#define DECLARE_SHARED_PTR(X)               \
+#define DECLARE_SHARED_PTR_CLASS(X)  \
 class X;                             \
 typedef std::shared_ptr<X> X ## Ptr; \
 // ********************************************************

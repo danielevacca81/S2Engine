@@ -24,7 +24,13 @@
 #include "gtx/polar_coordinates.hpp"
 #include "gtx/spline.hpp"
 
+namespace s2 {
+
 namespace Math = glm;
+
+/* do not include any glm custom class/function into s2 or s2::Math namespace*/
+
+}
 
 namespace glm {
 	//// ------------------------------------------------------------------------------------------------

@@ -8,8 +8,8 @@
 
 #include "utils/String.h"
 
-namespace R
-{
+namespace s2 {
+namespace R {
 
 // ------------------------------------------------------------------------------------------------
 void init()
@@ -33,25 +33,26 @@ std::string string( const std::string &resourceName )
 #ifdef _WIN32
 	auto r = String::split<std::string>( resourceName, "/" );
 
-	if( !Win32::EmbeddedResources::exists(r[0],r[1]) )
+	if( !Win32::EmbeddedResources::exists( r[0], r[1] ) )
 		return "";
 
-	return std::string( (char*)( Win32::EmbeddedResources::get( r[0],r[1] ) ) );
+	return std::string( (char*) ( Win32::EmbeddedResources::get( r[0], r[1] ) ) );
 #endif // _WIN32
 }
 
 // ------------------------------------------------------------------------------------------------
-unsigned char *bytes ( const std::string &resourceName )
+unsigned char *bytes( const std::string &resourceName )
 {
 #ifdef _WIN32
 	auto r = String::split<std::string>( resourceName, "/" );
 
-	if( !Win32::EmbeddedResources::exists(r[0],r[1]) )
+	if( !Win32::EmbeddedResources::exists( r[0], r[1] ) )
 		return 0;
 
-	return (unsigned char*)( Win32::EmbeddedResources::get( r[0],r[1] ) );
+	return (unsigned char*) ( Win32::EmbeddedResources::get( r[0], r[1] ) );
 #endif // _WIN32
 }
 
 
+}
 }

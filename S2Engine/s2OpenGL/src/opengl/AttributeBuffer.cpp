@@ -4,7 +4,9 @@
 
 #include "OpenGL/OpenGLWrap.h"
 
-using namespace OpenGL;
+using namespace s2;
+
+using namespace s2::OpenGL;
 
 
 //-------------------------------------------------------------------------------------------------

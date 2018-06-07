@@ -7,6 +7,8 @@
 
 #include "Math/Rectangle.h"
 
+
+using namespace s2;
 using namespace OpenGL;
 
 #define SHADOWING 0

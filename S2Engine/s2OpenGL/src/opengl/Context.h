@@ -8,6 +8,8 @@
 #include <vector>
 #include <string>
 
+namespace s2 {
+
 namespace OpenGL {
 
 class S2OPENGL_API Context
@@ -22,7 +24,7 @@ public:
 	bool initExtensions();
 	void makeCurrent();
 	void swapBuffers();
-	void enableVSync(bool enable);
+	void enableVSync( bool enable );
 
 	std::vector<std::string> extensions() const;
 	std::string              info()       const;
@@ -32,6 +34,7 @@ protected:
 	void *_hDC;
 	void *_hRC;
 };
+}
 }
 
 #endif

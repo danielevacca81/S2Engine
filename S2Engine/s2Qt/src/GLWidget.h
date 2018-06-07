@@ -7,9 +7,9 @@
 
 #include <QOpenGLWidget>
 
-namespace s2Qt{
+namespace s2 {
 
-
+namespace Qt {
 /**
 Context Sharing
 When multiple QOpenGLWidgets are added as children to the same top-level widget,
@@ -39,7 +39,7 @@ signals:
 	void openGLInitialized();
 };
 
-}
+}}
 
 
 #endif

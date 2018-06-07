@@ -11,6 +11,8 @@
 #include <string>
 #include <memory>
 
+namespace s2 {
+
 namespace OpenGL {
 
 // ------------------------------------------------------------------------------------------------
@@ -20,37 +22,37 @@ typedef std::shared_ptr<Program>   ProgramPtr;
 class S2OPENGL_API Program
 {
 public:
-	static ProgramPtr New() { return std::make_shared<Program>();}
+	static ProgramPtr New() { return std::make_shared<Program>(); }
 	Program();
 	~Program();
 
-	bool attachVertexShader  ( const std::string &vertexSource   );
+	bool attachVertexShader( const std::string &vertexSource );
 	bool attachFragmentShader( const std::string &fragmentSource );
 	bool attachGeometryShader( const std::string &geometrySource );
 
-	bool link( const std::string &name = std::string("") );
+	bool link( const std::string &name = std::string( "" ) );
 
 	bool isValid()     const;
 	bool isLinked()    const;
 	std::string info( bool verbose = false ) const;
 	std::string name() const;
-	bool operator==( const Program &) const;
-	bool operator!=( const Program &) const;
+	bool operator==( const Program & ) const;
+	bool operator!=( const Program & ) const;
 
 	void bind()   const;
 	void unbind() const;
 
 	//Uniform *uniform( const std::string &name );
-	
+
 	template< typename T >
 	inline UniformValue<T> *uniform( const std::string &name ) const
 	{
-		auto it = _uniforms.find(name);
+		auto it = _uniforms.find( name );
 
 		if( it == _uniforms.end() )
 			return 0;
 
-		return dynamic_cast< UniformValue<T> *>( it->second );
+		return dynamic_cast<UniformValue<T> *>( it->second );
 	}
 
 private:
@@ -75,5 +77,6 @@ protected:
 	std::map< std::string, Uniform*>       _uniforms;
 };
 
+}
 }
 #endif

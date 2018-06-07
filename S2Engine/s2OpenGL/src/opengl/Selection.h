@@ -10,7 +10,10 @@
 
 #include <vector>
 
-namespace OpenGL{
+
+namespace s2 {
+
+namespace OpenGL {
 
 //---------------------------------------------------------------------------------------------
 /**
@@ -32,11 +35,11 @@ public:
 	class Name
 	{
 	public:
-		explicit Name(unsigned int id);
+		explicit Name( unsigned int id );
 		~Name();
 	};
 
-	enum SelectionMode {Nearest, All};
+	enum SelectionMode { Nearest, All };
 
 	Selection( unsigned int windowSizeW=9, unsigned int windowSizeH=9 );
 	~Selection();
@@ -52,7 +55,7 @@ public:
 	bool getNearestObject( unsigned int &id );
 
 private:
-	enum {MinBufferSize = 4096}; // 4 ^ 6  (1024 different entries in the selection buffer)
+	enum { MinBufferSize = 4096 }; // 4 ^ 6  (1024 different entries in the selection buffer)
 
 	std::vector<unsigned int> buffer;
 	std::vector<unsigned int> currSelection;
@@ -67,5 +70,6 @@ private:
 	bool fail;
 };
 
+}
 }
 #endif 

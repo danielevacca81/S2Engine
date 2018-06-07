@@ -8,7 +8,7 @@
 #include <iostream>
 
 // ------------------------------------------------------------------------------------------------
-bool s2Qt::createOpenGLContext( int openGLMajorVer, int openGLMinorVer )
+bool s2::Qt::createOpenGLContext( int openGLMajorVer, int openGLMinorVer )
 {
 	QSurfaceFormat f = QSurfaceFormat::defaultFormat();
     f.setVersion( openGLMajorVer, openGLMinorVer );

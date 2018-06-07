@@ -87,9 +87,6 @@
     <ClInclude Include="src\geometry\Geometry.h">
       <Filter>src\geometry</Filter>
     </ClInclude>
-    <ClInclude Include="src\geometry\Interpolation.h">
-      <Filter>src\geometry</Filter>
-    </ClInclude>
     <ClInclude Include="src\geometry\Intersection.h">
       <Filter>src\geometry</Filter>
     </ClInclude>
@@ -127,9 +124,6 @@
       <Filter>src\resources</Filter>
     </ClInclude>
     <ClInclude Include="src\win32\EmbeddedResources.h">
-      <Filter>src\win32</Filter>
-    </ClInclude>
-    <ClInclude Include="src\win32\MemCheck.h">
       <Filter>src\win32</Filter>
     </ClInclude>
     <ClInclude Include="src\win32\Win32.h">
@@ -198,9 +192,6 @@
       <Filter>src\exceptions</Filter>
     </ClCompile>
     <ClCompile Include="src\geometry\Geometry.cpp">
-      <Filter>src\geometry</Filter>
-    </ClCompile>
-    <ClCompile Include="src\geometry\Interpolation.cpp">
       <Filter>src\geometry</Filter>
     </ClCompile>
     <ClCompile Include="src\geometry\Intersection.cpp">

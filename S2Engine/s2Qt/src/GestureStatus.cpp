@@ -5,7 +5,7 @@
 #include <iostream>
 #include <QWidget>
 
-using namespace s2Qt;
+using namespace s2::Qt;
 
 // ------------------------------------------------------------------------------------------------
 GestureStatus::GestureStatus()
@@ -29,14 +29,14 @@ void GestureStatus::update( QGestureEvent *e )
 {
 	_gestureCode = None;
 
-	if( QGesture *g = e->gesture( Qt::SwipeGesture ) )
+	if( QGesture *g = e->gesture( ::Qt::SwipeGesture ) )
 	{
         _gestureCode = Swipe;
 
 		QSwipeGesture *swipe = static_cast<QSwipeGesture *>(g);
 		//swipe->setGestureCancelPolicy( QGesture::CancelAllInContext );
 
-		if( g->state() == Qt::GestureFinished )
+		if( g->state() == ::Qt::GestureFinished )
 		{        
 			if( swipe->horizontalDirection() == QSwipeGesture::Left )   { std::cout << "LEFT" ; _gestureCode |= (unsigned int) Left; }
 			if( swipe->horizontalDirection() == QSwipeGesture::Right )  { std::cout << "RIGHT"; _gestureCode |= (unsigned int) Right; }
@@ -74,7 +74,7 @@ void GestureStatus::update( QGestureEvent *e )
     //}
 	
 	// @note: The QPinchGesture has a panning component
-	if( QGesture *g = e->gesture( Qt::PinchGesture ) )
+	if( QGesture *g = e->gesture( ::Qt::PinchGesture ) )
 	{
         _gestureCode = Pinch;
 
@@ -110,11 +110,11 @@ void GestureStatus::update( QGestureEvent *e )
 		e->accept( pinchGesture );
 	}
 
-    if (QGesture *g = e->gesture(Qt::TapGesture))
+    if (QGesture *g = e->gesture(::Qt::TapGesture))
     {
         //std::wcout << L"TapGesture" << std::endl;
         QTapGesture *tapGesture = static_cast<QTapGesture *>(g);
-        if (g->state() == Qt::GestureFinished)
+        if (g->state() == ::Qt::GestureFinished)
         {
             _gestureCode = Tap;
 
@@ -127,11 +127,11 @@ void GestureStatus::update( QGestureEvent *e )
         //e->accept(tapGesture);
     }
 
-    if (QGesture *g = e->gesture(Qt::TapAndHoldGesture))
+    if (QGesture *g = e->gesture(::Qt::TapAndHoldGesture))
     {
         //std::wcout << L"TapAndHoldGesture" << std::endl;
         QTapAndHoldGesture *tapHoldGesture = static_cast<QTapAndHoldGesture *>(g);
-        if (g->state() == Qt::GestureFinished)
+        if (g->state() == ::Qt::GestureFinished)
         {
             _gestureCode = TapAndHold;
 

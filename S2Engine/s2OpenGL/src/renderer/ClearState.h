@@ -6,6 +6,7 @@
 #include "graphics/Color.h"
 #include "RenderState.h"
 
+namespace s2 {
 namespace OpenGL {
 
 struct ClearState
@@ -34,5 +35,5 @@ struct ClearState
 };
 
 }
-
+}
 #endif

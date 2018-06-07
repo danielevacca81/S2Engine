@@ -10,7 +10,10 @@
 #include <QGraphicsScene>
 #include <QGraphicsWidget>
 
-namespace s2Qt{
+namespace s2 {
+
+namespace Qt {
+
 
 class GLGraphicsView;
 class GLGraphicsSceneUpdater;
@@ -75,7 +78,7 @@ protected:
 };
 
 
-}
+}}
 
 
 #endif

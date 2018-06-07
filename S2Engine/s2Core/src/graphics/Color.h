@@ -5,6 +5,8 @@
 
 #include "s2Core_API.h"
 
+namespace s2 {
+
 class S2CORE_API Color
 {
 
@@ -85,5 +87,7 @@ public:
 private:
 	float _r,_g,_b,_a;
 };
+
+}
 
 #endif

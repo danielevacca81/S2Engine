@@ -17,6 +17,7 @@
 
 #include "OpenGL/OpenGL.h"
 
+using namespace s2;
 using namespace OpenGL;
 
 void UniformBool::set()    { glUniform1i(_location,_value); }

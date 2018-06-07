@@ -7,6 +7,8 @@
 
 #include "Uniform.h"
 
+namespace s2 {
+
 namespace OpenGL {
 
 class S2OPENGL_API UniformSampler : public UniformValue<int>
@@ -22,5 +24,6 @@ public:
 	void set();
 };
 
+}
 }
 #endif

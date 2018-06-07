@@ -13,57 +13,57 @@ namespace glm {
 /// Line - line intersection in 2D
 bool S2CORE_API lineIntersection
 (
-	const Math::dvec2 &a1, 
-	const Math::dvec2 &a2,
-	const Math::dvec2 &b1,
-	const Math::dvec2 &b2,
-	Math::dvec2 *out=0
+	const dvec2 &a1,
+	const dvec2 &a2,
+	const dvec2 &b1,
+	const dvec2 &b2,
+	dvec2 *out=0
 );
 
-bool S2CORE_API lineBoxIntersection( 
-	const Math::dvec3 &p0,
-	const Math::dvec3 &p1, 
-	const Math::box3 &b );
+bool S2CORE_API lineBoxIntersection(
+	const dvec3 &p0,
+	const dvec3 &p1,
+	const box3 &b );
 
 /// Cross product for 2D vectors
-double cross(const Math::dvec2& a, const Math::dvec2& b);
+double cross( const dvec2& a, const dvec2& b );
 
 /// Check if two points p1, p1 are on the same side of line a-b (in 2D)
 bool S2CORE_API pointsOnSameSideOfLine
 (
-	const Math::dvec2 &p1,
-	const Math::dvec2 &p2, 
-	const Math::dvec2 &a,
-	const Math::dvec2 &b
+	const dvec2 &p1,
+	const dvec2 &p2,
+	const dvec2 &a,
+	const dvec2 &b
 );
 
 /// Check a point belongs to triangle in 2D
 bool S2CORE_API pointBelongsToTriangle
 (
-	const Math::dvec2 &p,
-	const Math::dvec2 &a1, 
-	const Math::dvec2 &a2,
-	const Math::dvec2 &a3
+	const dvec2 &p,
+	const dvec2 &a1,
+	const dvec2 &a2,
+	const dvec2 &a3
 );
 
 /// Check 2 triangles intersects in 2D
 bool S2CORE_API triangles2DIntersection
 (
-	const Math::dvec2 &a1, 
-	const Math::dvec2 &a2,
-	const Math::dvec2 &a3,
-	const Math::dvec2 &b1, 
-	const Math::dvec2 &b2,
-	const Math::dvec2 &b3
+	const dvec2 &a1,
+	const dvec2 &a2,
+	const dvec2 &a3,
+	const dvec2 &b1,
+	const dvec2 &b2,
+	const dvec2 &b3
 );
 
 /// Check if a triangle intersects a box in 2D (even if box3 is 3D)
 bool S2CORE_API triangleBox2DIntersection
 (
-	const Math::dvec2 &a1, 
-	const Math::dvec2 &a2,
-	const Math::dvec2 &a3,
-	const Math::box3  &b
+	const dvec2 &a1,
+	const dvec2 &a2,
+	const dvec2 &a3,
+	const box3  &b
 );
 
 }

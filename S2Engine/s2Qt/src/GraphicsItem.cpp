@@ -2,7 +2,7 @@
 //
 #include "GraphicsItem.h"
 
-using namespace s2Qt;
+using namespace s2::Qt;
 
 //----------------------------------------------------------------------------------------------
 GraphicsItem::GraphicsItem()

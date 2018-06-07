@@ -11,6 +11,7 @@
 #include "Math/Rectangle.h"
 #include "Math/Ray.h"
 
+namespace s2 {
 namespace OpenGL {
 
 class S2OPENGL_API ViewState
@@ -91,5 +92,6 @@ protected:
 
 }
 
+}
 
 #endif

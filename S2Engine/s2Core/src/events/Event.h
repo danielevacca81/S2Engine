@@ -9,6 +9,8 @@
 #include <string>
 #include <ctime>
 
+namespace s2 {
+
 class Event;
 typedef std::shared_ptr<Event> EventPtr;
 
@@ -25,11 +27,11 @@ public:
 
 public:
 	Event( const Priority& p, const std::string& name, const std::string& msg, const std::string& details, const std::time_t& t )
-	: _message( msg )
-	, _details( details )
-	, _moduleName( name )
-	, _priority( p )
-	, _timestamp( t )
+		: _message( msg )
+		, _details( details )
+		, _moduleName( name )
+		, _priority( p )
+		, _timestamp( t )
 	{}
 
 
@@ -54,4 +56,6 @@ protected:
 	Priority    _priority;
 };
 
+
+}
 #endif // !COMMON_EVENT_H

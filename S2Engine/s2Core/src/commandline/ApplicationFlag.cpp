@@ -7,6 +7,8 @@
 #endif
 #include <iostream>
 
+namespace s2 {
+
 // ------------------------------------------------------------------------------------------------
 void ConsoleFlag::activate()
 {
@@ -18,9 +20,11 @@ void ConsoleFlag::activate()
 	//freopen("CONOUT$", "w", stdout ); 
 
 	FILE* fp;
-	freopen_s(&fp, "CONOUT$", "w", stdout);
+	freopen_s( &fp, "CONOUT$", "w", stdout );
 
 	std::cout.clear();
 	std::wcout.clear();
 #endif
+}
+
 }

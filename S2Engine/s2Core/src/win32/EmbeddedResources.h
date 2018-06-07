@@ -9,6 +9,8 @@
 #include <string>
 #include <map>
 
+namespace s2 {
+
 namespace Win32 {
 
 class S2CORE_API EmbeddedResources
@@ -22,16 +24,20 @@ private:
 		const unsigned char *data;
 	};
 
-	static std::map<std::string,ResourceEntry> _resources;
+	static std::map<std::string, ResourceEntry> _resources;
 
 
 public:
 	static bool init();
 	static void free();
-	
+
 	static const bool            exists( const std::string &type, const std::string &name );
 	static const unsigned char * get( const std::string &type, const std::string &name );
 };
+
+
+
+}
 
 }
 #endif

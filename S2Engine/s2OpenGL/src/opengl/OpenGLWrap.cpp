@@ -2,6 +2,8 @@
 // 
 #include "OpenGLWrap.h"
 
+namespace s2 {
+
 namespace OpenGL {
 /************************************************************************************************/
 /*                                          IndexBuffer                                         */
@@ -99,21 +101,21 @@ unsigned int glWrap( const BufferObject::BufferMapMode &mode )
 /************************************************************************************************/
 #pragma region Texture
 // ------------------------------------------------------------------------------------------------
- unsigned int glWrap( const Texture::TextureType &type )
+unsigned int glWrap( const Texture::TextureType &type )
 {
 	switch( type )
 	{
 	case Texture::Texture_1D: return GL_TEXTURE_1D;
 	case Texture::Texture_2D: return GL_TEXTURE_1D;
 	}
-	
+
 	return GL_INVALID_ENUM;
 }
 
 // ------------------------------------------------------------------------------------------------
- unsigned int glWrap( const Texture::DataFormat &format )
+unsigned int glWrap( const Texture::DataFormat &format )
 {
-	switch(format)
+	switch( format )
 	{
 	case Texture::Red: return GL_RED;
 	case Texture::RG: return GL_RG;
@@ -131,11 +133,11 @@ unsigned int glWrap( const BufferObject::BufferMapMode &mode )
 	case Texture::DepthComponent: return GL_DEPTH_COMPONENT;
 	case Texture::DepthStencil: return GL_DEPTH_STENCIL;
 	}
-	
+
 	return -1;
 }
 // ------------------------------------------------------------------------------------------------
- unsigned int glWrap( const Texture::DataType &type )
+unsigned int glWrap( const Texture::DataType &type )
 {
 	switch( type )
 	{
@@ -159,12 +161,12 @@ unsigned int glWrap( const BufferObject::BufferMapMode &mode )
 	case Texture::UInt_10_10_10_2:   return GL_UNSIGNED_INT_10_10_10_2;
 	case Texture::UInt_2_10_10_10_r: return GL_UNSIGNED_INT_2_10_10_10_REV;
 	}
-	
+
 	return -1;
 }
 
 // ------------------------------------------------------------------------------------------------
- unsigned int glWrap( const Texture::TextureMinFilter &filter )
+unsigned int glWrap( const Texture::TextureMinFilter &filter )
 {
 	switch( filter )
 	{
@@ -180,7 +182,7 @@ unsigned int glWrap( const BufferObject::BufferMapMode &mode )
 }
 
 // ------------------------------------------------------------------------------------------------
- unsigned int glWrap( const Texture::TextureMagFilter &filter )
+unsigned int glWrap( const Texture::TextureMagFilter &filter )
 {
 	switch( filter )
 	{
@@ -188,11 +190,11 @@ unsigned int glWrap( const BufferObject::BufferMapMode &mode )
 	case Texture::MagFilterBilinear: return GL_LINEAR;
 	}
 
-	return -1;	
+	return -1;
 }
 
 // ------------------------------------------------------------------------------------------------
- unsigned int glWrap( const Texture::WrapMode &mode )
+unsigned int glWrap( const Texture::WrapMode &mode )
 {
 	switch( mode )
 	{
@@ -201,7 +203,7 @@ unsigned int glWrap( const BufferObject::BufferMapMode &mode )
 	case Texture::MirroredRepeat:  return GL_MIRRORED_REPEAT;
 	}
 
-	return -1;	
+	return -1;
 }
 #pragma endregion
 
@@ -376,7 +378,7 @@ unsigned int glWrap( const ClearBuffers &buffers )
 }
 
 // ------------------------------------------------------------------------------------------------
-unsigned int glWrap( const RenderState::RasterizationMode &mode)
+unsigned int glWrap( const RenderState::RasterizationMode &mode )
 {
 	switch( mode )
 	{
@@ -412,4 +414,5 @@ unsigned int glWrap( const PrimitiveType &primitive )
 
 #pragma endregion
 
+}
 }

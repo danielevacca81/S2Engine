@@ -9,7 +9,7 @@
 
 #include <vector>
 
-//class VMesh;
+namespace s2 {
 
 namespace Geometry
 {
@@ -28,7 +28,7 @@ std::vector< Math::dvec3 > S2CORE_API circle( const Math::dvec3 &center, double 
 std::vector< Math::dvec3 > S2CORE_API torus( int numc, int numt );
 //VMesh S2CORE_API teapot( int resU, int resV );
 
-
+}
 }
 
 #endif
