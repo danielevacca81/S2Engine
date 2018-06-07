@@ -317,8 +317,6 @@ void TestScene::renderScene()
 		_shaderBlinnPhong->uniform<Math::mat3>( "normalMatrix"              )->setValue( _viewState.normalMatrix() );
 
 		OpenGL::DrawState ds( _shaderBlinnPhong );
-		ds.renderState.faceCulling.enabled = true;
-		ds.renderState.depthTest.enabled   = true;
 
 		_renderer.draw( OpenGL::Triangles, _cubeMesh, _viewState, ds );
 	}
@@ -345,7 +343,6 @@ void TestScene::onMousePressed()
 
 	if( ms.buttonDown() & QtBridge::MouseStatus::ButtonRight )
 		_trackball.update( s2::TrackBall::Start_Drag, Math::ivec2( ms.currentPosition().x,ms.currentPosition().y ) );
-	invalidate();
 }
 
 // -----------------------------------------------------------------------------------------------
@@ -355,7 +352,6 @@ void TestScene::onMouseReleased()
 	
 	if( ms.buttonUp() & QtBridge::MouseStatus::ButtonRight )
 		_trackball.update( s2::TrackBall::End_Drag, Math::ivec2( ms.currentPosition().x,ms.currentPosition().y ) );
-	invalidate();
 }
 
 // -----------------------------------------------------------------------------------------------
@@ -379,8 +375,6 @@ void TestScene::onMouseMoved()
 
 	if( ms.buttonDown() & QtBridge::MouseStatus::ButtonRight )
 		_trackball.update( s2::TrackBall::Drag, Math::ivec2( ms.currentPosition().x,ms.currentPosition().y ) );
-	
-	invalidate();
 }
 
 // -----------------------------------------------------------------------------------------------
@@ -406,7 +400,6 @@ void TestScene::onMouseWheel()
 
 
 
-	invalidate();
 }
 
 // -----------------------------------------------------------------------------------------------
@@ -416,7 +409,6 @@ void TestScene::onMouseDoubleClick()
 	_camera.set( Math::dvec3(0,0,4), Math::dvec3(0,0,0), Math::dvec3(0,1,0));
 	_viewState.model = Math::dmat4();
 	_trackball.reset();
-	invalidate();
 }
 
 // -----------------------------------------------------------------------------------------------

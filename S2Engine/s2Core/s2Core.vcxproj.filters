@@ -1,0 +1,243 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{b2cc396e-4eaa-442a-9757-15b94d0a7452}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\commandline">
+      <UniqueIdentifier>{b547e0bc-4f2e-4b7a-9c18-3bd240bd2b10}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\containers">
+      <UniqueIdentifier>{b58e0f0f-3bc7-4474-8495-d7ce97cb360c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\events">
+      <UniqueIdentifier>{248bb0be-88af-46c8-9a00-bfd3915681f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\exceptions">
+      <UniqueIdentifier>{3bafe899-eb6f-454f-bb2d-5a4350794f27}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\filesystems">
+      <UniqueIdentifier>{01b4be7d-052b-413a-8027-d9ddac61ec8c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\geometry">
+      <UniqueIdentifier>{69785d3a-1921-4aab-9107-c34012066989}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\graphics">
+      <UniqueIdentifier>{50dd015f-b086-4ca4-ab69-9caeb513d534}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\math">
+      <UniqueIdentifier>{576ac71f-5b97-4fae-aed9-8435acc8441a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\patterns">
+      <UniqueIdentifier>{02691c3d-6192-438f-bffc-fca800dd490b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\resources">
+      <UniqueIdentifier>{9e3b0a57-fcef-45b3-a621-26390f2f6e5b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\utils">
+      <UniqueIdentifier>{ae2bad38-f8d7-41ec-ac5a-153dce1b26c9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\win32">
+      <UniqueIdentifier>{a350220a-418e-45a1-8b53-a02b44d27291}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\commandline\ApplicationFlag.h">
+      <Filter>src\commandline</Filter>
+    </ClInclude>
+    <ClInclude Include="src\commandline\CommandLineOption.h">
+      <Filter>src\commandline</Filter>
+    </ClInclude>
+    <ClInclude Include="src\commandline\CommandLineParser.h">
+      <Filter>src\commandline</Filter>
+    </ClInclude>
+    <ClInclude Include="src\containers\Array2D.h">
+      <Filter>src\containers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\containers\Array2D.hpp">
+      <Filter>src\containers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\containers\Array3D.h">
+      <Filter>src\containers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\containers\Array3D.hpp">
+      <Filter>src\containers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\containers\DataCache2D.h">
+      <Filter>src\containers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\containers\DataCache2D.hpp">
+      <Filter>src\containers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\containers\LRUCache.h">
+      <Filter>src\containers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\containers\SafeQueue.h">
+      <Filter>src\containers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\containers\ValidType.h">
+      <Filter>src\containers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\events\EventHandler.h">
+      <Filter>src\events</Filter>
+    </ClInclude>
+    <ClInclude Include="src\exceptions\Exception.h">
+      <Filter>src\exceptions</Filter>
+    </ClInclude>
+    <ClInclude Include="src\geometry\Geometry.h">
+      <Filter>src\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="src\geometry\Interpolation.h">
+      <Filter>src\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="src\geometry\Intersection.h">
+      <Filter>src\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphics\Color.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphics\ImageBuffer.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphics\ImageBuffer.hpp">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\Box.h">
+      <Filter>src\math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\Math.h">
+      <Filter>src\math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\Plane.h">
+      <Filter>src\math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\Ray.h">
+      <Filter>src\math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\Rectangle.h">
+      <Filter>src\math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\patterns\Observer.h">
+      <Filter>src\patterns</Filter>
+    </ClInclude>
+    <ClInclude Include="src\patterns\State.h">
+      <Filter>src\patterns</Filter>
+    </ClInclude>
+    <ClInclude Include="src\resources\R.h">
+      <Filter>src\resources</Filter>
+    </ClInclude>
+    <ClInclude Include="src\win32\EmbeddedResources.h">
+      <Filter>src\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="src\win32\MemCheck.h">
+      <Filter>src\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="src\win32\Win32.h">
+      <Filter>src\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="src\events\Event.h">
+      <Filter>src\events</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\base64.h">
+      <Filter>src\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\BuildDefs.h">
+      <Filter>src\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\CompilerMessage.h">
+      <Filter>src\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\ConsoleUtils.h">
+      <Filter>src\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\Crc32.h">
+      <Filter>src\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\FPSCounter.h">
+      <Filter>src\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\MD5.h">
+      <Filter>src\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\MemCheck.h">
+      <Filter>src\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\TimedBlock.h">
+      <Filter>src\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\Types.h">
+      <Filter>src\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\Utils.h">
+      <Filter>src\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\String.h">
+      <Filter>src\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\filesystem\FileSystem.h">
+      <Filter>src\filesystems</Filter>
+    </ClInclude>
+    <ClInclude Include="src\s2Core_API.h">
+      <Filter>src</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\commandline\ApplicationFlag.cpp">
+      <Filter>src\commandline</Filter>
+    </ClCompile>
+    <ClCompile Include="src\commandline\CommandLineOption.cpp">
+      <Filter>src\commandline</Filter>
+    </ClCompile>
+    <ClCompile Include="src\commandline\CommandLineParser.cpp">
+      <Filter>src\commandline</Filter>
+    </ClCompile>
+    <ClCompile Include="src\events\EventHandler.cpp">
+      <Filter>src\events</Filter>
+    </ClCompile>
+    <ClCompile Include="src\exceptions\Exception.cpp">
+      <Filter>src\exceptions</Filter>
+    </ClCompile>
+    <ClCompile Include="src\geometry\Geometry.cpp">
+      <Filter>src\geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="src\geometry\Interpolation.cpp">
+      <Filter>src\geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="src\geometry\Intersection.cpp">
+      <Filter>src\geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphics\Color.cpp">
+      <Filter>src\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\patterns\Observer.cpp">
+      <Filter>src\patterns</Filter>
+    </ClCompile>
+    <ClCompile Include="src\resources\R.cpp">
+      <Filter>src\resources</Filter>
+    </ClCompile>
+    <ClCompile Include="src\win32\EmbeddedResources.cpp">
+      <Filter>src\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="src\win32\Win32.cpp">
+      <Filter>src\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\base64.cpp">
+      <Filter>src\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\Crc32.cpp">
+      <Filter>src\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\MD5.cpp">
+      <Filter>src\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\MemCheck.cpp">
+      <Filter>src\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\filesystem\FileSystem.cpp">
+      <Filter>src\filesystems</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="MakeSDK.bat" />
+  </ItemGroup>
+</Project>

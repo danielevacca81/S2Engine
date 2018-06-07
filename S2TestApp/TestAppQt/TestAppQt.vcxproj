@@ -39,16 +39,16 @@
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc%27ing MainWindow.h...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\tmp\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\tmp\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\tmp\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_WIDGETS_LIB -DQT_OPENGLEXTENSIONS_LIB -D_UNICODE  "-I.\..\..\SDK\QtBridge\include" "-I.\..\..\SDK\Renderer\include" "-I.\..\..\SDK\Core\include" "-I.\..\..\SDK\S2FontLibrary\include" "-I.\..\..\SDK\S2Ext\glm\glm" "-I.\src" "-I.\tmp\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtOpenGL" "-I." "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtOpenGLExtensions"</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\tmp\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DWIN64 -DQT_WIDGETS_LIB -DQT_OPENGLEXTENSIONS_LIB -D_UNICODE  "-I.\..\..\SDK\QtBridge\include" "-I.\..\..\SDK\Renderer\include" "-I.\..\..\SDK\Core\include" "-I.\..\..\SDK\ExtLibs\glm-0.9.9.0\glm" "-I.\src" "-I.\tmp\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtOpenGL" "-I." "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtOpenGLExtensions"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\tmp\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_WIDGETS_LIB -DQT_OPENGLEXTENSIONS_LIB -D_UNICODE  "-I.\..\..\SDK\s2Qt\include" "-I.\..\..\SDK\s2OpenGL\include" "-I.\..\..\SDK\s2Core\include" "-I.\..\..\SDK\S2FontLibrary\include" "-I.\..\..\SDK\S2Ext\glm\glm" "-I.\src" "-I.\tmp\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtOpenGL" "-I." "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtOpenGLExtensions"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\tmp\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DWIN64 -DQT_WIDGETS_LIB -DQT_OPENGLEXTENSIONS_LIB -D_UNICODE  "-I.\..\..\SDK\s2Qt\include" "-I.\..\..\SDK\s2OpenGL\include" "-I.\..\..\SDK\s2Core\include" "-I.\..\..\SDK\ExtLibs\glm-0.9.9.0\glm" "-I.\src" "-I.\tmp\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtOpenGL" "-I." "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtOpenGLExtensions"</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc%27ing MainWindow.h...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Moc%27ing MainWindow.h...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\tmp\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\tmp\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\tmp\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_WIDGETS_LIB -DQT_OPENGLEXTENSIONS_LIB -D_UNICODE  "-I.\..\..\SDK\QtBridge\include" "-I.\..\..\SDK\Renderer\include" "-I.\..\..\SDK\Core\include" "-I.\..\..\SDK\S2Ext\glm\glm" "-I.\src" "-I$(QTDIR)\include" "-I.\tmp\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtOpenGL" "-I." "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtOpenGLExtensions"</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\tmp\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DWIN64 -DQT_WIDGETS_LIB -DQT_OPENGLEXTENSIONS_LIB -D_UNICODE  "-I.\..\..\SDK\QtBridge\include" "-I.\..\..\SDK\Renderer\include" "-I.\..\..\SDK\Core\include" "-I.\..\..\SDK\ExtLibs\glm-0.9.9.0\glm" "-I.\src" "-I.\tmp\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtOpenGL" "-I." "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtOpenGLExtensions"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\tmp\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_WIDGETS_LIB -DQT_OPENGLEXTENSIONS_LIB -D_UNICODE  "-I.\..\..\SDK\s2Qt\include" "-I.\..\..\SDK\s2OpenGL\include" "-I.\..\..\SDK\s2Core\include" "-I.\..\..\SDK\S2Ext\glm\glm" "-I.\src" "-I$(QTDIR)\include" "-I.\tmp\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtOpenGL" "-I." "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtOpenGLExtensions"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\tmp\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DWIN64 -DQT_WIDGETS_LIB -DQT_OPENGLEXTENSIONS_LIB -D_UNICODE  "-I.\..\..\SDK\s2Qt\include" "-I.\..\..\SDK\s2OpenGL\include" "-I.\..\..\SDK\s2Core\include" "-I.\..\..\SDK\ExtLibs\glm-0.9.9.0\glm" "-I.\src" "-I.\tmp\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtOpenGL" "-I." "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtOpenGLExtensions"</Command>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
@@ -164,18 +164,18 @@
       <Optimization>Disabled</Optimization>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <AdditionalIncludeDirectories>..\..\SDK\QtBridge\include;..\..\SDK\Renderer\include;..\..\SDK\Core\include;..\..\SDK\S2FontLibrary\include;..\..\SDK\S2Ext\glm\glm;.\src;.\tmp\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtOpenGL;.;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtOpenGLExtensions;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\SDK\s2Qt\include;..\..\SDK\s2OpenGL\include;..\..\SDK\s2Core\include;..\..\SDK\S2FontLibrary\include;..\..\SDK\S2Ext\glm\glm;.\src;.\tmp\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtOpenGL;.;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtOpenGLExtensions;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <AdditionalLibraryDirectories>..\..\SDK\QtBridge\bin\$(Platform)\$(Configuration);..\..\SDK\Core\bin\$(Platform)\$(Configuration);..\..\SDK\Renderer\bin\$(Platform)\$(Configuration);$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\SDK\s2Qt\bin\$(Platform)\$(Configuration);..\..\SDK\s2Core\bin\$(Platform)\$(Configuration);..\..\SDK\s2OpenGL\bin\$(Platform)\$(Configuration);$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Core.lib;QtBridge.lib;Renderer.lib;opengl32.lib;glu32.lib;qtmaind.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5OpenGLd.lib;Qt5Widgetsd.lib;Qt5OpenGLExtensionsd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>s2Core.lib;s2Qt.lib;s2OpenGL.lib;qtmaind.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5OpenGLd.lib;Qt5Widgetsd.lib;Qt5OpenGLExtensionsd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /Y ..\..\SDK\Core\bin\$(Platform)\$(Configuration)\*.dll .\bin\$(Platform)\$(Configuration)\
-xcopy /Y ..\..\SDK\Renderer\bin\$(Platform)\$(Configuration)\*.dll .\bin\$(Platform)\$(Configuration)\
-xcopy /Y ..\..\SDK\QtBridge\bin\$(Platform)\$(Configuration)\*.dll .\bin\$(Platform)\$(Configuration)\
+      <Command>xcopy /Y ..\..\SDK\s2Core\bin\$(Platform)\$(Configuration)\*.dll .\bin\$(Platform)\$(Configuration)\
+xcopy /Y ..\..\SDK\s2OpenGL\bin\$(Platform)\$(Configuration)\*.dll .\bin\$(Platform)\$(Configuration)\
+xcopy /Y ..\..\SDK\s2Qt\bin\$(Platform)\$(Configuration)\*.dll .\bin\$(Platform)\$(Configuration)\
 
 :: xcopy /Y ..\..\SDK\S2FontLibrary\bin\$(Configuration)\*.dll .\bin\$(Configuration)\
 :: xcopy /Y ..\..\SDK\S2CAD\bin\$(Configuration)\*.dll .\bin\$(Configuration)\</Command>
@@ -188,20 +188,20 @@ xcopy /Y ..\..\SDK\QtBridge\bin\$(Platform)\$(Configuration)\*.dll .\bin\$(Platf
       <Optimization>Disabled</Optimization>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <AdditionalIncludeDirectories>..\..\SDK\QtBridge\include;..\..\SDK\Renderer\include;..\..\SDK\Core\include;..\..\SDK\ExtLibs\glm-0.9.9.0\glm;.\src;.\tmp\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtOpenGL;.;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtOpenGLExtensions;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\SDK\s2Qt\include;..\..\SDK\s2OpenGL\include;..\..\SDK\s2Core\include;..\..\SDK\ExtLibs\glm-0.9.9.0\glm;.\src;.\tmp\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtOpenGL;.;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtOpenGLExtensions;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <AdditionalLibraryDirectories>..\..\SDK\QtBridge\bin\$(Platform)\$(Configuration);..\..\SDK\Core\bin\$(Platform)\$(Configuration);..\..\SDK\Renderer\bin\$(Platform)\$(Configuration);$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\SDK\s2Qt\bin\$(Platform)\$(Configuration);..\..\SDK\s2Core\bin\$(Platform)\$(Configuration);..\..\SDK\s2OpenGL\bin\$(Platform)\$(Configuration);$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Core.lib;QtBridge.lib;Renderer.lib;opengl32.lib;glu32.lib;qtmaind.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5OpenGLd.lib;Qt5Widgetsd.lib;Qt5OpenGLExtensionsd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>s2Core.lib;s2Qt.lib;s2OpenGL.lib;qtmaind.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5OpenGLd.lib;Qt5Widgetsd.lib;Qt5OpenGLExtensionsd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <TargetMachine>MachineX64</TargetMachine>
       <AdditionalOptions> /SUBSYSTEM:WINDOWS</AdditionalOptions>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /Y ..\..\SDK\Core\bin\$(Platform)\$(Configuration)\*.dll .\bin\$(Platform)\$(Configuration)\
-xcopy /Y ..\..\SDK\Renderer\bin\$(Platform)\$(Configuration)\*.dll .\bin\$(Platform)\$(Configuration)\
-xcopy /Y ..\..\SDK\QtBridge\bin\$(Platform)\$(Configuration)\*.dll .\bin\$(Platform)\$(Configuration)\
+      <Command>xcopy /Y ..\..\SDK\s2Core\bin\$(Platform)\$(Configuration)\*.dll .\bin\$(Platform)\$(Configuration)\
+xcopy /Y ..\..\SDK\s2OpenGL\bin\$(Platform)\$(Configuration)\*.dll .\bin\$(Platform)\$(Configuration)\
+xcopy /Y ..\..\SDK\s2Qt\bin\$(Platform)\$(Configuration)\*.dll .\bin\$(Platform)\$(Configuration)\
 
 :: xcopy /Y ..\..\SDK\S2FontLibrary\bin\$(Configuration)\*.dll .\bin\$(Configuration)\
 :: xcopy /Y ..\..\SDK\S2CAD\bin\$(Configuration)\*.dll .\bin\$(Configuration)\</Command>
@@ -214,18 +214,18 @@ xcopy /Y ..\..\SDK\QtBridge\bin\$(Platform)\$(Configuration)\*.dll .\bin\$(Platf
       <DebugInformationFormat>
       </DebugInformationFormat>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <AdditionalIncludeDirectories>..\..\SDK\QtBridge\include;..\..\SDK\Renderer\include;..\..\SDK\Core\include;..\..\SDK\S2Ext\glm\glm;.\src;$(QTDIR)\include;.\tmp\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtOpenGL;.;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtOpenGLExtensions;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\SDK\s2Qt\include;..\..\SDK\s2OpenGL\include;..\..\SDK\s2Core\include;..\..\SDK\S2Ext\glm\glm;.\src;$(QTDIR)\include;.\tmp\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtOpenGL;.;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtOpenGLExtensions;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>NotSet</SubSystem>
-      <AdditionalLibraryDirectories>..\..\SDK\QtBridge\bin\$(Platform)\$(Configuration);..\..\SDK\Core\bin\$(Platform)\$(Configuration);..\..\SDK\Renderer\bin\$(Platform)\$(Configuration);$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\SDK\s2Qt\bin\$(Platform)\$(Configuration);..\..\SDK\s2Core\bin\$(Platform)\$(Configuration);..\..\SDK\s2OpenGL\bin\$(Platform)\$(Configuration);$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
-      <AdditionalDependencies>Core.lib;QtBridge.lib;Renderer.lib;opengl32.lib;glu32.lib;qtmain.lib;Qt5Core.lib;Qt5Gui.lib;Qt5OpenGL.lib;Qt5Widgets.lib;Qt5OpenGLExtensions.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>s2Core.lib;s2Qt.lib;s2OpenGL.lib;qtmain.lib;Qt5Core.lib;Qt5Gui.lib;Qt5OpenGL.lib;Qt5Widgets.lib;Qt5OpenGLExtensions.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /Y ..\..\SDK\Core\bin\$(Platform)\$(Configuration)\*.dll .\bin\$(Platform)\$(Configuration)\
-xcopy /Y ..\..\SDK\Renderer\bin\$(Platform)\$(Configuration)\*.dll .\bin\$(Platform)\$(Configuration)\
-xcopy /Y ..\..\SDK\QtBridge\bin\$(Platform)\$(Configuration)\*.dll .\bin\$(Platform)\$(Configuration)\
+      <Command>xcopy /Y ..\..\SDK\s2Core\bin\$(Platform)\$(Configuration)\*.dll .\bin\$(Platform)\$(Configuration)\
+xcopy /Y ..\..\SDK\s2OpenGL\bin\$(Platform)\$(Configuration)\*.dll .\bin\$(Platform)\$(Configuration)\
+xcopy /Y ..\..\SDK\s2Qt\bin\$(Platform)\$(Configuration)\*.dll .\bin\$(Platform)\$(Configuration)\
 
 :: xcopy /Y ..\..\SDK\S2FontLibrary\bin\$(Configuration)\*.dll .\bin\$(Configuration)\
 :: xcopy /Y ..\..\SDK\S2CAD\bin\$(Configuration)\*.dll .\bin\$(Configuration)\</Command>
@@ -238,20 +238,20 @@ xcopy /Y ..\..\SDK\QtBridge\bin\$(Platform)\$(Configuration)\*.dll .\bin\$(Platf
       <DebugInformationFormat>
       </DebugInformationFormat>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <AdditionalIncludeDirectories>..\..\SDK\QtBridge\include;..\..\SDK\Renderer\include;..\..\SDK\Core\include;..\..\SDK\ExtLibs\glm-0.9.9.0\glm;.\src;.\tmp\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtOpenGL;.;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtOpenGLExtensions;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\SDK\s2Qt\include;..\..\SDK\s2OpenGL\include;..\..\SDK\s2Core\include;..\..\SDK\ExtLibs\glm-0.9.9.0\glm;.\src;.\tmp\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtOpenGL;.;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtOpenGLExtensions;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>NotSet</SubSystem>
-      <AdditionalLibraryDirectories>..\..\SDK\QtBridge\bin\$(Platform)\$(Configuration);..\..\SDK\Core\bin\$(Platform)\$(Configuration);..\..\SDK\Renderer\bin\$(Platform)\$(Configuration);$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\SDK\s2Qt\bin\$(Platform)\$(Configuration);..\..\SDK\s2Core\bin\$(Platform)\$(Configuration);..\..\SDK\s2OpenGL\bin\$(Platform)\$(Configuration);$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
-      <AdditionalDependencies>Core.lib;QtBridge.lib;Renderer.lib;opengl32.lib;glu32.lib;qtmain.lib;Qt5Core.lib;Qt5Gui.lib;Qt5OpenGL.lib;Qt5Widgets.lib;Qt5OpenGLExtensions.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>s2Core.lib;s2Qt.lib;s2OpenGL.lib;qtmain.lib;Qt5Core.lib;Qt5Gui.lib;Qt5OpenGL.lib;Qt5Widgets.lib;Qt5OpenGLExtensions.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <TargetMachine>MachineX64</TargetMachine>
       <AdditionalOptions> /SUBSYSTEM:WINDOWS</AdditionalOptions>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /Y ..\..\SDK\Core\bin\$(Platform)\$(Configuration)\*.dll .\bin\$(Platform)\$(Configuration)\
-xcopy /Y ..\..\SDK\Renderer\bin\$(Platform)\$(Configuration)\*.dll .\bin\$(Platform)\$(Configuration)\
-xcopy /Y ..\..\SDK\QtBridge\bin\$(Platform)\$(Configuration)\*.dll .\bin\$(Platform)\$(Configuration)\
+      <Command>xcopy /Y ..\..\SDK\s2Core\bin\$(Platform)\$(Configuration)\*.dll .\bin\$(Platform)\$(Configuration)\
+xcopy /Y ..\..\SDK\s2OpenGL\bin\$(Platform)\$(Configuration)\*.dll .\bin\$(Platform)\$(Configuration)\
+xcopy /Y ..\..\SDK\s2Qt\bin\$(Platform)\$(Configuration)\*.dll .\bin\$(Platform)\$(Configuration)\
 
 :: xcopy /Y ..\..\SDK\S2FontLibrary\bin\$(Configuration)\*.dll .\bin\$(Configuration)\
 :: xcopy /Y ..\..\SDK\S2CAD\bin\$(Configuration)\*.dll .\bin\$(Configuration)\</Command>
