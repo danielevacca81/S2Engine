@@ -16,9 +16,9 @@ mkdir %DESTFOLDER%\include\view
 
 copy /Y .\src\s2OpenGL_API.h  %DESTFOLDER%\include\
 copy /Y .\src\opengl\*.h       %DESTFOLDER%\include\opengl
-copy /Y .\src\renderer\*.h     %DESTFOLDER%\include\renderer
+rem copy /Y .\src\renderer\*.h     %DESTFOLDER%\include\renderer
 rem copy /Y .\src\Utils\*.h        %DESTFOLDER%\include\Utils
-copy /Y .\src\View\*.h         %DESTFOLDER%\include\view
+rem copy /Y .\src\View\*.h         %DESTFOLDER%\include\view
 rem copy /Y .\src\VObjects\*.h     %DESTFOLDER%\include\VObjects
 
 copy /Y .\bin\x64\Debug\s2OpenGL.dll   %DESTFOLDER%\bin\x64\Debug

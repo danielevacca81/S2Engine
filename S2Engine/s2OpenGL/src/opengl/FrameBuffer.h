@@ -9,10 +9,14 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 
 namespace s2 {
 
 namespace OpenGL {
+
+class FrameBuffer;
+typedef std::shared_ptr<FrameBuffer> FrameBufferPtr;
 
 class S2OPENGL_API FrameBuffer
 {
@@ -37,8 +41,12 @@ public:
 		DepthComponent16,
 		DepthComponent24,
 		DepthComponent32,
-		DepthComponent32FF,
+		DepthComponent32F,
 	};
+
+public:
+	static FrameBufferPtr getDefault();
+	static FrameBufferPtr New();
 
 public:
 	FrameBuffer();

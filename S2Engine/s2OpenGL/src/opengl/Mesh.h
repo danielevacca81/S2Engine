@@ -68,7 +68,7 @@ public:
 private:
 	VertexArray _va;
 
-	friend class Renderer;
+	friend class StateManager;
 };
 
 }

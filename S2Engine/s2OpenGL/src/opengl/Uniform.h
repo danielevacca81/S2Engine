@@ -24,9 +24,12 @@ public:
 	int         location()    const { return _location; }
 	std::string name()        const { return _name;     }
 
-	virtual void set() = 0;
 
 protected:
+	friend class Program;
+
+	virtual void set() = 0;
+	
 	Uniform( int location, const std::string  &name )
 	: _name(name)
 	, _location(location)
@@ -48,8 +51,8 @@ template<typename T>
 class UniformValue : public Uniform
 {
 public:
-	inline T    value()                 const { return _value; }
-	inline void setValue( const T &val )      { _value = val;  }
+	inline T    get()                 const { return _value; }
+	inline void set( const T &val )         { _value = val;  }
 
 protected:
 	UniformValue( int location, const std::string  &name )

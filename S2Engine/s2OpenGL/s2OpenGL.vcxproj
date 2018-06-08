@@ -176,16 +176,32 @@
   <ItemGroup>
     <ClInclude Include="resource.h" />
     <ClInclude Include="src\Fonts\FontNew.h" />
+    <ClInclude Include="src\fonts\TextRenderer.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="src\OpenGL\AttributeBuffer.h" />
     <ClInclude Include="src\OpenGL\BufferObject.h" />
+    <ClInclude Include="src\opengl\ClearState.h" />
     <ClInclude Include="src\OpenGL\Context.h" />
+    <ClInclude Include="src\opengl\DrawState.h" />
     <ClInclude Include="src\opengl\Extensions.h" />
     <ClInclude Include="src\OpenGL\FrameBuffer.h" />
     <ClInclude Include="src\OpenGL\IndexBuffer.h" />
     <ClInclude Include="src\OpenGL\Mesh.h" />
     <ClInclude Include="src\OpenGL\OpenGL.h" />
     <ClInclude Include="src\OpenGL\OpenGLWrap.h" />
+    <ClInclude Include="src\opengl\ork_FrameBuffer.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="src\OpenGL\Program.h" />
+    <ClInclude Include="src\opengl\StateManager.h" />
+    <ClInclude Include="src\opengl\RenderState.h" />
     <ClInclude Include="src\OpenGL\Selection.h" />
     <ClInclude Include="src\OpenGL\Tessellation.h" />
     <ClInclude Include="src\OpenGL\Texture.h" />
@@ -208,26 +224,18 @@
     <ClInclude Include="src\OpenGL\UniformSampler.h" />
     <ClInclude Include="src\OpenGL\VertexArray.h" />
     <ClInclude Include="src\OpenGL\VertexBuffer.h" />
-    <ClInclude Include="src\Renderer\ClearState.h" />
-    <ClInclude Include="src\Renderer\DrawState.h" />
-    <ClInclude Include="src\Renderer\Renderer_old.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="src\Renderer\Renderer.h" />
-    <ClInclude Include="src\Renderer\RenderState.h" />
-    <ClInclude Include="src\Renderer\TextRenderer.h" />
-    <ClInclude Include="src\Renderer\ViewState.h" />
+    <ClInclude Include="src\opengl\ViewState.h" />
     <ClInclude Include="src\s2OpenGL_API.h" />
-    <ClInclude Include="src\View\Camera.h" />
-    <ClInclude Include="src\View\TrackBall.h" />
-    <ClInclude Include="src\View\View.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\ExtLibs\glew-2.1.0\src\glew.c" />
     <ClCompile Include="src\Fonts\FontNew.cpp" />
+    <ClCompile Include="src\fonts\TextRenderer.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="src\OpenGL\AttributeBuffer.cpp" />
     <ClCompile Include="src\OpenGL\BufferObject.cpp" />
     <ClCompile Include="src\OpenGL\Context.cpp" />
@@ -237,26 +245,21 @@
     <ClCompile Include="src\OpenGL\Mesh.cpp" />
     <ClCompile Include="src\OpenGL\OpenGL.cpp" />
     <ClCompile Include="src\OpenGL\OpenGLWrap.cpp" />
+    <ClCompile Include="src\opengl\ork_FrameBuffer.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="src\OpenGL\Program.cpp" />
+    <ClCompile Include="src\opengl\StateManager.cpp" />
     <ClCompile Include="src\OpenGL\Selection.cpp" />
     <ClCompile Include="src\OpenGL\Tessellation.cpp" />
     <ClCompile Include="src\OpenGL\Texture.cpp" />
     <ClCompile Include="src\OpenGL\Uniform.cpp" />
     <ClCompile Include="src\OpenGL\VertexArray.cpp" />
     <ClCompile Include="src\OpenGL\VertexBuffer.cpp" />
-    <ClCompile Include="src\Renderer\Renderer_old.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="src\Renderer\Renderer.cpp" />
-    <ClCompile Include="src\Renderer\TextRenderer.cpp" />
-    <ClCompile Include="src\Renderer\ViewState.cpp" />
-    <ClCompile Include="src\View\Camera.cpp" />
-    <ClCompile Include="src\View\Camera_old.cpp" />
-    <ClCompile Include="src\View\TrackBall.cpp" />
-    <ClCompile Include="src\View\View.cpp" />
+    <ClCompile Include="src\opengl\ViewState.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="MakeSDK.bat" />

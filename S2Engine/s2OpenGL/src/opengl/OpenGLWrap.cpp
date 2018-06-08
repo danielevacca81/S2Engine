@@ -240,7 +240,7 @@ unsigned int glWrap( const FrameBuffer::DepthFormat     &format )
 	case FrameBuffer::DepthComponent16:   return GL_DEPTH_COMPONENT16;
 	case FrameBuffer::DepthComponent24:   return GL_DEPTH_COMPONENT24;
 	case FrameBuffer::DepthComponent32:   return GL_DEPTH_COMPONENT32;
-	case FrameBuffer::DepthComponent32FF: return GL_DEPTH_COMPONENT32F;
+	case FrameBuffer::DepthComponent32F:  return GL_DEPTH_COMPONENT32F;
 	}
 	return -1;
 }

@@ -1,6 +1,6 @@
-// Renderer.cpp
+// StateManager.cpp
 //
-#include "Renderer.h"
+#include "StateManager.h"
 
 #include "OpenGL/OpenGL.h"
 #include "OpenGL/OpenGLWrap.h"
@@ -21,15 +21,15 @@ static void enable( GLenum cap, bool enabled )
 }
 
 // ------------------------------------------------------------------------------------------------
-Renderer::Renderer()
+StateManager::StateManager()
 {}
 
 // ------------------------------------------------------------------------------------------------
-Renderer::~Renderer()
+StateManager::~StateManager()
 {}
 
 // ------------------------------------------------------------------------------------------------
-void Renderer::applyRenderState( const RenderState &rs )
+void StateManager::applyRenderState( const RenderState &rs )
 {
 	applyPrimitiveRestart( rs.primitiveRestart );
 	applyFaceCulling( rs.faceCulling );
@@ -45,7 +45,7 @@ void Renderer::applyRenderState( const RenderState &rs )
 }
 
 // ------------------------------------------------------------------------------------------------
-void Renderer::applyPrimitiveRestart( const PrimitiveRestart &pr )
+void StateManager::applyPrimitiveRestart( const PrimitiveRestart &pr )
 {
 	//if( rs.primitiveRestart.Enabled != primitiveRestart.Enabled)
 	//{
@@ -64,7 +64,7 @@ void Renderer::applyPrimitiveRestart( const PrimitiveRestart &pr )
 }
 
 // ------------------------------------------------------------------------------------------------
-void Renderer::applyFaceCulling( const FaceCulling &fc )
+void StateManager::applyFaceCulling( const FaceCulling &fc )
 {
 #if SHADOWING
 	if( _renderState.faceCulling.enabled != fc.enabled )
@@ -95,7 +95,7 @@ void Renderer::applyFaceCulling( const FaceCulling &fc )
 }
 
 // ------------------------------------------------------------------------------------------------
-void Renderer::applyProgramPointSize( const ProgramPointSize &programPointSize )
+void StateManager::applyProgramPointSize( const ProgramPointSize &programPointSize )
 {
 #if SHADOWING
 	if( _renderState.programPointSize.enabled != programPointSize.enabled )
@@ -107,7 +107,7 @@ void Renderer::applyProgramPointSize( const ProgramPointSize &programPointSize )
 }
 
 // ------------------------------------------------------------------------------------------------
-void Renderer::applyRasterizationMode( const RenderState::RasterizationMode &rasterizationMode )
+void StateManager::applyRasterizationMode( const RenderState::RasterizationMode &rasterizationMode )
 {
 #if SHADOWING
 	if( _renderState.rasterizationMode != rasterizationMode )
@@ -119,7 +119,7 @@ void Renderer::applyRasterizationMode( const RenderState::RasterizationMode &ras
 }
 
 // ------------------------------------------------------------------------------------------------
-void Renderer::applyScissorTest( const ScissorTest &scissorTest )
+void StateManager::applyScissorTest( const ScissorTest &scissorTest )
 {
 	Math::Rectangle rectangle = scissorTest.rect;
 
@@ -161,7 +161,7 @@ void Renderer::applyScissorTest( const ScissorTest &scissorTest )
 }
 
 // ------------------------------------------------------------------------------------------------
-void Renderer::applyStencilTest( const StencilTest &stencilTest )
+void StateManager::applyStencilTest( const StencilTest &stencilTest )
 {
 #if SHADOWING
 	if( _renderState.stencilTest.enabled != stencilTest.enabled )
@@ -179,7 +179,7 @@ void Renderer::applyStencilTest( const StencilTest &stencilTest )
 }
 
 // ------------------------------------------------------------------------------------------------
-void Renderer::applyStencil( const FaceCulling::Face &face, StencilTestFace &currentTest, const StencilTestFace &test)
+void StateManager::applyStencil( const FaceCulling::Face &face, StencilTestFace &currentTest, const StencilTestFace &test)
 {
 #if SHADOWING
 	if ((currentTest.stencilFailOperation          != test.stencilFailOperation) ||
@@ -214,7 +214,7 @@ void Renderer::applyStencil( const FaceCulling::Face &face, StencilTestFace &cur
 }
 
 // ------------------------------------------------------------------------------------------------
-void Renderer::applyDepthTest( const DepthTest &depthTest)
+void StateManager::applyDepthTest( const DepthTest &depthTest)
 {
 #if SHADOWING
 	if( _renderState.depthTest.enabled != depthTest.enabled )
@@ -237,7 +237,7 @@ void Renderer::applyDepthTest( const DepthTest &depthTest)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Renderer::applyDepthRange( const DepthRange &depthRange)
+void StateManager::applyDepthRange( const DepthRange &depthRange)
 {
 #if 0
 	if( depthRange.near() < 0.0 || depthRange.near() > 1.0)
@@ -266,7 +266,7 @@ void Renderer::applyDepthRange( const DepthRange &depthRange)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Renderer::applyBlending( const Blending &blending )
+void StateManager::applyBlending( const Blending &blending )
 {
 #if SHADOWING
 	if( _renderState.blending.enabled != blending.enabled )
@@ -321,7 +321,7 @@ void Renderer::applyBlending( const Blending &blending )
 }
 
 // ------------------------------------------------------------------------------------------------
-void Renderer::applyColorMask( const ColorMask &colorMask )
+void StateManager::applyColorMask( const ColorMask &colorMask )
 {
 #if SHADOWING
 	if( !_renderState.colorMask.equals(colorMask) )
@@ -333,7 +333,7 @@ void Renderer::applyColorMask( const ColorMask &colorMask )
 }
 
 // ------------------------------------------------------------------------------------------------
-void Renderer::applyDepthMask(bool depthMask)
+void StateManager::applyDepthMask(bool depthMask)
 {
 #if SHADOWING
 	if( _renderState.depthMask != depthMask )
@@ -345,7 +345,7 @@ void Renderer::applyDepthMask(bool depthMask)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Renderer::applyShaderProgram( const OpenGL::ProgramPtr &program )
+void StateManager::applyShaderProgram( const OpenGL::ProgramPtr &program )
 {
 	if( !program->isValid() )
 		return;
@@ -362,13 +362,13 @@ void Renderer::applyShaderProgram( const OpenGL::ProgramPtr &program )
 }
 
 // ------------------------------------------------------------------------------------------------
-void Renderer::applyViewState( const ViewState &vs )
+void StateManager::applyViewState( const ViewState &vs )
 {
 	//setViewport( vs.viewport );
 #if SHADOWING
 	if( !_viewState.viewport.equals(vs.viewport) )
 #endif
-	glViewport( vs.viewport.left(), vs.viewport.bottom(), vs.viewport.width(), vs.viewport.height() );
+	glViewport( vs.viewport().left(), vs.viewport().bottom(), vs.viewport().width(), vs.viewport().height() );
 
 #ifdef OPENGL_DEPRECATED
 	glMatrixMode( GL_MODELVIEW );
@@ -382,7 +382,7 @@ void Renderer::applyViewState( const ViewState &vs )
 }
 
 // ------------------------------------------------------------------------------------------------
-//void Renderer::applyFramebuffer()
+//void StateManager::applyFramebuffer()
 //{
 //	if (_boundFramebuffer != _setFramebuffer)
 //	{
@@ -403,7 +403,7 @@ void Renderer::applyViewState( const ViewState &vs )
 //}
 
 // ------------------------------------------------------------------------------------------------
-void Renderer::setViewport( const Math::Rectangle &r )
+void StateManager::setViewport( const Math::Rectangle &r )
 {
 	if( r.width() < 0 || r.height() < 0 )
 	{
@@ -412,19 +412,19 @@ void Renderer::setViewport( const Math::Rectangle &r )
 #endif
 	}
 #if SHADOWING
-	if( !_viewState.viewport.equals(r) )
+	if( !_viewState.viewport().equals(r) )
 #endif
 	{
-		_viewState.viewport = r;
+		_viewState.setViewport( r );
 		glViewport( r.left(), r.bottom(), r.width(), r.height() );
 	}
 }
 
 // ------------------------------------------------------------------------------------------------
-//Math::Rectangle Renderer::viewport() const { return _viewport; }
+//Math::Rectangle StateManager::viewport() const { return _viewport; }
 
 // ------------------------------------------------------------------------------------------------
-void Renderer::clear( const ClearState &cs )
+void StateManager::clear( const ClearState &cs )
 {
 	//applyFramebuffer();
 
@@ -461,7 +461,7 @@ void Renderer::clear( const ClearState &cs )
 }
 
 // ------------------------------------------------------------------------------------------------
-void Renderer::draw( PrimitiveType primitive, const VertexArray &va, const ViewState &vs, const DrawState &ds )
+void StateManager::draw( PrimitiveType primitive, const VertexArray &va, const ViewState &vs, const DrawState &ds )
 {
 	//VerifyDraw(drawState, sceneState);
 	//ApplyBeforeDraw(drawState, sceneState);
@@ -491,14 +491,14 @@ void Renderer::draw( PrimitiveType primitive, const VertexArray &va, const ViewS
 }
 
 // ------------------------------------------------------------------------------------------------
-void Renderer::draw( PrimitiveType primitive, const Mesh &m, const ViewState &vs, const DrawState &ds )
+void StateManager::draw( PrimitiveType primitive, const Mesh &m, const ViewState &vs, const DrawState &ds )
 {
 	draw( primitive, m._va, vs, ds );
 }
 
 
 // ------------------------------------------------------------------------------------------------
-//void Renderer::draw( PrimitiveType primitive, const VertexBuffer &vb, const ViewState &vs, const DrawState &ds )
+//void StateManager::draw( PrimitiveType primitive, const VertexBuffer &vb, const ViewState &vs, const DrawState &ds )
 //{
 //	//VerifyDraw(drawState, sceneState);
 //	//ApplyBeforeDraw(drawState, sceneState);
@@ -543,13 +543,13 @@ void Renderer::draw( PrimitiveType primitive, const Mesh &m, const ViewState &vs
 //}
 
 // ------------------------------------------------------------------------------------------------
-//void Renderer::drawText()
+//void StateManager::drawText()
 //{
 //	_textRenderer.draw(*this);
 //}
 //
 //// ------------------------------------------------------------------------------------------------
-//void Renderer::addText( const Math::dvec3 &worldPos, const std::wstring &text, const Color &color,  const FontPtr &font, TextRenderer::TextAlignment alignment )
+//void StateManager::addText( const Math::dvec3 &worldPos, const std::wstring &text, const Color &color,  const FontPtr &font, TextRenderer::TextAlignment alignment )
 //{
 //	if( text.empty() )
 //		return;
@@ -560,7 +560,7 @@ void Renderer::draw( PrimitiveType primitive, const Mesh &m, const ViewState &vs
 //}
 //
 //// ------------------------------------------------------------------------------------------------
-//void Renderer::addText( const Math::ivec2 &screenPos, const std::wstring &text, const Color &color, const FontPtr &font, TextRenderer::TextAlignment alignment )
+//void StateManager::addText( const Math::ivec2 &screenPos, const std::wstring &text, const Color &color, const FontPtr &font, TextRenderer::TextAlignment alignment )
 //{
 //	if( text.empty() )
 //		return;

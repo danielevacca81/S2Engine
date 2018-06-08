@@ -54,10 +54,10 @@ Program::~Program()
 	if( isValid() )
 		glDeleteProgram(_progID);
 
-	for( auto it = _uniforms.begin();
-		 it != _uniforms.end();
-		 ++it )
-		 delete it->second;
+	for( auto &it : _uniforms )
+		 delete it.second;
+
+	// delete attributes?
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -231,10 +231,8 @@ void Program::bind() const
 {
 	glUseProgram(_progID);
 	
-	for( auto it = _uniforms.begin();
-		 it != _uniforms.end();
-		 ++it )
-		 it->second->set();
+	for( auto &it : _uniforms )
+		 it.second->set();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -242,10 +240,8 @@ void Program::unbind() const
 {
 	glUseProgram(0);
 
-	for( std::map<std::string,unsigned int>::const_iterator it = _attributes.begin();
-		 it != _attributes.end();
-		 ++it )
-		glDisableVertexAttribArray(it->second);
+	for( auto &it : _attributes )
+		glDisableVertexAttribArray(it.second);
 	//glVertexAttribPointer(location,size,type,normalized,stride,ptr);
 }
 
@@ -308,14 +304,14 @@ Uniform *Program::createUniform( const std::string &name, unsigned int loc, unsi
 	case GL_FLOAT_VEC4:      return new UniformFloatVector4( loc,name );
 	
 	case GL_INT:             return new UniformInt( loc,name );
-	//case GL_INT_VEC2:        return new UniformIntVector2GL3x(name, location, this);
-	//case GL_INT_VEC3:        return new UniformIntVector3GL3x(name, location, this);
-	//case GL_INT_VEC4:        return new UniformIntVector4GL3x(name, location, this);
+	case GL_INT_VEC2:        assert(false); break; //return new UniformIntVector2GL3x(name, location, this);
+	case GL_INT_VEC3:        assert(false); break; //return new UniformIntVector3GL3x(name, location, this);
+	case GL_INT_VEC4:        assert(false); break; //return new UniformIntVector4GL3x(name, location, this);
 
 	case GL_BOOL:            return new UniformBool( loc,name );
-	//case GL_BOOL_VEC2:       return new UniformBoolGL3x(name, location, this);
-	//case GL_BOOL_VEC3:       return new UniformBoolGL3x(name, location, this);
-	//case GL_BOOL_VEC4:       return new UniformBoolGL3x(name, location, this);
+	case GL_BOOL_VEC2:       assert(false); break; //return new UniformBoolGL3x(name, location, this);
+	case GL_BOOL_VEC3:       assert(false); break; //return new UniformBoolGL3x(name, location, this);
+	case GL_BOOL_VEC4:       assert(false); break; //return new UniformBoolGL3x(name, location, this);
 
 	case GL_FLOAT_MAT2:      return new UniformFloatMatrix22( loc,name );
 	case GL_FLOAT_MAT3:      return new UniformFloatMatrix33( loc,name );
@@ -354,8 +350,6 @@ static inline std::string extraInfo( int programID, bool attrib )
 		}
 		return "other";
 	};
-
-
 
 	int params =-1;
 

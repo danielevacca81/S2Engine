@@ -5,8 +5,6 @@
 
 #include "s2OpenGL_API.h"
 
-#include "View/View.h"
-
 #include "Math/Math.h"
 #include "Math/Rectangle.h"
 #include "Math/Ray.h"
@@ -17,17 +15,54 @@ namespace OpenGL {
 class S2OPENGL_API ViewState
 {
 public:
+	ViewState( 
+		const Math::Rectangle &viewport   = Math::Rectangle(),
+		const Math::dmat4     &model      = Math::dmat4(1.0),
+		const Math::dmat4     &view       = Math::dmat4(1.0),
+		const Math::dmat4     &projection = Math::dmat4(1.0) )
+	: _viewport( viewport )
+	, _modelMatrix( model )
+	, _viewMatrix( view )
+	, _projectionMatrix( projection )
+	{}
+
+	// ------------------------------------------------------------------------------------------------
+	~ViewState()
+	{}
+
+	// ------------------------------------------------------------------------------------------------
+	void setViewport        ( const Math::Rectangle &viewport )     { _viewport         = viewport; }
+	void setViewMatrix      ( const Math::dmat4 &viewMatrix )       { _viewMatrix       = viewMatrix; }
+	void setModelMatrix     ( const Math::dmat4 &modelMatrix )      { _modelMatrix      = modelMatrix; }
+	void setProjectionMatrix( const Math::dmat4 &projectionMatrix ) { _projectionMatrix = projectionMatrix; }
+	
+	// ------------------------------------------------------------------------------------------------
+	Math::Rectangle viewport()                    const { return _viewport; }
+	Math::dmat4     viewMatrix()                  const { return _viewMatrix; }
+	Math::dmat4     modelMatrix()                 const { return _modelMatrix; }
+	Math::dmat3     normalMatrix()                const { return Math::inverseTranspose( modelViewMatrix() ); }
+	Math::dmat4     projectionMatrix()            const { return _projectionMatrix; }
+	Math::dmat4     modelViewMatrix()             const { return _viewMatrix * _modelMatrix; }
+	Math::dmat4     modelViewProjectionMatrix()   const { return projectionMatrix() * modelViewMatrix(); }
+
+
+private:
+	Math::Rectangle _viewport;
+	Math::dmat4     _projectionMatrix;
+	Math::dmat4     _viewMatrix;
+	Math::dmat4     _modelMatrix;
+};
+
+/****
 	enum ProjectionMode { Perspective,Orthographic };
 
-public:
 	// ------------------------------------------------------------------------------------------------
-	ViewState( const ProjectionMode &pm = Perspective )
-	: _projectionMode(pm)
-	{}
+	double      pixelSize( const Math::dvec3 &p ) const;
+	Math::dray  rayAt( int pxlX, int pxlY )       const;
+	Math::dvec3 worldPoint( int pxlX, int pxlY )  const;
 
-	// ------------------------------------------------------------------------------------------------
-	virtual ~ViewState()
-	{}
+
+	Math::dmat4 perspectiveMatrix()                       const { return Math::perspective( view.fieldOfViewY(), view.aspectRatio(), view.perspectiveNearPlaneDistance(), view.perspectiveFarPlaneDistance() ); }
 
 	// ------------------------------------------------------------------------------------------------
 	static Math::dmat4 computeViewportOrthographicMatrix( const Math::Rectangle &vp )
@@ -65,30 +100,8 @@ public:
 		view.orthographicNearPlaneDistance(), 
 		view.orthographicFarPlaneDistance()); 
 	}
-	
-	// ------------------------------------------------------------------------------------------------
-	//Math::dmat4 viewMatrix()                              const { return Math::lookAt( view.eye(), view.target(), view.up()); }
-	Math::dmat4 viewMatrix()                              const { return view.matrix(); }
-	Math::dmat3 normalMatrix()                            const { return Math::inverseTranspose( modelViewMatrix() ); }
-	Math::dmat4 perspectiveMatrix()                       const { return Math::perspective( view.fieldOfViewY(), view.aspectRatio(), view.perspectiveNearPlaneDistance(), view.perspectiveFarPlaneDistance() ); }
-	Math::dmat4 projectionMatrix()                        const { return isOrthographic() ? orthographicMatrix() : perspectiveMatrix(); }
-	Math::dmat4 modelViewMatrix()                         const { return viewMatrix() * model; }
-	Math::dmat4 modelViewPerspectiveMatrix()              const { return perspectiveMatrix() * modelViewMatrix(); }
-	Math::dmat4 modelViewOrthographicMatrix()             const { return orthographicMatrix() * modelViewMatrix(); }
 
-	// ------------------------------------------------------------------------------------------------
-	double      pixelSize( const Math::dvec3 &p ) const;
-	Math::dray  rayAt( int pxlX, int pxlY )       const;
-	Math::dvec3 worldPoint( int pxlX, int pxlY )  const;
-
-public:
-	s2::View        view;
-	Math::Rectangle viewport;
-	Math::dmat4     model;
-
-protected:
-	ProjectionMode _projectionMode;
-};
+	*/
 
 }
 

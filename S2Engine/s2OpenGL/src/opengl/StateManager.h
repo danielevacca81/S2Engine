@@ -1,7 +1,7 @@
-// Renderer.h
+// StateManager.h
 //
-#ifndef RENDERER_ONCE
-#define RENDERER_ONCE
+#ifndef STATEMANAGER_ONCE
+#define STATEMANAGER_ONCE
 
 #include "s2OpenGL_API.h"
 
@@ -19,11 +19,11 @@
 namespace s2 {
 namespace OpenGL {
 
-class S2OPENGL_API Renderer
+class S2OPENGL_API StateManager
 {
 public:
-	Renderer();
-	~Renderer();
+	StateManager();
+	~StateManager();
 
 	//Math::Rectangle viewport() const;
 	
@@ -125,7 +125,7 @@ private:
 	void applyBlending          ( const Blending &blending );
 	void applyColorMask         ( const ColorMask &colorMask );
 	void applyDepthMask         ( bool depthMask );
-	void applyShaderProgram     ( const OpenGL::ProgramPtr &program );
+	void applyShaderProgram     ( const ProgramPtr &program );
 	void applyViewState         ( const ViewState &viewState );
 	//void applyFramebuffer();
 	void setViewport            ( const Math::Rectangle &r );
@@ -138,7 +138,7 @@ private:
 	//Math::Rectangle  _viewport;
 	RenderState        _renderState;
 	ViewState          _viewState;
-	OpenGL::ProgramPtr _currentShaderProgram;
+	ProgramPtr         _currentShaderProgram;
 };
 
 

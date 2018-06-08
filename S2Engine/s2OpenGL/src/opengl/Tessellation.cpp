@@ -50,7 +50,7 @@ static void GLU_CALLBACK cbError( GLenum errno, void* p )
 	t->error = true;
 }
 
-bool Tessellation( std::vector<Math::dvec3>& vertices, std::vector<int>& triangles )
+bool tesselate( std::vector<Math::dvec3>& vertices, std::vector<int>& triangles )
 {
 	triangles.clear();
 

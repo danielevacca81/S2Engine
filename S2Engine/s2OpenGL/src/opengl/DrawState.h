@@ -6,8 +6,7 @@
 #include "s2OpenGL_API.h"
 
 #include "RenderState.h"
-#include "ClearState.h"
-#include "OpenGL/Program.h"
+#include "Program.h"
 
 namespace s2 {
 namespace OpenGL {
@@ -17,7 +16,8 @@ namespace OpenGL {
 		RenderState        renderState;
 		OpenGL::ProgramPtr program;
 
-		DrawState() {}
+		DrawState() 
+		{}
 
 		DrawState( const OpenGL::ProgramPtr &shaderProgram, const RenderState &renderState = RenderState()  /*,VertexArray vertexArray*/ )
 		: renderState( renderState )

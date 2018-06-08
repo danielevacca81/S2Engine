@@ -11,7 +11,7 @@
 #include "AttributeBuffer.h"
 #include "IndexBuffer.h"
 
-#include "Renderer/RenderState.h"
+#include "RenderState.h"
 
 #define BUFFER_OFFSET(i) ((void*)(i))
 

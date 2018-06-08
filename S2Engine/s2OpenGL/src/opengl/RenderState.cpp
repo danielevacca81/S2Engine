@@ -2,9 +2,10 @@
 // 
 #include "RenderState.h"
 
-#include "Color.h"
+#include "graphics/Color.h"
 #include "OpenGL/OpenGL.h"
 
+namespace s2{
 namespace OpenGL{
 
 /************************************************************************/
@@ -334,4 +335,4 @@ struct RenderState
 	bool              depthMask;
 };
 
-}
+}}
