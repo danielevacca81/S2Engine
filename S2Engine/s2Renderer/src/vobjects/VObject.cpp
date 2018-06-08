@@ -4,6 +4,10 @@
 
 #include "VObjectManager.h"
 
+
+using namespace s2;
+using namespace s2::Renderer;
+
 static unsigned int IDPool = 0;
 
 

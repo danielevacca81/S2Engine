@@ -9,6 +9,9 @@
 #include "Geometry/Intersection.h"
 #include "Geometry/Interpolation.h"
 
+using namespace s2;
+using namespace s2::Renderer;
+
 // ------------------------------------------------------------------------------------------------
 VSplineStrip::VSplineStrip()
 //: _borders(true)

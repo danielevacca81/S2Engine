@@ -1,30 +1,31 @@
-// VPoint.h
+// VRectangle.h
 //
-#ifndef VPOINT_ONCE
-#define VPOINT_ONCE
+#ifndef VRECTANGLE_ONCE
+#define VRECTANGLE_ONCE
 
-#include "Framework_Exports.h"
+#include "s2Renderer_API.h"
 
 #include "VObject.h"
 
 #include "Math/Math.h"
+#include "Math/Box.h"
 
-namespace OpenGL {
-	class Renderer;
-}
+namespace s2 {
+namespace Renderer {
 
 
-class FWK_API VPoint : public VObject
+class S2RENDERER_API VRectangle : public VObject
 {
 private:
-	std::vector<Math::dvec3> _coords;
+	//Math::box3 _rect;
+	std::vector<Math::dvec3> _points;
 
 public:
-	VPoint();
-	VPoint( double x, double y, double z );
-	VPoint( const Math::dvec3 &p );
+	VRectangle();
+	VRectangle( const Math::dvec3 &bottomLeft, const Math::dvec3 &topRight );
+	VRectangle( const Math::box3 &rect );
 
-	~VPoint() {}
+	~VRectangle() {}
 
 	ObjectType type() const ;
 	std::vector<Math::dvec3> snapPoints() const;
@@ -38,4 +39,5 @@ public:
 	virtual VObject* clone() const;
 };
 
+}}
 #endif

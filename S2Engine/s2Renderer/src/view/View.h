@@ -72,7 +72,6 @@ private:
 	double      _orthographicRight;
 	double      _orthographicBottom;
 	double      _orthographicTop;
-
 };
 
 }

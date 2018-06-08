@@ -6,7 +6,6 @@
 
 #include <QApplication>
 
-#include "qtbridge/GLContext.h"
 #include "GUI/MainWindow.h"
 #include "resources/R.h"
 
@@ -25,7 +24,6 @@ int main( int argc, char *argv[] )
 	std::cout.clear();
 	std::wcout.clear();
 //****************************************
-	//QtBridge::createOpenGLContext( 4, 5, true );
 
 
 	//Win32::enableMemoryLeakDetection();

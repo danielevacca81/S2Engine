@@ -9,6 +9,9 @@
 
 #include "Geometry/Intersection.h"
 
+using namespace s2;
+using namespace s2::Renderer;
+
 // ------------------------------------------------------------------------------------------------
 VPolygon::VPolygon()
 {}
@@ -17,7 +20,7 @@ VPolygon::VPolygon()
 VPolygon::VPolygon( const std::vector<Math::dvec3> &pts )
 {
 	_points = pts;
-	OpenGL::Tessellation( _points, _indices );
+	OpenGL::tesselate( _points, _indices );
 	_border = _points;
 
 	for( size_t i=0; i<_points.size(); ++i )

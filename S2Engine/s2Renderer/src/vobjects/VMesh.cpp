@@ -5,7 +5,8 @@
 #include "OpenGL/Renderer.h"
 #include "Geometry/Intersection.h"
 
-#include "Utils/TimedBlock.h"
+using namespace s2;
+using namespace s2::Renderer;
 
 // ------------------------------------------------------------------------------------------------
 VMesh::VMesh()

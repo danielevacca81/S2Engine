@@ -10,7 +10,8 @@
 
 #include <iostream>
 
-#include "Utils/MemCheck.h"
+using namespace s2;
+using namespace s2::Renderer;
 
 // ------------------------------------------------------------------------------------------------
 VCircle::VCircle()

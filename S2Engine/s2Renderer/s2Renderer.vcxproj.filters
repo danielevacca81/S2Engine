@@ -1,0 +1,130 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>h;hpp;cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="res">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="src\vobjects">
+      <UniqueIdentifier>{884bfe16-bfc0-4b02-b7b8-db11ddb5bb08}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\view">
+      <UniqueIdentifier>{0bab6704-589f-4d8b-a4b3-f882d68ad952}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\vobjects\VCircle.h">
+      <Filter>src\vobjects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\vobjects\VGroup.h">
+      <Filter>src\vobjects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\vobjects\VLine.h">
+      <Filter>src\vobjects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\vobjects\VMesh.h">
+      <Filter>src\vobjects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\vobjects\VObject.h">
+      <Filter>src\vobjects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\vobjects\VObjectManager.h">
+      <Filter>src\vobjects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\vobjects\VPoint.h">
+      <Filter>src\vobjects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\vobjects\VPolygon.h">
+      <Filter>src\vobjects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\vobjects\VPolyLine.h">
+      <Filter>src\vobjects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\vobjects\VRectangle.h">
+      <Filter>src\vobjects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\vobjects\VSplineStrip.h">
+      <Filter>src\vobjects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\vobjects\VStyle.h">
+      <Filter>src\vobjects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\s2Renderer_API.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\view\Camera.h">
+      <Filter>src\view</Filter>
+    </ClInclude>
+    <ClInclude Include="src\view\Projection.h">
+      <Filter>src\view</Filter>
+    </ClInclude>
+    <ClInclude Include="src\view\TrackBall.h">
+      <Filter>src\view</Filter>
+    </ClInclude>
+    <ClInclude Include="src\view\View.h">
+      <Filter>src\view</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\vobjects\VCircle.cpp">
+      <Filter>src\vobjects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vobjects\VGroup.cpp">
+      <Filter>src\vobjects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vobjects\VLine.cpp">
+      <Filter>src\vobjects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vobjects\VMesh.cpp">
+      <Filter>src\vobjects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vobjects\VObject.cpp">
+      <Filter>src\vobjects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vobjects\VObjectManager.cpp">
+      <Filter>src\vobjects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vobjects\VPoint.cpp">
+      <Filter>src\vobjects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vobjects\VPolygon.cpp">
+      <Filter>src\vobjects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vobjects\VPolyLine.cpp">
+      <Filter>src\vobjects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vobjects\VRectangle.cpp">
+      <Filter>src\vobjects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vobjects\VSplineStrip.cpp">
+      <Filter>src\vobjects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vobjects\VStyle.cpp">
+      <Filter>src\vobjects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\Camera.cpp">
+      <Filter>src\view</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\Camera_old.cpp">
+      <Filter>src\view</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\Projection.cpp">
+      <Filter>src\view</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\TrackBall.cpp">
+      <Filter>src\view</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\View.cpp">
+      <Filter>src\view</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\view\TrackBall.cpp.bak">
+      <Filter>src\view</Filter>
+    </None>
+  </ItemGroup>
+</Project>

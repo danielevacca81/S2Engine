@@ -2,12 +2,14 @@
 // 
 #include "MainWindow.h"
 
-#include "qtbridge/GLGraphicsView.h"
-#include "qtbridge/GLWidget.h"
+#include "qt/GLGraphicsView.h"
+#include "qt/GLWidget.h"
 
 #include "TestScene.h"
 
 #include <QVBoxLayout>
+
+using namespace s2;
 
 // ------------------------------------------------------------------------------------------------
 MainWindow::MainWindow(QWidget *parent)
@@ -29,7 +31,7 @@ void MainWindow::gui_createGLArea()
 
 	QVBoxLayout *layout = new QVBoxLayout;
 	layout->setContentsMargins(0,0,0,0);
-	layout->addWidget( new QtBridge::GLGraphicsView( _scene, this, QFrame::Shape::NoFrame ) );
+	layout->addWidget( new s2::Qt::GLGraphicsView( _scene, this, QFrame::Shape::NoFrame ) );
 
 	_ui.frameGLArea->setLayout(layout);
 

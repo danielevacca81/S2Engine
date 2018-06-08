@@ -3,7 +3,7 @@
 #ifndef VOBJECTMANAGER_ONCE
 #define VOBJECTMANAGER_ONCE
 
-#include "Framework_Exports.h"
+#include "s2Renderer_API.h"
 
 #include "Math/Math.h"
 #include "Math/Box.h"
@@ -14,14 +14,12 @@
 #include <vector>
 #include <list>
 
-namespace OpenGL {
-	class Renderer;
-}
-
+namespace s2 {
+namespace Renderer {
 
 class SelectionSet;
 
-class FWK_API VObjectManager
+class S2RENDERER_API VObjectManager
 {
 public: 
 	enum SelectionPolicy 
@@ -92,4 +90,5 @@ public:
 	void drawObjects() const;
 };
 
+}}
 #endif

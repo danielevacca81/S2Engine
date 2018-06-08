@@ -2,12 +2,15 @@
 // 
 #include "VStyle.h"
 
+using namespace s2;
+using namespace s2::Renderer;
+
 // ------------------------------------------------------------------------------------------------
 VStyle::VStyle()
 {
-	_baseColor     = OpenGL::Color::blue().lighter(.25f);
-	_borderColor   = OpenGL::Color::black();
-	_selectedColor = OpenGL::Color::magenta();
+	_baseColor     = Color::blue().lighter(.25f);
+	_borderColor   = Color::black();
+	_selectedColor = Color::magenta();
 
 	_penSize    = 1.0;
 	_borderSize = 0.0;
@@ -29,10 +32,10 @@ void VStyle::setDrawStyle( const DrawStyle &style ) { _drawStyle = style; }
 void VStyle::setPenStyle( const PenStyle &style )   { _penStyle  = style; }
 
 // ------------------------------------------------------------------------------------------------
-void VStyle::setBaseColor( const OpenGL::Color &color )      { _baseColor      = color; }
-void VStyle::setSelectedColor( const OpenGL::Color &color )  { _selectedColor  = color; }
-//void VStyle::setHilightedColor( const OpenGL::Color &color ) { _hilightedColor = color; }
-void VStyle::setBorderColor( const OpenGL::Color &color )    { _borderColor    = color; }
+void VStyle::setBaseColor( const Color &color )      { _baseColor      = color; }
+void VStyle::setSelectedColor( const Color &color )  { _selectedColor  = color; }
+//void VStyle::setHilightedColor( const Color &color ) { _hilightedColor = color; }
+void VStyle::setBorderColor( const Color &color )    { _borderColor    = color; }
 
 
 // ------------------------------------------------------------------------------------------------
@@ -44,7 +47,7 @@ VStyle::DrawStyle VStyle::drawStyle() const { return _drawStyle; }
 VStyle::PenStyle  VStyle::penStyle() const  { return _penStyle;  }
 
 // ------------------------------------------------------------------------------------------------
-OpenGL::Color VStyle::baseColor() const      { return _baseColor; }
-OpenGL::Color VStyle::selectedColor() const  { return _selectedColor; }
-//OpenGL::Color VStyle::hilightedColor() const { return _hilightedColor; }
-OpenGL::Color VStyle::borderColor() const    { return _borderColor; }
+Color VStyle::baseColor() const      { return _baseColor; }
+Color VStyle::selectedColor() const  { return _selectedColor; }
+//Color VStyle::hilightedColor() const { return _hilightedColor; }
+Color VStyle::borderColor() const    { return _borderColor; }

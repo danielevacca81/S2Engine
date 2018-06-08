@@ -3,7 +3,7 @@
 #ifndef VGROUP_ONCE
 #define VGROUP_ONCE
 
-#include "Framework_Exports.h"
+#include "s2Renderer_API.h"
 
 #include "VObject.h"
 
@@ -12,12 +12,11 @@
 #include <map>
 #include <vector>
 
-namespace OpenGL {
-	class Renderer;
-}
+namespace s2 {
+namespace Renderer {
 
 
-class FWK_API VGroup : public VObject
+class S2RENDERER_API VGroup : public VObject
 {
 private:
 	std::map<unsigned int, VObjectPtr>        _objects;
@@ -53,4 +52,5 @@ public:
 };
 
 
+}}
 #endif

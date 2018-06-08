@@ -8,6 +8,9 @@
 
 #include "Geometry/Intersection.h"
 
+using namespace s2;
+using namespace s2::Renderer;
+
 // ------------------------------------------------------------------------------------------------
 VPolyLine::VPolyLine()
 {}

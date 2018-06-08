@@ -2,19 +2,18 @@
 //
 #pragma once
 
-#include "qtbridge/GLGraphicsScene.h"
+#include "qt/GLGraphicsScene.h"
 
-#include "Renderer/Renderer.h"
-#include "OpenGL/VertexArray.h"
-#include "Renderer/TextRenderer.h"
+#include "opengl/Renderer.h"
+#include "opengl/Mesh.h"
+#include "opengl/Program.h"
+//#include "Renderer/TextRenderer.h"
 
-#include "View/Trackball.h"
-#include "View/Camera.h"
-#include "OpenGL/Context.h"
-#include "OpenGL/Program.h"
+//#include "View/Trackball.h"
+//#include "View/Camera.h"
 
 
-class TestScene : public QtBridge::GLGraphicsScene
+class TestScene : public s2::Qt::GLGraphicsScene
 {
 public:
 	TestScene( QWidget *parent );
@@ -50,21 +49,21 @@ private slots:
 private:
 	bool              _wireframe;
 
-	OpenGL::Renderer  _renderer;
-	OpenGL::ViewState _viewState;
+	s2::OpenGL::Renderer  _renderer;
+	s2::OpenGL::ViewState _viewState;
 	
-	s2::TrackBall     _trackball;
-	s2::TextRenderer  _textRenderer;
-	s2::Camera        _camera;
+	//s2::TrackBall     _trackball;
+	//s2::TextRenderer  _textRenderer;
+	//s2::Camera        _camera;
 
-	Math::dvec3 _center;
+	s2::Math::dvec3 _center;
 	//Math::dvec3 _target;
 	//Math::dvec3 _up;
 
 	//OpenGL::DrawState  _drawState;
 	//OpenGL::Context    _context;
-	OpenGL::ProgramPtr _shaderBlinnPhong;
-	OpenGL::ProgramPtr _shaderSimple;
-	OpenGL::Mesh       _cubeMesh;
-	OpenGL::Mesh       _triangle;
+	s2::OpenGL::ProgramPtr _shaderBlinnPhong;
+	s2::OpenGL::ProgramPtr _shaderSimple;
+	s2::OpenGL::Mesh       _cubeMesh;
+	s2::OpenGL::Mesh       _triangle;
 };

@@ -3,7 +3,7 @@
 #ifndef VMESH_ONCE
 #define VMESH_ONCE
 
-#include "CoreAPI.h"
+#include "s2Renderer_API.h"
 
 #include "VObject.h"
 
@@ -11,9 +11,8 @@
 #include "Math/Math.h"
 
 
-namespace OpenGL {
-	class Renderer;
-}
+namespace s2 {
+namespace Renderer {
 
 
 class S2CORE_API VMesh : public VObject
@@ -74,4 +73,5 @@ public:
 };
 
 
+}}
 #endif

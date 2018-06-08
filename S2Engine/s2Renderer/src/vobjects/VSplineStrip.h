@@ -3,7 +3,7 @@
 #ifndef VSPLINESTRIP_ONCE
 #define VSPLINESTRIP_ONCE
 
-#include "Framework_Exports.h"
+#include "s2Renderer_API.h"
 
 #include "VObject.h"
 
@@ -11,12 +11,11 @@
 
 #include <vector>
 
-namespace OpenGL {
-	class Renderer;
-}
+namespace s2 {
+namespace Renderer {
 
 
-class FWK_API VSplineStrip : public VObject
+class S2RENDERER_API VSplineStrip : public VObject
 {
 private:
 	//bool _borders;
@@ -49,4 +48,5 @@ public:
 	virtual VObject* clone() const;
 };
 
+}}
 #endif

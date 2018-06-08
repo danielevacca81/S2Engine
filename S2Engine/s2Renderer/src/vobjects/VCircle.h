@@ -3,17 +3,17 @@
 #ifndef VCIRCLE_ONCE
 #define VCIRCLE_ONCE
 
-#include "Framework_Exports.h"
+#include "s2Renderer_API.h"
 
 #include "VObject.h"
 
 #include "Math/Math.h"
 
-namespace OpenGL {
-	class Renderer;
-}
+namespace s2 {
+namespace Renderer {
 
-class FWK_API VCircle : public VObject
+
+class S2RENDERER_API VCircle : public VObject
 {
 private:
 	Math::dvec3 _center;
@@ -41,4 +41,5 @@ public:
 	VObject* clone() const;
 };
 
+}}
 #endif

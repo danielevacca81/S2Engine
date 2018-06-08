@@ -1,9 +1,9 @@
-// VPolyLine.h
+// VPolygon.h
 //
-#ifndef VPOLYLINE_ONCE
-#define VPOLYLINE_ONCE
+#ifndef VPOLYGON_ONCE
+#define VPOLYGON_ONCE
 
-#include "Framework_Exports.h"
+#include "s2Renderer_API.h"
 
 #include "VObject.h"
 
@@ -11,22 +11,21 @@
 
 #include <vector>
 
-namespace OpenGL {
-	class Renderer;
-}
+namespace s2 {
+namespace Renderer {
 
 
-class FWK_API VPolyLine : public VObject
+class S2RENDERER_API VPolygon : public VObject
 {
 private:
 	std::vector<Math::dvec3> _points;
-	std::vector<int>         _indices;
-
+	std::vector<Math::dvec3> _border;
+	std::vector<int> _indices;
 public:
-	VPolyLine();
-	VPolyLine( const std::vector<Math::dvec3> &pts );
+	VPolygon();
+	VPolygon( const std::vector<Math::dvec3> &pts );
 
-	~VPolyLine() {}
+	~VPolygon() {}
 
 	ObjectType type() const ;
 	std::vector<Math::dvec3> snapPoints() const;
@@ -41,4 +40,5 @@ public:
 	virtual VObject* clone() const;
 };
 
+}}
 #endif
