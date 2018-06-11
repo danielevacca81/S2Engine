@@ -2,8 +2,8 @@
 //
 #include "Context.h"
 
-#include "opengl/OpenGL.h"
-#include "opengl/Extensions.h"
+#include "OpenGL.h"
+#include "Extensions.h"
 
 #include <windows.h>
 

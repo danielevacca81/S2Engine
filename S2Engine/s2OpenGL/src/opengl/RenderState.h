@@ -9,20 +9,6 @@
 namespace s2 {
 namespace OpenGL {
 
-enum PrimitiveType
-{
-	Points,
-	Lines,
-	LineStrip,
-	LineLoop,
-	Triangles,
-	TriangleStrip,
-	TriangleFan,
-	Quads,
-	QuadStrip
-};
-
-
 /************************************************************************/
 /*                            PRIMITIVERESTART                          */
 /************************************************************************/

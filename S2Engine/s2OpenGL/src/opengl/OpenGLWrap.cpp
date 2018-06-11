@@ -2,9 +2,11 @@
 // 
 #include "OpenGLWrap.h"
 
-namespace s2 {
+#include "OpenGL.h"
 
+namespace s2 {
 namespace OpenGL {
+
 /************************************************************************************************/
 /*                                          IndexBuffer                                         */
 /************************************************************************************************/
@@ -232,19 +234,106 @@ unsigned int glWrap( const FrameBuffer::AttachmentPoint &attachment )
 }
 
 // ------------------------------------------------------------------------------------------------
-unsigned int glWrap( const FrameBuffer::DepthFormat     &format )
+//unsigned int glWrap( const FrameBuffer::DepthFormat     &format )
+//{
+//	switch( format )
+//	{
+//	case FrameBuffer::DepthNone:          return GL_NONE;
+//	case FrameBuffer::DepthComponent16:   return GL_DEPTH_COMPONENT16;
+//	case FrameBuffer::DepthComponent24:   return GL_DEPTH_COMPONENT24;
+//	case FrameBuffer::DepthComponent32:   return GL_DEPTH_COMPONENT32;
+//	case FrameBuffer::DepthComponent32F:  return GL_DEPTH_COMPONENT32F;
+//	}
+//	return -1;
+//}
+#pragma endregion
+
+/************************************************************************************************/
+/*                                           RenderBuffer                                       */
+/************************************************************************************************/
+#pragma region RenderState
+unsigned int glWrap( const RenderBuffer::Format &format )
 {
 	switch( format )
 	{
-	case FrameBuffer::DepthNone:          return GL_NONE;
-	case FrameBuffer::DepthComponent16:   return GL_DEPTH_COMPONENT16;
-	case FrameBuffer::DepthComponent24:   return GL_DEPTH_COMPONENT24;
-	case FrameBuffer::DepthComponent32:   return GL_DEPTH_COMPONENT32;
-	case FrameBuffer::DepthComponent32F:  return GL_DEPTH_COMPONENT32F;
+    case RenderBuffer::R8:                return GL_R8;                
+    case RenderBuffer::R8_SNORM:          return GL_R8_SNORM;          
+    case RenderBuffer::R16:               return GL_R16;               
+    case RenderBuffer::R16_SNORM:         return GL_R16_SNORM;         
+    case RenderBuffer::RG8:               return GL_RG8;               
+    case RenderBuffer::RG8_SNORM:         return GL_RG8_SNORM;         
+    case RenderBuffer::RG16:              return GL_RG16;              
+    case RenderBuffer::RG16_SNORM:        return GL_RG16_SNORM;        
+    case RenderBuffer::R3_G3_B2:          return GL_R3_G3_B2;          
+    case RenderBuffer::RGB4:              return GL_RGB4;              
+    case RenderBuffer::RGB5:              return GL_RGB5;              
+    case RenderBuffer::RGB8:              return GL_RGB8;              
+    case RenderBuffer::RGB8_SNORM:        return GL_RGB8_SNORM;        
+    case RenderBuffer::RGB10:             return GL_RGB10;             
+    case RenderBuffer::RGB12:             return GL_RGB12;             
+    case RenderBuffer::RGB16:             return GL_RGB16;             
+    case RenderBuffer::RGB16_SNORM:       return GL_RGB16_SNORM;       
+    case RenderBuffer::RGBA2:             return GL_RGBA2;             
+    case RenderBuffer::RGBA4:             return GL_RGBA4;             
+    case RenderBuffer::RGB5_A1:           return GL_RGB5_A1;           
+    case RenderBuffer::RGBA8:             return GL_RGBA8;             
+    case RenderBuffer::RGBA8_SNORM:       return GL_RGBA8_SNORM;       
+    case RenderBuffer::RGB10_A2:          return GL_RGB10_A2;          
+    case RenderBuffer::RGB10_A2UI:        return GL_RGB10_A2UI;        
+    case RenderBuffer::RGBA12:            return GL_RGBA12;            
+    case RenderBuffer::RGBA16:            return GL_RGBA16;            
+    case RenderBuffer::RGBA16_SNORM:      return GL_RGBA16_SNORM;      
+    case RenderBuffer::SRGB8:             return GL_SRGB8;             
+    case RenderBuffer::SRGB8_ALPHA8:      return GL_SRGB8_ALPHA8;      
+    case RenderBuffer::R16F:              return GL_R16F;              
+    case RenderBuffer::RG16F:             return GL_RG16F;             
+    case RenderBuffer::RGB16F:            return GL_RGB16F;            
+    case RenderBuffer::RGBA16F:           return GL_RGBA16F;           
+    case RenderBuffer::R32F:              return GL_R32F;              
+    case RenderBuffer::RG32F:             return GL_RG32F;             
+    case RenderBuffer::RGB32F:            return GL_RGB32F;            
+    case RenderBuffer::RGBA32F:           return GL_RGBA32F;           
+    case RenderBuffer::R11F_G11F_B10F:    return GL_R11F_G11F_B10F;    
+    case RenderBuffer::RGB9_E5:           return GL_RGB9_E5;           
+    case RenderBuffer::R8I:               return GL_R8I;               
+    case RenderBuffer::R8UI:              return GL_R8UI;              
+    case RenderBuffer::R16I:              return GL_R16I;              
+    case RenderBuffer::R16UI:             return GL_R16UI;             
+    case RenderBuffer::R32I:              return GL_R32I;              
+    case RenderBuffer::R32UI:             return GL_R32UI;             
+    case RenderBuffer::RG8I:              return GL_RG8I;              
+    case RenderBuffer::RG8UI:             return GL_RG8UI;             
+    case RenderBuffer::RG16I:             return GL_RG16I;             
+    case RenderBuffer::RG16UI:            return GL_RG16UI;            
+    case RenderBuffer::RG32I:             return GL_RG32I;             
+    case RenderBuffer::RG32UI:            return GL_RG32UI;            
+    case RenderBuffer::RGB8I:             return GL_RGB8I;             
+    case RenderBuffer::RGB8UI:            return GL_RGB8UI;            
+    case RenderBuffer::RGB16I:            return GL_RGB16I;            
+    case RenderBuffer::RGB16UI:           return GL_RGB16UI;           
+    case RenderBuffer::RGB32I:            return GL_RGB32I;            
+    case RenderBuffer::RGB32UI:           return GL_RGB32UI;           
+    case RenderBuffer::RGBA8I:            return GL_RGBA8I;            
+    case RenderBuffer::RGBA8UI:           return GL_RGBA8UI;           
+    case RenderBuffer::RGBA16I:           return GL_RGBA16I;           
+    case RenderBuffer::RGBA16UI:          return GL_RGBA16UI;          
+    case RenderBuffer::RGBA32I:           return GL_RGBA32I;           
+    case RenderBuffer::RGBA32UI:          return GL_RGBA32UI;          
+    case RenderBuffer::DepthComponent:    return GL_DEPTH_COMPONENT;    
+    case RenderBuffer::DepthComponent16:  return GL_DEPTH_COMPONENT16;  
+    case RenderBuffer::DepthComponent24:  return GL_DEPTH_COMPONENT24;  
+    case RenderBuffer::DepthComponent32:  return GL_DEPTH_COMPONENT32;  
+    case RenderBuffer::DepthComponent32F: return GL_DEPTH_COMPONENT32F; 
+    case RenderBuffer::Depth24Stencil8:   return GL_DEPTH24_STENCIL8;
+    case RenderBuffer::Depth32FStencil8:  return GL_DEPTH32F_STENCIL8;
+    case RenderBuffer::StencilIndex:      return GL_STENCIL_INDEX;  
+    case RenderBuffer::StencilIndex1:     return GL_STENCIL_INDEX1;
+    case RenderBuffer::StencilIndex4:     return GL_STENCIL_INDEX4;
+	case RenderBuffer::StencilIndex8:     return GL_STENCIL_INDEX8;
+    case RenderBuffer::StencilIndex16:    return GL_STENCIL_INDEX16;
 	}
 	return -1;
 }
-
 #pragma endregion
 
 /************************************************************************************************/
@@ -399,15 +488,15 @@ unsigned int glWrap( const PrimitiveType &primitive )
 {
 	switch( primitive )
 	{
-	case Points:        return GL_POINTS;
-	case Lines:         return GL_LINES;
-	case LineStrip:     return GL_LINE_STRIP;
-	case LineLoop:      return GL_LINE_LOOP;
-	case Triangles:     return GL_TRIANGLES;
-	case TriangleStrip: return GL_TRIANGLE_STRIP;
-	case TriangleFan:   return GL_TRIANGLE_FAN;
-	case Quads:         return GL_QUADS;
-	case QuadStrip:     return GL_QUAD_STRIP;
+	case PrimitiveType::Points:        return GL_POINTS;
+	case PrimitiveType::Lines:         return GL_LINES;
+	case PrimitiveType::LineStrip:     return GL_LINE_STRIP;
+	case PrimitiveType::LineLoop:      return GL_LINE_LOOP;
+	case PrimitiveType::Triangles:     return GL_TRIANGLES;
+	case PrimitiveType::TriangleStrip: return GL_TRIANGLE_STRIP;
+	case PrimitiveType::TriangleFan:   return GL_TRIANGLE_FAN;
+	case PrimitiveType::Quads:         return GL_QUADS;
+	case PrimitiveType::QuadStrip:     return GL_QUAD_STRIP;
 	}
 	return -1;
 }

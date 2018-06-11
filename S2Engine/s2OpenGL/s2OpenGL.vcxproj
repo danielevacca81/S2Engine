@@ -199,7 +199,10 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="src\opengl\Primitive.h" />
     <ClInclude Include="src\OpenGL\Program.h" />
+    <ClInclude Include="src\opengl\RenderBuffer.h" />
+    <ClInclude Include="src\opengl\Renderer.h" />
     <ClInclude Include="src\opengl\StateManager.h" />
     <ClInclude Include="src\opengl\RenderState.h" />
     <ClInclude Include="src\OpenGL\Selection.h" />
@@ -252,6 +255,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="src\OpenGL\Program.cpp" />
+    <ClCompile Include="src\opengl\RenderBuffer.cpp" />
+    <ClCompile Include="src\opengl\Renderer.cpp" />
     <ClCompile Include="src\opengl\StateManager.cpp" />
     <ClCompile Include="src\OpenGL\Selection.cpp" />
     <ClCompile Include="src\OpenGL\Tessellation.cpp" />

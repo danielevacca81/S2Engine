@@ -2,7 +2,8 @@
 // 
 #include "BufferObject.h"
 
-#include "OpenGL/OpenGLWrap.h"
+#include "OpenGL.h"
+#include "OpenGLWrap.h"
 
 using namespace s2;
 using namespace s2::OpenGL;

@@ -12,7 +12,6 @@
 #include <memory>
 
 namespace s2 {
-
 namespace OpenGL {
 
 // ------------------------------------------------------------------------------------------------
@@ -56,6 +55,7 @@ public:
 	}
 
 private:
+
 	bool create();
 	void detatch( unsigned int &shd );
 	void detatchAll();

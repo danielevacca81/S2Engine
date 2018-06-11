@@ -4,36 +4,80 @@
 
 #include "OpenGL.h" 
 #include "OpenGLWrap.h"
+#include "Renderer.h"
+
+#include <algorithm>
+#include <iostream>
+
+#if defined(WIN32) || defined(WIN64) || defined(_WIN32) || defined(_WIN64)
+#include <Windows.h>
+#ifdef DrawState
+#undef DrawState
+#endif
+#endif
+
 
 namespace s2 {
-
 namespace OpenGL {
 
+std::map<void*,FrameBufferPtr> FrameBuffer::Default;
+FrameBufferPtr FrameBuffer::Current;
+
 // ------------------------------------------------------------------------------------------------
-FrameBuffer::FrameBuffer()
-	: _width( 0 )
-	, _height( 0 )
-	, _fbo( 0 )
-	, _depthFormat( DepthNone )
-	, _bound( false )
+FrameBufferPtr FrameBuffer::New( bool default )
 {
+	return std::make_shared<FrameBuffer>( default );
+}
+
+// ------------------------------------------------------------------------------------------------
+FrameBufferPtr FrameBuffer::getDefault()
+{
+	void* context;
+#if defined(WIN32) || defined(WIN64) || defined(_WIN32) || defined(_WIN64)
+	context = wglGetCurrentContext();
+#else
+	context = glXGetCurrentContext();
+#endif
+
+	const auto i = Default.find( context );
+
+	// already created
+	if( i != Default.end() )
+		return i->second;
+
+	FrameBufferPtr fb = FrameBuffer::New( true );
+	Default.insert( std::make_pair( context, fb ) );
+	return fb;
+}
+
+// ------------------------------------------------------------------------------------------------
+FrameBuffer::FrameBuffer( bool default )
+: _fboID( 0 )
+, _attachmentsChanged( false )
+, _parametersChanged( false )
+, _buffersChanged( false )
+{
+	if( default )
+		_fboID = 0;
+	else
+		glGenFramebuffers( 1, &_fboID );
+
+	glCheck;
+
+	_readBuffer  = ColorAttachment0;
+	_drawBuffers = { ColorAttachment0 };
 }
 
 // ------------------------------------------------------------------------------------------------
 FrameBuffer::~FrameBuffer()
 {
-	destroy();
-}
+	if( Current->_fboID == this->_fboID )
+		Current = nullptr;
 
-// ------------------------------------------------------------------------------------------------
-void FrameBuffer::destroy()
-{
-	if( !isValid() ) return;
+	if( _fboID != 0 )
+		glDeleteFramebuffers( 1, &_fboID );
 
-	glDeleteFramebuffers( 1, &_fbo );
-
-	if( glWrap( _depthFormat ) != GL_NONE )
-		glDeleteRenderbuffers( 1, &_depthBuffer );
+	glCheck;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -41,185 +85,195 @@ std::string FrameBuffer::info() const
 {
 	std::string ret( "FBO Failed: Unknown Error" );
 
-	const GLenum r = glCheckFramebufferStatus( GL_FRAMEBUFFER_EXT );
+	const GLenum r = glCheckFramebufferStatus( GL_FRAMEBUFFER );
 	switch( r )
 	{
-	case GL_FRAMEBUFFER_COMPLETE_EXT:                       ret = "FBO Ok";                        break;
-	case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:			ret = "FBO Failed: Attachment Error";  break;
-	case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:	ret = "FBO Failed: Missing attachment"; break;
-	case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:	    	ret = "FBO Failed: Dimensions Error";  break;
-	case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:			    ret = "FBO Failed: Formats Error";     break;
-	case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:			ret = "FBO Failed: Draw buffer Error"; break;
-	case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT:			ret = "FBO Failed: Read buffer Error"; break;
-	case GL_FRAMEBUFFER_UNSUPPORTED_EXT:					ret = "FBO Failed: Not Supported";     break;
+	case GL_FRAMEBUFFER_COMPLETE:                       ret = "FBO Ok";                        break;
+	case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:			ret = "FBO Failed: Attachment Error";  break;
+	case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:	ret = "FBO Failed: Missing attachment"; break;
+	//case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS:	    	ret = "FBO Failed: Dimensions Error";  break;
+	//case GL_FRAMEBUFFER_INCOMPLETE_FORMATS:			    ret = "FBO Failed: Formats Error";     break;
+	case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:			ret = "FBO Failed: Incomplete Draw buffer"; break;
+	case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:			ret = "FBO Failed: Incomplete Read buffer"; break;
+	case GL_FRAMEBUFFER_UNSUPPORTED:					ret = "FBO Failed: Not Supported";     break;
+	case GL_FRAMEBUFFER_UNDEFINED:					    ret = "FBO Failed: Undefined";         break;
+	case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:			ret = "FBO Failed: Incomplete Multisample";     break;
+	case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:       ret = "FBO Failed: Incomplete Layer targets";   break;
 	}
 
 	return ret;
 }
 
 // ------------------------------------------------------------------------------------------------
-bool FrameBuffer::checkStatus() const
+bool FrameBuffer::checkAttatchments() const
 {
-	const GLenum r = glCheckFramebufferStatusEXT( GL_FRAMEBUFFER_EXT );
-	return r == GL_FRAMEBUFFER_COMPLETE_EXT;
+	const GLenum r = glCheckFramebufferStatus( GL_FRAMEBUFFER );
+	return r == GL_FRAMEBUFFER_COMPLETE;
 }
 
 // ------------------------------------------------------------------------------------------------
-bool FrameBuffer::create()
+void FrameBuffer::set( ) const
 {
-	destroy();
+	//// Specify what to render an start acquiring
+	//std::vector<GLenum> buffers;
+	//for( size_t i=0; i < _attachments.size(); ++i )
+	//	if( glWrap( _attachments[i].attachmentName ) != GL_DEPTH_ATTACHMENT )
+	//		buffers.push_back( glWrap( _attachments[i].attachmentName ) );
 
-	glGenFramebuffersEXT( 1, &_fbo );
-	return true;
-}
+	//if( buffers.empty() )
+	//	return;
 
-// ------------------------------------------------------------------------------------------------
-// create a FBO with a new texture as attachment
-/*bool FrameBuffer::create( unsigned int w, unsigned int h, GLenum colorformat, GLenum depthformat, bool generateMipmap )
-{
-	destroy(true);
-
-	// invalid parameters
-	if( w == 0 || h == 0 )
-		return false;
-
-	// Create empty color texture ?
-	if( colorformat != GL_NONE )
+	glBindFramebuffer( GL_FRAMEBUFFER, _fboID );
+	setAttachments();
+	if( !checkAttatchments() )
 	{
-		_attachments[0].attachmentType   = GL_TEXTURE_2D;
-		_attachments[0].attachmentFormat = GL_RGBA;
+		std::cout << info() << std::endl;
+		return;
+	}
 
-		glGenTextures(1,&_attachments[0].attachmentID );
-		glBindTexture(   _attachments[0].attachmentType, _attachments[0].attachmentID );
-		glTexParameterf( _attachments[0].attachmentType, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
-		glTexParameterf( _attachments[0].attachmentType, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
 
-		if( generateMipmap )
+	// setDrawBuffers
+	//{
+	//	if( _fboID != 0 && readDrawChanged )
+	//	{
+	//		glReadBuffer( getBuffer( readBuffer ) );
+	//		if( drawBufferCount == 1 )
+	//		{
+	//			glDrawBuffer( getBuffer( drawBuffers[0] ) );
+	//		}
+	//		else
+	//		{
+	//			GLenum drawBufs[4];
+	//			for( int i = 0; i < drawBufferCount; ++i )
+	//			{
+	//				drawBufs[i] = getBuffer( drawBuffers[i] );
+	//			}
+	//			glDrawBuffers( drawBufferCount, drawBufs );
+	//		}
+	//		readDrawChanged = false;
+	//		assert( getError() == 0 );
+	//	}
+	//}
+
+	setParameters();
+}
+
+// ------------------------------------------------------------------------------------------------
+void FrameBuffer::setAttachments() const
+{
+	if( !_attachmentsChanged )
+		return;
+
+	for( auto &att : _attachments )
+	{
+        //if (textures[i] == NULL) {
+        //    glFramebufferRenderbuffer(GL_FRAMEBUFFER, ATTACHMENTS[i], GL_RENDERBUFFER, 0);
+        //    continue;
+        //}
+
+		if( att.isRenderBuffer )
 		{
-			glTexParameteri(  _attachments[0].attachmentType, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-			glTexParameteri(  _attachments[0].attachmentType, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR );
-			glGenerateMipmap( _attachments[0].attachmentType );
+			glFramebufferRenderbuffer( GL_FRAMEBUFFER, att.attachmentName, GL_RENDERBUFFER, att.attachmentID );
 		}
 		else
 		{
-			glTexParameterf( _attachments[0].attachmentType, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
-			glTexParameterf( _attachments[0].attachmentType, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+			switch( att.attachmentType )
+			{
+			case GL_TEXTURE_1D:	glFramebufferTexture1D( GL_FRAMEBUFFER, att.attachmentName, att.attachmentType, att.attachmentID, 0 ); break;
+			case GL_TEXTURE_2D:	glFramebufferTexture2D( GL_FRAMEBUFFER, att.attachmentName, att.attachmentType, att.attachmentID, 0 ); break;
+
+				// @TODO:
+				//case Texture3D::target():	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+_numAttachments, texture->target(), texture->id(), 0); break;
+			}
+			/*
+			int id = textures[i].cast<Texture>()->getId();
+			if (textures[i].cast<Texture1DArray>() != NULL ||
+				textures[i].cast<Texture2DArray>() != NULL ||
+				textures[i].cast<Texture2DMultisampleArray>() != NULL ||
+				textures[i].cast<Texture3D>() != NULL)
+			{
+				if (layers[i] == -1) {
+					glFramebufferTexture(GL_FRAMEBUFFER, ATTACHMENTS[i], id, levels[i]);
+				} else {
+					glFramebufferTextureLayer(GL_FRAMEBUFFER, ATTACHMENTS[i], id, levels[i], layers[i]);
+				}
+			} else if (textures[i].cast<Texture1D>() != NULL) {
+				glFramebufferTexture1D(GL_FRAMEBUFFER, ATTACHMENTS[i], GL_TEXTURE_1D, id, levels[i]);
+			} else if (textures[i].cast<Texture2D>() != NULL) {
+				glFramebufferTexture2D(GL_FRAMEBUFFER, ATTACHMENTS[i], GL_TEXTURE_2D, id, levels[i]);
+			} else if (textures[i].cast<TextureRectangle>() != NULL) {
+				glFramebufferTexture2D(GL_FRAMEBUFFER, ATTACHMENTS[i], GL_TEXTURE_RECTANGLE, id, levels[i]);
+			} else if (textures[i].cast<Texture2DMultisample>() != NULL) {
+				glFramebufferTexture2D(GL_FRAMEBUFFER, ATTACHMENTS[i], GL_TEXTURE_2D_MULTISAMPLE, id, levels[i]);
+			} else if (textures[i].cast<TextureCube>() != NULL) {
+				if (layers[i] == -1) {
+					glFramebufferTexture(GL_FRAMEBUFFER, ATTACHMENTS[i], id, levels[i]);
+				} else {
+					glFramebufferTexture2D(GL_FRAMEBUFFER, ATTACHMENTS[i], getCubeFace((CubeFace) layers[i]), id, levels[i]);
+				}
+			} else if (textures[i].cast<TextureCubeArray>() != NULL) {
+				glFramebufferTextureLayer(GL_FRAMEBUFFER, ATTACHMENTS[i], id, levels[i], layers[i]);
+			}*/
 		}
-		glTexImage2D(  _attachments[0].attachmentType, 0, _attachments[0].attachmentFormat, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0 );
-		glBindTexture( _attachments[0].attachmentType, 0 );
+        glCheck;
+    }
 
-		_numAttachments = 1;
-	}
-
-	// Want a depth attachment?
-	if( depthformat != GL_NONE )
-	{
-		glGenTextures( 1, &_depthBuffer );
-		glBindTexture( GL_TEXTURE_2D, _depthBuffer );
-		glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-		glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-		glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
-		glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
-		//glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
-		//glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE_ARB, GL_LUMINANCE);
-		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE_ARB);
-		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC_ARB, GL_LEQUAL);
-		glTexImage2D( GL_TEXTURE_2D, 0, depthformat, w, h, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0 );
-		glBindTexture( GL_TEXTURE_2D, 0 );
-	}
-
-	// Create the frame buffer
-	glGenFramebuffersEXT(1, &_fbo);
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, _fbo);
-	//glCheck;
-
-	// attach color
-	if( _numAttachments == 1 )
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0_EXT, _attachments[0].attachmentType, _attachments[0].attachmentID, 0);
-	//glCheck;
-
-	// attach depth
-	if( _depthBuffer != 0 )
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, _depthBuffer, 0);
-	//glCheck;
-
-	// check for any error
-	const bool statusOk = checkStatus();
-
-	// Bind no FBO
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	if( !statusOk )
-	{
-		destroy(true);
-		return false;
-	}
-
-	_width		= w;
-	_height		= h;
-	_depthFormat = depthformat;
-
-	return true;
-}*/
-
-// ------------------------------------------------------------------------------------------------
-bool   FrameBuffer::isValid()     const { return _fbo != 0; }
-bool   FrameBuffer::isBound()     const { return _bound; }
-
-// ------------------------------------------------------------------------------------------------
-/*void FrameBuffer::bindColorAttachment( unsigned int i )
-{
-	if( i<_numAttachments )
-		glBindTexture( _attachments[i].attachmentType, _attachments[i].attachmentID );
-}*/
-
-// ------------------------------------------------------------------------------------------------
-/*void FrameBuffer::bindDepthAttachment()
-{
-	glBindTexture(GL_TEXTURE_2D, _depthBuffer);
-}*/
-
-// ------------------------------------------------------------------------------------------------
-void FrameBuffer::bind( int width, int height )
-{
-	if( !isValid() )
-		return;
-
-	// Specify what to render an start acquiring
-	std::vector<GLenum> buffers;
-	for( size_t i=0; i < _attachments.size(); ++i )
-		if( glWrap( _attachments[i].attachmentName ) != GL_DEPTH_ATTACHMENT )
-			buffers.push_back( glWrap( _attachments[i].attachmentName ) );
-
-	if( buffers.empty() )
-		return;
-
-	glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, _fbo );
-	glPushAttrib( GL_VIEWPORT_BIT );
-	glViewport( 0, 0, width, height );
-	glDrawBuffers( buffers.size(), &buffers[0] );
-
-	_bound = glValidate;
+	_attachmentsChanged = false;
 }
 
 // ------------------------------------------------------------------------------------------------
-void FrameBuffer::clear( float r, float g, float b, float a )
+void FrameBuffer::setParameters() const
 {
-	if( isBound() )
-	{
-		glClearColor( r, g, b, a );
-		glClear( GL_COLOR_BUFFER_BIT | ( glWrap( _depthFormat ) != GL_NONE ? GL_DEPTH_BUFFER_BIT : 0 ) );
-	}
+	if( _parametersChanged )
+		glViewport( _viewport.left(), _viewport.bottom(), _viewport.width(), _viewport.height() );
+
+	_parametersChanged = false;
+}
+
+
+// ------------------------------------------------------------------------------------------------
+void FrameBuffer::setViewport( const Math::Rectangle &viewport )
+{
+	_viewport = viewport;
+	_parametersChanged = true;
 }
 
 // ------------------------------------------------------------------------------------------------
-void FrameBuffer::unBind()
+Math::Rectangle FrameBuffer::viewport() const
 {
-	if( !isBound() )
-		return;
+	return _viewport;
+}
 
-	glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, 0 );
-	glPopAttrib();
+// ------------------------------------------------------------------------------------------------
+void FrameBuffer::clear( const ClearState &cs )
+{
+	_stateManager.applyClearState( cs );
+
+	glCheck;
+}
+
+// ------------------------------------------------------------------------------------------------
+void FrameBuffer::draw( const PrimitiveType &primitive, const Mesh &mesh, const DrawState &ds )
+{
+	set();
+
+	_stateManager.applyDrawState( ds );
+	// applyView?
+
+	OpenGL::Renderer r;
+	r.draw( primitive,mesh );
+}
+
+// ------------------------------------------------------------------------------------------------
+void FrameBuffer::draw( const PrimitiveType &primitive, const VertexArray &va, const DrawState &ds )
+{
+	set();
+
+	_stateManager.applyDrawState( ds );
+	// applyView?
+
+	OpenGL::Renderer r;
+	r.draw( primitive,va );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -245,9 +299,9 @@ void FrameBuffer::unBind()
 // ------------------------------------------------------------------------------------------------
 /*void FrameBuffer::readDepthAttachment( float *pixels )
 {
-	glBindFramebuffer(GL_FRAMEBUFFER_EXT, _fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, _fboID);
 	glReadPixels(0, 0, _width, _height, GL_DEPTH_COMPONENT, GL_FLOAT, pixels);
-	glBindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 */
 
@@ -257,9 +311,9 @@ void FrameBuffer::unBind()
 //	if( !isValid() )
 //		return false;
 //
-//	glBindFramebuffer(GL_FRAMEBUFFER, _fbo);
+//	glBindFramebuffer(GL_FRAMEBUFFER, _fboID);
 //
-//	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0_EXT+_numAttachments,GL_RENDERBUFFER, targetID);
+//	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+_numAttachments,GL_RENDERBUFFER, targetID);
 //
 //	//GLenum *drawBuffers = new GLenum[numAttachments+1];
 //	//for(int i=0;i<numAttachments+1; ++i)
@@ -287,87 +341,55 @@ void FrameBuffer::unBind()
 //}
 
 // ------------------------------------------------------------------------------------------------
-bool FrameBuffer::attachTextureTarget( const TexturePtr &texture, const AttachmentPoint &attachPoint )
+void FrameBuffer::attachTextureTarget( const AttachmentPoint &attachPoint, const TexturePtr &texture )
 {
-	if( !isValid() )
-		return false;
-
-	//if( _attachments.empty() )
-	//{
-	//	_width  = texture->width();
-	//	_height = texture->height();
-	//}
-	//else
-	//{
-	//	// incompatible size
-	//	if( _width != texture->width() || _height != texture->height() )
-	//		return false;
-	//}
-
-	glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, _fbo );
-
-	switch( texture->type() )
-	{
-	case Texture::Texture_1D:	glFramebufferTexture1DEXT( GL_FRAMEBUFFER_EXT, attachPoint, GL_TEXTURE_1D, texture->id(), 0 ); break;
-	case Texture::Texture_2D:	glFramebufferTexture2DEXT( GL_FRAMEBUFFER_EXT, attachPoint, GL_TEXTURE_2D, texture->id(), 0 ); break;
-
-		// @TODO:
-		//case Texture3D::target():	glFramebufferTexture2D(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0+_numAttachments, texture->target(), texture->id(), 0); break;
-	}
-
-	//GLenum *drawBuffers = new GLenum[numAttachments+1];
-	//for(int i=0;i<numAttachments+1; ++i)
-	//{
-	//	drawBuffers[i] = GL_COLOR_ATTACHMENT0+i;
-	//}
-
-	//glDrawBuffers(numAttachments+1, drawBuffers);
-	//delete [] drawBuffers;
-	// check for any error
-	const bool statusOk = checkStatus();
-
-	// Bind no FBO
-	glBindFramebuffer( GL_FRAMEBUFFER_EXT, 0 );
-
-
-	if( !statusOk )
-		return false;
-
-	Attachment a = { attachPoint, texture->type(), texture->id() };
+	Attachment a = { attachPoint, glWrap( texture->type() ) , texture->id(),false };
+	
+	auto it = std::remove_if( 
+		_attachments.begin(), _attachments.end(),
+		[a] ( const s2::OpenGL::FrameBuffer::Attachment &i )
+		{
+			return a.attachmentName == i.attachmentName;
+		}
+	);
+	
 	_attachments.push_back( a );
-
-	return true;
+	_attachmentsChanged = true;
 }
 
 // ------------------------------------------------------------------------------------------------
-bool FrameBuffer::attachDepthRenderTarget( const DepthFormat &depthFormat, int width, int height )
+void FrameBuffer::attachRenderTarget( const AttachmentPoint &attachPoint, const RenderBufferPtr &renderBuffer )
 {
-	glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, _fbo );
+	Attachment a = { attachPoint, 0, renderBuffer->id(),true };
+	_attachments.push_back( a );
+	_attachmentsChanged = true;
 
-	glGenRenderbuffersEXT( 1, &_depthBuffer );
-	glBindRenderbufferEXT( GL_RENDERBUFFER_EXT, _depthBuffer );
-	glRenderbufferStorageEXT( GL_RENDERBUFFER_EXT, glWrap( depthFormat ), width, height );
-	glFramebufferRenderbufferEXT( GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, _depthBuffer );
+	//glBindFramebuffer( GL_FRAMEBUFFER, _fboID );
 
-	const bool statusOk = checkStatus();
+	//glGenRenderbuffers( 1, &_depthBuffer );
+	//glBindRenderbuffer( GL_RENDERBUFFER, _depthBuffer );
+	//glRenderbufferStorage( GL_RENDERBUFFER, glWrap( depthFormat ), width, height );
+	//glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, _depthBuffer );
 
-	glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, 0 );
+	//const bool statusOk = checkStatus();
 
-	if( !statusOk )
-	{
-		glDeleteRenderbuffers( 1, &_depthBuffer );
-		return false;
-	}
+	//glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 
-	_depthFormat = depthFormat;
-	return true;
+	//if( !statusOk )
+	//{
+	//	glDeleteRenderbuffers( 1, &_depthBuffer );
+	//	return false;
+	//}
+
+	//_depthFormat = depthFormat;
+	//return true;
 }
 
 // ------------------------------------------------------------------------------------------------
 //void FrameBuffer::removeAttachment()
 //{
 //	_numAttachments--;
-//	glFramebufferTexture2DEXT( GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT+_numAttachments, _attachments[_numAttachments].attachmentType, 0, 0);
+//	glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+_numAttachments, _attachments[_numAttachments].attachmentType, 0, 0);
 //		
 //	//GLenum *drawBuffers = new GLenum[numAttachments+1];
 //	//for(int i=0;i<numAttachments+1; ++i)
@@ -382,20 +404,20 @@ bool FrameBuffer::attachDepthRenderTarget( const DepthFormat &depthFormat, int w
 // ------------------------------------------------------------------------------------------------
 //void FrameBuffer::setDrawBuffers( unsigned int num, GLenum buffers[] )
 //{
-//	glBindFramebuffer(GL_FRAMEBUFFER_EXT, _fbo);
+//	glBindFramebuffer(GL_FRAMEBUFFER, _fboID);
 //		
 //	if( num == 0 )	glDrawBuffer( GL_NONE );
 //	else			glDrawBuffers( num, buffers );
 //
-//	glBindFramebuffer(GL_FRAMEBUFFER_EXT, 0);	
+//	glBindFramebuffer(GL_FRAMEBUFFER, 0);	
 //}
 
 // ------------------------------------------------------------------------------------------------
 //void FrameBuffer::setReadBuffer(GLenum buffer)
 //{
-//	glBindFramebuffer(GL_FRAMEBUFFER_EXT, _fbo);
+//	glBindFramebuffer(GL_FRAMEBUFFER, _fboID);
 //	glReadBuffer(buffer);
-//	glBindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
+//	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 //}
 }
 

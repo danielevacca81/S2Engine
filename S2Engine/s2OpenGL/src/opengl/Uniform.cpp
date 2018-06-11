@@ -2,6 +2,8 @@
 // 
 #include "Uniform.h"
 
+#include "OpenGL.h"
+
 #include "UniformInt.h"
 #include "UniformBool.h"
 #include "UniformFloat.h"
@@ -15,7 +17,6 @@
 #include "UniformFloatMatrix33.h"
 #include "UniformFloatMatrix44.h"
 
-#include "OpenGL/OpenGL.h"
 
 using namespace s2;
 using namespace OpenGL;

@@ -3,22 +3,21 @@
 #ifndef OPENGLWRAP_ONCE
 #define OPENGLWRAP_ONCE
 
-#include "OpenGL.h"
-
 #include "Texture.h"
 #include "FrameBuffer.h"
 #include "VertexBuffer.h"
 #include "AttributeBuffer.h"
 #include "IndexBuffer.h"
-
 #include "RenderState.h"
+#include "RenderBuffer.h"
+#include "Primitive.h"
 
 #define BUFFER_OFFSET(i) ((void*)(i))
 
 
 namespace s2 {
-
 namespace OpenGL {
+
 /************************************************************************************************/
 /*                                          IndexBuffer                                         */
 /************************************************************************************************/
@@ -50,7 +49,12 @@ unsigned int glWrap( const Texture::WrapMode         &type );
 /*                                           FrameBuffer                                        */
 /************************************************************************************************/
 unsigned int glWrap( const FrameBuffer::AttachmentPoint &attachment );
-unsigned int glWrap( const FrameBuffer::DepthFormat     &format );
+//unsigned int glWrap( const FrameBuffer::DepthFormat     &format );
+
+/************************************************************************************************/
+/*                                           RenderBuffer                                       */
+/************************************************************************************************/
+unsigned int glWrap( const RenderBuffer::Format &attachment );
 
 /************************************************************************************************/
 /*                                           RenderState                                        */

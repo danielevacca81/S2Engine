@@ -2,6 +2,8 @@
 //
 #include "Mesh.h"
 
+#include "Primitive.h"
+
 using namespace s2;
 using namespace s2::OpenGL;
 
@@ -14,7 +16,7 @@ using namespace s2::OpenGL;
 
 // ------------------------------------------------------------------------------------------------
 Mesh::Mesh()
-: primitiveType(Points)
+: primitiveType(PrimitiveType::Points)
 , frontFaceWindingOrder(Counterclockwise)
 , usageHint(BufferObject::StaticDraw)
 {}

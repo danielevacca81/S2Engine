@@ -153,6 +153,15 @@
     <ClInclude Include="src\opengl\StateManager.h">
       <Filter>src\opengl\state</Filter>
     </ClInclude>
+    <ClInclude Include="src\opengl\RenderBuffer.h">
+      <Filter>src\opengl\wrap</Filter>
+    </ClInclude>
+    <ClInclude Include="src\opengl\Primitive.h">
+      <Filter>src\opengl\wrap</Filter>
+    </ClInclude>
+    <ClInclude Include="src\opengl\Renderer.h">
+      <Filter>src\opengl\wrap</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Fonts\FontNew.cpp">
@@ -220,6 +229,12 @@
     </ClCompile>
     <ClCompile Include="src\opengl\StateManager.cpp">
       <Filter>src\opengl\state</Filter>
+    </ClCompile>
+    <ClCompile Include="src\opengl\RenderBuffer.cpp">
+      <Filter>src\opengl\wrap</Filter>
+    </ClCompile>
+    <ClCompile Include="src\opengl\Renderer.cpp">
+      <Filter>src\opengl\wrap</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

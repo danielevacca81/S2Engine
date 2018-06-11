@@ -2,7 +2,7 @@
 // 
 #include "IndexBuffer.h"
 
-#include "OpenGL/OpenGLWrap.h"
+#include "OpenGLWrap.h"
 
 using namespace s2;
 using namespace s2::OpenGL;

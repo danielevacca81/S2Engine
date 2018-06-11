@@ -2,14 +2,14 @@
 //
 #include "StateManager.h"
 
-#include "OpenGL/OpenGL.h"
-#include "OpenGL/OpenGLWrap.h"
+#include "OpenGL.h"
+#include "OpenGLWrap.h"
 
 #include "Math/Rectangle.h"
 
 
 using namespace s2;
-using namespace OpenGL;
+using namespace s2::OpenGL;
 
 #define SHADOWING 0
 //#define OPENGL_DEPRECATED
@@ -47,20 +47,24 @@ void StateManager::applyRenderState( const RenderState &rs )
 // ------------------------------------------------------------------------------------------------
 void StateManager::applyPrimitiveRestart( const PrimitiveRestart &pr )
 {
-	//if( rs.primitiveRestart.Enabled != primitiveRestart.Enabled)
-	//{
-	//	Enable(EnableCap.PrimitiveRestart, primitiveRestart.Enabled);
-	//	_renderState.PrimitiveRestart.Enabled = primitiveRestart.Enabled;
-	//}
+#if SHADOWING
+	if( _renderState.primitiveRestart.Enabled != primitiveRestart.Enabled )
+#endif	
+	{
+		enable( GL_PRIMITIVE_RESTART, pr.enabled);
+		_renderState.primitiveRestart.enabled = pr.enabled;
+	}
 
-	//if (primitiveRestart.Enabled)
-	//{
-	//	if (_renderState.PrimitiveRestart.Index != primitiveRestart.Index)
-	//	{
-	//		GL.PrimitiveRestartIndex(primitiveRestart.Index);
-	//		_renderState.PrimitiveRestart.Index = primitiveRestart.Index;
-	//	}
-	//}
+	if( pr.enabled )
+	{
+#if SHADOWING
+		if( _renderState.primitiveRestart.index != pr.index )
+#endif
+		{
+			glPrimitiveRestartIndex( pr.index );
+			_renderState.primitiveRestart.index = pr.index;
+		}
+	}
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -424,7 +428,7 @@ void StateManager::setViewport( const Math::Rectangle &r )
 //Math::Rectangle StateManager::viewport() const { return _viewport; }
 
 // ------------------------------------------------------------------------------------------------
-void StateManager::clear( const ClearState &cs )
+void StateManager::applyClearState( const ClearState &cs )
 {
 	//applyFramebuffer();
 
@@ -461,40 +465,50 @@ void StateManager::clear( const ClearState &cs )
 }
 
 // ------------------------------------------------------------------------------------------------
-void StateManager::draw( PrimitiveType primitive, const VertexArray &va, const ViewState &vs, const DrawState &ds )
+void StateManager::applyDrawState( const DrawState &ds )
 {
 	//VerifyDraw(drawState, sceneState);
 	//ApplyBeforeDraw(drawState, sceneState);
 	applyRenderState( ds.renderState );
 	applyShaderProgram( ds.program );
-	applyViewState( vs );
-
-	va.bind();
-	
-	if( va.isIndexed() )
-	{
-		glDrawElements( glWrap(primitive), 
-			            0, 
-						glWrap(va.indexBuffer()->dataType()), 
-						BUFFER_OFFSET(0) );
-		
-		//glDrawRangeElements( glWrap(primitive),
-		//	0, va.MaximumArrayIndex(), va.indices()->count(),
-		//	TypeConverterGL3x.To(indexBuffer.Datatype), new IntPtr());
-	}
-	else
-	{
-		glDrawArrays( glWrap(primitive), 0, va.maxArrayIndex() + 1);
-	}
-
-	glCheck;
+	//applyViewState( vs );
 }
 
 // ------------------------------------------------------------------------------------------------
-void StateManager::draw( PrimitiveType primitive, const Mesh &m, const ViewState &vs, const DrawState &ds )
-{
-	draw( primitive, m._va, vs, ds );
-}
+//void StateManager::draw( PrimitiveType primitive, const VertexArray &va, const ViewState &vs, const DrawState &ds )
+//{
+//	//VerifyDraw(drawState, sceneState);
+//	//ApplyBeforeDraw(drawState, sceneState);
+//	applyRenderState( ds.renderState );
+//	applyShaderProgram( ds.program );
+//	applyViewState( vs );
+//
+//	va.bind();
+//	
+//	if( va.isIndexed() )
+//	{
+//		glDrawElements( glWrap(primitive), 
+//			            0, 
+//						glWrap(va.indexBuffer()->dataType()), 
+//						BUFFER_OFFSET(0) );
+//		
+//		//glDrawRangeElements( glWrap(primitive),
+//		//	0, va.MaximumArrayIndex(), va.indices()->count(),
+//		//	TypeConverterGL3x.To(indexBuffer.Datatype), new IntPtr());
+//	}
+//	else
+//	{
+//		glDrawArrays( glWrap(primitive), 0, va.maxArrayIndex() + 1);
+//	}
+//
+//	glCheck;
+//}
+
+// ------------------------------------------------------------------------------------------------
+//void StateManager::draw( PrimitiveType primitive, const Mesh &m, const ViewState &vs, const DrawState &ds )
+//{
+//	draw( primitive, m._va, vs, ds );
+//}
 
 
 // ------------------------------------------------------------------------------------------------

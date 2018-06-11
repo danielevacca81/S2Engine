@@ -2,7 +2,8 @@
 // 
 #include "AttributeBuffer.h"
 
-#include "OpenGL/OpenGLWrap.h"
+#include "OpenGL.h"
+#include "OpenGLWrap.h"
 
 using namespace s2;
 

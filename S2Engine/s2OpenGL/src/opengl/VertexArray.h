@@ -7,14 +7,15 @@
 
 #include "AttributeBuffer.h"
 #include "IndexBuffer.h"
+#include "Primitive.h"
 
 #include <vector>
 
 namespace s2 {
 namespace OpenGL {
 
-//class VertexArray;
-//typedef std::shared_ptr<VertexArray>   VertexArrayPtr;
+class VertexArray;
+typedef std::shared_ptr<VertexArray>   VertexArrayPtr;
 
 /************************************************************************************************/
 /*                                       VertexArray                                            */
@@ -31,14 +32,17 @@ public:
 	bool isIndexed() const;
 	int  maxArrayIndex() const;
 
-	void bind() const;
+	//void draw( const PrimitiveType &primitiveType ) const;
+
 
 private:
+	void bind() const;
 	mutable unsigned int _id; // opengl > 3.0
 
 	mutable std::vector<AttributeBuffer> _attributes;
 	mutable IndexBuffer                  _indexBuffer; //optional
 
+	friend class Renderer;
 };
 
 } // namespace OpenGL

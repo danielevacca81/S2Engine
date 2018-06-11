@@ -5,8 +5,9 @@
 
 #include "s2OpenGL_API.h"
 
-#include "openGL/BufferObject.h"
-#include "openGL/VertexArray.h"
+#include "Primitive.h"
+#include "BufferObject.h"
+#include "VertexArray.h"
 
 #include "graphics/Color.h"
 #include "math/Math.h"
@@ -14,7 +15,6 @@
 #include <vector>
 
 namespace s2 {
-
 namespace OpenGL {
 
 // ------------------------------------------------------------------------------------------------
@@ -28,21 +28,6 @@ namespace OpenGL {
 class S2OPENGL_API Mesh
 {
 public:
-	enum PrimitiveType
-	{
-		Points,
-		Lines,
-		LineLoop,
-		LineStrip,
-		Triangles,
-		TriangleStrip,
-		TriangleFan,
-		LinesAdjacency,
-		LineStripAdjacency,
-		TrianglesAdjacency,
-		TriangleStripAdjacency	
-	};
-
 	enum WindingOrder
 	{
 		Clockwise,
@@ -62,13 +47,13 @@ public:
 	void setIndices( const std::vector<int> &indices );
 
 	BufferObject::BufferUsageHint usageHint;
-	PrimitiveType primitiveType;
-	WindingOrder  frontFaceWindingOrder;
+	PrimitiveType                 primitiveType;
+	WindingOrder                  frontFaceWindingOrder;
 
 private:
 	VertexArray _va;
 
-	friend class StateManager;
+	friend class Renderer;
 };
 
 }
