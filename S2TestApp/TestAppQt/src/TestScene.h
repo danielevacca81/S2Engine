@@ -4,9 +4,10 @@
 
 #include "qt/GLGraphicsScene.h"
 
-#include "opengl/Renderer.h"
+//#include "opengl/Renderer.h"
 #include "opengl/Mesh.h"
 #include "opengl/Program.h"
+#include "opengl/FrameBuffer.h"
 //#include "Renderer/TextRenderer.h"
 
 //#include "View/Trackball.h"
@@ -49,7 +50,7 @@ private slots:
 private:
 	bool              _wireframe;
 
-	s2::OpenGL::Renderer  _renderer;
+	//s2::OpenGL::Renderer  _renderer;
 	s2::OpenGL::ViewState _viewState;
 	
 	//s2::TrackBall     _trackball;
@@ -62,6 +63,7 @@ private:
 
 	//OpenGL::DrawState  _drawState;
 	//OpenGL::Context    _context;
+	s2::OpenGL::FrameBufferPtr _fb;
 	s2::OpenGL::ProgramPtr _shaderBlinnPhong;
 	s2::OpenGL::ProgramPtr _shaderSimple;
 	s2::OpenGL::Mesh       _cubeMesh;

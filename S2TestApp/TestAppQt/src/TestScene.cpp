@@ -163,6 +163,8 @@ void TestScene::initializeOpenGL()
 
 	initShaders();
 
+	_fb = s2::OpenGL::FrameBuffer::getDefault();
+
 	postInitialization();
 
 	//_context.initExtensions();
@@ -301,9 +303,11 @@ void TestScene::initFonts()
 // ------------------------------------------------------------------------------------------------
 void TestScene::renderScene()
 {
-	OpenGL::ClearState cs;
-	cs.color = Color::gray();
-	_renderer.clear( cs );
+	OpenGL::ClearState clear;
+	clear.color = Color::blue().lighter();
+	_fb->clear( clear );
+
+	//_renderer.clear( cs );
 
 	//Math::dmat4 m = Math::scale( Math::dmat4(1),Math::dvec3(1.0)) * 
 	//	            Math::translate( Math::dmat4(1), _camera.target() )*
@@ -323,7 +327,9 @@ void TestScene::renderScene()
 
 		OpenGL::DrawState ds( _shaderBlinnPhong );
 
-		_renderer.draw( OpenGL::Triangles, _cubeMesh, _viewState, ds );
+		_fb->draw( OpenGL::PrimitiveType::Triangles, _cubeMesh, ds );
+
+		//_renderer.draw( OpenGL::Triangles, _cubeMesh, _viewState, ds );
 	}
 
 	//{
@@ -428,7 +434,10 @@ void TestScene::onMouseDoubleClick()
 // -----------------------------------------------------------------------------------------------
 void TestScene::resizeScene( int w, int h )
 {
-	_viewState.setViewport( Math::Rectangle( 0, 0, w, h ) );
+	//_viewState.setViewport( Math::Rectangle( 0, 0, w, h ) );
+	if( _fb )
+		_fb->setViewport( Math::Rectangle( 0, 0, w, h ) );
+
 #if 0	
 	_viewState.view.setAspectRatio( w/(double)h );
 	_viewState.view.setPerspective( w/(double)h, 45.0, 0.1, 1000 );
