@@ -16,7 +16,7 @@ using namespace s2::OpenGL;
 
 // ------------------------------------------------------------------------------------------------
 Mesh::Mesh()
-: primitiveType(PrimitiveType::Points)
+: primitiveType(Primitive::Points)
 , frontFaceWindingOrder(Counterclockwise)
 , usageHint(BufferObject::StaticDraw)
 {}

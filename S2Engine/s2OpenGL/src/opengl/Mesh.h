@@ -47,7 +47,7 @@ public:
 	void setIndices( const std::vector<int> &indices );
 
 	BufferObject::BufferUsageHint usageHint;
-	PrimitiveType                 primitiveType;
+	Primitive                 primitiveType;
 	WindingOrder                  frontFaceWindingOrder;
 
 private:

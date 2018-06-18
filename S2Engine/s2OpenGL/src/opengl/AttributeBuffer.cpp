@@ -11,7 +11,7 @@ using namespace s2::OpenGL;
 
 
 //-------------------------------------------------------------------------------------------------
-static int dataTypeSize( AttributeBuffer::ComponentDatatype type )
+static int dataTypeSize( const AttributeBuffer::ComponentDatatype &type )
 {
 	switch( type )
 	{
@@ -34,6 +34,11 @@ static int dataTypeSize( AttributeBuffer::ComponentDatatype type )
 AttributeBuffer::AttributeBuffer()
 : _valid(false)
 , _location(-1)
+, _normalize(false)
+, _numberOfComponents(0)
+, _offset(0)
+, _stride(0)
+, _componentDatatype( Byte )
 {}
 
 //-------------------------------------------------------------------------------------------------

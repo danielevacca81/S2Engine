@@ -6,7 +6,7 @@
 namespace s2 {
 namespace OpenGL {
 
-enum class PrimitiveType
+enum class Primitive
 {
 	Points,
 	Lines,
@@ -17,10 +17,10 @@ enum class PrimitiveType
 	TriangleFan,
 	Quads,
 	QuadStrip,
-	LinesAdjacency,
-	LineStripAdjacency,
-	TrianglesAdjacency,
-	TriangleStripAdjacency
+	//LinesAdjacency,
+	//LineStripAdjacency,
+	//TrianglesAdjacency,
+	//TriangleStripAdjacency
 };
 
 }}

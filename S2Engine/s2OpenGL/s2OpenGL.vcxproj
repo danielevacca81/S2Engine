@@ -193,12 +193,6 @@
     <ClInclude Include="src\OpenGL\Mesh.h" />
     <ClInclude Include="src\OpenGL\OpenGL.h" />
     <ClInclude Include="src\OpenGL\OpenGLWrap.h" />
-    <ClInclude Include="src\opengl\ork_FrameBuffer.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClInclude>
     <ClInclude Include="src\opengl\Primitive.h" />
     <ClInclude Include="src\OpenGL\Program.h" />
     <ClInclude Include="src\opengl\RenderBuffer.h" />
@@ -248,12 +242,6 @@
     <ClCompile Include="src\OpenGL\Mesh.cpp" />
     <ClCompile Include="src\OpenGL\OpenGL.cpp" />
     <ClCompile Include="src\OpenGL\OpenGLWrap.cpp" />
-    <ClCompile Include="src\opengl\ork_FrameBuffer.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="src\OpenGL\Program.cpp" />
     <ClCompile Include="src\opengl\RenderBuffer.cpp" />
     <ClCompile Include="src\opengl\Renderer.cpp" />

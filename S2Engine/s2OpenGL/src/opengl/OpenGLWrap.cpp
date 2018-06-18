@@ -481,22 +481,22 @@ unsigned int glWrap( const RenderState::RasterizationMode &mode )
 #pragma endregion
 
 /************************************************************************************************/
-/*                                        PrimitiveType                                         */
+/*                                        Primitive                                         */
 /************************************************************************************************/
-#pragma region PrimitiveType
-unsigned int glWrap( const PrimitiveType &primitive )
+#pragma region Primitive
+unsigned int glWrap( const Primitive &primitive )
 {
 	switch( primitive )
 	{
-	case PrimitiveType::Points:        return GL_POINTS;
-	case PrimitiveType::Lines:         return GL_LINES;
-	case PrimitiveType::LineStrip:     return GL_LINE_STRIP;
-	case PrimitiveType::LineLoop:      return GL_LINE_LOOP;
-	case PrimitiveType::Triangles:     return GL_TRIANGLES;
-	case PrimitiveType::TriangleStrip: return GL_TRIANGLE_STRIP;
-	case PrimitiveType::TriangleFan:   return GL_TRIANGLE_FAN;
-	case PrimitiveType::Quads:         return GL_QUADS;
-	case PrimitiveType::QuadStrip:     return GL_QUAD_STRIP;
+	case Primitive::Points:        return GL_POINTS;
+	case Primitive::Lines:         return GL_LINES;
+	case Primitive::LineStrip:     return GL_LINE_STRIP;
+	case Primitive::LineLoop:      return GL_LINE_LOOP;
+	case Primitive::Triangles:     return GL_TRIANGLES;
+	case Primitive::TriangleStrip: return GL_TRIANGLE_STRIP;
+	case Primitive::TriangleFan:   return GL_TRIANGLE_FAN;
+	case Primitive::Quads:         return GL_QUADS;
+	case Primitive::QuadStrip:     return GL_QUAD_STRIP;
 	}
 	return -1;
 }

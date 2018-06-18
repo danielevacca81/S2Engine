@@ -69,7 +69,6 @@ private:
 	unsigned int    _size; // byte size
 	BufferUsageHint _usageHint;
 	BufferType      _type;
-
 };
 
 } // namespace OpenGL

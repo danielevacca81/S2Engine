@@ -36,8 +36,8 @@ public:
 
 	//void clear( const ClearState &cs = ClearState() );
 	//
-	//void draw( PrimitiveType primitive, const VertexArray &va, const ViewState &vs = ViewState(), const DrawState &ds = DrawState() );
-	//void draw( PrimitiveType primitive, const Mesh &m, const ViewState &vs = ViewState(), const DrawState &ds = DrawState() );
+	//void draw( Primitive primitive, const VertexArray &va, const ViewState &vs = ViewState(), const DrawState &ds = DrawState() );
+	//void draw( Primitive primitive, const Mesh &m, const ViewState &vs = ViewState(), const DrawState &ds = DrawState() );
 
 private:
 	void applyRenderState       ( const RenderState &rs );

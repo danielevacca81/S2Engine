@@ -20,8 +20,8 @@ public:
 
 	// @todo: set conditional rendering and queries
 
-	void draw( const PrimitiveType &primitive, const VertexArray &va ) const;
-	void draw( const PrimitiveType &primitive, const Mesh &m ) const;
+	void draw( const Primitive &primitive, const VertexArray &va ) const;
+	void draw( const Primitive &primitive, const Mesh &m ) const;
 };
 
 

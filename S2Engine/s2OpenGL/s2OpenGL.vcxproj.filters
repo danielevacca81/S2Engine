@@ -147,9 +147,6 @@
     <ClInclude Include="src\opengl\ViewState.h">
       <Filter>src\opengl\state</Filter>
     </ClInclude>
-    <ClInclude Include="src\opengl\ork_FrameBuffer.h">
-      <Filter>src\opengl\wrap</Filter>
-    </ClInclude>
     <ClInclude Include="src\opengl\StateManager.h">
       <Filter>src\opengl\state</Filter>
     </ClInclude>
@@ -223,9 +220,6 @@
     </ClCompile>
     <ClCompile Include="src\opengl\ViewState.cpp">
       <Filter>src\opengl\state</Filter>
-    </ClCompile>
-    <ClCompile Include="src\opengl\ork_FrameBuffer.cpp">
-      <Filter>src\opengl\wrap</Filter>
     </ClCompile>
     <ClCompile Include="src\opengl\StateManager.cpp">
       <Filter>src\opengl\state</Filter>

@@ -72,7 +72,7 @@ unsigned int glWrap( const RenderState::RasterizationMode       &mode );
 /************************************************************************************************/
 /*                                            Primitive                                         */
 /************************************************************************************************/
-unsigned int glWrap( const PrimitiveType &primitive );
+unsigned int glWrap( const Primitive &primitive );
 
 }
 }

@@ -10,14 +10,14 @@ using namespace s2::OpenGL;
 // Conditional rendering
 
 //-------------------------------------------------------------------------------------------------
-void Renderer::draw( const PrimitiveType &primitive, const Mesh &m ) const
+void Renderer::draw( const Primitive &primitive, const Mesh &m ) const
 {
 	draw( primitive, m._va );
 }
 
 
 //-------------------------------------------------------------------------------------------------
-void Renderer::draw( const PrimitiveType &primitive, const VertexArray &va ) const
+void Renderer::draw( const Primitive &primitive, const VertexArray &va ) const
 {
 	va.bind();
 	

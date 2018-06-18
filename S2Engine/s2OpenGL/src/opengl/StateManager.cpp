@@ -475,7 +475,7 @@ void StateManager::applyDrawState( const DrawState &ds )
 }
 
 // ------------------------------------------------------------------------------------------------
-//void StateManager::draw( PrimitiveType primitive, const VertexArray &va, const ViewState &vs, const DrawState &ds )
+//void StateManager::draw( Primitive primitive, const VertexArray &va, const ViewState &vs, const DrawState &ds )
 //{
 //	//VerifyDraw(drawState, sceneState);
 //	//ApplyBeforeDraw(drawState, sceneState);
@@ -505,14 +505,14 @@ void StateManager::applyDrawState( const DrawState &ds )
 //}
 
 // ------------------------------------------------------------------------------------------------
-//void StateManager::draw( PrimitiveType primitive, const Mesh &m, const ViewState &vs, const DrawState &ds )
+//void StateManager::draw( Primitive primitive, const Mesh &m, const ViewState &vs, const DrawState &ds )
 //{
 //	draw( primitive, m._va, vs, ds );
 //}
 
 
 // ------------------------------------------------------------------------------------------------
-//void StateManager::draw( PrimitiveType primitive, const VertexBuffer &vb, const ViewState &vs, const DrawState &ds )
+//void StateManager::draw( Primitive primitive, const VertexBuffer &vb, const ViewState &vs, const DrawState &ds )
 //{
 //	//VerifyDraw(drawState, sceneState);
 //	//ApplyBeforeDraw(drawState, sceneState);

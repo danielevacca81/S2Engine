@@ -83,25 +83,25 @@ FrameBuffer::~FrameBuffer()
 // ------------------------------------------------------------------------------------------------
 std::string FrameBuffer::info() const
 {
-	std::string ret( "FBO Failed: Unknown Error" );
+	std::string ret( "Unknown error" );
 
 	const GLenum r = glCheckFramebufferStatus( GL_FRAMEBUFFER );
 	switch( r )
 	{
-	case GL_FRAMEBUFFER_COMPLETE:                       ret = "FBO Ok";                        break;
-	case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:			ret = "FBO Failed: Attachment Error";  break;
-	case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:	ret = "FBO Failed: Missing attachment"; break;
+	case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:			ret = "Attachment error";  break;
+	case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:	ret = "Missing attachment"; break;
 	//case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS:	    	ret = "FBO Failed: Dimensions Error";  break;
 	//case GL_FRAMEBUFFER_INCOMPLETE_FORMATS:			    ret = "FBO Failed: Formats Error";     break;
-	case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:			ret = "FBO Failed: Incomplete Draw buffer"; break;
-	case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:			ret = "FBO Failed: Incomplete Read buffer"; break;
-	case GL_FRAMEBUFFER_UNSUPPORTED:					ret = "FBO Failed: Not Supported";     break;
-	case GL_FRAMEBUFFER_UNDEFINED:					    ret = "FBO Failed: Undefined";         break;
-	case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:			ret = "FBO Failed: Incomplete Multisample";     break;
-	case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:       ret = "FBO Failed: Incomplete Layer targets";   break;
+	case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:			ret = "Incomplete draw buffer"; break;
+	case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:			ret = "Incomplete read buffer"; break;
+	case GL_FRAMEBUFFER_UNSUPPORTED:					ret = "Not supported";     break;
+	case GL_FRAMEBUFFER_UNDEFINED:					    ret = "Undefined";         break;
+	case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:			ret = "Incomplete multisample";     break;
+	case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:       ret = "Incomplete layer targets";   break;
+	case GL_FRAMEBUFFER_COMPLETE:                       ret = "No errors";                 break;
 	}
 
-	return ret;
+	return "Framebuffer " + std::to_string( _fboID ) +" Status: " + ret;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -112,7 +112,7 @@ bool FrameBuffer::checkAttatchments() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void FrameBuffer::set( ) const
+void FrameBuffer::set( )
 {
 	//// Specify what to render an start acquiring
 	//std::vector<GLenum> buffers;
@@ -123,13 +123,29 @@ void FrameBuffer::set( ) const
 	//if( buffers.empty() )
 	//	return;
 
-	glBindFramebuffer( GL_FRAMEBUFFER, _fboID );
-	setAttachments();
-	if( !checkAttatchments() )
+	bool framebufferChanged = false;
+	if( Current != shared_from_this() )
 	{
-		std::cout << info() << std::endl;
-		return;
+		if( Current )
+			std::cout << "Switching framebuffer from " << Current->_fboID << " to " << _fboID << std::endl;
+		
+		glBindFramebuffer( GL_FRAMEBUFFER, _fboID );
+
+		Current = shared_from_this();
+		framebufferChanged = true;
 	}
+
+	if( framebufferChanged )
+	{
+		setAttachments();
+		if( !checkAttatchments() )
+		{
+			std::cout << info() << std::endl;
+			return;
+		}	
+	}
+
+
 
 
 	// setDrawBuffers
@@ -156,13 +172,14 @@ void FrameBuffer::set( ) const
 	//}
 
 	setParameters();
+	glCheck;
 }
 
 // ------------------------------------------------------------------------------------------------
 void FrameBuffer::setAttachments() const
 {
-	if( !_attachmentsChanged )
-		return;
+	//if( !_attachmentsChanged )
+	//	return;
 
 	for( auto &att : _attachments )
 	{
@@ -225,9 +242,10 @@ void FrameBuffer::setAttachments() const
 void FrameBuffer::setParameters() const
 {
 	if( _parametersChanged )
+	{
 		glViewport( _viewport.left(), _viewport.bottom(), _viewport.width(), _viewport.height() );
-
-	_parametersChanged = false;
+		_parametersChanged = false;
+	}
 }
 
 
@@ -253,27 +271,27 @@ void FrameBuffer::clear( const ClearState &cs )
 }
 
 // ------------------------------------------------------------------------------------------------
-void FrameBuffer::draw( const PrimitiveType &primitive, const Mesh &mesh, const DrawState &ds )
+void FrameBuffer::draw( const Primitive &primitive, const Mesh &mesh, const DrawState &ds )
 {
 	set();
 
 	_stateManager.applyDrawState( ds );
-	// applyView?
 
 	OpenGL::Renderer r;
 	r.draw( primitive,mesh );
+	glCheck;
 }
 
 // ------------------------------------------------------------------------------------------------
-void FrameBuffer::draw( const PrimitiveType &primitive, const VertexArray &va, const DrawState &ds )
+void FrameBuffer::draw( const Primitive &primitive, const VertexArray &va, const DrawState &ds )
 {
 	set();
 
 	_stateManager.applyDrawState( ds );
-	// applyView?
 
 	OpenGL::Renderer r;
 	r.draw( primitive,va );
+	glCheck;
 }
 
 // ------------------------------------------------------------------------------------------------

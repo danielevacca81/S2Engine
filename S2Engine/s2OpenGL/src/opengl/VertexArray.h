@@ -32,7 +32,7 @@ public:
 	bool isIndexed() const;
 	int  maxArrayIndex() const;
 
-	//void draw( const PrimitiveType &primitiveType ) const;
+	//void draw( const Primitive &primitiveType ) const;
 
 
 private:

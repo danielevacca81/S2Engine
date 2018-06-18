@@ -25,7 +25,7 @@ namespace OpenGL {
 class FrameBuffer;
 typedef std::shared_ptr<FrameBuffer> FrameBufferPtr;
 
-class S2OPENGL_API FrameBuffer
+class S2OPENGL_API FrameBuffer : public std::enable_shared_from_this<FrameBuffer>
 {
 public:
 	enum AttachmentPoint
@@ -62,8 +62,8 @@ public:
 
 
 	void clear( const ClearState &cs = ClearState() );
-	void draw( const PrimitiveType &primitive, const VertexArray &va, const DrawState &ds = DrawState() );
-	void draw( const PrimitiveType &primitive, const Mesh &mesh, const DrawState &ds = DrawState() );
+	void draw( const Primitive &primitive, const VertexArray &va, const DrawState &ds = DrawState() );
+	void draw( const Primitive &primitive, const Mesh &mesh, const DrawState &ds = DrawState() );
 	//void drawQuad( DrawState ); // @todo
 
     //void setReadBuffer(BufferId b);	  // @todo
@@ -79,7 +79,7 @@ public:
 	std::string info()        const;
 
 private:
-	void set() const;
+	void set();
 	void setParameters() const;
 	void setBuffers()    const;
 	void setAttachments() const;
