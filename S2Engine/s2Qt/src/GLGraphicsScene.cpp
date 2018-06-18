@@ -4,11 +4,8 @@
 
 #include "GLWidget.h"
 #include "GLGraphicsSceneUpdater.h"
+#include "UserInterface.h"
 
-#include <QDebug>
-#include <QThread>
-#include <QElapsedTimer>
-#include <QGraphicsView>
 #include <QPainter>
 #include <QKeyEvent>
 #include <QGestureEvent>
@@ -22,15 +19,13 @@ using namespace s2::Qt;
 
 // -----------------------------------------------------------------------------------------------
 GLGraphicsScene::GLGraphicsScene( QWidget *parent )
-//: _glWidget( new GLWidget( parent ) )
 : _glWidget( new GLWidget( parent ) )
-, _centralWidget( new QGraphicsWidget )
-{
-	_centralWidget->setPos( 0, 0 );
-	
+, _ui( nullptr )
+{	
 	_sceneUpdater = new GLGraphicsSceneUpdater( this, 16 );
 
-	QGraphicsScene::addItem( _centralWidget );
+	//_centralWidget->setPos( 0, 0 );
+	//QGraphicsScene::addItem( _centralWidget );
 
 	connect( this, &GLGraphicsScene::sceneRectChanged, this, &GLGraphicsScene::onResize );
 	connect( static_cast<GLWidget*>( _glWidget ), &GLWidget::openGLInitialized, this, &GLGraphicsScene::initializeOpenGL );
@@ -39,12 +34,7 @@ GLGraphicsScene::GLGraphicsScene( QWidget *parent )
 // -----------------------------------------------------------------------------------------------
 GLGraphicsScene::~GLGraphicsScene()
 {
-	delete _sceneUpdater; // needed?
-}
-
-// -----------------------------------------------------------------------------------------------
-void GLGraphicsScene::initializeOpenGL()
-{
+	//delete _sceneUpdater; // needed?
 }
 
 // -----------------------------------------------------------------------------------------------
@@ -73,18 +63,21 @@ void GLGraphicsScene::setInputPreferences( const UserInteractionManager::Prefere
 }
 
 // -----------------------------------------------------------------------------------------------
-void GLGraphicsScene::addItem( QGraphicsItem *item, QGraphicsLayout *layout )
+void GLGraphicsScene::setUserInterface( UserInterface *ui )
 {
-	if( layout )
-		_centralWidget->setLayout( layout );
-	else
-		QGraphicsScene::addItem( item );
+	if( _ui )
+		QGraphicsScene::removeItem( &_ui->_mainWidget );
+	
+	QGraphicsScene::addItem( &ui->_mainWidget );
+	_ui = ui;
 }
+
 
 // -----------------------------------------------------------------------------------------------
 void GLGraphicsScene::drawBackground( QPainter *painter, const QRectF &rect )
 {
-	_centralWidget->adjustSize(); // @todo: adjust size in a resize event not in a paint event
+	if( _ui )
+		_ui->adjustSize(); // @todo: adjust size in a resize event not in a paint event
 
 	makeCurrent();
 	painter->beginNativePainting();
@@ -98,48 +91,18 @@ void GLGraphicsScene::onResize( const QRectF & rect )
 	makeCurrent();
 	resizeScene( rect.width(), rect.height() );
 
-	_centralWidget->setPreferredSize( rect.size() ); // @todo: handle resize here avoiding recursive calls
+	if( _ui )
+		_ui->resize( rect );
 }
 
-// -----------------------------------------------------------------------------------------------
-//void GLGraphicsScene::onMouseMoved() {}
-//// -----------------------------------------------------------------------------------------------
-//void GLGraphicsScene::onMousePressed() {}
-//// -----------------------------------------------------------------------------------------------
-//void GLGraphicsScene::onMouseReleased() {}
-//// -----------------------------------------------------------------------------------------------
-//void GLGraphicsScene::onMouseDoubleClick() {}
-//// -----------------------------------------------------------------------------------------------
-//void GLGraphicsScene::onMouseWheel() {}
-//// -----------------------------------------------------------------------------------------------
-//void GLGraphicsScene::onPinch() {}
-//// -----------------------------------------------------------------------------------------------
-//void GLGraphicsScene::onSwipe() {}
 // -----------------------------------------------------------------------------------------------
 void GLGraphicsScene::onMouseEnter() {}
 // -----------------------------------------------------------------------------------------------
 void GLGraphicsScene::onMouseLeave() {}
 
 // -----------------------------------------------------------------------------------------------
-//void GLGraphicsScene::focusInEvent( QFocusEvent *e )
-//{ 
-//	QGraphicsScene::focusInEvent( e ); 
-//	
-//	makeCurrent();
-//}
-
-// -----------------------------------------------------------------------------------------------
-//void GLGraphicsScene::focusOutEvent( QFocusEvent *e )
-//{ 
-//	QGraphicsScene::focusOutEvent( e ); 
-//}
-
-// -----------------------------------------------------------------------------------------------
 bool GLGraphicsScene::event( QEvent *e )
 {
-	//makeCurrent();
-
-
 	if( e->type() == QEvent::Enter )
 		onMouseEnter();
 
@@ -159,15 +122,11 @@ bool GLGraphicsScene::event( QEvent *e )
 // -----------------------------------------------------------------------------------------------
 void GLGraphicsScene::mousePressEvent( QGraphicsSceneMouseEvent *e )
 {
-	//makeCurrent();
-	
 	// Propagate event to graphics items
 	QGraphicsScene::mousePressEvent( e );
 
 	if( e->isAccepted() )
 		return;
-
-	//trackMousePosition( e->scenePos() );
 
 	_uim.updateMouse( e, true );
 }
@@ -175,63 +134,41 @@ void GLGraphicsScene::mousePressEvent( QGraphicsSceneMouseEvent *e )
 // -----------------------------------------------------------------------------------------------
 void GLGraphicsScene::mouseMoveEvent( QGraphicsSceneMouseEvent *e )
 {
-	//makeCurrent();
-	//auto listView = views();
-	//bool track = listView.at( 0 )->hasMouseTracking();
-	
 	// Propagate event to graphics items
 	QGraphicsScene::mouseMoveEvent( e );
 
 	if( e->isAccepted() )
 		return;
 
-	//trackMousePosition( e->scenePos() );
-
 	_uim.updateMouse( e, false );
-
-	//onMouseMoved();
 }
 
 // -----------------------------------------------------------------------------------------------
 void GLGraphicsScene::mouseReleaseEvent( QGraphicsSceneMouseEvent *e )
 {
-	//makeCurrent();
-	
 	// Propagate event to graphics items
 	QGraphicsScene::mouseReleaseEvent( e );
 
 	if( e->isAccepted() )
 		return;
 
-	//trackMousePosition( e->scenePos() );
-
 	_uim.updateMouse( e, true );
-
-	//onMouseReleased();
 }
 
 // -----------------------------------------------------------------------------------------------
 void GLGraphicsScene::wheelEvent( QGraphicsSceneWheelEvent *e )
 {
-	//makeCurrent();
-	
 	QGraphicsScene::wheelEvent( e );
 	
 	if( e->isAccepted() )
 		return;
 
-	//trackMousePosition( e->scenePos() );
-
 	_uim.updateMouse( e, true );
-	//qDebug() << e;
-
-	//onMouseWheel();
 }
 
 // -----------------------------------------------------------------------------------------------
 bool GLGraphicsScene::gestureEvent( QGestureEvent *event )
 {
-	//makeCurrent();
 	_uim.updateGesture( event );
 	return true;
 }
@@ -239,29 +176,22 @@ bool GLGraphicsScene::gestureEvent( QGestureEvent *event )
 // -----------------------------------------------------------------------------------------------
 void GLGraphicsScene::mouseDoubleClickEvent( QGraphicsSceneMouseEvent *e )
 {
-	//makeCurrent();
-	
 	QGraphicsScene::mouseDoubleClickEvent( e );
 
 	if( e->isAccepted() )
 		return;
-
-	//trackMousePosition( e->scenePos() );
-
 	_uim.updateMouse( e, true );
-
-	//onMouseDoubleClick();
 }
 
 // -----------------------------------------------------------------------------------------------
-void GLGraphicsScene::contextMenuEvent( QGraphicsSceneContextMenuEvent *e ) {}
+void GLGraphicsScene::contextMenuEvent( QGraphicsSceneContextMenuEvent *e ) 
+{}
 
 // -----------------------------------------------------------------------------------------------
 void GLGraphicsScene::keyPressEvent( QKeyEvent *e )
 {
-	//makeCurrent();
-	
 	QGraphicsScene::keyPressEvent( e );
+
 	if( e->isAccepted() )
 		return;
 
@@ -271,8 +201,6 @@ void GLGraphicsScene::keyPressEvent( QKeyEvent *e )
 // -----------------------------------------------------------------------------------------------
 void GLGraphicsScene::keyReleaseEvent( QKeyEvent *e )
 {
-	//makeCurrent();
-	
 	QGraphicsScene::keyReleaseEvent( e );
 	if( e->isAccepted() )
 		return;

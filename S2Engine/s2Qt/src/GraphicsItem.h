@@ -21,10 +21,6 @@ class S2QT_API GraphicsItem : public QObject, public QGraphicsItem
 	Q_INTERFACES( QGraphicsItem )
 
 protected:
-	QPropertyAnimation fadeAnimation;
-
-	QTimer timeout;
-
 	virtual void hoverEnterEvent      (QGraphicsSceneHoverEvent *event);
 	virtual void hoverLeaveEvent      (QGraphicsSceneHoverEvent *event);
 	virtual void mousePressEvent      (QGraphicsSceneMouseEvent *event);
@@ -38,11 +34,14 @@ public:
 	GraphicsItem();
 	virtual ~GraphicsItem();
 
-	virtual void setAnchorPoint( int x, int y ) {}
 	virtual void setStartOpacity( double value ) ;
 
 protected slots:
 	void onTimeout();
+
+protected:
+	QPropertyAnimation _fadeAnimation;
+	QTimer             _timeout;
 };
 
 }}

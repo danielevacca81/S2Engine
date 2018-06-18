@@ -13,17 +13,17 @@ GraphicsItem::GraphicsItem()
     
 	setAcceptHoverEvents(true);
     
-	fadeAnimation.setTargetObject(this);
-	fadeAnimation.setPropertyName("opacity");
-	fadeAnimation.setDuration(250);
-	fadeAnimation.setStartValue(0.0);
-	fadeAnimation.setEndValue(1.0);
-	fadeAnimation.setEasingCurve(QEasingCurve::Linear);
+	_fadeAnimation.setTargetObject(this);
+	_fadeAnimation.setPropertyName("opacity");
+	_fadeAnimation.setDuration(250);
+	_fadeAnimation.setStartValue(0.0);
+	_fadeAnimation.setEndValue(1.0);
+	_fadeAnimation.setEasingCurve(QEasingCurve::Linear);
 	
 	setPos(0, 0);
 
-	timeout.setInterval(3000);
-	connect( &timeout,SIGNAL(timeout()),SLOT(onTimeout()) );
+	_timeout.setInterval(3000);
+	connect( &_timeout, &QTimer::timeout, this, &GraphicsItem::onTimeout );
 }
 
 //----------------------------------------------------------------------------------------------
@@ -33,8 +33,8 @@ GraphicsItem::~GraphicsItem()
 //-------------------------------------------------------------------------------------------------
 void GraphicsItem::setStartOpacity( double value )
 {
-	fadeAnimation.stop();
-	fadeAnimation.setStartValue( value );
+	_fadeAnimation.stop();
+	_fadeAnimation.setStartValue( value );
 	QGraphicsItem::setOpacity(value);
 }
 
@@ -42,37 +42,37 @@ void GraphicsItem::setStartOpacity( double value )
 //-------------------------------------------------------------------------------------------------
 void GraphicsItem::onTimeout()
 {
-	fadeAnimation.stop();
-	fadeAnimation.setDirection(QPropertyAnimation::Backward);
-	fadeAnimation.start();
+	_fadeAnimation.stop();
+	_fadeAnimation.setDirection(QPropertyAnimation::Backward);
+	_fadeAnimation.start();
 
-	timeout.stop();
+	_timeout.stop();
 }
 
 //-------------------------------------------------------------------------------------------------
 void GraphicsItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
-	fadeAnimation.stop();
-	fadeAnimation.setDirection(QPropertyAnimation::Forward);
-	fadeAnimation.start();
+	_fadeAnimation.stop();
+	_fadeAnimation.setDirection(QPropertyAnimation::Forward);
+	_fadeAnimation.start();
 	QGraphicsItem::hoverEnterEvent(event);
 
-	timeout.start();
+	_timeout.start();
 }
 
 //-------------------------------------------------------------------------------------------------
 void GraphicsItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 {
-	timeout.stop();
-	fadeAnimation.stop();
+	_timeout.stop();
+	_fadeAnimation.stop();
 
-	if( opacity() > fadeAnimation.startValue().toDouble() )
+	if( opacity() > _fadeAnimation.startValue().toDouble() )
 	{
-		fadeAnimation.setDirection(QPropertyAnimation::Backward);
-		fadeAnimation.start();
+		_fadeAnimation.setDirection(QPropertyAnimation::Backward);
+		_fadeAnimation.start();
 	}
 	else
-		setOpacity(fadeAnimation.startValue().toDouble() );
+		setOpacity(_fadeAnimation.startValue().toDouble() );
 
 	QGraphicsItem::hoverLeaveEvent(event);
 }
@@ -80,36 +80,36 @@ void GraphicsItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 //-------------------------------------------------------------------------------------------------
 void GraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-	timeout.stop();
+	_timeout.stop();
 	
-	if( opacity() < fadeAnimation.endValue().toDouble() && fadeAnimation.state() == QPropertyAnimation::Stopped )
+	if( opacity() < _fadeAnimation.endValue().toDouble() && _fadeAnimation.state() == QPropertyAnimation::Stopped )
 	{
-		//fadeAnimation.stop();
-		fadeAnimation.setDirection(QPropertyAnimation::Forward);
-		fadeAnimation.start();
+		//_fadeAnimation.stop();
+		_fadeAnimation.setDirection(QPropertyAnimation::Forward);
+		_fadeAnimation.start();
 	}
 }
 
 //-------------------------------------------------------------------------------------------------
 void GraphicsItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
-	timeout.start();
+	_timeout.start();
 }
 
 //-------------------------------------------------------------------------------------------------
 void GraphicsItem::wheelEvent(QGraphicsSceneWheelEvent *event)
 {
-	timeout.start();
+	_timeout.start();
 }
 
 //-------------------------------------------------------------------------------------------------
 void GraphicsItem::mouseMoveEvent   (QGraphicsSceneMouseEvent *event)
 {
-	timeout.start();
+	_timeout.start();
 }
 
 //-------------------------------------------------------------------------------------------------
 void GraphicsItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 {
-	timeout.start();
+	_timeout.start();
 }
