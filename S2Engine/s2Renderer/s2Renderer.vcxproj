@@ -118,6 +118,9 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Command>MakeSDK.bat</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -156,11 +159,17 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Command>MakeSDK.bat</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\s2Renderer_API.h" />
     <ClInclude Include="src\view\Camera.h" />
-    <ClInclude Include="src\view\Projection.h" />
+    <ClInclude Include="src\view\Projection.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="src\view\TrackBall.h" />
     <ClInclude Include="src\view\View.h" />
     <ClInclude Include="src\vobjects\VCircle.h" />
@@ -178,8 +187,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\view\Camera.cpp" />
-    <ClCompile Include="src\view\Camera_old.cpp" />
-    <ClCompile Include="src\view\Projection.cpp" />
+    <ClCompile Include="src\view\Projection.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="src\view\TrackBall.cpp" />
     <ClCompile Include="src\view\View.cpp" />
     <ClCompile Include="src\vobjects\VCircle.cpp">
@@ -206,7 +217,10 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="src\vobjects\VObject.cpp" />
+    <ClCompile Include="src\vobjects\VObject.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="src\vobjects\VObjectManager.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
@@ -251,7 +265,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="src\view\TrackBall.cpp.bak" />
+    <None Include="MakeSDK.bat" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -109,9 +109,6 @@
     <ClCompile Include="src\view\Camera.cpp">
       <Filter>src\view</Filter>
     </ClCompile>
-    <ClCompile Include="src\view\Camera_old.cpp">
-      <Filter>src\view</Filter>
-    </ClCompile>
     <ClCompile Include="src\view\Projection.cpp">
       <Filter>src\view</Filter>
     </ClCompile>
@@ -123,8 +120,8 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="src\view\TrackBall.cpp.bak">
-      <Filter>src\view</Filter>
+    <None Include="MakeSDK.bat">
+      <Filter>src</Filter>
     </None>
   </ItemGroup>
 </Project>

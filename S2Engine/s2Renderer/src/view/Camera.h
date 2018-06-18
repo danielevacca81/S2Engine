@@ -3,15 +3,16 @@
 #ifndef CAMERA_ONCE
 #define CAMERA_ONCE
 
-#include "s2OpenGL_API.h"
+#include "s2Renderer_API.h"
 
 #include "Math/Math.h"
 #include "Math/Box.h"
 #include "Math/Rectangle.h"
 
 namespace s2 {
+namespace Renderer {
 
-class S2OPENGL_API Camera
+class S2RENDERER_API Camera
 {
 public:
 	Camera();
@@ -22,12 +23,12 @@ public:
 	Math::dmat4 matrix()        const;
 
 	Math::dvec3 upVector()      const;
-//	Math::dvec3 viewVector()    const;
-//	Math::dvec3 rightVector()   const;
-//	Math::dquat orientation()   const;
+	//	Math::dvec3 viewVector()    const;
+	//	Math::dvec3 rightVector()   const;
+	//	Math::dquat orientation()   const;
 
-	//void setTarget(const Math::dvec3& target);
-	//void setPosition(const Math::dvec3& pos);
+		//void setTarget(const Math::dvec3& target);
+		//void setPosition(const Math::dvec3& pos);
 	void set( const Math::dvec3 &pos, const Math::dvec3 &target, const Math::dvec3 &up );
 
 	//void setOrientation(const Math::dquat& q);
@@ -47,6 +48,7 @@ protected:
 	double      _targetRadius;
 };
 
+}
 }
 
 

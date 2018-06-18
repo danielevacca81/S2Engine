@@ -5,11 +5,12 @@
 
 #include "Math/Math.h"
 
-#include "s2OpenGL_API.h"
+#include "s2Renderer_API.h"
 
 namespace s2 {
+namespace Renderer {
 
-class S2OPENGL_API TrackBall
+class S2RENDERER_API TrackBall
 {
 public:
 	enum UpdateMode { Start_Drag, End_Drag, Drag };
@@ -19,8 +20,8 @@ public:
 
 	void setRadius( double radius );
 	void setOrientation( const Math::dmat4 &orientation );
-	void update( UpdateMode mode,const Math::ivec2 &screenPos );
-	void resize( int pixelWidth,int pixelHeight );
+	void update( UpdateMode mode, const Math::ivec2 &screenPos );
+	void resize( int pixelWidth, int pixelHeight );
 	void reset();
 
 	Math::dmat4 matrix()     const;
@@ -44,5 +45,6 @@ private:
 
 };
 
+}
 }	// End of namespace
 #endif

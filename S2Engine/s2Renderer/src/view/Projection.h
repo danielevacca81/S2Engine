@@ -11,13 +11,6 @@ namespace s2 {
 
 class Projection
 {
-protected:
-	Math::dmat4 _matrix;
-
-	double      _fov;
-	double      _nearClip;
-	double      _farClip;
-
 public:
 	Projection();
 	virtual ~Projection();
@@ -32,6 +25,13 @@ public:
 	bool        isOrthographic() const { return _fov<=0.0; }
 	bool        isPerspective()  const { return _fov>0.0;  }
 	Math::dmat4 matrix() const         { return _matrix; }
+
+protected:
+	Math::dmat4 _matrix;
+
+	double      _fov;
+	double      _nearClip;
+	double      _farClip;
 };
 
 

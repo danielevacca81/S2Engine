@@ -3,6 +3,7 @@
 #include "View.h"
 
 using namespace s2;
+using namespace s2::Renderer;
 
 // ------------------------------------------------------------------------------------------------
 View::View()

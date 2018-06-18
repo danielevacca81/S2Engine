@@ -3,6 +3,7 @@
 #include "TrackBall.h"
 
 using namespace s2;
+using namespace s2::Renderer;
 
 // ------------------------------------------------------------------------------------------------
 TrackBall::TrackBall()

@@ -1,4 +1,4 @@
-// s2Renderer.h
+// s2Renderer_API.h
 //
 #ifndef S2RENDERER_API_ONCE
 #define S2RENDERER_API_ONCE
