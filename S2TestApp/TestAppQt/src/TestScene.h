@@ -10,8 +10,8 @@
 #include "opengl/FrameBuffer.h"
 //#include "Renderer/TextRenderer.h"
 
-//#include "View/Trackball.h"
-//#include "View/Camera.h"
+#include "view/Trackball.h"
+#include "view/Camera.h"
 
 
 class TestScene : public s2::Qt::GLGraphicsScene
@@ -53,9 +53,9 @@ private:
 	//s2::OpenGL::Renderer  _renderer;
 	s2::OpenGL::ViewState _viewState;
 	
-	//s2::TrackBall     _trackball;
+	s2::Renderer::TrackBall     _trackball;
 	//s2::TextRenderer  _textRenderer;
-	//s2::Camera        _camera;
+	s2::Renderer::Camera        _camera;
 
 	s2::Math::dvec3 _center;
 	//Math::dvec3 _target;

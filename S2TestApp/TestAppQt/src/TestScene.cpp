@@ -2,26 +2,16 @@
 //
 #include "TestScene.h"
 
-//#include "VObjects/VLine.h"
-//#include "VObjects/VCircle.h"
-
 #include "qt/UserInteractionManager.h"
 #include "qt/MouseStatus.h"
 
-//#include "Renderer/TextRenderer.h"
 #include "opengl/Extensions.h"
 #include "utils/String.h"
-//#include "Fonts/FontNew.h"
-
-//#include "OpenGL/Uniform.h"
-
-//#include "Common/StringTools.h"
-#include "Resources/R.h"
+#include "resources/R.h"
 
 #include "Math/Ray.h"
 #include "Math/Plane.h"
 
-//#include "Graphics/Font.h"
 
 #include <QPainter>
 #include <iostream>
@@ -35,12 +25,12 @@ TestScene::TestScene( QWidget *parent )
 //, _viewState( OpenGL::ViewState::Perspective )
 //, _fonts("")
 {
-	_uim.registerMouseCommand( s2::Qt::UIMCommand( "Zoom",         "Wheel",                [=] () { onMouseWheel(); } ) );
-	_uim.registerMouseCommand( s2::Qt::UIMCommand( "MouseLPress",   "LeftButton",          [=] () { onMousePressed(); } ) );
-	_uim.registerMouseCommand( s2::Qt::UIMCommand( "MouseRPress",   "RightButton",         [=] () { onMousePressed(); } ) );
-	_uim.registerMouseCommand( s2::Qt::UIMCommand( "MouseRRelease", "RightButton+Released",[=] () { onMouseReleased(); } ) );
-	_uim.registerMouseCommand( s2::Qt::UIMCommand( "Pan",           "LeftButton+Drag",     [=] () { onMouseMoved(); } ) );
-	_uim.registerMouseCommand( s2::Qt::UIMCommand( "Rotate",        "RightButton+Drag",    [=] () { onMouseMoved(); } ) );
+	_uim.registerMouseCommand( s2::Qt::UIMCommand( "Zoom",          "Wheel",               [&] () { onMouseWheel(); } ) );
+	_uim.registerMouseCommand( s2::Qt::UIMCommand( "MouseLPress",   "LeftButton",          [&] () { onMousePressed(); } ) );
+	_uim.registerMouseCommand( s2::Qt::UIMCommand( "MouseRPress",   "RightButton",         [&] () { onMousePressed(); } ) );
+	_uim.registerMouseCommand( s2::Qt::UIMCommand( "MouseRRelease", "RightButton+Released",[&] () { onMouseReleased(); } ) );
+	_uim.registerMouseCommand( s2::Qt::UIMCommand( "Pan",           "LeftButton+Drag",     [&] () { onMouseMoved(); } ) );
+	_uim.registerMouseCommand( s2::Qt::UIMCommand( "Rotate",        "RightButton+Drag",    [&] () { onMouseMoved(); } ) );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -60,8 +50,12 @@ void TestScene::postInitialization()
 	//_textRenderer.addTag( s2::TextRenderer::TextTag( Math::ivec2(0,0),L"Watashi: わたし - 私",Color::red(),"Arial.ttf",0, s2::TextRenderer::AlignLeft) );
 	
 	_center = Math::dvec3(0,0,0);
-	//_camera.set( Math::dvec3(0,0,4), Math::dvec3(0,0,0), Math::dvec3(0,1,0));
-	//_viewState.model = Math::dmat4( 1 );
+	_camera.set( Math::dvec3(0,0,4), Math::dvec3(0,0,0), Math::dvec3(0,1,0));
+	
+	_viewState.setModelMatrix( Math::dmat4( 1 ) );
+	_viewState.setViewMatrix( _camera.matrix() );
+	_viewState.setProjectionMatrix( Math::perspective(45.0,4.0/3,0.1,100.0) );
+
 
 	createMeshes();
 	createObjects();
@@ -144,7 +138,7 @@ void TestScene::createMeshes()
 
 	{
 		std::vector< Math::vec3 > pts     = { Math::vec3( 0.0f, 0.5f, 0.0f ), Math::vec3( 0.5f, -0.5f, 0.0f ), Math::vec3( -0.5f, -0.5f, 0.0f )};
-		std::vector< Color  > colors      = { Color::green(), Color::green(), Color::green() };
+		std::vector< Color  > colors      = { Color::green(), Color::blue(), Color::red() };
 		//std::vector< Math::vec3 > normals = { Math::vec3( 0.0f, 0.0f, 1.0f ), Math::vec3( 0.0f, 0.0f, 1.0f ), Math::vec3( 0.0f, 0.0f, 1.0f )};
 
 		_triangle.setVertices( pts );
@@ -160,15 +154,11 @@ void TestScene::initializeOpenGL()
 	OpenGL::initExtensions();
 	std::cout << OpenGL::contextInfo() << std::endl;
 
+	_fb = s2::OpenGL::FrameBuffer::getDefault();
+	std::cout << _fb->info() << std::endl;
 
 	initShaders();
-
-	_fb = s2::OpenGL::FrameBuffer::getDefault();
-
 	postInitialization();
-
-	//_context.initExtensions();
-	//std::cout << _context.info() << std::endl;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -265,9 +255,8 @@ void TestScene::initShaders()
 
 		void main()
 		{
-			gl_Position   = vec4( in_Vertex, 1.0 );
-
-			color = in_Color;
+			gl_Position = vec4( in_Vertex, 1.0 );
+			color       = in_Color;
 		}
 		) );
 
@@ -288,10 +277,7 @@ void TestScene::initShaders()
 
 
 		std::cout << _shaderSimple->info( true ) << std::endl;
-
 	}
-
-
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -304,21 +290,17 @@ void TestScene::initFonts()
 void TestScene::renderScene()
 {
 	OpenGL::ClearState clear;
-	clear.color = Color::blue().lighter();
+	clear.color = Color::gray();
 	_fb->clear( clear );
 
-	//_renderer.clear( cs );
-
-	//Math::dmat4 m = Math::scale( Math::dmat4(1),Math::dvec3(1.0)) * 
-	//	            Math::translate( Math::dmat4(1), _camera.target() )*
-	//				_trackball.matrix() *
-	//				Math::translate( Math::dmat4(1), -_camera.target() )
-	//				;
-	//
-	//_viewState.view.set( _camera.matrix()  *  m );
+	Math::dmat4 m = Math::scale( Math::dmat4(1),Math::dvec3(1.0)) * 
+		            Math::translate( Math::dmat4(1), _camera.target() )*
+					_trackball.matrix() *
+					Math::translate( Math::dmat4(1), -_camera.target() )
+					;
+	
 	_viewState.setModelMatrix( Math::dmat4(1.0) );
-	_viewState.setViewMatrix( Math::dmat4(1.0) );
-	_viewState.setProjectionMatrix( Math::perspective(45.0,4.0/3,0.1,100.0) );
+	_viewState.setViewMatrix( _camera.matrix()  *  m  );
 
 	{
 		_shaderBlinnPhong->uniform<Math::mat4>( "modelViewProjectionMatrix" )->set( _viewState.modelViewProjectionMatrix() );
@@ -326,19 +308,16 @@ void TestScene::renderScene()
 		_shaderBlinnPhong->uniform<Math::mat3>( "normalMatrix"              )->set( _viewState.normalMatrix() );
 
 		OpenGL::DrawState ds( _shaderBlinnPhong );
-
-		_fb->draw( OpenGL::PrimitiveType::Triangles, _cubeMesh, ds );
-
-		//_renderer.draw( OpenGL::Triangles, _cubeMesh, _viewState, ds );
+		_fb->draw( OpenGL::Primitive::Triangles, _cubeMesh, ds );
 	}
 
-	//{
-	//	OpenGL::DrawState ds( _shaderSimple );
-	//	ds.renderState.faceCulling.enabled = false;
-	//	ds.renderState.depthTest.enabled   = false;
+	{
+		OpenGL::DrawState ds( _shaderSimple );
+		ds.renderState.faceCulling.enabled = false;
+		ds.renderState.depthTest.enabled   = false;
 
-	//	_renderer.draw( OpenGL::Triangles, _triangle, _viewState, ds );
-	//}
+		_fb->draw( OpenGL::Primitive::Triangles, _triangle, ds );
+	}
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -350,31 +329,31 @@ void TestScene::toggleWireframe()
 // -----------------------------------------------------------------------------------------------
 void TestScene::onMousePressed()
 {
-#if 0
+#if 1
 	const s2::Qt::MouseStatus ms = _uim.mouseStatus();
 
 	if( ms.buttonDown() & s2::Qt::MouseStatus::ButtonRight )
-		_trackball.update( s2::TrackBall::Start_Drag, Math::ivec2( ms.currentPosition().x,ms.currentPosition().y ) );
+		_trackball.update( s2::Renderer::TrackBall::Start_Drag, Math::ivec2( ms.currentPosition().x,ms.currentPosition().y ) );
 #endif
 }
 
 // -----------------------------------------------------------------------------------------------
 void TestScene::onMouseReleased()
 {
-#if 0
+#if 1
 	const s2::Qt::MouseStatus ms = _uim.mouseStatus();
 	
 	if( ms.buttonUp() & s2::Qt::MouseStatus::ButtonRight )
-		_trackball.update( s2::TrackBall::End_Drag, Math::ivec2( ms.currentPosition().x,ms.currentPosition().y ) );
+		_trackball.update( s2::Renderer::TrackBall::End_Drag, Math::ivec2( ms.currentPosition().x,ms.currentPosition().y ) );
 #endif
 }
 
 // -----------------------------------------------------------------------------------------------
 void TestScene::onMouseMoved()
 {
-#if 0
 	const s2::Qt::MouseStatus ms = _uim.mouseStatus();
 
+#if 0
 	if( ms.buttonDown() & s2::Qt::MouseStatus::ButtonLeft )
 	{
 		Math::dvec3 p0 = _viewState.worldPoint( ms.previousPosition().x, ms.previousPosition().y);
@@ -388,10 +367,10 @@ void TestScene::onMouseMoved()
 			_camera.upVector()
 			);
 	}
+#endif
 
 	if( ms.buttonDown() & s2::Qt::MouseStatus::ButtonRight )
-		_trackball.update( s2::TrackBall::Drag, Math::ivec2( ms.currentPosition().x,ms.currentPosition().y ) );
-#endif
+		_trackball.update( s2::Renderer::TrackBall::Drag, Math::ivec2( ms.currentPosition().x,ms.currentPosition().y ) );
 }
 
 // -----------------------------------------------------------------------------------------------
@@ -414,21 +393,18 @@ void TestScene::onMouseWheel()
 
 	//target = pos;
 	//_camera->lookAt( (center - target)/Math::dvec3(z) + target ); //compute the new center position
-
-
-
 #endif
 }
 
 // -----------------------------------------------------------------------------------------------
 void TestScene::onMouseDoubleClick()
 {
-#if 0
 	const s2::Qt::MouseStatus ms = _uim.mouseStatus();
+#if 0
 	_camera.set( Math::dvec3(0,0,4), Math::dvec3(0,0,0), Math::dvec3(0,1,0));
 	_viewState.model = Math::dmat4();
-	_trackball.reset();
 #endif
+	_trackball.reset();
 }
 
 // -----------------------------------------------------------------------------------------------
@@ -437,6 +413,11 @@ void TestScene::resizeScene( int w, int h )
 	//_viewState.setViewport( Math::Rectangle( 0, 0, w, h ) );
 	if( _fb )
 		_fb->setViewport( Math::Rectangle( 0, 0, w, h ) );
+
+	_viewState.setProjectionMatrix( Math::perspective(45.0,w/(double)h,0.1,100.0) );
+	_trackball.resize( w,h );
+
+
 
 #if 0	
 	_viewState.view.setAspectRatio( w/(double)h );
