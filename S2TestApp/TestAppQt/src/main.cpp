@@ -9,6 +9,7 @@
 #include "GUI/MainWindow.h"
 #include "resources/R.h"
 
+
 #include <Windows.h>
 
 #include <iostream>
@@ -24,7 +25,6 @@ int main( int argc, char *argv[] )
 	std::cout.clear();
 	std::wcout.clear();
 //****************************************
-
 
 	//Win32::enableMemoryLeakDetection();
 	//Win32::enableCrashReport();	

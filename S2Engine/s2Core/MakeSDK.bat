@@ -15,7 +15,6 @@ mkdir %DESTFOLDER%\include\containers\
 mkdir %DESTFOLDER%\include\events\
 mkdir %DESTFOLDER%\include\exceptions\
 mkdir %DESTFOLDER%\include\filesystem\
-mkdir %DESTFOLDER%\include\geometry\
 mkdir %DESTFOLDER%\include\graphics\
 mkdir %DESTFOLDER%\include\math\
 mkdir %DESTFOLDER%\include\patterns\
@@ -29,7 +28,6 @@ copy /Y .\src\containers\*.hpp %DESTFOLDER%\include\containers\
 copy /Y .\src\events\*.h       %DESTFOLDER%\include\events\
 copy /Y .\src\exceptions\*.h   %DESTFOLDER%\include\exceptions\
 copy /Y .\src\filesystem\*.h   %DESTFOLDER%\include\filesystem\
-copy /Y .\src\geometry\*.h     %DESTFOLDER%\include\geometry\
 copy /Y .\src\graphics\*.h     %DESTFOLDER%\include\graphics\
 copy /Y .\src\graphics\*.hpp   %DESTFOLDER%\include\graphics\
 copy /Y .\src\math\*.h         %DESTFOLDER%\include\math\

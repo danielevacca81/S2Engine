@@ -68,20 +68,20 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>bin\$(Configuration)\</OutDir>
+    <OutDir>bin\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>tmp\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IntDir>tmp\$(Configuration)\</IntDir>
+    <IntDir>tmp\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>bin\$(Configuration)\</OutDir>
+    <OutDir>bin\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IntDir>tmp\$(Configuration)\</IntDir>
+    <IntDir>tmp\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>bin\$(Platform)\$(Configuration)\</OutDir>
@@ -91,12 +91,12 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\..\SDK\ExtLibs\glew-2.1.0\include;..\..\SDK\ExtLibs\glm-0.9.9.0\glm;..\..\SDK\s2Core\include;src</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>GLEW_STATIC;NOMINMAX;S2OPENGL_EXPORTS;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>S2OPENGL_EXPORTS;GLEW_STATIC;NOMINMAX;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>s2Core.lib;opengl32.lib;glu32.lib;user32.lib;gdi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\SDK\s2Core\bin\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <FullProgramDatabaseFile>true</FullProgramDatabaseFile>
     </Link>
     <PreBuildEvent>
       <Command>
@@ -110,12 +110,14 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\..\SDK\ExtLibs\glew-2.1.0\include;..\..\SDK\ExtLibs\glm-0.9.9.0\glm;..\..\SDK\s2Core\include;src</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>GLEW_STATIC;NOMINMAX;S2OPENGL_EXPORTS;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>S2OPENGL_EXPORTS;GLEW_STATIC;NOMINMAX;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>s2Core.lib;opengl32.lib;glu32.lib;user32.lib;gdi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\SDK\s2Core\bin\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <FullProgramDatabaseFile>true</FullProgramDatabaseFile>
     </Link>
     <PreBuildEvent>
       <Command>
@@ -132,7 +134,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalIncludeDirectories>..\..\SDK\ExtLibs\glew-2.1.0\include;..\..\SDK\ExtLibs\glm-0.9.9.0\glm;..\..\SDK\s2Core\include;src</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>GLEW_STATIC;NOMINMAX;S2OPENGL_EXPORTS;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>S2OPENGL_EXPORTS;GLEW_STATIC;NOMINMAX;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -156,7 +158,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalIncludeDirectories>..\..\SDK\ExtLibs\glew-2.1.0\include;..\..\SDK\ExtLibs\glm-0.9.9.0\glm;..\..\SDK\s2Core\include;src</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>GLEW_STATIC;NOMINMAX;S2OPENGL_EXPORTS;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>S2OPENGL_EXPORTS;GLEW_STATIC;NOMINMAX;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

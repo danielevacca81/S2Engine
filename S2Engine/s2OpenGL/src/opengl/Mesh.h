@@ -43,11 +43,10 @@ public:
 	void setColors       ( const std::vector<Color>       &colors   );
 	void setNormals      ( const std::vector<Math::vec3>  &normals  );
 	void setTextureCoords( const std::vector<Math::vec2>  &texCoords);
-
-	void setIndices( const std::vector<int> &indices );
+	void setIndices( const std::vector<unsigned int> &indices );
 
 	BufferObject::BufferUsageHint usageHint;
-	Primitive                 primitiveType;
+	Primitive                     primitiveType;
 	WindingOrder                  frontFaceWindingOrder;
 
 private:

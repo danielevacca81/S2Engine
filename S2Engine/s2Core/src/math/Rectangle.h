@@ -9,10 +9,6 @@ namespace glm {
 
 class Rectangle
 {
-private:
-	int _left,_bottom;
-	int _width,_height;
-
 public:
 	// ------------------------------------------------------------------------------------------------
 	Rectangle( int l, int b, int w, int h ) 
@@ -40,6 +36,10 @@ public:
 	int bottom() const { return _bottom;         }
 	int top()    const { return _bottom+_height; }
 	int right()  const { return _left+_width;    }
+
+private:
+	int _left,_bottom;
+	int _width,_height;
 };
 
 

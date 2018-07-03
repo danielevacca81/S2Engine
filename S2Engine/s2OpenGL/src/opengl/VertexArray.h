@@ -32,9 +32,6 @@ public:
 	bool isIndexed() const;
 	int  maxArrayIndex() const;
 
-	//void draw( const Primitive &primitiveType ) const;
-
-
 private:
 	void bind() const;
 	mutable unsigned int _id; // opengl > 3.0

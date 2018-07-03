@@ -130,6 +130,7 @@ std::string Win32::fileVersion( const std::string &fileName )
 // ------------------------------------------------------------------------------------------------
 std::string Win32::systemName()
 {
+#if 0
 	OSVERSIONINFO osvi;
 
 	ZeroMemory( &osvi, sizeof( OSVERSIONINFO ) );
@@ -187,6 +188,8 @@ std::string Win32::systemName()
 
 
 	return baseName + " " + osVersion + " " + bits;// Service Pack: + " - " + osvi.szCSDVersion;
+#endif
+	return "Not yet implemented";
 }
 
 // ------------------------------------------------------------------------------------------------

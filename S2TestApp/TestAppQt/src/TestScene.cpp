@@ -9,8 +9,10 @@
 #include "utils/String.h"
 #include "resources/R.h"
 
-#include "Math/Ray.h"
-#include "Math/Plane.h"
+#include "math/Ray.h"
+#include "math/Plane.h"
+#include "math/Geometry.h"
+#include "math/Mesh.h"
 
 
 #include <QPainter>
@@ -145,6 +147,26 @@ void TestScene::createMeshes()
 		_triangle.setColors( colors );
 		//_triangle.setNormals( normals );
 	}
+
+
+	{
+		Math::Mesh torusMesh = s2::torus( 2, 0.25, 64, 16 );
+		
+		// convert into glmesh
+		std::vector<Math::vec3> pts;
+		std::vector<Math::vec3> normals;
+		for( auto &v : torusMesh.vertices() )
+		{
+			pts.push_back( v.position );
+			normals.push_back( v.normal );
+		}
+
+		std::vector<Color> colors( torusMesh.vertices().size(), Color::cyan().transparent() );
+		_torus.setVertices( pts );
+		_torus.setIndices( torusMesh.indices() );
+		_torus.setNormals( normals );
+		_torus.setColors( colors );
+	}
 }
 
 
@@ -232,10 +254,10 @@ void TestScene::initShaders()
 
 
 		_shaderBlinnPhong->uniform<Math::vec4>( "lightPosition" )->set( Math::vec4( 0, 0, 10, 1 ) );
-		_shaderBlinnPhong->uniform<Math::vec4>( "lightAmbient" )->set( Math::vec4( 0, 0, 0, 1 ) );
-		_shaderBlinnPhong->uniform<Math::vec4>( "lightDiffuse" )->set( Math::vec4( 1, 1, 1, 1 ) );
-		_shaderBlinnPhong->uniform<Math::vec4>( "lightSpecular" )->set( Math::vec4( 1, 1, 0, 1 ) );
-		_shaderBlinnPhong->uniform<float>     ( "lightShininess" )->set( 127.f );
+		_shaderBlinnPhong->uniform<Math::vec4>( "lightAmbient" )->set( Math::vec4( 0.1, 0.1, 0.1, 1 ) );
+		_shaderBlinnPhong->uniform<Math::vec4>( "lightDiffuse" )->set( Math::vec4( .7, .7, .7, 1 ) );
+		_shaderBlinnPhong->uniform<Math::vec4>( "lightSpecular" )->set( Math::vec4( 1, 1, 1, 1 ) );
+		_shaderBlinnPhong->uniform<float>     ( "lightShininess" )->set( 1024.f );
 
 		_shaderBlinnPhong->uniform<Math::mat4>( "modelViewProjectionMatrix" )->set( Math::mat4( 1 ) );
 		_shaderBlinnPhong->uniform<Math::mat4>( "modelViewMatrix"           )->set( Math::mat4( 1 ) );
@@ -311,12 +333,20 @@ void TestScene::renderScene()
 		_fb->draw( OpenGL::Primitive::Triangles, _cubeMesh, ds );
 	}
 
-	{
-		OpenGL::DrawState ds( _shaderSimple );
-		ds.renderState.faceCulling.enabled = false;
-		ds.renderState.depthTest.enabled   = false;
+	//{
+	//	OpenGL::DrawState ds( _shaderSimple );
+	//	ds.renderState.faceCulling.enabled = false;
+	//	ds.renderState.depthTest.enabled   = false;
 
-		_fb->draw( OpenGL::Primitive::Triangles, _triangle, ds );
+	//	_fb->draw( OpenGL::Primitive::Triangles, _triangle, ds );
+	//}
+
+
+	{
+		OpenGL::DrawState ds( _shaderBlinnPhong );
+		ds.renderState.blending.enabled = true;
+	
+		_fb->draw( OpenGL::Primitive::Triangles, _torus, ds );
 	}
 }
 

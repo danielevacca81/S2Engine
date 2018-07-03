@@ -7,12 +7,12 @@ using namespace s2::Renderer;
 
 // ------------------------------------------------------------------------------------------------
 TrackBall::TrackBall()
-	: _size( 0.0 )
-	, _center( 0.0 )
-	, _radius( 0.0 )
-	, _startPoint( 0.0 )
-	, _prevQ()
-	, _currQ()
+: _size( 0.0 )
+, _center( 0.0 )
+, _radius( 0.0 )
+, _startPoint( 0.0 )
+, _prevQ()
+, _currQ()
 {
 	reset();
 }

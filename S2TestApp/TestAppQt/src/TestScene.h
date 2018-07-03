@@ -68,4 +68,5 @@ private:
 	s2::OpenGL::ProgramPtr _shaderSimple;
 	s2::OpenGL::Mesh       _cubeMesh;
 	s2::OpenGL::Mesh       _triangle;
+	s2::OpenGL::Mesh       _torus;
 };

@@ -15,6 +15,7 @@ class S2RENDERER_API TrackBall
 public:
 	enum UpdateMode { Start_Drag, End_Drag, Drag };
 
+public:
 	TrackBall();
 	~TrackBall();
 

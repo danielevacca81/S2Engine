@@ -25,6 +25,7 @@ public:
 
 public:
 	IndexBuffer();
+	IndexBuffer( int sizeInBytes, const IndexDataType &dataType, const BufferObject::BufferUsageHint &usageHint );
 	~IndexBuffer();
 
 	void set( int sizeInBytes, const IndexDataType &dataType, const BufferObject::BufferUsageHint &usageHint );

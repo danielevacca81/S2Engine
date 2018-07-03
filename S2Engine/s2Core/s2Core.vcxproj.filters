@@ -19,9 +19,6 @@
     <Filter Include="src\filesystems">
       <UniqueIdentifier>{01b4be7d-052b-413a-8027-d9ddac61ec8c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\geometry">
-      <UniqueIdentifier>{69785d3a-1921-4aab-9107-c34012066989}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\graphics">
       <UniqueIdentifier>{50dd015f-b086-4ca4-ab69-9caeb513d534}</UniqueIdentifier>
     </Filter>
@@ -83,12 +80,6 @@
     </ClInclude>
     <ClInclude Include="src\exceptions\Exception.h">
       <Filter>src\exceptions</Filter>
-    </ClInclude>
-    <ClInclude Include="src\geometry\Geometry.h">
-      <Filter>src\geometry</Filter>
-    </ClInclude>
-    <ClInclude Include="src\geometry\Intersection.h">
-      <Filter>src\geometry</Filter>
     </ClInclude>
     <ClInclude Include="src\graphics\Color.h">
       <Filter>src\graphics</Filter>
@@ -174,6 +165,18 @@
     <ClInclude Include="src\s2Core_API.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="src\math\Sphere.h">
+      <Filter>src\math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\Mesh.h">
+      <Filter>src\math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\Intersection.h">
+      <Filter>src\math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\Geometry.h">
+      <Filter>src\math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\commandline\ApplicationFlag.cpp">
@@ -190,12 +193,6 @@
     </ClCompile>
     <ClCompile Include="src\exceptions\Exception.cpp">
       <Filter>src\exceptions</Filter>
-    </ClCompile>
-    <ClCompile Include="src\geometry\Geometry.cpp">
-      <Filter>src\geometry</Filter>
-    </ClCompile>
-    <ClCompile Include="src\geometry\Intersection.cpp">
-      <Filter>src\geometry</Filter>
     </ClCompile>
     <ClCompile Include="src\graphics\Color.cpp">
       <Filter>src\graphics</Filter>
@@ -226,6 +223,15 @@
     </ClCompile>
     <ClCompile Include="src\filesystem\FileSystem.cpp">
       <Filter>src\filesystems</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\Mesh.cpp">
+      <Filter>src\math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\Geometry.cpp">
+      <Filter>src\math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\Intersection.cpp">
+      <Filter>src\math</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

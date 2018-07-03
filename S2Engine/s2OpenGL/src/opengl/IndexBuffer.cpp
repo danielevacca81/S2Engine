@@ -7,12 +7,18 @@
 using namespace s2;
 using namespace s2::OpenGL;
 
-//-------------------------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------------
 IndexBuffer::IndexBuffer()
 : _count(0)
 , _bufferObject(nullptr)
 , _valid(false)
 {}
+
+// -------------------------------------------------------------------------------------------------
+IndexBuffer::IndexBuffer( int sizeInBytes, const IndexDataType &dataType, const BufferObject::BufferUsageHint &usageHint )
+{
+	set( sizeInBytes, dataType, usageHint );
+}
 
 //-------------------------------------------------------------------------------------------------
 IndexBuffer::~IndexBuffer()
@@ -37,7 +43,7 @@ void IndexBuffer::sendData( void *data, int length, int offset )
 {
 	if( _valid )
 	{
-		//_count = _bufferObject->size() / SizeInBytes<T>.Value;
+		_count = _bufferObject->size() / ( _dataType == UnsignedInt ? sizeof( unsigned int) : sizeof(unsigned short) );
 		_bufferObject->sendData( data, length, offset );
 	}
 }

@@ -2,54 +2,69 @@
 // 
 #include "Geometry.h"
 
+#include <iostream>
+
 namespace s2 {
 
 // ------------------------------------------------------------------------------------------------
-std::vector< Math::dvec3 > Geometry::circle( const Math::dvec3 &center, double radius, int LOD /* = 32 */ )
+std::vector< Math::dvec2 > circle( const Math::dvec2 &center, double radius, int LOD /* = 32 */ )
 {
-	std::vector< Math::dvec3 > circlePoints;
+	std::vector< Math::dvec2 > circlePoints;
 
 	const double step = Math::pi<double>()*2.0 / LOD;
 
-	circlePoints.push_back( Math::dvec3( center ) ); // center as first point
+	circlePoints.push_back( Math::dvec2( center ) ); // center as first point
 
 	for( int i=0; i <= LOD; ++i )
 	{
 		const double angle  = i*step;
-		const Math::dvec3 p =  Math::dvec3( Math::cos( angle ), Math::sin( angle ), 0 )*radius;
+		const Math::dvec2 p =  Math::dvec2( Math::cos( angle ), Math::sin( angle ) )*radius;
 
 		circlePoints.push_back( center + p );
 	}
 
-	return circlePoints;
+	return std::move( circlePoints );
 }
 
 // ------------------------------------------------------------------------------------------------
-std::vector< Math::dvec3 > Geometry::torus( int numc, int numt )
+Math::Mesh torus( double innerRadius, double outerRadius, int numc, int numt )
 {
-	const double twopi = Math::pi<double>() * 2.0;
-	double s, t, x, y, z;
+	const double twopi = Math::two_pi<double>();
 
 	std::vector<Math::dvec3> points;
+	std::vector<unsigned int> indices;
+	std::vector<Math::vec3> normals;
+	
+	// numc = numero di circonferenze (sectors)
+	for( int i = 0; i < numc; ++i )
+	{
+		// numt = punti per circonferenza
+		for( int j = 0; j < numt; ++j ) 
+		{
+			const double t = twopi * i / (double)numc;
+			const double p = twopi * j / (double)numt;
 
-	for( int i = 0; i < numc; i++ ) {
-		for( int j = 0; j <= numt; j++ ) {
-			for( int k = 1; k >= 0; k-- ) {
-				s = ( i + k ) % numc + 0.5;
-				t = j % numt;
+			const double x = ( innerRadius + outerRadius * Math::cos( p ) ) * Math::cos( t );
+			const double y = ( innerRadius + outerRadius * Math::cos( p ) ) * Math::sin( t );
+			const double z =  outerRadius * Math::sin( p );
 
-				x = ( 1 + .1*cos( s*twopi / numc ) )*cos( t*twopi / numt );
-				y = ( 1 + .1*cos( s*twopi / numc ) )*sin( t*twopi / numt );
-				z = .1 * sin( s * twopi / numc );
+			points.push_back( Math::dvec3( x, y, z ) );
+			normals.push_back( Math::normalize( Math::dvec3( x, y, z ) ) );
 
-				points.push_back( Math::dvec3( x, y, z ) );
-				//glVertex3f(x, y, z);
-			}
+			// first_triangle
+			indices.push_back( ( i * numt ) + j );
+			indices.push_back( ( ( ( i + 1 ) % numc ) * numt ) + j );
+			indices.push_back( ( ( ( i + 1 ) % numc ) * numt ) + ( j + 1 ) % numt );
+
+			// second triangle
+			indices.push_back( ( i * numt ) + j );
+			indices.push_back( ( ( ( i + 1 ) % numc ) * numt ) + ( j + 1 ) % numt );
+			indices.push_back( ( i * numt ) + ( j + 1 ) % numt );
 		}
-		//glEnd();
 	}
 
-	return points;
+	Math::Mesh m( points, normals, indices );
+	return m;
 }
 
 
@@ -511,6 +526,4 @@ static int factorial( int n ) {
 //	mesh.computeNormals();
 //	return mesh;
 //}
-
-
 }

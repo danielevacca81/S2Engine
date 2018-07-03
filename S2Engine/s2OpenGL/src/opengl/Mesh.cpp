@@ -74,9 +74,13 @@ void Mesh::setTextureCoords( const std::vector<Math::vec2>  &texCoords)
 
 
 // ------------------------------------------------------------------------------------------------
-void Mesh::setIndices( const std::vector<int> &indices )
+void Mesh::setIndices( const std::vector<unsigned int> &indices )
 {
-	// @tbd
-	//_va.indexBuffer()->s
+	//IndexBuffer buf( indices.size() * sizeof( unsigned int ), IndexBuffer::UnsignedInt, usageHint );
+	//buf.sendData( (void*)(&indices[0]), indices.size() * sizeof( unsigned int ), 0 );	
+	//_va.indexBuffer()->set( buf, );
+
+	_va.indexBuffer()->set( indices.size() * sizeof( unsigned int ), IndexBuffer::UnsignedInt, usageHint );
+	_va.indexBuffer()->sendData( (void*)(&indices[0]), indices.size() * sizeof( unsigned int ), 0 );
 }
 

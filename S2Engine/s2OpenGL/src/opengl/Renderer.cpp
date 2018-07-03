@@ -7,7 +7,9 @@
 
 using namespace s2::OpenGL;
 
+// TODO
 // Conditional rendering
+// Tesselation
 
 //-------------------------------------------------------------------------------------------------
 void Renderer::draw( const Primitive &primitive, const Mesh &m ) const
@@ -23,14 +25,18 @@ void Renderer::draw( const Primitive &primitive, const VertexArray &va ) const
 	
 	if( va.isIndexed() )
 	{
-		glDrawElements( glWrap(primitive), 
-			            0, 
-						glWrap(va._indexBuffer.dataType()), 
-						BUFFER_OFFSET(0) );
+
+		//glDrawElements( glWrap(primitive), 
+		//	            va.maxArrayIndex()+1, 
+		//				glWrap(va._indexBuffer.dataType()), 
+		//				BUFFER_OFFSET(0) );
 		
-		//glDrawRangeElements( glWrap(primitive),
-		//	0, va.MaximumArrayIndex(), va.indices()->count(),
-		//	TypeConverterGL3x.To(indexBuffer.Datatype), new IntPtr());
+		glDrawRangeElements( glWrap(primitive),
+			                 0,
+							 va.maxArrayIndex(),
+							 va.indexBuffer()->count(),
+			                 glWrap( va.indexBuffer()->dataType() ),
+							 BUFFER_OFFSET(0) );
 	}
 	else
 	{

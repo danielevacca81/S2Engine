@@ -99,28 +99,28 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>..\..\SDK\ExtLibs\glm-0.9.9.0\glm;..\..\SDK\s2Core\include;..\..\SDK\s2OpenGL\include;src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
+    <Link />
     <Link>
-      <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <FullProgramDatabaseFile>true</FullProgramDatabaseFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>S2RENDERER_EXPORTS;;_DEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>..\..\SDK\ExtLibs\glm-0.9.9.0\glm;..\..\SDK\s2Core\include;..\..\SDK\s2OpenGL\include;src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
-    <Link>
-      <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-    </Link>
+    <Link />
     <PostBuildEvent>
       <Command>MakeSDK.bat</Command>
     </PostBuildEvent>
+    <Link>
+      <FullProgramDatabaseFile>true</FullProgramDatabaseFile>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -166,12 +166,14 @@
   <ItemGroup>
     <ClInclude Include="src\s2Renderer_API.h" />
     <ClInclude Include="src\view\Camera.h" />
+    <ClInclude Include="src\view\Frustum.h" />
     <ClInclude Include="src\view\Projection.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="src\view\TrackBall.h" />
-    <ClInclude Include="src\view\View.h" />
+    <ClInclude Include="src\view\ViewOrthographic.h" />
+    <ClInclude Include="src\view\ViewPerspective.h" />
     <ClInclude Include="src\vobjects\VCircle.h" />
     <ClInclude Include="src\vobjects\VGroup.h" />
     <ClInclude Include="src\vobjects\VLine.h" />
@@ -187,12 +189,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\view\Camera.cpp" />
+    <ClCompile Include="src\view\Frustum.cpp" />
     <ClCompile Include="src\view\Projection.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="src\view\TrackBall.cpp" />
-    <ClCompile Include="src\view\View.cpp" />
+    <ClCompile Include="src\view\ViewOrthographic.cpp" />
+    <ClCompile Include="src\view\ViewPerspective.cpp" />
     <ClCompile Include="src\vobjects\VCircle.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
