@@ -7,34 +7,48 @@
 
 #include <vector>
 #include <string>
+#include <map>
 
 namespace s2 {
-
 namespace OpenGL {
 
 class S2OPENGL_API Context
 {
 public:
-	Context( void *winID = 0 );
+	static Context* getCurrent();
+	static Context* create( int majorVersion, int minorVersion );
+	static void destroy( Context *c );
+
+public:
+	Context();
 	~Context();
 
-	void create( void *winID );
-	void destroy();
 
-	bool initExtensions();
 	void makeCurrent();
 	void swapBuffers();
-	void enableVSync( bool enable );
+	void enableVSync( bool enable ); // @todo: set attributes
 
+	int                      id()         const;
 	std::vector<std::string> extensions() const;
 	std::string              info()       const;
 
+	bool operator<( const Context &c ) const
+	{
+		return id() < c.id();
+	}
+
 protected:
-	void *_hwnd;
+	bool initExtensions() const;
+	void release();
+
+private:
+	static std::map<void*, Context*> _contextList;
+
+private:
 	void *_hDC;
 	void *_hRC;
 };
-}
-}
 
+
+}}
 #endif

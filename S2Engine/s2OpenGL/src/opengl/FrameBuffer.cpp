@@ -5,22 +5,15 @@
 #include "OpenGL.h" 
 #include "OpenGLWrap.h"
 #include "Renderer.h"
+#include "Context.h"
 
 #include <algorithm>
 #include <iostream>
 
-#if defined(WIN32) || defined(WIN64) || defined(_WIN32) || defined(_WIN64)
-#include <Windows.h>
-#ifdef DrawState
-#undef DrawState
-#endif
-#endif
-
-
 namespace s2 {
 namespace OpenGL {
 
-std::map<void*,FrameBufferPtr> FrameBuffer::Default;
+std::map<Context*,FrameBufferPtr> FrameBuffer::Default;
 FrameBufferPtr FrameBuffer::Current;
 
 // ------------------------------------------------------------------------------------------------
@@ -32,12 +25,7 @@ FrameBufferPtr FrameBuffer::New( bool default )
 // ------------------------------------------------------------------------------------------------
 FrameBufferPtr FrameBuffer::getDefault()
 {
-	void* context;
-#if defined(WIN32) || defined(WIN64) || defined(_WIN32) || defined(_WIN64)
-	context = wglGetCurrentContext();
-#else
-	context = glXGetCurrentContext();
-#endif
+	auto context = Context::getCurrent();
 
 	const auto i = Default.find( context );
 

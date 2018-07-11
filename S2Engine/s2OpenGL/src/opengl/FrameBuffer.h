@@ -5,6 +5,7 @@
 
 #include "s2OpenGL_API.h"
 
+#include "Context.h"
 #include "DrawState.h"
 #include "ClearState.h"
 #include "ViewState.h"
@@ -50,7 +51,7 @@ public:
 
 private:
 	static FrameBufferPtr Current;
-	static std::map<void*,FrameBufferPtr> Default; // map from context to framebuffer
+	static std::map<Context*,FrameBufferPtr> Default; // map from context to framebuffer
 
 
 public:
