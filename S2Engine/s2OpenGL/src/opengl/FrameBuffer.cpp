@@ -13,7 +13,7 @@
 namespace s2 {
 namespace OpenGL {
 
-std::map<Context*,FrameBufferPtr> FrameBuffer::Default;
+std::map<int64_t,FrameBufferPtr> FrameBuffer::Default;
 FrameBufferPtr FrameBuffer::Current;
 
 // ------------------------------------------------------------------------------------------------
@@ -25,16 +25,17 @@ FrameBufferPtr FrameBuffer::New( bool default )
 // ------------------------------------------------------------------------------------------------
 FrameBufferPtr FrameBuffer::getDefault()
 {
-	auto context = Context::getCurrent();
+	auto context = Context::Current();
+	assert(context != nullptr);
 
-	const auto i = Default.find( context );
+	const auto i = Default.find( context->id() );
 
 	// already created
 	if( i != Default.end() )
 		return i->second;
 
 	FrameBufferPtr fb = FrameBuffer::New( true );
-	Default.insert( std::make_pair( context, fb ) );
+	Default.insert( std::make_pair( context->id(), fb ) );
 	return fb;
 }
 
@@ -112,7 +113,7 @@ void FrameBuffer::set( )
 	//	return;
 
 	bool framebufferChanged = false;
-	if( Current != shared_from_this() )
+	if( !Current || Current->_fboID != _fboID )
 	{
 		if( Current )
 			std::cout << "Switching framebuffer from " << Current->_fboID << " to " << _fboID << std::endl;
@@ -253,6 +254,8 @@ Math::Rectangle FrameBuffer::viewport() const
 // ------------------------------------------------------------------------------------------------
 void FrameBuffer::clear( const ClearState &cs )
 {
+	//set();
+
 	_stateManager.applyClearState( cs );
 
 	glCheck;

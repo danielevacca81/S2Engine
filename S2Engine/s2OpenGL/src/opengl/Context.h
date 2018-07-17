@@ -8,27 +8,29 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <memory>
 
 namespace s2 {
 namespace OpenGL {
 
+class Context;
+typedef std::shared_ptr<Context> ContextPtr;
+
 class S2OPENGL_API Context
 {
 public:
-	static Context* getCurrent();
-	static Context* create( int majorVersion, int minorVersion );
-	static void destroy( Context *c );
+	static ContextPtr Current();
+	static ContextPtr New( int majorVersion, int minorVersion );
 
 public:
 	Context();
 	~Context();
 
-
 	void makeCurrent();
 	void swapBuffers();
 	void enableVSync( bool enable ); // @todo: set attributes
 
-	int                      id()         const;
+	int64_t                  id()         const;
 	std::vector<std::string> extensions() const;
 	std::string              info()       const;
 
@@ -42,7 +44,7 @@ protected:
 	void release();
 
 private:
-	static std::map<void*, Context*> _contextList;
+	static std::map<void*, ContextPtr> _contextList;
 
 private:
 	void *_hDC;

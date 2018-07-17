@@ -19,7 +19,7 @@
 using namespace s2;
 using namespace s2::OpenGL;
 
-std::map<void*, Context*> Context::_contextList;
+std::map<void*, ContextPtr> Context::_contextList;
 
 // ------------------------------------------------------------------------------------------------
 Context::Context()
@@ -34,13 +34,13 @@ Context::~Context()
 }
 
 // ------------------------------------------------------------------------------------------------
-int Context::id() const
+int64_t Context::id() const
 {
-	return (int)( _hRC );
+	return (int64_t)( _hRC );
 }
 
 // ------------------------------------------------------------------------------------------------
-Context* Context::create( int majorVersion, int minorVersion )
+ContextPtr Context::New( int majorVersion, int minorVersion )
 {
 #if defined(WIN32) || defined(WIN64) || defined(_WIN32) || defined(_WIN64)
 	auto HWND = GetActiveWindow();
@@ -72,7 +72,7 @@ Context* Context::create( int majorVersion, int minorVersion )
 		return nullptr;
 	}
 
-	Context *c = new Context;
+	ContextPtr c = std::make_shared<Context>();
 	c->makeCurrent();
 	c->initExtensions();
 
@@ -85,23 +85,26 @@ Context* Context::create( int majorVersion, int minorVersion )
 }
 
 // ------------------------------------------------------------------------------------------------
-Context* Context::getCurrent()
+ContextPtr Context::Current()
 {
-	void* context; // _hRC
+	void* hRC; // _hRC
 #if defined(WIN32) || defined(WIN64) || defined(_WIN32) || defined(_WIN64)
-	context = wglGetCurrentContext();
+	hRC = wglGetCurrentContext();
 #else
-	context = glXGetCurrentContext();
+	hRC = glXGetCurrentContext();
 #endif
-	auto it = _contextList.find( context );
+	auto it = _contextList.find( hRC );
 
 	// context created externally
 	if( it == _contextList.end() )
 	{
 		// make an entry
-		Context *c = new Context;
-		c->_hRC = context;
-		c->_hDC  = wglGetCurrentDC();
+		ContextPtr c = std::make_shared<Context>();
+		c->_hRC      = hRC;
+		c->_hDC      = wglGetCurrentDC();
+		
+		c->makeCurrent();
+		c->initExtensions();
 		
 		_contextList.insert( std::make_pair( c->_hRC, c ) );
 		return c;

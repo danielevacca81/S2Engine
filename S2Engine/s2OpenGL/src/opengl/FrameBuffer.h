@@ -51,7 +51,7 @@ public:
 
 private:
 	static FrameBufferPtr Current;
-	static std::map<Context*,FrameBufferPtr> Default; // map from context to framebuffer
+	static std::map<int64_t,FrameBufferPtr> Default; // map from context to framebuffer
 
 
 public:
