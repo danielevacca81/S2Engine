@@ -13,6 +13,10 @@ Frustum::Frustum()
 {}
 
 // ------------------------------------------------------------------------------------------------
+Frustum::~Frustum()
+{}
+
+// ------------------------------------------------------------------------------------------------
 void Frustum::update( const Math::dmat4 &modelView, const Math::dmat4 &projection )
 {
 	const Math::dmat4 clipMatrix = projection * modelView;
