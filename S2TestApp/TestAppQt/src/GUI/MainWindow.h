@@ -3,8 +3,12 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow>
 #include "ui_MainWindow.h"
+
+#include "GLResourcesLoader.h"
+
+
+#include <QMainWindow>
 
 class TestScene;
 
@@ -13,13 +17,19 @@ class MainWindow : public QMainWindow
 	Q_OBJECT
 
 public:
-	MainWindow(QWidget *parent = 0);
+	MainWindow(QWidget *parent = Q_NULLPTR);
 	~MainWindow();
 
 private:
 	void gui_createGLArea();
 
-	TestScene      *_scene;
+private slots:
+	void initResources();
+
+private:
+	GLResourcesLoader _res;
+	TestScene      *_sceneRight;
+	TestScene      *_sceneLeft;
 	Ui::MainWindow  _ui;
 };
 
