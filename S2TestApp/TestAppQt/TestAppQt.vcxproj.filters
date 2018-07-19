@@ -73,13 +73,13 @@
     <CustomBuild Include="src\GLResourcesLoader.h">
       <Filter>Source Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="src\TestScene.h">
+      <Filter>Source Files</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tmp\GeneratedFiles\$(ConfigurationName)\ui_MainWindow.h">
       <Filter>Generated Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\TestScene.h">
-      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="resource.h" />
   </ItemGroup>

@@ -1,10 +1,11 @@
 #pragma once
 
-#include <QOpenGLWidget>
 
 #include "opengl/Program.h"
 #include "opengl/Mesh.h"
 
+#include <QOffscreenSurface>
+#include <QOpenGLWidget>
 
 class GLResourcesLoader: public QOpenGLWidget
 {
@@ -19,8 +20,6 @@ public:
 
 private:
 	void initializeGL() override;
-	void resizeGL( int width, int height ) override;
-	void paintGL()override;
 	void initMeshes();
 	void initShaders();
 

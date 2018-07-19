@@ -1,4 +1,4 @@
-﻿// DrawState.h
+﻿// DrawingState.h
 // 
 #ifndef DRAWSTATE_ONCE
 #define DRAWSTATE_ONCE
@@ -11,15 +11,15 @@
 namespace s2 {
 namespace OpenGL {
 
-	struct DrawState
+	struct DrawingState
 	{
 		RenderState        renderState;
 		OpenGL::ProgramPtr program;
 
-		DrawState() 
+		DrawingState()
 		{}
 
-		DrawState( const OpenGL::ProgramPtr &shaderProgram, const RenderState &renderState = RenderState()  /*,VertexArray vertexArray*/ )
+		DrawingState( const OpenGL::ProgramPtr &shaderProgram, const RenderState &renderState = RenderState()  /*,VertexArray vertexArray*/ )
 		: renderState( renderState )
 		, program( shaderProgram )
 		{}

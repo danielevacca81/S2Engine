@@ -61,7 +61,7 @@ private:
 	Math::Rectangle     _area;
 	OpenGL::ProgramPtr  _shader;
 	OpenGL::RenderState _renderState;
-	OpenGL::DrawState   _drawState;
+	OpenGL::DrawingState   _drawState;
 	OpenGL::ViewState   _viewState;
 
 	void update();

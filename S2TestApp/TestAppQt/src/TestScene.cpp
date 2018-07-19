@@ -14,7 +14,6 @@
 
 #include "math/Mesh.h"
 
-
 #include <QPainter>
 #include <iostream>
 
@@ -22,17 +21,18 @@ using namespace s2;
 
 // ------------------------------------------------------------------------------------------------
 TestScene::TestScene( QWidget *parent )
-: GLGraphicsScene( parent )
+: GLWidget( parent )
 , _wireframe(false)
+, _frames(0)
 //, _viewState( OpenGL::ViewState::Perspective )
 //, _fonts("")
 {
-	_uim.registerMouseCommand( s2::Qt::UIMCommand( "Zoom",          "Wheel",               [&] () { onMouseWheel(); } ) );
-	_uim.registerMouseCommand( s2::Qt::UIMCommand( "MouseLPress",   "LeftButton",          [&] () { onMousePressed(); } ) );
-	_uim.registerMouseCommand( s2::Qt::UIMCommand( "MouseRPress",   "RightButton",         [&] () { onMousePressed(); } ) );
-	_uim.registerMouseCommand( s2::Qt::UIMCommand( "MouseRRelease", "RightButton+Released",[&] () { onMouseReleased(); } ) );
-	_uim.registerMouseCommand( s2::Qt::UIMCommand( "Pan",           "LeftButton+Drag",     [&] () { onMouseMoved(); } ) );
-	_uim.registerMouseCommand( s2::Qt::UIMCommand( "Rotate",        "RightButton+Drag",    [&] () { onMouseMoved(); } ) );
+	_uim.registerMouseCommand( s2::Qt::UIMCommand( "Wheel",               [&] () { onMouseWheel(); } ) );
+	_uim.registerMouseCommand( s2::Qt::UIMCommand( "LeftButton",          [&] () { onMousePressed(); } ) );
+	_uim.registerMouseCommand( s2::Qt::UIMCommand( "RightButton",         [&] () { onMousePressed(); } ) );
+	_uim.registerMouseCommand( s2::Qt::UIMCommand( "RightButton+Released",[&] () { onMouseReleased(); } ) );
+	_uim.registerMouseCommand( s2::Qt::UIMCommand( "LeftButton+Drag",     [&] () { onMouseMoved(); } ) );
+	_uim.registerMouseCommand( s2::Qt::UIMCommand( "RightButton+Drag",    [&] () { onMouseMoved(); } ) );
 
 	resetView();
 }
@@ -65,10 +65,16 @@ void TestScene::resetView()
 }
 
 // ------------------------------------------------------------------------------------------------
-void TestScene::initializeOpenGL()
+void TestScene::initializeGL()
 {
-	_fb = s2::OpenGL::FrameBuffer::getDefault();
-	std::cout << _fb->info() << std::endl;
+#if 1
+	int fbo = defaultFramebufferObject();
+	_fb = s2::OpenGL::FrameBuffer::New( fbo );
+#else
+	_fb = s2::OpenGL::FrameBuffer::New();
+	_fb->attachRenderTarget( s2::OpenGL::FrameBuffer::ColorAttachment0, s2::OpenGL::RenderBuffer::New( s2::OpenGL::RenderBuffer::RGBA8, 400, 400, 0 ) );
+	_fb->attachRenderTarget( s2::OpenGL::FrameBuffer::DepthAttatchment, s2::OpenGL::RenderBuffer::New( s2::OpenGL::RenderBuffer::DepthComponent24, 400, 400, 0 ) );
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -78,8 +84,13 @@ void TestScene::initFonts()
 }
 
 // ------------------------------------------------------------------------------------------------
-void TestScene::renderScene()
+void TestScene::paintGL()
 {
+	//QPainter painter;
+	//painter.begin(this);
+
+	//painter.beginNativePainting();
+
 	OpenGL::ClearState clear;
 	clear.color = Color::gray();
 	_fb->clear( clear );
@@ -90,7 +101,6 @@ void TestScene::renderScene()
 					Math::translate( Math::dmat4(1), -_camera.target() )
 					;
 	
-	_viewState.setModelMatrix( Math::dmat4(1.0) );
 	_viewState.setViewMatrix( _camera.matrix()  *  m  );
 
 	if( _shader )
@@ -100,7 +110,7 @@ void TestScene::renderScene()
 		_shader->uniform<Math::mat3>( "normalMatrix"              )->set( _viewState.normalMatrix() );
 
 
-		OpenGL::DrawState ds( _shader );
+		OpenGL::DrawingState ds( _shader );
 		for( auto &mesh : _meshes )
 			_fb->draw( OpenGL::Primitive::Triangles, mesh, ds );
 	}
@@ -131,6 +141,25 @@ void TestScene::renderScene()
 		_fb->draw( OpenGL::Primitive::Triangles, _torus, ds );
 	}
 */
+	//painter.endNativePainting();
+
+	
+	//if( const int elapsed = _time.elapsed() )
+	//{
+	//	QString framesPerSecond;
+	//	framesPerSecond.setNum( _frames / ( elapsed / 1000.0 ), 'f', 2 );
+	//	//painter.setPen( ::Qt::white );
+	//	//painter.drawText( 10, 40, framesPerSecond + " paintGL calls / s" );
+	//	std::cout << "FPS: " << framesPerSecond.toStdString() << std::endl;
+	//}
+
+ //   if (!(_frames % 100)) {
+ //       _time.start();
+ //       _frames = 0;
+ //   }
+
+ //   ++_frames;
+
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -189,11 +218,11 @@ void TestScene::onMouseMoved()
 // -----------------------------------------------------------------------------------------------
 void TestScene::onMouseWheel()
 {
-#if 0
+#if 1
 	const s2::Qt::MouseStatus ms = _uim.mouseStatus();
 	const double z               = ms.wheel();
 
-	_viewState.model = Math::scale( _viewState.model, Math::dvec3(z) );
+	_viewState.setModelMatrix( Math::scale( _viewState.modelMatrix(), Math::dvec3(z) ) );
 
 	//_viewState.camera.zoomToTarget(1.5);
 	//const Math::dvec3 pos( currentWorldPoint.x, currentWorldPoint.y, 0.0 );
@@ -221,13 +250,13 @@ void TestScene::onMouseDoubleClick()
 }
 
 // -----------------------------------------------------------------------------------------------
-void TestScene::resizeScene( int w, int h )
+void TestScene::resizeGL( int w, int h )
 {
 	//_viewState.setViewport( Math::Rectangle( 0, 0, w, h ) );
 	if( _fb )
 		_fb->setViewport( Math::Rectangle( 0, 0, w, h ) );
 
-	_viewState.setProjectionMatrix( Math::perspective(45.0,w/(double)h,0.1,100.0) );
+	_viewState.setProjectionMatrix( Math::perspective( 45.0, w / (double) h, 0.1, 100.0 ) );
 	_trackball.resize( w,h );
 
 
@@ -240,8 +269,8 @@ void TestScene::resizeScene( int w, int h )
 #endif
 }
 
-// -----------------------------------------------------------------------------------------------
-void TestScene::refreshScene()
-{
-
-}
+//// -----------------------------------------------------------------------------------------------
+//void TestScene::refreshScene()
+//{
+//
+//}

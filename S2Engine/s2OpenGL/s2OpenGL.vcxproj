@@ -188,7 +188,7 @@
     <ClInclude Include="src\OpenGL\BufferObject.h" />
     <ClInclude Include="src\opengl\ClearState.h" />
     <ClInclude Include="src\OpenGL\Context.h" />
-    <ClInclude Include="src\opengl\DrawState.h" />
+    <ClInclude Include="src\opengl\DrawingState.h" />
     <ClInclude Include="src\opengl\Extensions.h" />
     <ClInclude Include="src\OpenGL\FrameBuffer.h" />
     <ClInclude Include="src\OpenGL\IndexBuffer.h" />

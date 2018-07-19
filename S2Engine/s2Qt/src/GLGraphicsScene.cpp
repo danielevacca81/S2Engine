@@ -21,6 +21,7 @@ using namespace s2::Qt;
 GLGraphicsScene::GLGraphicsScene( QWidget *parent )
 : _glWidget( new GLWidget( parent ) )
 , _ui( nullptr )
+, _uim( parent )
 {	
 	_sceneUpdater = new GLGraphicsSceneUpdater( this, 16 );
 
@@ -28,7 +29,7 @@ GLGraphicsScene::GLGraphicsScene( QWidget *parent )
 	//QGraphicsScene::addItem( _centralWidget );
 
 	connect( this, &GLGraphicsScene::sceneRectChanged, this, &GLGraphicsScene::onResize );
-	connect( static_cast<GLWidget*>( _glWidget ), &GLWidget::openGLInitialized, this, &GLGraphicsScene::initializeOpenGL );
+	//connect( static_cast<GLWidget*>( _glWidget ), &GLWidget::openGLInitialized, this, &GLGraphicsScene::initializeOpenGL );
 }
 
 // -----------------------------------------------------------------------------------------------

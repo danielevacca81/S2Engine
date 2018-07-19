@@ -138,9 +138,6 @@
     <ClInclude Include="src\opengl\ClearState.h">
       <Filter>src\opengl\state</Filter>
     </ClInclude>
-    <ClInclude Include="src\opengl\DrawState.h">
-      <Filter>src\opengl\state</Filter>
-    </ClInclude>
     <ClInclude Include="src\opengl\RenderState.h">
       <Filter>src\opengl\state</Filter>
     </ClInclude>
@@ -158,6 +155,9 @@
     </ClInclude>
     <ClInclude Include="src\opengl\Renderer.h">
       <Filter>src\opengl\wrap</Filter>
+    </ClInclude>
+    <ClInclude Include="src\opengl\DrawingState.h">
+      <Filter>src\opengl\state</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

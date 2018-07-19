@@ -13,43 +13,44 @@
 namespace s2 {
 namespace OpenGL {
 
-std::map<int64_t,FrameBufferPtr> FrameBuffer::Default;
-FrameBufferPtr FrameBuffer::Current;
+//std::map<int64_t,FrameBufferPtr> FrameBuffer::Default;
+//FrameBufferPtr FrameBuffer::Current;
 
 // ------------------------------------------------------------------------------------------------
-FrameBufferPtr FrameBuffer::New( bool default )
+FrameBufferPtr FrameBuffer::New( int fboID )
 {
-	return std::make_shared<FrameBuffer>( default );
+	return std::make_shared<FrameBuffer>( fboID );
 }
 
 // ------------------------------------------------------------------------------------------------
 FrameBufferPtr FrameBuffer::getDefault()
 {
-	auto context = Context::Current();
-	assert(context != nullptr);
+	//auto context = Context::Current();
+	//assert(context != nullptr);
 
-	const auto i = Default.find( context->id() );
+	//const auto i = Default.find( context->id() );
 
 	// already created
-	if( i != Default.end() )
-		return i->second;
+	//if( i != Default.end() )
+	//	return i->second;
 
-	FrameBufferPtr fb = FrameBuffer::New( true );
-	Default.insert( std::make_pair( context->id(), fb ) );
-	return fb;
+	//FrameBufferPtr fb = std::make_shared<FrameBuffer>( true );
+	//Default.insert( std::make_pair( context->id(), fb ) );
+	//return fb;
+	return std::make_shared<FrameBuffer>( 0 );
 }
 
 // ------------------------------------------------------------------------------------------------
-FrameBuffer::FrameBuffer( bool default )
+FrameBuffer::FrameBuffer( int fboID )
 : _fboID( 0 )
 , _attachmentsChanged( false )
 , _parametersChanged( false )
 , _buffersChanged( false )
 {
-	if( default )
-		_fboID = 0;
-	else
+	if( fboID < 0 )
 		glGenFramebuffers( 1, &_fboID );
+	else
+		_fboID = fboID; // default or created by third party
 
 	glCheck;
 
@@ -60,8 +61,8 @@ FrameBuffer::FrameBuffer( bool default )
 // ------------------------------------------------------------------------------------------------
 FrameBuffer::~FrameBuffer()
 {
-	if( Current->_fboID == this->_fboID )
-		Current = nullptr;
+//	if( Current && Current->_fboID == _fboID )
+		//Current = nullptr;
 
 	if( _fboID != 0 )
 		glDeleteFramebuffers( 1, &_fboID );
@@ -77,7 +78,7 @@ std::string FrameBuffer::info() const
 	const GLenum r = glCheckFramebufferStatus( GL_FRAMEBUFFER );
 	switch( r )
 	{
-	case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:			ret = "Attachment error";  break;
+	case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:			ret = "Incomplete attachment";  break;
 	case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:	ret = "Missing attachment"; break;
 	//case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS:	    	ret = "FBO Failed: Dimensions Error";  break;
 	//case GL_FRAMEBUFFER_INCOMPLETE_FORMATS:			    ret = "FBO Failed: Formats Error";     break;
@@ -112,19 +113,19 @@ void FrameBuffer::set( )
 	//if( buffers.empty() )
 	//	return;
 
-	bool framebufferChanged = false;
-	if( !Current || Current->_fboID != _fboID )
+	//bool framebufferChanged = false;
+	//if( !Current || Current->_fboID != _fboID )
 	{
-		if( Current )
-			std::cout << "Switching framebuffer from " << Current->_fboID << " to " << _fboID << std::endl;
+		//if( Current )
+		//	std::cout << "Switching framebuffer from " << Current->_fboID << " to " << _fboID << std::endl;
 		
-		glBindFramebuffer( GL_FRAMEBUFFER, _fboID );
+		//glBindFramebuffer( GL_FRAMEBUFFER, _fboID );
 
-		Current = shared_from_this();
-		framebufferChanged = true;
+		//Current = shared_from_this();
+		//framebufferChanged = true;
 	}
 
-	if( framebufferChanged )
+	//if( framebufferChanged )
 	{
 		setAttachments();
 		if( !checkAttatchments() )
@@ -137,7 +138,7 @@ void FrameBuffer::set( )
 
 
 
-	// setDrawBuffers
+	// setDrawBuffers (TBD)
 	//{
 	//	if( _fboID != 0 && readDrawChanged )
 	//	{
@@ -167,8 +168,8 @@ void FrameBuffer::set( )
 // ------------------------------------------------------------------------------------------------
 void FrameBuffer::setAttachments() const
 {
-	//if( !_attachmentsChanged )
-	//	return;
+	if( !_attachmentsChanged )
+		return;
 
 	for( auto &att : _attachments )
 	{
@@ -179,14 +180,14 @@ void FrameBuffer::setAttachments() const
 
 		if( att.isRenderBuffer )
 		{
-			glFramebufferRenderbuffer( GL_FRAMEBUFFER, att.attachmentName, GL_RENDERBUFFER, att.attachmentID );
+			glFramebufferRenderbuffer( GL_FRAMEBUFFER, glWrap(att.attachmentName), GL_RENDERBUFFER, att.attachmentID );
 		}
 		else
 		{
 			switch( att.attachmentType )
 			{
-			case GL_TEXTURE_1D:	glFramebufferTexture1D( GL_FRAMEBUFFER, att.attachmentName, att.attachmentType, att.attachmentID, 0 ); break;
-			case GL_TEXTURE_2D:	glFramebufferTexture2D( GL_FRAMEBUFFER, att.attachmentName, att.attachmentType, att.attachmentID, 0 ); break;
+			case GL_TEXTURE_1D:	glFramebufferTexture1D( GL_FRAMEBUFFER, glWrap(att.attachmentName), att.attachmentType, att.attachmentID, 0 ); break;
+			case GL_TEXTURE_2D:	glFramebufferTexture2D( GL_FRAMEBUFFER, glWrap(att.attachmentName), att.attachmentType, att.attachmentID, 0 ); break;
 
 				// @TODO:
 				//case Texture3D::target():	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+_numAttachments, texture->target(), texture->id(), 0); break;
@@ -254,7 +255,8 @@ Math::Rectangle FrameBuffer::viewport() const
 // ------------------------------------------------------------------------------------------------
 void FrameBuffer::clear( const ClearState &cs )
 {
-	//set();
+	set();
+	glCheck;
 
 	_stateManager.applyClearState( cs );
 
@@ -262,9 +264,10 @@ void FrameBuffer::clear( const ClearState &cs )
 }
 
 // ------------------------------------------------------------------------------------------------
-void FrameBuffer::draw( const Primitive &primitive, const Mesh &mesh, const DrawState &ds )
+void FrameBuffer::draw( const Primitive &primitive, const Mesh &mesh, const DrawingState &ds )
 {
 	set();
+	glCheck;
 
 	_stateManager.applyDrawState( ds );
 
@@ -274,7 +277,7 @@ void FrameBuffer::draw( const Primitive &primitive, const Mesh &mesh, const Draw
 }
 
 // ------------------------------------------------------------------------------------------------
-void FrameBuffer::draw( const Primitive &primitive, const VertexArray &va, const DrawState &ds )
+void FrameBuffer::draw( const Primitive &primitive, const VertexArray &va, const DrawingState &ds )
 {
 	set();
 

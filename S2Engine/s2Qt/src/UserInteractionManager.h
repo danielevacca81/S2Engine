@@ -15,7 +15,6 @@
 #include <map>
 
 namespace s2 {
-
 namespace Qt {
 
 class S2QT_API UserInteractionManager
@@ -46,7 +45,7 @@ public:
 	};
 
 public:
-	UserInteractionManager();
+	UserInteractionManager( QWidget *parent );
 	~UserInteractionManager();
 
 	void setPreferences( const Preferences &p );
@@ -65,6 +64,8 @@ public:
 
 	void updateMouse( QGraphicsSceneMouseEvent *e, bool updateButtons );
 	void updateMouse( QGraphicsSceneWheelEvent *e, bool updateButtons );
+	void updateMouse( QMouseEvent *e, bool updateButtons );
+	void updateMouse( QWheelEvent *e, bool updateButtons );
 	void updateKeyboard( QKeyEvent *e, bool keyPressed );
 	void updateGesture( QGestureEvent *e );
 
@@ -88,6 +89,8 @@ private:
 private:
 	typedef std::map<unsigned int, UIMCommand> Bindings;
 
+private:
+	QWidget        *_parent;
 	Bindings        _keyBindings;
 	Bindings        _mouseBindings;
 	Bindings        _gestureBindings;

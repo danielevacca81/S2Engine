@@ -15,17 +15,16 @@
 
 
 #include <QVBoxLayout>
-#include <QOpenGLWindow>
 #include <iostream>
 
 // ------------------------------------------------------------------------------------------------
 MainWindow::MainWindow( QWidget *parent )
-	: QMainWindow( parent )
-	, _res( this )
+: QMainWindow( parent )
+, _res( this )
 {
 	_ui.setupUi( this );
 
-	gui_createGLArea();
+	createScenes();
 
 	connect( &_res, &GLResourcesLoader::resourcesInitialized, this, &MainWindow::initResources );
 }
@@ -35,15 +34,21 @@ MainWindow::~MainWindow()
 {}
 
 // ------------------------------------------------------------------------------------------------
-void MainWindow::gui_createGLArea()
+void MainWindow::createScenes()
 {
 	//if( false )
 	{
 		_sceneLeft          = new TestScene( this );
 
+		//QVBoxLayout *layout = new QVBoxLayout;
+		//layout->setContentsMargins( 0, 0, 0, 0 );
+		//layout->addWidget( new s2::Qt::GLGraphicsView( _sceneLeft, this, QFrame::Shape::NoFrame ) );
+
+		//_ui.frameGLAreaLeft->setLayout( layout );
+
 		QVBoxLayout *layout = new QVBoxLayout;
 		layout->setContentsMargins( 0, 0, 0, 0 );
-		layout->addWidget( new s2::Qt::GLGraphicsView( _sceneLeft, this, QFrame::Shape::NoFrame ) );
+		layout->addWidget( _sceneLeft );
 
 		_ui.frameGLAreaLeft->setLayout( layout );
 	}
@@ -52,9 +57,15 @@ void MainWindow::gui_createGLArea()
 	{
 		_sceneRight          = new TestScene( this );
 
+		//QVBoxLayout *layout = new QVBoxLayout;
+		//layout->setContentsMargins( 0, 0, 0, 0 );
+		//layout->addWidget( new s2::Qt::GLGraphicsView( _sceneRight, this, QFrame::Shape::NoFrame ) );
+
+		//_ui.frameGLAreaRight->setLayout( layout );
+
 		QVBoxLayout *layout = new QVBoxLayout;
 		layout->setContentsMargins( 0, 0, 0, 0 );
-		layout->addWidget( new s2::Qt::GLGraphicsView( _sceneRight, this, QFrame::Shape::NoFrame ) );
+		layout->addWidget( _sceneRight );
 
 		_ui.frameGLAreaRight->setLayout( layout );
 	}

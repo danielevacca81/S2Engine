@@ -5,12 +5,10 @@
 
 #include "s2Qt_API.h"
 
-#include "UserInteractionManager.h"
-
 #include <QOpenGLWidget>
-#include <QTimer>
 
 namespace s2 {
+
 namespace Qt {
 /**
 Context Sharing
@@ -25,38 +23,20 @@ To set up sharing between QOpenGLWidget instances belonging to different windows
 set the Qt::AA_ShareOpenGLContexts application attribute before instantiating QApplication.
 This will trigger sharing between all QOpenGLWidget instances without any further steps.
 **/
-class S2QT_API GLWidget: public QOpenGLWidget
+
+class GLWidget: public QOpenGLWidget
 {
 	Q_OBJECT
 
 public:
     GLWidget( QWidget *parent = Q_NULLPTR );
-
-	void enableAnimation( unsigned int refreshTime = 10 /*msec*/);
-	void disableAnimation();
-	bool isAnimationEnabled() const;
+	virtual ~GLWidget();
 
 protected:
     void initializeGL() override;
 
-	void mousePressEvent( QMouseEvent *e ) override;
-	void mouseMoveEvent( QMouseEvent *e ) override;
-	void mouseReleaseEvent( QMouseEvent *e ) override;
-	void wheelEvent( QWheelEvent *e ) override;
-	void mouseDoubleClickEvent( QMouseEvent *e ) override;
-	void contextMenuEvent( QContextMenuEvent *e ) override;
-	void keyPressEvent( QKeyEvent *e ) override;
-	void keyReleaseEvent( QKeyEvent *e ) override;
-
-//signals:
-//	void openGLInitialized();
-
-protected:
-	UserInteractionManager _uim;
-
-private:
-	bool    _animating;
-	QTimer  _updateTimer;
+signals:
+	void openGLInitialized();
 };
 
 }}

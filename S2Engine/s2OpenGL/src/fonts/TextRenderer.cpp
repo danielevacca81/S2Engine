@@ -68,7 +68,7 @@ bool TextRenderer::init()
 	b.enabled = true;
 	
 	_renderState.blending = b;
-	_drawState   = OpenGL::DrawState( _shader, _renderState );
+	_drawState   = OpenGL::DrawingState( _shader, _renderState );
 	_viewState   = OpenGL::ViewState( OpenGL::ViewState::Orthographic );
 	return true;
 }

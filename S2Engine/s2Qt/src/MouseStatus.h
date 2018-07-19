@@ -9,12 +9,20 @@
 
 #include "math/Math.h"
 
+class QWidget;
+
+// to be removed...
 class QGraphicsSceneEvent;
 class QGraphicsSceneMouseEvent;
 class QGraphicsSceneWheelEvent;
+// ....
+
+
+class QEvent;
+class QMouseEvent;
+class QWheelEvent;
 
 namespace s2 {
-
 namespace Qt {
 
 
@@ -61,16 +69,9 @@ public:
 	};
 
 public:
-	static const int MovingThreshold = 8;
 	MouseStatus();
 	~MouseStatus();
 
-	void reset();
-
-	void update( QGraphicsSceneMouseEvent *e, bool updateButtons );
-	void update( QGraphicsSceneWheelEvent *e, bool updateButtons );
-
-	// -----------------------------------------------------------------------------------------------
 	double       wheel()            const { return _wheel; }
 	bool         isMoving()         const { return _moving; }
 	bool         isDragging()       const { return _dragging; }
@@ -79,13 +80,25 @@ public:
 	int          buttonDown()       const { return _pressedButton; }
 	int          buttonUp()         const { return _releasedButton; }
 	int          modifiers()        const { return _keyModifier; }
-	unsigned int getCode()          const;
-	// -----------------------------------------------------------------------------------------------
 
 
 private:
 	Status getButton( QGraphicsSceneEvent *e ) const;
+	Status getButton( QEvent *e ) const;
 	Status getModifier( const ::Qt::KeyboardModifiers &kbMod ) const;
+
+	void reset();
+
+	void update( QWidget *w, QGraphicsSceneMouseEvent *e, bool updateButtons );
+	void update( QWidget *w, QGraphicsSceneWheelEvent *e, bool updateButtons );
+
+	void update( QWidget *w, QMouseEvent *e, bool updateButtons );
+	void update( QWidget *w, QWheelEvent *e, bool updateButtons );
+
+	unsigned int getCode()          const;
+
+private:
+	static const int MovingThreshold = 8;
 
 	QPointF	_currPos;
 	QPointF	_prevPos;
@@ -98,6 +111,8 @@ private:
 	int		_pressedButton;
 	int		_releasedButton;
 	int		_keyModifier;
+
+	friend class UserInteractionManager;
 };
 
 }

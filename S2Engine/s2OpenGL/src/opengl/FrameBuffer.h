@@ -6,7 +6,7 @@
 #include "s2OpenGL_API.h"
 
 #include "Context.h"
-#include "DrawState.h"
+#include "DrawingState.h"
 #include "ClearState.h"
 #include "ViewState.h"
 #include "StateManager.h"
@@ -46,16 +46,16 @@ public:
 	};
 
 public:
-	static FrameBufferPtr getDefault();
-	static FrameBufferPtr New( bool default = true );
+	static FrameBufferPtr getDefault(); // equivalent to New(0)
+	static FrameBufferPtr New( int fboID = -1 );
 
 private:
-	static FrameBufferPtr Current;
-	static std::map<int64_t,FrameBufferPtr> Default; // map from context to framebuffer
+	//static FrameBufferPtr Current;
+	//static std::map<int64_t,FrameBufferPtr> Default; // map from context to framebuffer
 
 
 public:
-	FrameBuffer( bool default = true );
+	FrameBuffer( int fboID = 0 );
 	~FrameBuffer();
 
 	void setViewport( const Math::Rectangle &viewport );
@@ -63,9 +63,9 @@ public:
 
 
 	void clear( const ClearState &cs = ClearState() );
-	void draw( const Primitive &primitive, const VertexArray &va, const DrawState &ds = DrawState() );
-	void draw( const Primitive &primitive, const Mesh &mesh, const DrawState &ds = DrawState() );
-	//void drawQuad( DrawState ); // @todo
+	void draw( const Primitive &primitive, const VertexArray &va, const DrawingState &ds = DrawingState() );
+	void draw( const Primitive &primitive, const Mesh &mesh, const DrawingState &ds = DrawingState() );
+	//void drawQuad( DrawingState ); // @todo
 
     //void setReadBuffer(BufferId b);	  // @todo
     //void setDrawBuffer(BufferId b);	  // @todo

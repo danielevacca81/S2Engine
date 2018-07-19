@@ -218,16 +218,18 @@ unsigned int glWrap( const FrameBuffer::AttachmentPoint &attachment )
 {
 	switch( attachment )
 	{
-	case FrameBuffer::ColorAttachment0: return GL_COLOR_ATTACHMENT0;
-	case FrameBuffer::ColorAttachment1: return GL_COLOR_ATTACHMENT1;
-	case FrameBuffer::ColorAttachment2: return GL_COLOR_ATTACHMENT2;
-	case FrameBuffer::ColorAttachment3: return GL_COLOR_ATTACHMENT3;
-	case FrameBuffer::ColorAttachment4: return GL_COLOR_ATTACHMENT4;
-	case FrameBuffer::ColorAttachment5: return GL_COLOR_ATTACHMENT5;
-	case FrameBuffer::ColorAttachment6: return GL_COLOR_ATTACHMENT6;
-	case FrameBuffer::ColorAttachment7: return GL_COLOR_ATTACHMENT7;
-	case FrameBuffer::ColorAttachment8: return GL_COLOR_ATTACHMENT8;
-	case FrameBuffer::ColorAttachment9: return GL_COLOR_ATTACHMENT9;
+	case FrameBuffer::ColorAttachment0:   return GL_COLOR_ATTACHMENT0;
+	case FrameBuffer::ColorAttachment1:   return GL_COLOR_ATTACHMENT1;
+	case FrameBuffer::ColorAttachment2:   return GL_COLOR_ATTACHMENT2;
+	case FrameBuffer::ColorAttachment3:   return GL_COLOR_ATTACHMENT3;
+	case FrameBuffer::ColorAttachment4:   return GL_COLOR_ATTACHMENT4;
+	case FrameBuffer::ColorAttachment5:   return GL_COLOR_ATTACHMENT5;
+	case FrameBuffer::ColorAttachment6:   return GL_COLOR_ATTACHMENT6;
+	case FrameBuffer::ColorAttachment7:   return GL_COLOR_ATTACHMENT7;
+	case FrameBuffer::ColorAttachment8:   return GL_COLOR_ATTACHMENT8;
+	case FrameBuffer::ColorAttachment9:   return GL_COLOR_ATTACHMENT9;
+	case FrameBuffer::DepthAttatchment:   return GL_DEPTH_ATTACHMENT;
+	case FrameBuffer::StencilAttatchment: return GL_STENCIL_ATTACHMENT;
 	}
 
 	return -1;

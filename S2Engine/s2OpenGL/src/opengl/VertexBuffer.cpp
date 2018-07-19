@@ -55,7 +55,7 @@ void VertexBuffer::sendData( void *data, int length, int offset )
 void * VertexBuffer::receiveData( int length, int offset )
 {
 	if( !_valid )
-		return 0;
+		return nullptr;
 
 	return _bufferObject->receiveData( length,offset );
 }
@@ -64,7 +64,7 @@ void * VertexBuffer::receiveData( int length, int offset )
 void * VertexBuffer::mapData( BufferObject::BufferMapMode mode )
 {
 	if( !_valid )
-		return 0;
+		return nullptr;
 
 	return _bufferObject->mapData( mode );
 }

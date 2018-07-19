@@ -38,3 +38,33 @@ bool s2::Qt::createOpenGLContext( int openGLMajorVer, int openGLMinorVer )
 	std::cout << std::endl;
 	return true;
 }
+
+// ------------------------------------------------------------------------------------------------
+bool s2::Qt::openGLSupports( int major, int minor, bool gles, QSurfaceFormat::OpenGLContextProfile profile )
+{
+    QOpenGLContext ctx;
+    QSurfaceFormat fmt;
+    fmt.setVersion(major, minor);
+    if (gles) {
+        fmt.setRenderableType(QSurfaceFormat::OpenGLES);
+    } else {
+        fmt.setRenderableType(QSurfaceFormat::OpenGL);
+        fmt.setProfile(profile);
+    }
+
+    ctx.setFormat(fmt);
+    ctx.create();
+    if (!ctx.isValid())
+        return false;
+    int ctxMajor = ctx.format().majorVersion();
+    int ctxMinor = ctx.format().minorVersion();
+    bool isGles = (ctx.format().renderableType() == QSurfaceFormat::OpenGLES);
+
+    if (isGles != gles) return false;
+    if (ctxMajor < major) return false;
+    if (ctxMajor == major && ctxMinor < minor)
+        return false;
+    if (!gles && ctx.format().profile() != profile)
+        return false;
+    return true;
+}

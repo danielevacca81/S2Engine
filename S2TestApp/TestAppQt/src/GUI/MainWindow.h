@@ -17,11 +17,11 @@ class MainWindow : public QMainWindow
 	Q_OBJECT
 
 public:
-	MainWindow(QWidget *parent = Q_NULLPTR);
+	MainWindow( QWidget *parent = Q_NULLPTR );
 	~MainWindow();
 
 private:
-	void gui_createGLArea();
+	void createScenes();
 
 private slots:
 	void initResources();

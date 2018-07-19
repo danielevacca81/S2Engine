@@ -5,7 +5,7 @@
 
 #include "s2OpenGL_API.h"
 
-#include "DrawState.h"
+#include "DrawingState.h"
 #include "ClearState.h"
 #include "RenderState.h"
 #include "ViewState.h"
@@ -30,14 +30,14 @@ public:
 	~StateManager();
 
 	void applyClearState( const ClearState &cs );
-	void applyDrawState( const DrawState &ds );
+	void applyDrawState( const DrawingState &ds );
 	//void reset(); // @todo: clears internal status and 
 
 
 	//void clear( const ClearState &cs = ClearState() );
 	//
-	//void draw( Primitive primitive, const VertexArray &va, const ViewState &vs = ViewState(), const DrawState &ds = DrawState() );
-	//void draw( Primitive primitive, const Mesh &m, const ViewState &vs = ViewState(), const DrawState &ds = DrawState() );
+	//void draw( Primitive primitive, const VertexArray &va, const ViewState &vs = ViewState(), const DrawingState &ds = DrawingState() );
+	//void draw( Primitive primitive, const Mesh &m, const ViewState &vs = ViewState(), const DrawingState &ds = DrawingState() );
 
 private:
 	void applyRenderState       ( const RenderState &rs );

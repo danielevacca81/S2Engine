@@ -83,6 +83,8 @@ public:
 	operator float const *()       { return &_r; }
 
 	Color operator +( const Color &c ) const;
+	bool operator==( const Color &c ) const;
+	bool operator!=( const Color &c ) const;
 
 private:
 	float _r,_g,_b,_a;

@@ -250,3 +250,22 @@ Color Color::operator +( const Color &c ) const
 				  Math::max( 1.f, _a + c._a )
 	);
 }
+
+// ------------------------------------------------------------------------------------------------
+bool Color::operator==( const Color &c ) const
+{
+	return _r == c._r &&
+	       _g == c._g &&
+		   _b == c._b &&
+		   _a == c._a ;
+}
+
+// ------------------------------------------------------------------------------------------------
+bool Color::operator!=( const Color &c ) const
+{
+	return _r != c._r ||
+	       _g != c._g ||
+		   _b != c._b ||
+		   _a != c._a ;
+}
+

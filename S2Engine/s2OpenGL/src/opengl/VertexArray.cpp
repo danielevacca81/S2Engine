@@ -33,21 +33,20 @@ VertexArray::~VertexArray()
 //-------------------------------------------------------------------------------------------------
 void VertexArray::bind() const
 {
-	//if opengl > 3.0 
-	//{
 	if( _id == 0 )
+	{
 		glGenVertexArrays( 1, &_id );
+		glBindVertexArray( _id );
 
-	glBindVertexArray( _id ); // opengl >= 3.0
-	//}
-	// else
-	//{
-	if( _indexBuffer.isValid() )
-		_indexBuffer.bind();
+		if( _indexBuffer.isValid() )
+			_indexBuffer.bind();
 
-	for( size_t i=0; i<_attributes.size(); ++i )
-		_attributes[i].attach( i );
-	//}
+		for( size_t i=0; i < _attributes.size(); ++i )
+			_attributes[i].attach( i );
+	}
+	else
+		glBindVertexArray( _id );
+
 	glCheck;
 }
 

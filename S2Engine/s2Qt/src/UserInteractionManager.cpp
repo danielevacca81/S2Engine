@@ -19,16 +19,13 @@ std::map<QString, unsigned int> UserInteractionManager::gestureCommandCodes;
 // ------------------------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------------------------
-UserInteractionManager::UserInteractionManager()
-{ 
-	clear(); 
-}
+UserInteractionManager::UserInteractionManager( QWidget *parent )
+: _parent(parent)
+{}
 
 // ------------------------------------------------------------------------------------------------
 UserInteractionManager::~UserInteractionManager()
-{ 
-	clear(); 
-}
+{}
 
 // ------------------------------------------------------------------------------------------------
 void UserInteractionManager::setPreferences( const Preferences &p )
@@ -107,14 +104,28 @@ void UserInteractionManager::clear()
 // ------------------------------------------------------------------------------------------------
 void UserInteractionManager::updateMouse( QGraphicsSceneMouseEvent *e, bool updateButtons )
 {
-	_ms.update( e, updateButtons );
+	_ms.update( _parent, e, updateButtons );
+	executeMouseCommand( _ms.getCode() );
+}
+
+// ------------------------------------------------------------------------------------------------
+void UserInteractionManager::updateMouse( QMouseEvent *e, bool updateButtons )
+{
+	_ms.update( _parent, e, updateButtons );
+	executeMouseCommand( _ms.getCode() );
+}
+
+// ------------------------------------------------------------------------------------------------
+void UserInteractionManager::updateMouse( QWheelEvent *e, bool updateButtons )
+{
+	_ms.update( _parent, e, updateButtons );
 	executeMouseCommand( _ms.getCode() );
 }
 
 // ------------------------------------------------------------------------------------------------
 void UserInteractionManager::updateMouse( QGraphicsSceneWheelEvent *e, bool updateButtons )
 {
-	_ms.update( e, updateButtons );
+	_ms.update( _parent, e, updateButtons );
 	executeMouseCommand( _ms.getCode() );
 }
 
@@ -200,9 +211,6 @@ unsigned int UserInteractionManager::decodeKeyboardCommnand( const QString &comm
 	QKeySequence ks( command );
     if( ks.count() == 1 )
     {
-        //TODO_SBER: si assume che il key sequence contenga una sola sequenza di tasti (esempio CTRL+W ma non CTRL+W,ALT+T)
-        //           Se devono essere gestite sequenze multiple, occorre generare un codice numerico composto a partire dai singoli codici
-        //std::cout << ks.toString().toStdString() << std::endl;
         commandCode = ks[0];
         keyboardCommandCodes.insert(std::make_pair(command, ks[0]));
     }

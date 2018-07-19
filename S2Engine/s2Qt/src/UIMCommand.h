@@ -9,7 +9,6 @@
 #include <functional>
 
 namespace s2 {
-
 namespace Qt {
 
 
@@ -19,21 +18,18 @@ public:
 	UIMCommand()
 	{}
 
-	UIMCommand( const std::string &name, const std::string &activator, const std::function<void()> &cb )
+	UIMCommand( const std::string &activator, const std::function<void()> &cb )
 	{
 		_callback  = cb;
 		_activator = activator;
-		_name      = name;
 	}
 
 
-	std::string name()		const { return _name; }
 	std::string activator() const { return _activator; }
 
 	void execute() { if( _callback ) _callback(); }
 
 private:
-	std::string           _name;
 	std::string           _activator;
 	std::function<void()> _callback;
 };

@@ -2,7 +2,7 @@
 //
 #pragma once
 
-#include "qt/GLGraphicsScene.h"
+#include "qt/GLWidget.h"
 
 #include "opengl/Mesh.h"
 #include "opengl/Program.h"
@@ -14,8 +14,7 @@
 
 
 #if 0
-#include <QOpenGLWidget>
-class TestScene : QOpenGLWidget
+class TestScene: QOpenGLWidget
 {
 public:
 	TestScene( QWidget *parent );
@@ -42,7 +41,7 @@ private:
 
 	void initFonts();
 
-private slots:
+	private slots:
 
 
 private:
@@ -63,7 +62,9 @@ private:
 };
 
 #else
-class TestScene : public s2::Qt::GLGraphicsScene
+
+
+class TestScene: public s2::Qt::GLWidget
 {
 public:
 	TestScene( QWidget *parent );
@@ -75,10 +76,9 @@ public:
 	void resetView();
 	void toggleWireframe();
 
-	void resizeScene( int w, int h ) override;
-	void renderScene() override;
-	void refreshScene() override;
-
+	void resizeGL( int w, int h ) override;
+	void paintGL() override;
+	void initializeGL() override;
 
 private:
 	void onMousePressed();
@@ -89,11 +89,11 @@ private:
 
 	void initFonts();
 
-private slots:
-	void initializeOpenGL() override;
-
-
 private:
+    int   _frames;
+    QTime _time;
+
+
 	bool              _wireframe;
 
 	s2::Renderer::TrackBall     _trackball;

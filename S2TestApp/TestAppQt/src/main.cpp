@@ -33,7 +33,7 @@ int main( int argc, char *argv[] )
 	//R::init();
 	{		
 		QApplication::setAttribute( Qt::AA_ShareOpenGLContexts ); // put in some base class
-		QApplication::setAttribute( Qt::AA_UseDesktopOpenGL ); // put in some base class
+		//QApplication::setAttribute( Qt::AA_UseDesktopOpenGL ); // put in some base class
 		QApplication a(argc, argv);
 
 		MainWindow w;

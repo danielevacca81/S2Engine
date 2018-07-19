@@ -15,19 +15,23 @@ using namespace s2;
 // ------------------------------------------------------------------------------------------------
 GLResourcesLoader::GLResourcesLoader( QWidget *parent )
 : QOpenGLWidget(parent)
-{}
+{
+	//create();
+	//load();
+}
 
 
 // ------------------------------------------------------------------------------------------------
 GLResourcesLoader::~GLResourcesLoader()
-{}
+{
+}
 
-// ------------------------------------------------------------------------------------------------
+ //------------------------------------------------------------------------------------------------
 void GLResourcesLoader::initializeGL()
 {
 	hide();
 	
-	auto c = OpenGL::Context::Current();
+	auto c = OpenGL::Context::Current(); // initializes extensions
 	
 	std::cout << "Context ID: " << c->id() << std::endl 
 		<< c->info() << std::endl;
@@ -44,13 +48,13 @@ bool GLResourcesLoader::load()
 	return true;
 }
 
-// ------------------------------------------------------------------------------------------------
-void GLResourcesLoader::resizeGL( int width, int height )
-{}
-
-// ------------------------------------------------------------------------------------------------
-void GLResourcesLoader::paintGL()
-{}
+//// ------------------------------------------------------------------------------------------------
+//void GLResourcesLoader::resizeGL( int width, int height )
+//{}
+//
+//// ------------------------------------------------------------------------------------------------
+//void GLResourcesLoader::paintGL()
+//{}
 
 // ------------------------------------------------------------------------------------------------
 void GLResourcesLoader::initMeshes()

@@ -48,7 +48,7 @@ void StateManager::applyRenderState( const RenderState &rs )
 void StateManager::applyPrimitiveRestart( const PrimitiveRestart &pr )
 {
 #if SHADOWING
-	if( _renderState.primitiveRestart.Enabled != primitiveRestart.Enabled )
+	if( _renderState.primitiveRestart.enabled != pr.enabled )
 #endif	
 	{
 		enable( GL_PRIMITIVE_RESTART, pr.enabled);
@@ -315,7 +315,7 @@ void StateManager::applyBlending( const Blending &blending )
 		}
 
 #if SHADOWING
-		if( !_renderState.blending.color.equals( blending.color ) )
+		if( _renderState.blending.color != blending.color )
 #endif
 		{
 			glBlendColor( blending.color.r(),blending.color.g(),blending.color.b(),blending.color.a() );
@@ -370,7 +370,7 @@ void StateManager::applyViewState( const ViewState &vs )
 {
 	//setViewport( vs.viewport );
 #if SHADOWING
-	if( !_viewState.viewport.equals(vs.viewport) )
+	if( !_viewState.viewport().equals( vs.viewport() ) )
 #endif
 	glViewport( vs.viewport().left(), vs.viewport().bottom(), vs.viewport().width(), vs.viewport().height() );
 
@@ -438,7 +438,7 @@ void StateManager::applyClearState( const ClearState &cs )
 	// TODO: StencilMaskSeparate
 
 #if SHADOWING
-	if( !_clearColor.equals( cs.color ) )
+	if( _clearColor != cs.color )
 #endif
 	{
 		glClearColor( cs.color.r(), cs.color.g(), cs.color.b(), cs.color.a() );
@@ -462,10 +462,11 @@ void StateManager::applyClearState( const ClearState &cs )
 	}
 
 	glClear( glWrap(cs.buffers) );
+	glCheck;
 }
 
 // ------------------------------------------------------------------------------------------------
-void StateManager::applyDrawState( const DrawState &ds )
+void StateManager::applyDrawState( const DrawingState &ds )
 {
 	//VerifyDraw(drawState, sceneState);
 	//ApplyBeforeDraw(drawState, sceneState);
@@ -475,7 +476,7 @@ void StateManager::applyDrawState( const DrawState &ds )
 }
 
 // ------------------------------------------------------------------------------------------------
-//void StateManager::draw( Primitive primitive, const VertexArray &va, const ViewState &vs, const DrawState &ds )
+//void StateManager::draw( Primitive primitive, const VertexArray &va, const ViewState &vs, const DrawingState &ds )
 //{
 //	//VerifyDraw(drawState, sceneState);
 //	//ApplyBeforeDraw(drawState, sceneState);
@@ -505,14 +506,14 @@ void StateManager::applyDrawState( const DrawState &ds )
 //}
 
 // ------------------------------------------------------------------------------------------------
-//void StateManager::draw( Primitive primitive, const Mesh &m, const ViewState &vs, const DrawState &ds )
+//void StateManager::draw( Primitive primitive, const Mesh &m, const ViewState &vs, const DrawingState &ds )
 //{
 //	draw( primitive, m._va, vs, ds );
 //}
 
 
 // ------------------------------------------------------------------------------------------------
-//void StateManager::draw( Primitive primitive, const VertexBuffer &vb, const ViewState &vs, const DrawState &ds )
+//void StateManager::draw( Primitive primitive, const VertexBuffer &vb, const ViewState &vs, const DrawingState &ds )
 //{
 //	//VerifyDraw(drawState, sceneState);
 //	//ApplyBeforeDraw(drawState, sceneState);

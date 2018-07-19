@@ -101,7 +101,32 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\tmp\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\tmp\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DWIN64 -DQT_WIDGETS_LIB -DQT_OPENGLEXTENSIONS_LIB -D_UNICODE "-I.\..\..\SDK\s2Renderer\include" "-I.\..\..\SDK\s2Qt\include" "-I.\..\..\SDK\s2OpenGL\include" "-I.\..\..\SDK\s2Core\include" "-I.\..\..\SDK\ExtLibs\glm-0.9.9.0\glm" "-I.\src" "-I.\tmp\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtOpenGL" "-I." "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtOpenGLExtensions"</Command>
     </CustomBuild>
-    <ClInclude Include="src\TestScene.h" />
+    <CustomBuild Include="src\TestScene.h">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </Command>
+    </CustomBuild>
     <ClInclude Include="tmp\GeneratedFiles\$(ConfigurationName)\ui_MainWindow.h" />
   </ItemGroup>
   <ItemGroup>

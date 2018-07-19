@@ -96,10 +96,14 @@ public:
 	};
 
 public:
+	static RenderBufferPtr New( const Format &format, int width, int height, int samples );
+
+public:
 	RenderBuffer( const Format &format, int width, int height, int samples = 0 );
 	virtual ~RenderBuffer();
 
 	unsigned int id() const;
+	void bind() const;
 
 private:
 	unsigned int _bufferID;
