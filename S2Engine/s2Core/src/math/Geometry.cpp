@@ -49,7 +49,14 @@ Math::Mesh torus( double innerRadius, double outerRadius, int numc, int numt )
 			const double z =  outerRadius * Math::sin( p );
 
 			points.push_back( Math::dvec3( x, y, z ) );
-			normals.push_back( Math::normalize( Math::dvec3( x, y, z ) ) );
+
+			const Math::dvec3 T( -Math::sin(t), Math::cos(t), 0);
+			const Math::dvec3 B( Math::cos(t)*( -Math::sin(p) ),
+								 Math::sin(t)*(-Math::sin(p) ),
+								 Math::cos(p) );
+
+			normals.push_back( Math::cross(T,B) );
+			//normals.push_back( Math::normalize( Math::dvec3( x, y, z ) ) );
 
 			// first_triangle
 			indices.push_back( ( i * numt ) + j );
