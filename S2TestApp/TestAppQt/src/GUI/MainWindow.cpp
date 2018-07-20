@@ -40,12 +40,6 @@ void MainWindow::createScenes()
 	{
 		_sceneLeft          = new TestScene( this );
 
-		//QVBoxLayout *layout = new QVBoxLayout;
-		//layout->setContentsMargins( 0, 0, 0, 0 );
-		//layout->addWidget( new s2::Qt::GLGraphicsView( _sceneLeft, this, QFrame::Shape::NoFrame ) );
-
-		//_ui.frameGLAreaLeft->setLayout( layout );
-
 		QVBoxLayout *layout = new QVBoxLayout;
 		layout->setContentsMargins( 0, 0, 0, 0 );
 		layout->addWidget( _sceneLeft );
@@ -56,12 +50,6 @@ void MainWindow::createScenes()
 	//if( false )
 	{
 		_sceneRight          = new TestScene( this );
-
-		//QVBoxLayout *layout = new QVBoxLayout;
-		//layout->setContentsMargins( 0, 0, 0, 0 );
-		//layout->addWidget( new s2::Qt::GLGraphicsView( _sceneRight, this, QFrame::Shape::NoFrame ) );
-
-		//_ui.frameGLAreaRight->setLayout( layout );
 
 		QVBoxLayout *layout = new QVBoxLayout;
 		layout->setContentsMargins( 0, 0, 0, 0 );

@@ -67,13 +67,24 @@ void TestScene::resetView()
 // ------------------------------------------------------------------------------------------------
 void TestScene::initializeGL()
 {
-#if 1
+	s2::OpenGL::initExtensions();
+
+#if 0
 	int fbo = defaultFramebufferObject();
 	_fb = s2::OpenGL::FrameBuffer::New( fbo );
 #else
 	_fb = s2::OpenGL::FrameBuffer::New();
-	_fb->attachRenderTarget( s2::OpenGL::FrameBuffer::ColorAttachment0, s2::OpenGL::RenderBuffer::New( s2::OpenGL::RenderBuffer::RGBA8, 400, 400, 0 ) );
-	_fb->attachRenderTarget( s2::OpenGL::FrameBuffer::DepthAttatchment, s2::OpenGL::RenderBuffer::New( s2::OpenGL::RenderBuffer::DepthComponent24, 400, 400, 0 ) );
+	/*
+	//_fb->attachRenderTarget( s2::OpenGL::FrameBuffer::ColorAttachment0, s2::OpenGL::RenderBuffer::New( s2::OpenGL::RenderBuffer::RGBA8, 512, 512, 0 ) );
+	_fb->attachTextureTarget( s2::OpenGL::FrameBuffer::ColorAttachment0,
+							  s2::OpenGL::Texture2D::New( 4, s2::OpenGL::Texture::RGBA, s2::OpenGL::Texture::UByte_8,false, false,512,512, 0 ) );
+	
+	_fb->attachRenderTarget( s2::OpenGL::FrameBuffer::DepthAttatchment, 
+							 s2::OpenGL::RenderBuffer::New( s2::OpenGL::RenderBuffer::DepthComponent24, 512, 512, 0 ) );
+
+	//_fb->setViewport( Math::Rectangle(0,0,512, 512) );
+	//_fb->clear();
+	*/
 #endif
 }
 
@@ -86,15 +97,31 @@ void TestScene::initFonts()
 // ------------------------------------------------------------------------------------------------
 void TestScene::paintGL()
 {
-	//QPainter painter;
-	//painter.begin(this);
+	//if( !_fb )
+	//{
+	//_fb = s2::OpenGL::FrameBuffer::New();
+	////_fb->attachRenderTarget( s2::OpenGL::FrameBuffer::ColorAttachment0, s2::OpenGL::RenderBuffer::New( s2::OpenGL::RenderBuffer::RGBA8, 512, 512, 0 ) );
+	//_fb->attachTextureTarget( s2::OpenGL::FrameBuffer::ColorAttachment0,
+	//						  s2::OpenGL::Texture2D::New( 4, s2::OpenGL::Texture::RGBA, s2::OpenGL::Texture::UByte_8,false, false,512,512, 0 ) );
+	//
+	//_fb->attachRenderTarget( s2::OpenGL::FrameBuffer::DepthAttatchment, 
+	//						 s2::OpenGL::RenderBuffer::New( s2::OpenGL::RenderBuffer::DepthComponent24, 512, 512, 0 ) );
+	//}
 
-	//painter.beginNativePainting();
+	QPainter painter;
+	painter.begin(this);
+
+	painter.beginNativePainting();
 
 	OpenGL::ClearState clear;
 	clear.color = Color::gray();
-	_fb->clear( clear );
 
+	_fb->setViewport( Math::Rectangle(0,0,512, 512) );
+	_fb->clear( clear );
+	//glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+
+	
+#if 0
 	Math::dmat4 m = Math::scale( Math::dmat4(1),Math::dvec3(1.0)) * 
 		            Math::translate( Math::dmat4(1), _camera.target() )*
 					_trackball.matrix() *
@@ -114,52 +141,24 @@ void TestScene::paintGL()
 		for( auto &mesh : _meshes )
 			_fb->draw( OpenGL::Primitive::Triangles, mesh, ds );
 	}
+#endif
+	painter.endNativePainting();
 
-/*
+	if( const int elapsed = _time.elapsed() )
 	{
-		_shaderBlinnPhong->uniform<Math::mat4>( "modelViewProjectionMatrix" )->set( _viewState.modelViewProjectionMatrix() );
-		_shaderBlinnPhong->uniform<Math::mat4>( "modelViewMatrix"           )->set( _viewState.modelViewMatrix() );
-		_shaderBlinnPhong->uniform<Math::mat3>( "normalMatrix"              )->set( _viewState.normalMatrix() );
-
-		OpenGL::DrawState ds( _shaderBlinnPhong );
-		_fb->draw( OpenGL::Primitive::Triangles, _cubeMesh, ds );
-	}
-
-	//{
-	//	OpenGL::DrawState ds( _shaderSimple );
-	//	ds.renderState.faceCulling.enabled = false;
-	//	ds.renderState.depthTest.enabled   = false;
-
-	//	_fb->draw( OpenGL::Primitive::Triangles, _triangle, ds );
-	//}
-
-
-	{
-		OpenGL::DrawState ds( _shaderBlinnPhong );
-		ds.renderState.blending.enabled = true;
-	
-		_fb->draw( OpenGL::Primitive::Triangles, _torus, ds );
-	}
-*/
-	//painter.endNativePainting();
-
-	
-	//if( const int elapsed = _time.elapsed() )
-	//{
-	//	QString framesPerSecond;
-	//	framesPerSecond.setNum( _frames / ( elapsed / 1000.0 ), 'f', 2 );
-	//	//painter.setPen( ::Qt::white );
-	//	//painter.drawText( 10, 40, framesPerSecond + " paintGL calls / s" );
+		QString framesPerSecond;
+		framesPerSecond.setNum( _frames / ( elapsed / 1000.0 ), 'f', 2 );
+		painter.setPen( ::Qt::white );
+		painter.drawText( 10, 40, framesPerSecond + " paintGL calls / s" );
 	//	std::cout << "FPS: " << framesPerSecond.toStdString() << std::endl;
-	//}
+	}
 
- //   if (!(_frames % 100)) {
- //       _time.start();
- //       _frames = 0;
- //   }
+    if (!(_frames % 100)) {
+        _time.start();
+        _frames = 0;
+    }
 
- //   ++_frames;
-
+    ++_frames;
 }
 
 // ------------------------------------------------------------------------------------------------
