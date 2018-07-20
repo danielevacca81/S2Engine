@@ -63,8 +63,8 @@ public:
 
 
 	void clear( const ClearState &cs = ClearState() );
-	void draw( const Primitive &primitive, const VertexArray &va, const DrawingState &ds = DrawingState() );
-	void draw( const Primitive &primitive, const Mesh &mesh, const DrawingState &ds = DrawingState() );
+	void draw( const Primitive &primitive, const VertexArray &va, const DrawingState &ds );
+	void draw( const Primitive &primitive, const Mesh &mesh, const DrawingState &ds );
 	//void drawQuad( DrawingState ); // @todo
 
     //void setReadBuffer(BufferId b);	  // @todo
@@ -108,6 +108,9 @@ private:
 	std::vector<AttachmentPoint> _drawBuffers; //tbd
 	AttachmentPoint              _readBuffer;  //tbd
 	std::vector<Attachment>      _attachments;
+
+	std::map<unsigned int, TexturePtr>      _textures;
+	std::map<unsigned int, RenderBufferPtr> _renderbuffers;
 };
 
 }}

@@ -29,15 +29,8 @@ public:
 	StateManager();
 	~StateManager();
 
-	void applyClearState( const ClearState &cs );
-	void applyDrawState( const DrawingState &ds );
-	//void reset(); // @todo: clears internal status and 
-
-
-	//void clear( const ClearState &cs = ClearState() );
-	//
-	//void draw( Primitive primitive, const VertexArray &va, const ViewState &vs = ViewState(), const DrawingState &ds = DrawingState() );
-	//void draw( Primitive primitive, const Mesh &m, const ViewState &vs = ViewState(), const DrawingState &ds = DrawingState() );
+	void setClearState( const ClearState &cs );
+	void setDrawState( const DrawingState &ds );
 
 private:
 	void applyRenderState       ( const RenderState &rs );
@@ -55,8 +48,9 @@ private:
 	void applyDepthMask         ( bool depthMask );
 	void applyShaderProgram     ( const ProgramPtr &program );
 	void applyViewState         ( const ViewState &viewState );
-	//void applyFramebuffer();
+	//void applyFramebuffer(); // uhm....
 	void setViewport            ( const Math::Rectangle &r );
+	
 
 private:
 	Color              _clearColor;

@@ -428,7 +428,7 @@ void StateManager::setViewport( const Math::Rectangle &r )
 //Math::Rectangle StateManager::viewport() const { return _viewport; }
 
 // ------------------------------------------------------------------------------------------------
-void StateManager::applyClearState( const ClearState &cs )
+void StateManager::setClearState( const ClearState &cs )
 {
 	//applyFramebuffer();
 
@@ -466,12 +466,11 @@ void StateManager::applyClearState( const ClearState &cs )
 }
 
 // ------------------------------------------------------------------------------------------------
-void StateManager::applyDrawState( const DrawingState &ds )
+void StateManager::setDrawState( const DrawingState &ds )
 {
-	//VerifyDraw(drawState, sceneState);
-	//ApplyBeforeDraw(drawState, sceneState);
+	// apply before draw:
 	applyRenderState( ds.renderState );
-	applyShaderProgram( ds.program );
+	applyShaderProgram( ds.shaderProgram );
 	//applyViewState( vs );
 }
 
@@ -481,7 +480,7 @@ void StateManager::applyDrawState( const DrawingState &ds )
 //	//VerifyDraw(drawState, sceneState);
 //	//ApplyBeforeDraw(drawState, sceneState);
 //	applyRenderState( ds.renderState );
-//	applyShaderProgram( ds.program );
+//	applyShaderProgram( ds.shaderProgram );
 //	applyViewState( vs );
 //
 //	va.bind();
@@ -518,7 +517,7 @@ void StateManager::applyDrawState( const DrawingState &ds )
 //	//VerifyDraw(drawState, sceneState);
 //	//ApplyBeforeDraw(drawState, sceneState);
 //	applyRenderState( ds.renderState );
-//	applyShaderProgram( ds.program );
+//	applyShaderProgram( ds.shaderProgram );
 //	applyViewState( vs );
 //		
 //	glEnableClientState( GL_VERTEX_ARRAY );
@@ -555,30 +554,4 @@ void StateManager::applyDrawState( const DrawingState &ds )
 //	//	GL.DrawArrays(TypeConverterGL3x.To(primitiveType), 0,
 //	//		vertexArray.MaximumArrayIndex() + 1);
 //	//}
-//}
-
-// ------------------------------------------------------------------------------------------------
-//void StateManager::drawText()
-//{
-//	_textRenderer.draw(*this);
-//}
-//
-//// ------------------------------------------------------------------------------------------------
-//void StateManager::addText( const Math::dvec3 &worldPos, const std::wstring &text, const Color &color,  const FontPtr &font, TextRenderer::TextAlignment alignment )
-//{
-//	if( text.empty() )
-//		return;
-//	
-//	const Math::ivec2 screenPos = convertWorldToWindow( worldPos , false );
-//	
-//	_textRenderer.addTag( TextRenderer::TextTag(text,screenPos,color,font,0.0, alignment) );
-//}
-//
-//// ------------------------------------------------------------------------------------------------
-//void StateManager::addText( const Math::ivec2 &screenPos, const std::wstring &text, const Color &color, const FontPtr &font, TextRenderer::TextAlignment alignment )
-//{
-//	if( text.empty() )
-//		return;
-//
-//	_textRenderer.addTag( TextRenderer::TextTag(text,screenPos,color,font,0.0, alignment) );
 //}

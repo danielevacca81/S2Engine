@@ -162,7 +162,6 @@ void FrameBuffer::set( )
 	//}
 
 	setParameters();
-	glCheck;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -181,13 +180,14 @@ void FrameBuffer::setAttachments() const
 		if( att.isRenderBuffer )
 		{
 			glFramebufferRenderbuffer( GL_FRAMEBUFFER, glWrap(att.attachmentName), GL_RENDERBUFFER, att.attachmentID );
+			glCheck;
 		}
 		else
 		{
 			switch( att.attachmentType )
 			{
-			case GL_TEXTURE_1D:	glFramebufferTexture1D( GL_FRAMEBUFFER, glWrap(att.attachmentName), att.attachmentType, att.attachmentID, 0 ); break;
-			case GL_TEXTURE_2D:	glFramebufferTexture2D( GL_FRAMEBUFFER, glWrap(att.attachmentName), att.attachmentType, att.attachmentID, 0 ); break;
+			case GL_TEXTURE_1D:	glFramebufferTexture1D( GL_FRAMEBUFFER, glWrap(att.attachmentName), att.attachmentType, att.attachmentID, 0 ); glCheck;break;
+			case GL_TEXTURE_2D:	glFramebufferTexture2D( GL_FRAMEBUFFER, glWrap(att.attachmentName), att.attachmentType, att.attachmentID, 0 ); glCheck;break;
 
 				// @TODO:
 				//case Texture3D::target():	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+_numAttachments, texture->target(), texture->id(), 0); break;
@@ -221,8 +221,7 @@ void FrameBuffer::setAttachments() const
 			} else if (textures[i].cast<TextureCubeArray>() != NULL) {
 				glFramebufferTextureLayer(GL_FRAMEBUFFER, ATTACHMENTS[i], id, levels[i], layers[i]);
 			}*/
-		}
-        glCheck;
+		}        
     }
 
 	_attachmentsChanged = false;
@@ -234,6 +233,7 @@ void FrameBuffer::setParameters() const
 	if( _parametersChanged )
 	{
 		glViewport( _viewport.left(), _viewport.bottom(), _viewport.width(), _viewport.height() );
+		glCheck;
 		_parametersChanged = false;
 	}
 }
@@ -258,7 +258,7 @@ void FrameBuffer::clear( const ClearState &cs )
 	set();
 	glCheck;
 
-	_stateManager.applyClearState( cs );
+	_stateManager.setClearState( cs );
 
 	glCheck;
 }
@@ -269,10 +269,9 @@ void FrameBuffer::draw( const Primitive &primitive, const Mesh &mesh, const Draw
 	set();
 	glCheck;
 
-	_stateManager.applyDrawState( ds );
+	_stateManager.setDrawState( ds );
 
-	OpenGL::Renderer r;
-	r.draw( primitive,mesh );
+	OpenGL::Renderer::draw( primitive,mesh );
 	glCheck;
 }
 
@@ -280,11 +279,9 @@ void FrameBuffer::draw( const Primitive &primitive, const Mesh &mesh, const Draw
 void FrameBuffer::draw( const Primitive &primitive, const VertexArray &va, const DrawingState &ds )
 {
 	set();
+	_stateManager.setDrawState( ds );
 
-	_stateManager.applyDrawState( ds );
-
-	OpenGL::Renderer r;
-	r.draw( primitive,va );
+	OpenGL::Renderer::draw( primitive,va );
 	glCheck;
 }
 
@@ -364,37 +361,31 @@ void FrameBuffer::attachTextureTarget( const AttachmentPoint &attachPoint, const
 			return a.attachmentName == i.attachmentName;
 		}
 	);
-	
+		
 	_attachments.push_back( a );
 	_attachmentsChanged = true;
+
+	// store pointer to avoid unwanted deallocation of resources
+	_textures.insert( { texture->id(), texture } );
 }
 
 // ------------------------------------------------------------------------------------------------
 void FrameBuffer::attachRenderTarget( const AttachmentPoint &attachPoint, const RenderBufferPtr &renderBuffer )
 {
 	Attachment a = { attachPoint, 0, renderBuffer->id(),true };
+
+	auto it = std::remove_if( 
+		_attachments.begin(), _attachments.end(),
+		[a] ( const s2::OpenGL::FrameBuffer::Attachment &i )
+		{
+			return a.attachmentName == i.attachmentName;
+		}
+	);
 	_attachments.push_back( a );
 	_attachmentsChanged = true;
 
-	//glBindFramebuffer( GL_FRAMEBUFFER, _fboID );
-
-	//glGenRenderbuffers( 1, &_depthBuffer );
-	//glBindRenderbuffer( GL_RENDERBUFFER, _depthBuffer );
-	//glRenderbufferStorage( GL_RENDERBUFFER, glWrap( depthFormat ), width, height );
-	//glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, _depthBuffer );
-
-	//const bool statusOk = checkStatus();
-
-	//glBindFramebuffer( GL_FRAMEBUFFER, 0 );
-
-	//if( !statusOk )
-	//{
-	//	glDeleteRenderbuffers( 1, &_depthBuffer );
-	//	return false;
-	//}
-
-	//_depthFormat = depthFormat;
-	//return true;
+	// store pointer to avoid unwanted deallocation of resources
+	_renderbuffers.insert( { renderBuffer->id(), renderBuffer } );
 }
 
 // ------------------------------------------------------------------------------------------------

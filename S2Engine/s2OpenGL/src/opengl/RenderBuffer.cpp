@@ -33,11 +33,12 @@ RenderBuffer::~RenderBuffer()
 	glCheck;
 }
 
-// ------------------------------------------------------------------------------------------------
-void RenderBuffer::bind() const
-{
-	glBindRenderbuffer( GL_RENDERBUFFER, _bufferID );
-}
+// render buffers shall not be directly accessible. only use through a fbo
+//// ------------------------------------------------------------------------------------------------
+//void RenderBuffer::bind() const
+//{
+//	glBindRenderbuffer( GL_RENDERBUFFER, _bufferID );
+//}
 
 // ------------------------------------------------------------------------------------------------
 unsigned int RenderBuffer::id() const

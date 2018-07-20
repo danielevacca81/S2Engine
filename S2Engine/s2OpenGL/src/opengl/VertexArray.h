@@ -34,7 +34,7 @@ public:
 
 private:
 	void bind() const;
-	mutable unsigned int _id; // opengl > 3.0
+	mutable unsigned int _id;
 
 	mutable std::vector<AttributeBuffer> _attributes;
 	mutable IndexBuffer                  _indexBuffer; //optional

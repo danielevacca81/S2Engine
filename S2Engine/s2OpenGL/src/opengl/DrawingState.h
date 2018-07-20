@@ -14,19 +14,16 @@ namespace OpenGL {
 	struct DrawingState
 	{
 		RenderState        renderState;
-		OpenGL::ProgramPtr program;
+		OpenGL::ProgramPtr shaderProgram;
 
 		DrawingState()
 		{}
 
-		DrawingState( const OpenGL::ProgramPtr &shaderProgram, const RenderState &renderState = RenderState()  /*,VertexArray vertexArray*/ )
+		DrawingState( const OpenGL::ProgramPtr &shaderProgram, const RenderState &renderState = RenderState()  )
 		: renderState( renderState )
-		, program( shaderProgram )
+		, shaderProgram( shaderProgram )
 		{}
-
-		//VertexArray VertexArray { get; set; }
 	};
-
 }
 }
 #endif

@@ -4,7 +4,6 @@
 #define CLEARSTATE_ONCE
 
 #include "graphics/Color.h"
-#include "RenderState.h"
 
 namespace s2 {
 namespace OpenGL {
@@ -29,7 +28,7 @@ struct ClearState
 	int          frontStencilMask;
 	int          backStencilMask;
 	ClearBuffers buffers;
-	Color    color;
+	Color        color;
 	float        depth;
 	int          stencil;
 };
