@@ -51,18 +51,33 @@ void VertexArray::bind() const
 }
 
 //-------------------------------------------------------------------------------------------------
-AttributeBuffer *VertexArray::attribute( int i ) const
+AttributeBuffer &VertexArray::attribute( int i )
 {
 #ifndef _NDEBUG
 	assert( i>=0 && i<maxVertexAttrib );
 #endif
-	return &_attributes[i];
+	return _attributes[i];
 }
 
 //-------------------------------------------------------------------------------------------------
-IndexBuffer     *VertexArray::indexBuffer() const
+AttributeBuffer const &VertexArray::attribute(int i) const
 {
-	return &_indexBuffer;
+#ifndef _NDEBUG
+	assert(i >= 0 && i<maxVertexAttrib);
+#endif
+	return _attributes[i];
+}
+
+//-------------------------------------------------------------------------------------------------
+IndexBuffer     &VertexArray::indexBuffer() 
+{
+	return _indexBuffer;
+}
+
+//-------------------------------------------------------------------------------------------------
+IndexBuffer     const &VertexArray::indexBuffer() const
+{
+	return _indexBuffer;
 }
 
 //-------------------------------------------------------------------------------------------------

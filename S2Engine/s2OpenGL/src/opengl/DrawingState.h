@@ -13,13 +13,15 @@ namespace OpenGL {
 
 	struct DrawingState
 	{
-		RenderState        renderState;
-		OpenGL::ProgramPtr shaderProgram;
+		RenderState  renderState;
+		ProgramPtr   shaderProgram;
 
+		// TODO: add texture units and bounding textures
+		// Add FBO?
 		DrawingState()
 		{}
 
-		DrawingState( const OpenGL::ProgramPtr &shaderProgram, const RenderState &renderState = RenderState()  )
+		DrawingState( const ProgramPtr &shaderProgram, const RenderState &renderState = RenderState()  )
 		: renderState( renderState )
 		, shaderProgram( shaderProgram )
 		{}

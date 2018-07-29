@@ -4,6 +4,8 @@
 #define OPENGLWRAP_ONCE
 
 #include "Texture.h"
+#include "TextureFormat.h"
+#include "TextureSampler.h"
 #include "FrameBuffer.h"
 #include "VertexBuffer.h"
 #include "AttributeBuffer.h"
@@ -38,12 +40,12 @@ unsigned int glWrap( const BufferObject::BufferMapMode   &mode );
 /************************************************************************************************/
 /*                                             Texture                                          */
 /************************************************************************************************/
-unsigned int glWrap( const Texture::TextureType      &type );
-unsigned int glWrap( const Texture::DataFormat       &format );
-unsigned int glWrap( const Texture::DataType         &type );
-unsigned int glWrap( const Texture::TextureMinFilter &filter );
-unsigned int glWrap( const Texture::TextureMagFilter &filter );
-unsigned int glWrap( const Texture::WrapMode         &type );
+unsigned int glWrap( const TextureFormat             &format );
+unsigned int glWrapTextureFormatToPixelFormat(const TextureFormat &f);
+unsigned int glWrapTextureFormatToPixelType(const TextureFormat &f);
+unsigned int glWrap( const TextureSampler::MinificationFilter &filter );
+unsigned int glWrap( const TextureSampler::MagnificationFilter &filter );
+unsigned int glWrap( const TextureSampler::Wrap        &wrap );
 
 /************************************************************************************************/
 /*                                           FrameBuffer                                        */

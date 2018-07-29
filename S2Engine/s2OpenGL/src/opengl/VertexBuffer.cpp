@@ -14,7 +14,7 @@ VertexBuffer::VertexBuffer()
 {}
 
 //-------------------------------------------------------------------------------------------------
-VertexBuffer::VertexBuffer( int sizeInBytes, BufferObject::BufferUsageHint usageHint )
+VertexBuffer::VertexBuffer( int sizeInBytes, const BufferObject::BufferUsageHint &usageHint )
 {
 	set( sizeInBytes, usageHint );
 }
@@ -24,7 +24,7 @@ VertexBuffer::~VertexBuffer()
 {}
 
 //-------------------------------------------------------------------------------------------------
-void VertexBuffer::set( int sizeInBytes, BufferObject::BufferUsageHint usageHint )
+void VertexBuffer::set( int sizeInBytes, const BufferObject::BufferUsageHint &usageHint )
 {
 	_bufferObject = BufferObject::New( sizeInBytes, BufferObject::ArrayBuffer, usageHint );
 	_valid = true;
@@ -61,7 +61,7 @@ void * VertexBuffer::receiveData( int length, int offset )
 }
 
 //-------------------------------------------------------------------------------------------------
-void * VertexBuffer::mapData( BufferObject::BufferMapMode mode )
+void * VertexBuffer::mapData( const BufferObject::BufferMapMode &mode )
 {
 	if( !_valid )
 		return nullptr;

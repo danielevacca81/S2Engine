@@ -26,8 +26,12 @@ public:
 	VertexArray();
 	~VertexArray();
 
-	AttributeBuffer *attribute( int i ) const;
-	IndexBuffer     *indexBuffer()    const;
+	AttributeBuffer &attribute( int i );
+	IndexBuffer     &indexBuffer()    ;
+
+	AttributeBuffer const &attribute(int i) const;
+	IndexBuffer     const &indexBuffer() const;
+
 
 	bool isIndexed() const;
 	int  maxArrayIndex() const;

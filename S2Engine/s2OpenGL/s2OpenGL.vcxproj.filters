@@ -10,9 +10,6 @@
     <Filter Include="res">
       <UniqueIdentifier>{b38ba922-f0e5-49f8-a1ec-1ae231483b95}</UniqueIdentifier>
     </Filter>
-    <Filter Include="res\shaders">
-      <UniqueIdentifier>{2ee0d55e-87cc-48f2-b8cf-93bceb9e2f0d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\opengl">
       <UniqueIdentifier>{48819c35-3eb1-4aca-ad11-4fad8b5c84aa}</UniqueIdentifier>
     </Filter>
@@ -24,6 +21,9 @@
     </Filter>
     <Filter Include="src\opengl\wrap\UniformTypes">
       <UniqueIdentifier>{48434ad6-a884-41d1-8fb8-7cbbc9f7e63e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\opengl\wrap\Textures">
+      <UniqueIdentifier>{ec2bbc8a-6977-4278-b35c-97fe085752d5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -75,9 +75,6 @@
     <ClInclude Include="src\OpenGL\UniformSampler.h">
       <Filter>src\opengl\wrap\UniformTypes</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>res</Filter>
-    </ClInclude>
     <ClInclude Include="src\Fonts\FontNew.h">
       <Filter>src\fonts</Filter>
     </ClInclude>
@@ -120,9 +117,6 @@
     <ClInclude Include="src\OpenGL\Tessellation.h">
       <Filter>src\opengl\wrap</Filter>
     </ClInclude>
-    <ClInclude Include="src\OpenGL\Texture.h">
-      <Filter>src\opengl\wrap</Filter>
-    </ClInclude>
     <ClInclude Include="src\OpenGL\Uniform.h">
       <Filter>src\opengl\wrap</Filter>
     </ClInclude>
@@ -158,6 +152,27 @@
     </ClInclude>
     <ClInclude Include="src\opengl\DrawingState.h">
       <Filter>src\opengl\state</Filter>
+    </ClInclude>
+    <ClInclude Include="src\opengl\PixelBuffer.h">
+      <Filter>src\opengl\wrap</Filter>
+    </ClInclude>
+    <ClInclude Include="src\opengl\TextureSampler.h">
+      <Filter>src\opengl\wrap\Textures</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OpenGL\Texture.h">
+      <Filter>src\opengl\wrap\Textures</Filter>
+    </ClInclude>
+    <ClInclude Include="src\opengl\TextureDescription.h">
+      <Filter>src\opengl\wrap\Textures</Filter>
+    </ClInclude>
+    <ClInclude Include="src\opengl\TextureFormat.h">
+      <Filter>src\opengl\wrap\Textures</Filter>
+    </ClInclude>
+    <ClInclude Include="src\opengl\TextureUnit.h">
+      <Filter>src\opengl\wrap\Textures</Filter>
+    </ClInclude>
+    <ClInclude Include="src\opengl\Surface.h">
+      <Filter>src\opengl</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -203,9 +218,6 @@
     <ClCompile Include="src\OpenGL\Tessellation.cpp">
       <Filter>src\opengl\wrap</Filter>
     </ClCompile>
-    <ClCompile Include="src\OpenGL\Texture.cpp">
-      <Filter>src\opengl\wrap</Filter>
-    </ClCompile>
     <ClCompile Include="src\OpenGL\Uniform.cpp">
       <Filter>src\opengl\wrap</Filter>
     </ClCompile>
@@ -230,19 +242,29 @@
     <ClCompile Include="src\opengl\Renderer.cpp">
       <Filter>src\opengl\wrap</Filter>
     </ClCompile>
+    <ClCompile Include="src\opengl\PixelBuffer.cpp">
+      <Filter>src\opengl\wrap</Filter>
+    </ClCompile>
+    <ClCompile Include="src\OpenGL\Texture.cpp">
+      <Filter>src\opengl\wrap\Textures</Filter>
+    </ClCompile>
+    <ClCompile Include="src\opengl\TextureDescription.cpp">
+      <Filter>src\opengl\wrap\Textures</Filter>
+    </ClCompile>
+    <ClCompile Include="src\opengl\TextureFormat.cpp">
+      <Filter>src\opengl\wrap\Textures</Filter>
+    </ClCompile>
+    <ClCompile Include="src\opengl\TextureSampler.cpp">
+      <Filter>src\opengl\wrap\Textures</Filter>
+    </ClCompile>
+    <ClCompile Include="src\opengl\TextureUnit.cpp">
+      <Filter>src\opengl\wrap\Textures</Filter>
+    </ClCompile>
+    <ClCompile Include="src\opengl\Surface.cpp">
+      <Filter>src\opengl</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\FontShader.fs">
-      <Filter>res\shaders</Filter>
-    </None>
-    <None Include="res\FontShader.vs">
-      <Filter>res\shaders</Filter>
-    </None>
     <None Include="MakeSDK.bat" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="s2OpenGL.rc">
-      <Filter>res</Filter>
-    </ResourceCompile>
   </ItemGroup>
 </Project>

@@ -153,7 +153,7 @@ void GLResourcesLoader::initShaders()
 	_phong = OpenGL::Program::New();
 	{
 		const bool vsOk = _phong->attachVertexShader( STRINGIFY(
-		#version 400\n
+		#version 330\n
 		uniform mat4 modelViewProjectionMatrix;
 		uniform mat4 modelViewMatrix;
 		uniform mat3 normalMatrix;
@@ -178,7 +178,7 @@ void GLResourcesLoader::initShaders()
 		) );
 
 		_phong->attachFragmentShader( STRINGIFY(
-		#version 400\n
+		#version 330\n
 		uniform vec4  lightPosition;
 		uniform vec4  lightAmbient;
 		uniform vec4  lightDiffuse;
@@ -221,7 +221,7 @@ void GLResourcesLoader::initShaders()
 		_phong->uniform<Math::vec4>( "lightAmbient" )->set( Math::vec4( 0.1, 0.1, 0.1, 1 ) );
 		_phong->uniform<Math::vec4>( "lightDiffuse" )->set( Math::vec4( .7, .7, .7, 1 ) );
 		_phong->uniform<Math::vec4>( "lightSpecular" )->set( Math::vec4( 1, 1, 1, 1 ) );
-		_phong->uniform<float>     ( "lightShininess" )->set( 1024.f );
+		_phong->uniform<float>     ( "lightShininess" )->set( 125.f );
 
 		_phong->uniform<Math::mat4>( "modelViewProjectionMatrix" )->set( Math::mat4( 1 ) );
 		_phong->uniform<Math::mat4>( "modelViewMatrix"           )->set( Math::mat4( 1 ) );
