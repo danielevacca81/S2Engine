@@ -68,24 +68,7 @@ void TestScene::resetView()
 void TestScene::initializeGL()
 {
 	s2::OpenGL::initExtensions();
-
-#if 0
-	int fbo = defaultFramebufferObject();
-	_fb = s2::OpenGL::FrameBuffer::New( fbo );
-#else
-	_fb = s2::OpenGL::FrameBuffer::New();
-	/*
-	//_fb->attachRenderTarget( s2::OpenGL::FrameBuffer::ColorAttachment0, s2::OpenGL::RenderBuffer::New( s2::OpenGL::RenderBuffer::RGBA8, 512, 512, 0 ) );
-	_fb->attachTextureTarget( s2::OpenGL::FrameBuffer::ColorAttachment0,
-							  s2::OpenGL::Texture2D::New( 4, s2::OpenGL::Texture::RGBA, s2::OpenGL::Texture::UByte_8,false, false,512,512, 0 ) );
-	
-	_fb->attachRenderTarget( s2::OpenGL::FrameBuffer::DepthAttatchment, 
-							 s2::OpenGL::RenderBuffer::New( s2::OpenGL::RenderBuffer::DepthComponent24, 512, 512, 0 ) );
-
-	//_fb->setViewport( Math::Rectangle(0,0,512, 512) );
-	//_fb->clear();
-	*/
-#endif
+	_surface = s2::OpenGL::Surface::New();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -94,34 +77,23 @@ void TestScene::initFonts()
 	//s2::FontsLibrary::init(L"./res/fonts");
 }
 
+
 // ------------------------------------------------------------------------------------------------
 void TestScene::paintGL()
 {
-	//if( !_fb )
-	//{
-	//_fb = s2::OpenGL::FrameBuffer::New();
-	////_fb->attachRenderTarget( s2::OpenGL::FrameBuffer::ColorAttachment0, s2::OpenGL::RenderBuffer::New( s2::OpenGL::RenderBuffer::RGBA8, 512, 512, 0 ) );
-	//_fb->attachTextureTarget( s2::OpenGL::FrameBuffer::ColorAttachment0,
-	//						  s2::OpenGL::Texture2D::New( 4, s2::OpenGL::Texture::RGBA, s2::OpenGL::Texture::UByte_8,false, false,512,512, 0 ) );
-	//
-	//_fb->attachRenderTarget( s2::OpenGL::FrameBuffer::DepthAttatchment, 
-	//						 s2::OpenGL::RenderBuffer::New( s2::OpenGL::RenderBuffer::DepthComponent24, 512, 512, 0 ) );
-	//}
-
 	QPainter painter;
-	painter.begin(this);
 
+
+
+
+#if 1
 	painter.beginNativePainting();
 
 	OpenGL::ClearState clear;
 	clear.color = Color::gray();
 
-	_fb->setViewport( Math::Rectangle(0,0,512, 512) );
-	_fb->clear( clear );
-	//glBindFramebuffer( GL_FRAMEBUFFER, 0 );
-
+	_surface->clear( clear );
 	
-#if 0
 	Math::dmat4 m = Math::scale( Math::dmat4(1),Math::dvec3(1.0)) * 
 		            Math::translate( Math::dmat4(1), _camera.target() )*
 					_trackball.matrix() *
@@ -139,26 +111,38 @@ void TestScene::paintGL()
 
 		OpenGL::DrawingState ds( _shader );
 		for( auto &mesh : _meshes )
-			_fb->draw( OpenGL::Primitive::Triangles, mesh, ds );
+			_surface->draw( OpenGL::Primitive::Triangles, mesh, ds );
 	}
-#endif
-	painter.endNativePainting();
 
-	if( const int elapsed = _time.elapsed() )
+	_surface->swap(defaultFramebufferObject());
+	painter.endNativePainting();
+#endif
+
+#if 1
+	painter.begin(this);
+	if (const int elapsed = _time.elapsed())
 	{
 		QString framesPerSecond;
-		framesPerSecond.setNum( _frames / ( elapsed / 1000.0 ), 'f', 2 );
-		painter.setPen( ::Qt::white );
-		painter.drawText( 10, 40, framesPerSecond + " paintGL calls / s" );
-	//	std::cout << "FPS: " << framesPerSecond.toStdString() << std::endl;
+		framesPerSecond.setNum(_frames / (elapsed / 1000.0), 'f', 2);
+		GLint err = glGetError();
+		painter.setPen(::Qt::white);
+		err = glGetError();
+		//painter->drawEllipse( 100, 100, 100,100 );
+		painter.drawText(10, 40, framesPerSecond + " paintGL calls / s");
+
+
+		err = glGetError();
+		if (err != 0)
+			std::cout << err << std::endl;
 	}
 
-    if (!(_frames % 100)) {
-        _time.start();
-        _frames = 0;
-    }
-
-    ++_frames;
+	if (!(_frames % 100)) {
+		_time.start();
+		_frames = 0;
+	}
+	painter.end();
+	++_frames;
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -252,8 +236,8 @@ void TestScene::onMouseDoubleClick()
 void TestScene::resizeGL( int w, int h )
 {
 	//_viewState.setViewport( Math::Rectangle( 0, 0, w, h ) );
-	if( _fb )
-		_fb->setViewport( Math::Rectangle( 0, 0, w, h ) );
+	if( _surface )
+		_surface->resize( w, h ); 
 
 	_viewState.setProjectionMatrix( Math::perspective( 45.0, w / (double) h, 0.1, 100.0 ) );
 	_trackball.resize( w,h );

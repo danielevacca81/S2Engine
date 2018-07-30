@@ -16,8 +16,9 @@ using namespace s2::OpenGL;
 
 static void enable( GLenum cap, bool enabled )
 {
-	if( enabled ) glEnable(cap);
+	if( enabled ) glEnable(cap); 
 	else          glDisable(cap);
+	glCheck;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -61,7 +62,8 @@ void StateManager::applyPrimitiveRestart( const PrimitiveRestart &pr )
 		if( _renderState.primitiveRestart.index != pr.index )
 #endif
 		{
-			glPrimitiveRestartIndex( pr.index );
+			glPrimitiveRestartIndex( pr.index ); 
+			glCheck;
 			_renderState.primitiveRestart.index = pr.index;
 		}
 	}
@@ -85,6 +87,7 @@ void StateManager::applyFaceCulling( const FaceCulling &fc )
 #endif
 		{
 			glCullFace( glWrap(fc.cullFace) );
+			glCheck;
 			_renderState.faceCulling.cullFace = fc.cullFace;
 		}
 #if SHADOWING
@@ -92,6 +95,7 @@ void StateManager::applyFaceCulling( const FaceCulling &fc )
 #endif
 		{
 			glFrontFace( glWrap(fc.frontFaceWindingOrder) );
+			glCheck;
 			_renderState.faceCulling.frontFaceWindingOrder = fc.frontFaceWindingOrder;
 		}
 	}
@@ -118,6 +122,7 @@ void StateManager::applyRasterizationMode( const RenderState::RasterizationMode 
 #endif
 	{
 		glPolygonMode( glWrap(FaceCulling::FrontAndBack), glWrap(rasterizationMode) );
+		glCheck;
 		_renderState.rasterizationMode = rasterizationMode;
 	}
 }
@@ -159,6 +164,7 @@ void StateManager::applyScissorTest( const ScissorTest &scissorTest )
 #endif
 		{
 			glScissor( rectangle.left(), rectangle.bottom(), rectangle.width(), rectangle.height() );
+			glCheck;
 			_renderState.scissorTest.rect = scissorTest.rect;
 		}
 	}
@@ -195,6 +201,7 @@ void StateManager::applyStencil( const FaceCulling::Face &face, StencilTestFace 
 			glWrap(test.stencilFailOperation),
 			glWrap(test.depthFailStencilPassOperation),
 			glWrap(test.depthPassStencilPassOperation));
+		glCheck;
 
 		currentTest.stencilFailOperation          = test.stencilFailOperation;
 		currentTest.depthFailStencilPassOperation = test.depthFailStencilPassOperation;
@@ -210,6 +217,7 @@ void StateManager::applyStencil( const FaceCulling::Face &face, StencilTestFace 
 			glWrap(test.function),
 			test.referenceValue,
 			test.mask);
+		glCheck;
 
 		currentTest.function       = test.function;
 		currentTest.referenceValue = test.referenceValue;
@@ -235,6 +243,7 @@ void StateManager::applyDepthTest( const DepthTest &depthTest)
 #endif
 		{
 			glDepthFunc( glWrap(depthTest.function) );
+			glCheck;
 			_renderState.depthTest.function = depthTest.function;
 		}
 	}
@@ -264,6 +273,7 @@ void StateManager::applyDepthRange( const DepthRange &depthRange)
 #endif
 	{
 		glDepthRange( depthRange.nearValue, depthRange.farValue );
+		glCheck;
 		_renderState.depthRange.nearValue = depthRange.nearValue;
 		_renderState.depthRange.farValue  = depthRange.farValue;
 	}
@@ -294,6 +304,7 @@ void StateManager::applyBlending( const Blending &blending )
 				glWrap(blending.destinationRGBFactor),
 				glWrap(blending.sourceAlphaFactor),
 				glWrap(blending.destinationAlphaFactor));
+			glCheck;
 
 			_renderState.blending.sourceRGBFactor        = blending.sourceRGBFactor;
 			_renderState.blending.destinationRGBFactor   = blending.destinationRGBFactor;
@@ -309,6 +320,7 @@ void StateManager::applyBlending( const Blending &blending )
 			glBlendEquationSeparate(
 				glWrap(blending.rgbEquation),
 				glWrap(blending.alphaEquation));
+			glCheck;
 
 			_renderState.blending.rgbEquation   = blending.rgbEquation;
 			_renderState.blending.alphaEquation = blending.alphaEquation;
@@ -319,6 +331,7 @@ void StateManager::applyBlending( const Blending &blending )
 #endif
 		{
 			glBlendColor( blending.color.r(),blending.color.g(),blending.color.b(),blending.color.a() );
+			glCheck;
 			_renderState.blending.color = blending.color;
 		}
 	}
@@ -332,6 +345,7 @@ void StateManager::applyColorMask( const ColorMask &colorMask )
 #endif
 	{
 		glColorMask( colorMask.r, colorMask.g, colorMask.b, colorMask.a );
+		glCheck;
 		_renderState.colorMask = colorMask;
 	}
 }
@@ -344,6 +358,7 @@ void StateManager::applyDepthMask(bool depthMask)
 #endif
 	{
 		glDepthMask(depthMask);
+		glCheck;
 		_renderState.depthMask = depthMask;
 	}
 }
@@ -373,6 +388,7 @@ void StateManager::applyViewState( const ViewState &vs )
 	if( !_viewState.viewport().equals( vs.viewport() ) )
 #endif
 	glViewport( vs.viewport().left(), vs.viewport().bottom(), vs.viewport().width(), vs.viewport().height() );
+	glCheck;
 
 #ifdef OPENGL_DEPRECATED
 	glMatrixMode( GL_MODELVIEW );
@@ -386,25 +402,25 @@ void StateManager::applyViewState( const ViewState &vs )
 }
 
 // ------------------------------------------------------------------------------------------------
-//void StateManager::applyFramebuffer()
-//{
-//	if (_boundFramebuffer != _setFramebuffer)
-//	{
-//		if (_setFramebuffer != null)
-//		{
-//			_setFramebuffer.Bind();
-//		}
-//		else
-//		{
-//			FramebufferGL3x.UnBind();
-//		}
-//
-//		_boundFramebuffer = _setFramebuffer;
-//	}
-//
-//	if (_setFramebuffer != null)
-//		_setFramebuffer.Clean();
-//}
+void StateManager::applyFramebuffer()
+{
+	//if (_currentFrameBuffer != _setFramebuffer)
+	//{
+	//	if (_setFramebuffer != null)
+	//	{
+	//		_setFramebuffer.Bind();
+	//	}
+	//	else
+	//	{
+	//		FramebufferGL3x.UnBind();
+	//	}
+
+	//	_boundFramebuffer = _setFramebuffer;
+	//}
+
+	//if (_setFramebuffer != null)
+	//	_setFramebuffer.Clean();
+}
 
 // ------------------------------------------------------------------------------------------------
 void StateManager::setViewport( const Math::Rectangle &r )
@@ -421,6 +437,7 @@ void StateManager::setViewport( const Math::Rectangle &r )
 	{
 		_viewState.setViewport( r );
 		glViewport( r.left(), r.bottom(), r.width(), r.height() );
+		glCheck;
 	}
 }
 
@@ -430,7 +447,7 @@ void StateManager::setViewport( const Math::Rectangle &r )
 // ------------------------------------------------------------------------------------------------
 void StateManager::setClearState( const ClearState &cs )
 {
-	//applyFramebuffer();
+	applyFramebuffer();
 
 	applyScissorTest( cs.scissorTest );
 	applyColorMask(   cs.colorMask    );
@@ -442,6 +459,7 @@ void StateManager::setClearState( const ClearState &cs )
 #endif
 	{
 		glClearColor( cs.color.r(), cs.color.g(), cs.color.b(), cs.color.a() );
+		glCheck;
 		_clearColor = cs.color ;
 	}
 
@@ -450,6 +468,7 @@ void StateManager::setClearState( const ClearState &cs )
 #endif
 	{
 		glClearDepth((double)cs.depth );
+		glCheck;
 		_clearDepth = cs.depth;
 	}
 
@@ -458,6 +477,7 @@ void StateManager::setClearState( const ClearState &cs )
 #endif
 	{
 		glClearStencil( cs.stencil );
+		glCheck;
 		_clearStencil = cs.stencil;
 	}
 
@@ -472,6 +492,9 @@ void StateManager::setDrawState( const DrawingState &ds )
 	applyRenderState( ds.renderState );
 	applyShaderProgram( ds.shaderProgram );
 	//applyViewState( vs );
+
+	// add: apply texture units
+	applyFramebuffer();
 }
 
 // ------------------------------------------------------------------------------------------------

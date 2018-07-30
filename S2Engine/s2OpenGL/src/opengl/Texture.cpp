@@ -5,231 +5,88 @@
 #include "OpenGL.h"
 #include "OpenGLWrap.h"
 
-namespace s2 {
+#include "TextureSampler.h"
 
-namespace OpenGL {
+using namespace s2::OpenGL;
 
-/************************************************************************************************/
-/*                                             Texture                                          */
-/************************************************************************************************/
-// -----------------------------------------------------------------------------------------------
-Texture::Texture()
-	: _textureID( 0 )
-	, _valid( false )
-	, _dataFormat( InvalidFormat )
-	, _dataType( InvalidDataType )
-	, _minFilter( InvalidMinFilter )
-	, _magFilter( InvalidMagFilter )
-	, _unit( -1 )
-	, _wrap( Clamp )
-	, _channelCount( 0 )
-{}
-
-// -----------------------------------------------------------------------------------------------
-Texture::~Texture()
+//-------------------------------------------------------------------------------------------------
+Texture2DPtr Texture2D::New( const Texture2DDescription &desc)
 {
-	destroy();
+	return std::make_shared<Texture2D>(desc);
 }
 
-// -----------------------------------------------------------------------------------------------
-void Texture::create()
-{
-	destroy();
-	glGenTextures( 1, &_textureID );
-	glBindTexture( glWrap( type() ), _textureID );
-}
-
-// -----------------------------------------------------------------------------------------------
-void Texture::destroy()
-{
-	if( _textureID != 0 )
-	{
-		glDeleteTextures( 1, &_textureID );
-		_textureID = 0;
-	}
-	_valid = false;
-}
-
-// -----------------------------------------------------------------------------------------------
-void Texture::setMinFilter( const TextureMinFilter &minFilter )
-{
-	_minFilter = minFilter;
-
-	bind();
-	glTexParameteri( glWrap( type() ), GL_TEXTURE_MIN_FILTER, _minFilter );
-	unbind();
-}
-
-// -----------------------------------------------------------------------------------------------
-void Texture::setMagFilter( const TextureMagFilter &magFilter )
-{
-	_magFilter = magFilter;
-
-	bind();
-	glTexParameteri( glWrap( type() ), GL_TEXTURE_MAG_FILTER, _magFilter );
-	unbind();
-}
-
-// -----------------------------------------------------------------------------------------------
-void Texture::setWrapMode( const WrapMode &wrap )
-{
-	_wrap = wrap;
-
-	bind();
-	glTexParameteri( glWrap( type() ), GL_TEXTURE_WRAP_R, _wrap );
-	glTexParameteri( glWrap( type() ), GL_TEXTURE_WRAP_S, _wrap );
-	glTexParameteri( glWrap( type() ), GL_TEXTURE_WRAP_T, _wrap );
-	unbind();
-}
-
-// -----------------------------------------------------------------------------------------------
-void Texture::bind( unsigned int unit ) const { _unit = unit; glActiveTexture( GL_TEXTURE0 + _unit ); glBindTexture( glWrap( type() ), _textureID ); glActiveTexture( GL_TEXTURE0 ); }
-void Texture::unbind()	               const { glActiveTexture( GL_TEXTURE0 + _unit ); glBindTexture( glWrap( type() ), 0 ); glActiveTexture( GL_TEXTURE0 ); _unit = -1; }
-
-// -----------------------------------------------------------------------------------------------
-bool Texture::isValid()	const { return _valid; }
-bool Texture::isBound() const { return _unit >= 0; }
-
-// -----------------------------------------------------------------------------------------------
-unsigned int Texture::unit()   const { return _unit; }
-int          Texture::width()  const { return -1; }
-int          Texture::height() const { return -1; }
-
-// -----------------------------------------------------------------------------------------------
-unsigned int	          Texture::id()	          const { return _textureID; }
-unsigned int	          Texture::channelCount() const { return _channelCount; }
-Texture::DataFormat       Texture::dataFormat()   const { return _dataFormat; }
-Texture::DataType         Texture::dataType()     const { return _dataType; }
-Texture::TextureMinFilter Texture::minFilter()    const { return _minFilter; }
-Texture::TextureMagFilter Texture::magFilter()    const { return _magFilter; }
-Texture::WrapMode         Texture::wrap()         const { return _wrap; }
-
-
-/************************************************************************************************/
-/*                                           Texture1D                                          */
-/************************************************************************************************/
-Texture1D::Texture1D()
-	: Texture()
-	, _textureWidth( 0 )
-{}
-
-// -----------------------------------------------------------------------------------------------
-Texture::TextureType	Texture1D::type() const { return Texture_1D; }
-
-// -----------------------------------------------------------------------------------------------
-void Texture1D::create( int channelCount, const DataFormat &format, const DataType &type, bool mipmaps, int   width, void *pixels )
-{
-	Texture::create();
-
-	_textureWidth = width;
-	_channelCount = channelCount;
-	_dataFormat   = format;
-	_dataType     = type;
-
-	if( mipmaps )	gluBuild1DMipmaps( GL_TEXTURE_1D, _channelCount, _textureWidth, format, type, pixels );
-	else			glTexImage1D( GL_TEXTURE_1D, 0, format, width, 0, format, type, pixels );
-
-	_valid = glValidate;
-}
-
-// -----------------------------------------------------------------------------------------------
-void Texture1D::clear()
-{
-	glBindTexture( GL_TEXTURE_1D, _textureID );
-
-	unsigned char *pxl = new unsigned char[_textureWidth * 1 * _channelCount];
-	memset( pxl, 0, _textureWidth * 1 * _channelCount );
-	glTexSubImage1D( GL_TEXTURE_1D, 0, 0, _textureWidth, _dataFormat, _dataType, pxl );
-	delete[] pxl;
-
-	_valid = glValidate;
-}
-
-
-/************************************************************************************************/
-/*                                          Texture2D                                           */
-/************************************************************************************************/
+//-------------------------------------------------------------------------------------------------
 Texture2D::Texture2D()
-	: Texture()
-	, _textureWidth( 0 )
-	, _textureHeight( 0 )
-	, _u( 1.f )
-	, _v( 1.f )
+: _id(0)
+, _description()
 {}
 
-// -----------------------------------------------------------------------------------------------
-void Texture2D::setDefaultFilterParameters()
+//-------------------------------------------------------------------------------------------------
+Texture2D::Texture2D(const Texture2DDescription &description, void* data )
+: _description(description)
 {
-	setMinFilter( MinFilterNearest );
-	setMagFilter( MagFilterNearest );
-	setWrapMode( Clamp );
+	glGenTextures( 1, &_id );
+
+	if (_description.isRectagle())
+	{
+		//glBindTexture(GL_TEXTURE_2D); bind rectangle
+
+	}
+	else
+	{
+		//WritePixelBuffer::unbind();
+		glActiveTexture( GL_TEXTURE0 ); //bind to last?
+		bind();
+		glTexImage2D( 
+			GL_TEXTURE_2D, 
+			0, 
+			glWrap(_description.textureFormat()),
+			_description.width(),
+			_description.height(),
+			0, /*border*/
+			glWrapTextureFormatToPixelFormat( _description.textureFormat()),
+			glWrapTextureFormatToPixelType( _description.textureFormat()),
+			data);
+	}
+
+	setDefaultSampler();
+	generateMipmaps();
 }
 
-// -----------------------------------------------------------------------------------------------
-float                Texture2D::u()      const { return _u; }
-float                Texture2D::v()      const { return _v; }
-int                  Texture2D::width()  const { return _textureWidth; }
-int                  Texture2D::height() const { return _textureHeight; }
-Texture::TextureType Texture2D::type()   const { return Texture_2D; }
-
-// -----------------------------------------------------------------------------------------------
-void Texture2D::create( int channelCount, const DataFormat &format, const DataType &type, bool mipmaps, int width, int height, void *pixels )
+//-------------------------------------------------------------------------------------------------
+Texture2D::~Texture2D()
 {
-	Texture::create();
-
-	_textureWidth  = width;
-	_textureHeight = height;
-	_channelCount  = channelCount;
-	_dataFormat    = format;
-	_dataType      = type;
-
-	if( mipmaps )	gluBuild2DMipmaps( GL_TEXTURE_2D, channelCount, width, height, /* */ _dataFormat, _dataType, pixels );
-	else			glTexImage2D( GL_TEXTURE_2D, 0, channelCount, width, height, 0, _dataFormat, _dataType, pixels );
-
-	_valid = glValidate;
-
-	if( _valid )
-		setDefaultFilterParameters();
+	if (_id != 0)
+	{
+		glDeleteTextures(1, &_id);
+		_id = 0;
+	}
 }
 
-// -----------------------------------------------------------------------------------------------
-void Texture2D::createFromFrameBuffer( int width, int height )
+//-------------------------------------------------------------------------------------------------
+unsigned int Texture2D::id() const { return _id; }
+Texture2DDescription Texture2D::description() const { return _description; }
+
+//-------------------------------------------------------------------------------------------------
+void Texture2D::bind()   { glBindTexture(GL_TEXTURE_2D, _id); }
+void Texture2D::unbind() { glBindTexture(GL_TEXTURE_2D, 0); }
+
+//-------------------------------------------------------------------------------------------------
+void Texture2D::setDefaultSampler()
 {
-	// copy the framebuffer pixels to a texture
-	Texture::create();
+	const TextureSamplerPtr sampler = TextureSampler::linearClamp();
 
-	_textureWidth  = width;
-	_textureHeight = height;
-	_channelCount  = 4;
-	_dataFormat    = RGBA;
-	_dataType      = UByte_8;
-
-	glCopyTexImage2D( GL_TEXTURE_2D, 0, _dataFormat, 0, 0, _textureWidth, _textureHeight, 0 );
-	_valid = glValidate;
-
-	setDefaultFilterParameters();
+	/*todo : handle gl texture rectangle in case of description.isRectangle*/
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, glWrap( sampler->minificationFilter() ));
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, glWrap(sampler->magnificationFilter() ));
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, glWrap(sampler->wrapS() ));
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, glWrap(sampler->wrapT() ));
 }
 
-// -----------------------------------------------------------------------------------------------
-void Texture2D::update( int xOffset, int yOffset, int width, int height, void *pixels )
+//-------------------------------------------------------------------------------------------------
+void Texture2D::generateMipmaps()
 {
-	bind();
-	glTexSubImage2D( GL_TEXTURE_2D, 0, xOffset, yOffset, width, height, _dataFormat, _dataType, pixels );
-	_valid = glValidate;
-	unbind();
+	if( _description.isGenerateMipmapsEnabled() )
+		glGenerateMipmap( GL_TEXTURE_2D ); // dv: to be tested 
 }
 
-// -----------------------------------------------------------------------------------------------
-void Texture2D::clear()
-{
-	unsigned char *pxl = new unsigned char[_textureWidth*_textureHeight*_channelCount];
-	memset( pxl, 0, _textureWidth*_textureHeight*_channelCount );
-	update( 0, 0, _textureWidth, _textureHeight, pxl );
-	delete[] pxl;
-
-	_u      = 1.f;
-	_v      = 1.f;
-}
-
-}
-}

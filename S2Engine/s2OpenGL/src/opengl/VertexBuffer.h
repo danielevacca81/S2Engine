@@ -17,10 +17,10 @@ class S2OPENGL_API VertexBuffer
 {
 public:
 	VertexBuffer();
-	VertexBuffer( int sizeInBytes, BufferObject::BufferUsageHint usageHint );
+	VertexBuffer( int sizeInBytes, const BufferObject::BufferUsageHint &usageHint );
 	~VertexBuffer();
 
-	void set( int sizeInBytes, BufferObject::BufferUsageHint usageHint );
+	void set( int sizeInBytes, const BufferObject::BufferUsageHint &usageHint );
 
 	bool isValid()     const { return _valid; }
 	int  sizeInBytes() const { return _bufferObject->size(); }
@@ -30,7 +30,7 @@ public:
 
 	void  sendData( void *data, int length, int offset = 0 );
 	void* receiveData( int length, int offset = 0 );
-	void* mapData( BufferObject::BufferMapMode mode );
+	void* mapData( const BufferObject::BufferMapMode &mode );
 	bool  unmapData();
 
 private:

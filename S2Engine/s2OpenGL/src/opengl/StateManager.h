@@ -13,6 +13,7 @@
 #include "graphics/Color.h"
 
 #include "Program.h"
+#include "FrameBuffer.h"
 //#include "VertexArray.h"
 //#include "Mesh.h"
 
@@ -29,6 +30,7 @@ public:
 	StateManager();
 	~StateManager();
 
+	void setFrameBuffer( const FrameBufferPtr &fb );
 	void setClearState( const ClearState &cs );
 	void setDrawState( const DrawingState &ds );
 
@@ -48,7 +50,7 @@ private:
 	void applyDepthMask         ( bool depthMask );
 	void applyShaderProgram     ( const ProgramPtr &program );
 	void applyViewState         ( const ViewState &viewState );
-	//void applyFramebuffer(); // uhm....
+	void applyFramebuffer();
 	void setViewport            ( const Math::Rectangle &r );
 	
 
@@ -60,6 +62,7 @@ private:
 	RenderState        _renderState;
 	ViewState          _viewState;
 	ProgramPtr         _currentShaderProgram;
+	FrameBufferPtr     _currentFrameBuffer;
 };
 
 

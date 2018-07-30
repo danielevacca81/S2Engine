@@ -7,6 +7,7 @@
 #include "opengl/Mesh.h"
 #include "opengl/Program.h"
 #include "opengl/FrameBuffer.h"
+#include "opengl/Surface.h"
 //#include "Renderer/TextRenderer.h"
 
 #include "view/Trackball.h"
@@ -14,7 +15,7 @@
 
 #include <QOpenGLFunctions>
 
-class TestScene: public s2::Qt::GLWidget, public QOpenGLFunctions
+class TestScene: public s2::Qt::GLWidget
 {
 public:
 	TestScene( QWidget *parent );
@@ -54,7 +55,8 @@ private:
 	//Math::dvec3 _up;
 
 	s2::OpenGL::ViewState      _viewState;
-	s2::OpenGL::FrameBufferPtr _fb;
+	//s2::OpenGL::FrameBufferPtr _fb;
+	s2::OpenGL::SurfacePtr _surface;
 	s2::OpenGL::ProgramPtr     _shader;
 
 	std::vector<s2::OpenGL::Mesh> _meshes;

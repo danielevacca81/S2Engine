@@ -28,8 +28,8 @@ void Renderer::draw( const Primitive &primitive, const VertexArray &va )
 		glDrawRangeElements( glWrap(primitive),
 			                 0,
 							 va.maxArrayIndex(),
-							 va.indexBuffer()->count(),
-			                 glWrap( va.indexBuffer()->dataType() ),
+							 va.indexBuffer().count(),
+			                 glWrap( va.indexBuffer().dataType() ),
 							 BUFFER_OFFSET(0) );
 	}
 	else

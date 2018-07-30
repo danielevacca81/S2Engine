@@ -37,6 +37,8 @@ public:
 	{
 		ArrayBuffer,
 		ElementBuffer,
+		PixelUnpackBuffer,
+		PixelPackBuffer
 	};
 
 	enum BufferMapMode

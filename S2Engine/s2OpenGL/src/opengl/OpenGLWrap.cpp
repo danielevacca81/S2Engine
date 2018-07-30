@@ -103,106 +103,280 @@ unsigned int glWrap( const BufferObject::BufferMapMode &mode )
 /************************************************************************************************/
 #pragma region Texture
 // ------------------------------------------------------------------------------------------------
-unsigned int glWrap( const Texture::TextureType &type )
-{
-	switch( type )
-	{
-	case Texture::Texture_1D: return GL_TEXTURE_1D;
-	case Texture::Texture_2D: return GL_TEXTURE_1D;
-	}
-
-	return GL_INVALID_ENUM;
-}
+//unsigned int glWrap( const Texture::TextureType &type )
+//{
+//	switch( type )
+//	{
+//	case Texture::Texture_1D: return GL_TEXTURE_1D;
+//	case Texture::Texture_2D: return GL_TEXTURE_1D;
+//	}
+//
+//	return GL_INVALID_ENUM;
+//}
 
 // ------------------------------------------------------------------------------------------------
-unsigned int glWrap( const Texture::DataFormat &format )
+//unsigned int glWrap( const Texture::DataFormat &format )
+//{
+//	switch( format )
+//	{
+//	case Texture::Red: return GL_RED;
+//	case Texture::RG: return GL_RG;
+//	case Texture::RGB: return GL_RGB;
+//	case Texture::BGR: return GL_BGR;
+//	case Texture::RGBA: return GL_RGBA;
+//	case Texture::BGRA: return GL_BGRA;
+//	case Texture::RedInteger: return GL_RED_INTEGER;
+//	case Texture::RGInteger: return GL_RG_INTEGER;
+//	case Texture::RGBInteger: return GL_RGB_INTEGER;
+//	case Texture::BGRInteger: return GL_BGR_INTEGER;
+//	case Texture::RGBAInteger: return GL_RGBA_INTEGER;
+//	case Texture::BGRAInteger: return GL_BGRA_INTEGER;
+//	case Texture::StencilIndex: return GL_STENCIL_INDEX;
+//	case Texture::DepthComponent: return GL_DEPTH_COMPONENT;
+//	case Texture::DepthStencil: return GL_DEPTH_STENCIL;
+//	}
+//
+//	return -1;
+//}
+
+// ------------------------------------------------------------------------------------------------
+unsigned int glWrap(const TextureFormat &format)
 {
 	switch( format )
 	{
-	case Texture::Red: return GL_RED;
-	case Texture::RG: return GL_RG;
-	case Texture::RGB: return GL_RGB;
-	case Texture::BGR: return GL_BGR;
-	case Texture::RGBA: return GL_RGBA;
-	case Texture::BGRA: return GL_BGRA;
-	case Texture::RedInteger: return GL_RED_INTEGER;
-	case Texture::RGInteger: return GL_RG_INTEGER;
-	case Texture::RGBInteger: return GL_RGB_INTEGER;
-	case Texture::BGRInteger: return GL_BGR_INTEGER;
-	case Texture::RGBAInteger: return GL_RGBA_INTEGER;
-	case Texture::BGRAInteger: return GL_BGRA_INTEGER;
-	case Texture::StencilIndex: return GL_STENCIL_INDEX;
-	case Texture::DepthComponent: return GL_DEPTH_COMPONENT;
-	case Texture::DepthStencil: return GL_DEPTH_STENCIL;
+	case TextureFormat::RedGreenBlue8:  return GL_RGB8;
+	case TextureFormat::RedGreenBlue16: return GL_RGB16;
+	case TextureFormat::RedGreenBlueAlpha8: return GL_RGBA8;
+	case TextureFormat::RedGreenBlue10A2: return GL_RGB10_A2;
+	case TextureFormat::RedGreenBlueAlpha16: return GL_RGBA16;
+
+	case TextureFormat::Depth16: return GL_DEPTH_COMPONENT16;
+	case TextureFormat::Depth24: return GL_DEPTH_COMPONENT24;
+
+	case TextureFormat::Red8: return GL_R8;
+	case TextureFormat::Red16: return GL_R16;
+	case TextureFormat::RedGreen8: return GL_RG8;
+	case TextureFormat::RedGreen16: return GL_RG16;
+	case TextureFormat::Red16f: return GL_R16F;
+	case TextureFormat::Red32f: return GL_R32F;
+	case TextureFormat::RedGreen16f: return GL_RG16F;
+	case TextureFormat::RedGreen32f: return GL_RG32F;
+
+	case TextureFormat::Red8i: return GL_R8I;
+	case TextureFormat::Red8ui: return GL_R8UI;
+	case TextureFormat::Red16i: return GL_R16I;
+	case TextureFormat::Red16ui: return GL_R16UI;
+	case TextureFormat::Red32i: return GL_R32I;
+	case TextureFormat::Red32ui: return GL_R32UI;
+	case TextureFormat::RedGreen8i: return GL_RG8I;
+	case TextureFormat::RedGreen8ui: return GL_RG8UI;
+	case TextureFormat::RedGreen16i: return GL_RG16I;
+	case TextureFormat::RedGreen16ui: return GL_RG16UI;
+	case TextureFormat::RedGreen32i: return GL_RG32I;
+	case TextureFormat::RedGreen32ui: return GL_RG32UI;
+	case TextureFormat::RedGreenBlueAlpha32f: return GL_RGBA32F;
+	case TextureFormat::RedGreenBlue32f: return GL_RGB32F;
+	case TextureFormat::RedGreenBlueAlpha16f: return GL_RGBA16F;
+	case TextureFormat::RedGreenBlue16f: return GL_RGB16F;
+	case TextureFormat::Depth24Stencil8: return GL_DEPTH24_STENCIL8;
+	case TextureFormat::Red11fGreen11fBlue10f: return GL_R11F_G11F_B10F;
+	case TextureFormat::RedGreenBlue9E5: return GL_RGB9_E5;
+	case TextureFormat::SRedGreenBlue8: return GL_SRGB8;
+	case TextureFormat::SRedGreenBlue8Alpha8: return GL_SRGB8_ALPHA8;
+	case TextureFormat::Depth32f: return GL_DEPTH_COMPONENT32F;
+	case TextureFormat::Depth32fStencil8: return GL_DEPTH32F_STENCIL8;
+
+	case TextureFormat::RedGreenBlueAlpha32ui: return GL_RGBA32UI;
+	case TextureFormat::RedGreenBlue32ui:      return GL_RGB32UI;
+	case TextureFormat::RedGreenBlueAlpha16ui: return GL_RGBA16UI;
+	case TextureFormat::RedGreenBlue16ui:      return GL_RGB16UI;
+	case TextureFormat::RedGreenBlueAlpha8ui:  return GL_RGBA8UI;
+	case TextureFormat::RedGreenBlue8ui:       return GL_RGB8UI;
+
+	case TextureFormat::RedGreenBlueAlpha32i:  return GL_RGBA32I;
+	case TextureFormat::RedGreenBlue32i:       return GL_RGB32I;
+	case TextureFormat::RedGreenBlueAlpha16i:  return GL_RGBA16I;
+	case TextureFormat::RedGreenBlue16i:       return GL_RGB16I;
+	case TextureFormat::RedGreenBlueAlpha8i:   return GL_RGBA8I;
+	case TextureFormat::RedGreenBlue8i:        return GL_RGB8I;
 	}
 
 	return -1;
 }
+
 // ------------------------------------------------------------------------------------------------
-unsigned int glWrap( const Texture::DataType &type )
+unsigned int glWrapTextureFormatToPixelType( const TextureFormat &f )
 {
-	switch( type )
+	switch( f )
 	{
-	case Texture::UByte_8:           return GL_UNSIGNED_BYTE;
-	case Texture::Byte_8:            return GL_BYTE;
-	case Texture::UShort_16:         return GL_UNSIGNED_SHORT;
-	case Texture::Short_16:          return GL_SHORT;
-	case Texture::UInt_32:           return GL_UNSIGNED_INT;
-	case Texture::Int_32:            return GL_INT;
-	case Texture::Float_32:          return GL_FLOAT;
-	case Texture::UByte_3_3_2:       return GL_UNSIGNED_BYTE_3_3_2;
-	case Texture::UByte_2_3_3_r:     return GL_UNSIGNED_BYTE_2_3_3_REV;
-	case Texture::UShort_5_6_5:      return GL_UNSIGNED_SHORT_5_6_5;
-	case Texture::UShort_5_6_5_r:    return GL_UNSIGNED_SHORT_5_6_5_REV;
-	case Texture::UShort_4_4_4_4:    return GL_UNSIGNED_SHORT_4_4_4_4;
-	case Texture::UShort_4_4_4_4_r:  return GL_UNSIGNED_SHORT_4_4_4_4_REV;
-	case Texture::UShort_5_5_5_1:    return GL_UNSIGNED_SHORT_5_5_5_1;
-	case Texture::UShort_1_5_5_5_r:  return GL_UNSIGNED_SHORT_1_5_5_5_REV;
-	case Texture::UInt_8_8_8_8:      return GL_UNSIGNED_INT_8_8_8_8;
-	case Texture::UInt_8_8_8_8_r:    return GL_UNSIGNED_INT_8_8_8_8_REV;
-	case Texture::UInt_10_10_10_2:   return GL_UNSIGNED_INT_10_10_10_2;
-	case Texture::UInt_2_10_10_10_r: return GL_UNSIGNED_INT_2_10_10_10_REV;
+	case TextureFormat::RedGreenBlue8:  return GL_UNSIGNED_BYTE;
+	case TextureFormat::RedGreenBlue16: return GL_UNSIGNED_SHORT;
+	case TextureFormat::RedGreenBlueAlpha8: return GL_UNSIGNED_BYTE;
+	case TextureFormat::RedGreenBlue10A2: return GL_UNSIGNED_INT_10_10_10_2;
+	case TextureFormat::RedGreenBlueAlpha16: return GL_UNSIGNED_SHORT;
+	case TextureFormat::Depth16: return GL_HALF_FLOAT;
+	case TextureFormat::Depth24: return GL_FLOAT;
+	case TextureFormat::Red8: return GL_UNSIGNED_BYTE;
+	case TextureFormat::Red16: return GL_UNSIGNED_SHORT;
+	case TextureFormat::RedGreen8: return GL_UNSIGNED_BYTE;
+	case TextureFormat::RedGreen16: return GL_UNSIGNED_SHORT;
+	case TextureFormat::Red16f: return GL_HALF_FLOAT;
+	case TextureFormat::Red32f: return GL_FLOAT;
+	case TextureFormat::RedGreen16f: return GL_HALF_FLOAT;
+	case TextureFormat::RedGreen32f: return GL_FLOAT;
+
+	case TextureFormat::Red8i:   return GL_BYTE;
+	case TextureFormat::Red8ui:  return GL_UNSIGNED_BYTE;
+	case TextureFormat::Red16i:  return GL_SHORT;
+	case TextureFormat::Red16ui: return GL_UNSIGNED_SHORT;
+	case TextureFormat::Red32i:  return GL_INT;
+	case TextureFormat::Red32ui: return GL_UNSIGNED_INT;
+
+	case TextureFormat::RedGreen8i:   return GL_BYTE;
+	case TextureFormat::RedGreen8ui:  return GL_UNSIGNED_BYTE;
+	case TextureFormat::RedGreen16i:  return GL_SHORT;
+	case TextureFormat::RedGreen16ui: return GL_UNSIGNED_SHORT;
+	case TextureFormat::RedGreen32i:  return GL_INT;
+	case TextureFormat::RedGreen32ui: return GL_UNSIGNED_INT;
+
+	case TextureFormat::RedGreenBlueAlpha32f: return GL_FLOAT;
+	case TextureFormat::RedGreenBlue32f: return GL_FLOAT;
+	case TextureFormat::RedGreenBlueAlpha16f: return GL_HALF_FLOAT;
+	case TextureFormat::RedGreenBlue16f: return GL_HALF_FLOAT;
+	case TextureFormat::Depth24Stencil8: return GL_UNSIGNED_INT_24_8;
+	case TextureFormat::Red11fGreen11fBlue10f: return GL_FLOAT;
+	case TextureFormat::RedGreenBlue9E5: return GL_FLOAT;
+	case TextureFormat::SRedGreenBlue8: return GL_BYTE;
+	case TextureFormat::SRedGreenBlue8Alpha8: return GL_BYTE;
+	case TextureFormat::Depth32f: return GL_FLOAT;
+	case TextureFormat::Depth32fStencil8: return GL_FLOAT;
+
+	case TextureFormat::RedGreenBlueAlpha32ui: return GL_UNSIGNED_INT;
+	case TextureFormat::RedGreenBlue32ui:      return GL_UNSIGNED_INT;
+	case TextureFormat::RedGreenBlueAlpha16ui: return GL_UNSIGNED_SHORT;
+	case TextureFormat::RedGreenBlue16ui:      return GL_UNSIGNED_SHORT;
+	case TextureFormat::RedGreenBlueAlpha8ui:  return GL_UNSIGNED_BYTE;
+	case TextureFormat::RedGreenBlue8ui:       return GL_UNSIGNED_BYTE;
+
+	case TextureFormat::RedGreenBlueAlpha32i: return GL_UNSIGNED_INT;
+	case TextureFormat::RedGreenBlue32i:      return GL_UNSIGNED_INT;
+	case TextureFormat::RedGreenBlueAlpha16i: return GL_UNSIGNED_SHORT;
+	case TextureFormat::RedGreenBlue16i:      return GL_UNSIGNED_SHORT;
+	case TextureFormat::RedGreenBlueAlpha8i:  return GL_UNSIGNED_BYTE;
+	case TextureFormat::RedGreenBlue8i:       return GL_UNSIGNED_BYTE;
 	}
 
 	return -1;
 }
 
 // ------------------------------------------------------------------------------------------------
-unsigned int glWrap( const Texture::TextureMinFilter &filter )
+unsigned int glWrapTextureFormatToPixelFormat(const TextureFormat &f)
+{
+	switch (f)
+	{
+	case TextureFormat::RedGreenBlue8:
+	case TextureFormat::RedGreenBlue16: return GL_RGB;
+
+	case TextureFormat::RedGreenBlueAlpha8:
+	case TextureFormat::RedGreenBlue10A2:
+	case TextureFormat::RedGreenBlueAlpha16: return GL_RGBA;
+
+	case TextureFormat::Depth16:
+	case TextureFormat::Depth24: return GL_DEPTH_COMPONENT;
+
+	case TextureFormat::Red8:
+	case TextureFormat::Red16: return GL_RED;
+
+	case TextureFormat::RedGreen8:
+	case TextureFormat::RedGreen16: return GL_RG;
+
+	case TextureFormat::Red16f:
+	case TextureFormat::Red32f: return GL_RED;
+
+	case TextureFormat::RedGreen16f:
+	case TextureFormat::RedGreen32f: return GL_RG;
+
+	case TextureFormat::Red8i:   return GL_RED_INTEGER;
+	case TextureFormat::Red8ui:  return GL_RED_INTEGER;
+	case TextureFormat::Red16i:  return GL_RED_INTEGER;
+	case TextureFormat::Red16ui: return GL_RED_INTEGER;
+	case TextureFormat::Red32i:  return GL_RED_INTEGER;
+	case TextureFormat::Red32ui: return GL_RED_INTEGER;
+
+	case TextureFormat::RedGreen8i:   return GL_RG_INTEGER;
+	case TextureFormat::RedGreen8ui:  return GL_RG_INTEGER;
+	case TextureFormat::RedGreen16i:  return GL_RG_INTEGER;
+	case TextureFormat::RedGreen16ui: return GL_RG_INTEGER;
+	case TextureFormat::RedGreen32i:  return GL_RG_INTEGER;
+	case TextureFormat::RedGreen32ui: return GL_RG_INTEGER;
+
+	case TextureFormat::RedGreenBlueAlpha32f: return GL_RGBA;
+	case TextureFormat::RedGreenBlue32f:      return GL_RGB;
+	case TextureFormat::RedGreenBlueAlpha16f: return GL_RGBA;
+	case TextureFormat::RedGreenBlue16f: return GL_RGB;
+	case TextureFormat::Depth24Stencil8: return GL_DEPTH_STENCIL;
+
+	case TextureFormat::Red11fGreen11fBlue10f:
+	case TextureFormat::RedGreenBlue9E5:  return GL_RGB;
+	case TextureFormat::SRedGreenBlue8:  return GL_RGB_INTEGER;
+	case TextureFormat::SRedGreenBlue8Alpha8: return GL_RGBA_INTEGER;
+
+	case TextureFormat::Depth32f: return GL_DEPTH_COMPONENT;
+	case TextureFormat::Depth32fStencil8: return GL_DEPTH_STENCIL;
+
+	case TextureFormat::RedGreenBlueAlpha32ui: return GL_RGBA_INTEGER;
+	case TextureFormat::RedGreenBlue32ui:      return GL_RGB_INTEGER;
+	case TextureFormat::RedGreenBlueAlpha16ui: return GL_RGBA_INTEGER;
+	case TextureFormat::RedGreenBlue16ui:      return GL_RGB_INTEGER;
+	case TextureFormat::RedGreenBlueAlpha8ui:  return GL_RGBA_INTEGER;
+	case TextureFormat::RedGreenBlue8ui:       return GL_RGB_INTEGER;
+
+	case TextureFormat::RedGreenBlueAlpha32i: return GL_RGBA_INTEGER;
+	case TextureFormat::RedGreenBlue32i:      return GL_RGB_INTEGER;
+	case TextureFormat::RedGreenBlueAlpha16i: return GL_RGBA_INTEGER;
+	case TextureFormat::RedGreenBlue16i:      return GL_RGB_INTEGER;
+	case TextureFormat::RedGreenBlueAlpha8i:  return GL_RGBA_INTEGER;
+	case TextureFormat::RedGreenBlue8i:       return GL_RGB_INTEGER;
+	}
+	return -1;
+}
+
+// ------------------------------------------------------------------------------------------------
+unsigned int glWrap( const TextureSampler::MinificationFilter &filter )
 {
 	switch( filter )
 	{
-	case Texture::MinFilterNearest:                    return GL_NEAREST;
-	case Texture::MinFilterNearestWithMipmaps:         return GL_NEAREST_MIPMAP_NEAREST;
-	case Texture::MinFilterNearestWithBilinearMipmaps: return GL_NEAREST_MIPMAP_LINEAR;
-	case Texture::MinFilterBilinear:                   return GL_LINEAR;
-	case Texture::MinFilterBilinearWithMipmaps:        return GL_LINEAR_MIPMAP_NEAREST;
-	case Texture::MinFilterTrilinear:                  return GL_LINEAR_MIPMAP_LINEAR;
+	case TextureSampler::MinificationFilter::Nearest:              return GL_NEAREST;
+	case TextureSampler::MinificationFilter::NearestMipmapNearest: return GL_NEAREST_MIPMAP_NEAREST;
+	case TextureSampler::MinificationFilter::NearestMipmapLinear:  return GL_NEAREST_MIPMAP_LINEAR;
+	case TextureSampler::MinificationFilter::Linear:               return GL_LINEAR;
+	case TextureSampler::MinificationFilter::LinearMipmapNearest:  return GL_LINEAR_MIPMAP_NEAREST;
+	case TextureSampler::MinificationFilter::LinearMipmapLinear:   return GL_LINEAR_MIPMAP_LINEAR;
 	}
 
 	return -1;
 }
 
 // ------------------------------------------------------------------------------------------------
-unsigned int glWrap( const Texture::TextureMagFilter &filter )
+unsigned int glWrap( const TextureSampler::MagnificationFilter &filter )
 {
 	switch( filter )
 	{
-	case Texture::MagFilterNearest:  return GL_NEAREST;
-	case Texture::MagFilterBilinear: return GL_LINEAR;
+	case TextureSampler::MagnificationFilter::Nearest:  return GL_NEAREST;
+	case TextureSampler::MagnificationFilter::Linear:   return GL_LINEAR;
 	}
 
 	return -1;
 }
 
 // ------------------------------------------------------------------------------------------------
-unsigned int glWrap( const Texture::WrapMode &mode )
+unsigned int glWrap( const TextureSampler::Wrap &wrap )
 {
-	switch( mode )
+	switch( wrap )
 	{
-	case Texture::Clamp:           return GL_CLAMP_TO_EDGE;
-	case Texture::Repeat:          return GL_REPEAT;
-	case Texture::MirroredRepeat:  return GL_MIRRORED_REPEAT;
+	case TextureSampler::Wrap::Clamp:           return GL_CLAMP_TO_EDGE;
+	case TextureSampler::Wrap::Repeat:          return GL_REPEAT;
+	case TextureSampler::Wrap::MirroredRepeat:  return GL_MIRRORED_REPEAT;
 	}
 
 	return -1;
@@ -228,8 +402,8 @@ unsigned int glWrap( const FrameBuffer::AttachmentPoint &attachment )
 	case FrameBuffer::ColorAttachment7:   return GL_COLOR_ATTACHMENT7;
 	case FrameBuffer::ColorAttachment8:   return GL_COLOR_ATTACHMENT8;
 	case FrameBuffer::ColorAttachment9:   return GL_COLOR_ATTACHMENT9;
-	case FrameBuffer::DepthAttatchment:   return GL_DEPTH_ATTACHMENT;
-	case FrameBuffer::StencilAttatchment: return GL_STENCIL_ATTACHMENT;
+	case FrameBuffer::DepthAttachment:   return GL_DEPTH_ATTACHMENT;
+	case FrameBuffer::DepthStencilAttachment: return GL_DEPTH_STENCIL_ATTACHMENT;
 	}
 
 	return -1;
