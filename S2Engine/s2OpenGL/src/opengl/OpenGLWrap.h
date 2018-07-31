@@ -4,7 +4,6 @@
 #define OPENGLWRAP_ONCE
 
 #include "Texture.h"
-#include "TextureFormat.h"
 #include "TextureSampler.h"
 #include "FrameBuffer.h"
 #include "VertexBuffer.h"
@@ -33,9 +32,9 @@ unsigned int glWrap( const AttributeBuffer::ComponentDatatype &datatype );
 /************************************************************************************************/
 /*                                        VertexBufferObject                                    */
 /************************************************************************************************/
-unsigned int glWrap( const BufferObject::BufferUsageHint &hint );
-unsigned int glWrap( const BufferObject::BufferType      &type );
-unsigned int glWrap( const BufferObject::BufferMapMode   &mode );
+unsigned int glWrap( const BufferObject::UsageHint &hint );
+unsigned int glWrap( const BufferObject::Type      &type );
+unsigned int glWrap( const BufferObject::MapMode   &mode );
 
 /************************************************************************************************/
 /*                                             Texture                                          */
@@ -48,10 +47,15 @@ unsigned int glWrap( const TextureSampler::MagnificationFilter &filter );
 unsigned int glWrap( const TextureSampler::Wrap        &wrap );
 
 /************************************************************************************************/
+/*                                           ImageFormat                                        */
+/************************************************************************************************/
+unsigned int glWrap( const ImageFormat &imgFormat );
+unsigned int glWrap( const ImageDataType &imgDataType );
+
+/************************************************************************************************/
 /*                                           FrameBuffer                                        */
 /************************************************************************************************/
 unsigned int glWrap( const FrameBuffer::AttachmentPoint &attachment );
-//unsigned int glWrap( const FrameBuffer::DepthFormat     &format );
 
 /************************************************************************************************/
 /*                                           RenderBuffer                                       */

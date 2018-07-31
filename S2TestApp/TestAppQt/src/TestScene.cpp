@@ -124,16 +124,8 @@ void TestScene::paintGL()
 	{
 		QString framesPerSecond;
 		framesPerSecond.setNum(_frames / (elapsed / 1000.0), 'f', 2);
-		GLint err = glGetError();
 		painter.setPen(::Qt::white);
-		err = glGetError();
-		//painter->drawEllipse( 100, 100, 100,100 );
 		painter.drawText(10, 40, framesPerSecond + " paintGL calls / s");
-
-
-		err = glGetError();
-		if (err != 0)
-			std::cout << err << std::endl;
 	}
 
 	if (!(_frames % 100)) {

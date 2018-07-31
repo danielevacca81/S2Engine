@@ -54,44 +54,46 @@ unsigned int glWrap( const AttributeBuffer::ComponentDatatype &datatype )
 /************************************************************************************************/
 #pragma region
 // ------------------------------------------------------------------------------------------------
-unsigned int glWrap( const BufferObject::BufferUsageHint &hint )
+unsigned int glWrap( const BufferObject::UsageHint &hint )
 {
 	switch( hint )
 	{
-	case BufferObject::StreamDraw:  return GL_STREAM_DRAW;
-	case BufferObject::StreamRead:  return GL_STREAM_READ;
-	case BufferObject::StreamCopy:  return GL_STREAM_COPY;
-	case BufferObject::StaticDraw:  return GL_STATIC_DRAW;
-	case BufferObject::StaticRead:  return GL_STATIC_READ;
-	case BufferObject::StaticCopy:  return GL_STATIC_COPY;
-	case BufferObject::DynamicDraw: return GL_DYNAMIC_DRAW;
-	case BufferObject::DynamicRead: return GL_DYNAMIC_READ;
-	case BufferObject::DynamicCopy: return GL_DYNAMIC_COPY;
+	case BufferObject::UsageHint::StreamDraw:  return GL_STREAM_DRAW;
+	case BufferObject::UsageHint::StreamRead:  return GL_STREAM_READ;
+	case BufferObject::UsageHint::StreamCopy:  return GL_STREAM_COPY;
+	case BufferObject::UsageHint::StaticDraw:  return GL_STATIC_DRAW;
+	case BufferObject::UsageHint::StaticRead:  return GL_STATIC_READ;
+	case BufferObject::UsageHint::StaticCopy:  return GL_STATIC_COPY;
+	case BufferObject::UsageHint::DynamicDraw: return GL_DYNAMIC_DRAW;
+	case BufferObject::UsageHint::DynamicRead: return GL_DYNAMIC_READ;
+	case BufferObject::UsageHint::DynamicCopy: return GL_DYNAMIC_COPY;
 	}
 
 	return -1;
 }
 
 // ------------------------------------------------------------------------------------------------
-unsigned int glWrap( const BufferObject::BufferType &type )
+unsigned int glWrap( const BufferObject::Type &type )
 {
 	switch( type )
 	{
-	case BufferObject::ArrayBuffer:    return GL_ARRAY_BUFFER;
-	case BufferObject::ElementBuffer:  return GL_ELEMENT_ARRAY_BUFFER;
+	case BufferObject::Type::ArrayBuffer:       return GL_ARRAY_BUFFER;
+	case BufferObject::Type::ElementBuffer:     return GL_ELEMENT_ARRAY_BUFFER;
+	case BufferObject::Type::PixelPackBuffer:   return GL_PIXEL_PACK_BUFFER;
+	case BufferObject::Type::PixelUnpackBuffer: return GL_PIXEL_UNPACK_BUFFER;
 	}
 
 	return -1;
 }
 
 // ------------------------------------------------------------------------------------------------
-unsigned int glWrap( const BufferObject::BufferMapMode &mode )
+unsigned int glWrap( const BufferObject::MapMode &mode )
 {
 	switch( mode )
 	{
-	case BufferObject::ReadOnly:  return GL_READ_ONLY;
-	case BufferObject::WriteOnly: return GL_WRITE_ONLY;
-	case BufferObject::ReadWrite: return GL_READ_WRITE;
+	case BufferObject::MapMode::ReadOnly:  return GL_READ_ONLY;
+	case BufferObject::MapMode::WriteOnly: return GL_WRITE_ONLY;
+	case BufferObject::MapMode::ReadWrite: return GL_READ_WRITE;
 	}
 
 	return -1;
@@ -102,43 +104,6 @@ unsigned int glWrap( const BufferObject::BufferMapMode &mode )
 /*                                             Texture                                          */
 /************************************************************************************************/
 #pragma region Texture
-// ------------------------------------------------------------------------------------------------
-//unsigned int glWrap( const Texture::TextureType &type )
-//{
-//	switch( type )
-//	{
-//	case Texture::Texture_1D: return GL_TEXTURE_1D;
-//	case Texture::Texture_2D: return GL_TEXTURE_1D;
-//	}
-//
-//	return GL_INVALID_ENUM;
-//}
-
-// ------------------------------------------------------------------------------------------------
-//unsigned int glWrap( const Texture::DataFormat &format )
-//{
-//	switch( format )
-//	{
-//	case Texture::Red: return GL_RED;
-//	case Texture::RG: return GL_RG;
-//	case Texture::RGB: return GL_RGB;
-//	case Texture::BGR: return GL_BGR;
-//	case Texture::RGBA: return GL_RGBA;
-//	case Texture::BGRA: return GL_BGRA;
-//	case Texture::RedInteger: return GL_RED_INTEGER;
-//	case Texture::RGInteger: return GL_RG_INTEGER;
-//	case Texture::RGBInteger: return GL_RGB_INTEGER;
-//	case Texture::BGRInteger: return GL_BGR_INTEGER;
-//	case Texture::RGBAInteger: return GL_RGBA_INTEGER;
-//	case Texture::BGRAInteger: return GL_BGRA_INTEGER;
-//	case Texture::StencilIndex: return GL_STENCIL_INDEX;
-//	case Texture::DepthComponent: return GL_DEPTH_COMPONENT;
-//	case Texture::DepthStencil: return GL_DEPTH_STENCIL;
-//	}
-//
-//	return -1;
-//}
-
 // ------------------------------------------------------------------------------------------------
 unsigned int glWrap(const TextureFormat &format)
 {
@@ -392,42 +357,96 @@ unsigned int glWrap( const FrameBuffer::AttachmentPoint &attachment )
 {
 	switch( attachment )
 	{
-	case FrameBuffer::ColorAttachment0:   return GL_COLOR_ATTACHMENT0;
-	case FrameBuffer::ColorAttachment1:   return GL_COLOR_ATTACHMENT1;
-	case FrameBuffer::ColorAttachment2:   return GL_COLOR_ATTACHMENT2;
-	case FrameBuffer::ColorAttachment3:   return GL_COLOR_ATTACHMENT3;
-	case FrameBuffer::ColorAttachment4:   return GL_COLOR_ATTACHMENT4;
-	case FrameBuffer::ColorAttachment5:   return GL_COLOR_ATTACHMENT5;
-	case FrameBuffer::ColorAttachment6:   return GL_COLOR_ATTACHMENT6;
-	case FrameBuffer::ColorAttachment7:   return GL_COLOR_ATTACHMENT7;
-	case FrameBuffer::ColorAttachment8:   return GL_COLOR_ATTACHMENT8;
-	case FrameBuffer::ColorAttachment9:   return GL_COLOR_ATTACHMENT9;
-	case FrameBuffer::DepthAttachment:   return GL_DEPTH_ATTACHMENT;
+	case FrameBuffer::ColorAttachment0:       return GL_COLOR_ATTACHMENT0;
+	case FrameBuffer::ColorAttachment1:       return GL_COLOR_ATTACHMENT1;
+	case FrameBuffer::ColorAttachment2:       return GL_COLOR_ATTACHMENT2;
+	case FrameBuffer::ColorAttachment3:       return GL_COLOR_ATTACHMENT3;
+	case FrameBuffer::ColorAttachment4:       return GL_COLOR_ATTACHMENT4;
+	case FrameBuffer::ColorAttachment5:       return GL_COLOR_ATTACHMENT5;
+	case FrameBuffer::ColorAttachment6:       return GL_COLOR_ATTACHMENT6;
+	case FrameBuffer::ColorAttachment7:       return GL_COLOR_ATTACHMENT7;
+	case FrameBuffer::ColorAttachment8:       return GL_COLOR_ATTACHMENT8;
+	case FrameBuffer::ColorAttachment9:       return GL_COLOR_ATTACHMENT9;
+	case FrameBuffer::DepthAttachment:        return GL_DEPTH_ATTACHMENT;
 	case FrameBuffer::DepthStencilAttachment: return GL_DEPTH_STENCIL_ATTACHMENT;
+	}
+
+	return -1;
+}
+#pragma endregion
+
+/************************************************************************************************/
+/*                                           ImageFormat                                        */
+/************************************************************************************************/
+#pragma region ImageFormat
+// ------------------------------------------------------------------------------------------------
+unsigned int glWrap( const ImageFormat &imgFormat )
+{
+	switch( imgFormat )
+	{
+    case ImageFormat::StencilIndex:             return GL_STENCIL_INDEX;
+    case ImageFormat::DepthComponent:           return GL_DEPTH_COMPONENT;
+    case ImageFormat::Red:                      return GL_RED;
+    case ImageFormat::Green:                    return GL_GREEN;
+    case ImageFormat::Blue:                     return GL_BLUE;
+    case ImageFormat::RedGreenBlue:             return GL_RGB;
+    case ImageFormat::RedGreenBlueAlpha:        return GL_RGBA;
+    case ImageFormat::BlueGreenRed:             return GL_BGR;
+    case ImageFormat::BlueGreenRedAlpha:        return GL_BGRA;
+    case ImageFormat::RedGreen:                 return GL_RG;
+    case ImageFormat::RedGreenInteger:          return GL_RG_INTEGER;
+    case ImageFormat::DepthStencil:             return GL_DEPTH_STENCIL;
+    case ImageFormat::RedInteger:               return GL_RED_INTEGER;
+    case ImageFormat::GreenInteger:             return GL_GREEN_INTEGER;
+    case ImageFormat::BlueInteger:              return GL_BLUE_INTEGER;
+    case ImageFormat::RedGreenBlueInteger:      return GL_RGB_INTEGER;
+    case ImageFormat::RedGreenBlueAlphaInteger: return GL_RGBA_INTEGER;
+    case ImageFormat::BlueGreenRedInteger:      return GL_BGR_INTEGER;
+	case ImageFormat::BlueGreenRedAlphaInteger: return GL_BGRA_INTEGER;
 	}
 
 	return -1;
 }
 
 // ------------------------------------------------------------------------------------------------
-//unsigned int glWrap( const FrameBuffer::DepthFormat     &format )
-//{
-//	switch( format )
-//	{
-//	case FrameBuffer::DepthNone:          return GL_NONE;
-//	case FrameBuffer::DepthComponent16:   return GL_DEPTH_COMPONENT16;
-//	case FrameBuffer::DepthComponent24:   return GL_DEPTH_COMPONENT24;
-//	case FrameBuffer::DepthComponent32:   return GL_DEPTH_COMPONENT32;
-//	case FrameBuffer::DepthComponent32F:  return GL_DEPTH_COMPONENT32F;
-//	}
-//	return -1;
-//}
-#pragma endregion
+unsigned int glWrap( const ImageDataType &imgDataType )
+{
+	switch( imgDataType )
+	{
+	case ImageDataType::Byte:                          return GL_BYTE;
+	case ImageDataType::UnsignedByte:                  return GL_UNSIGNED_BYTE;
+	case ImageDataType::Short:                         return GL_SHORT;
+	case ImageDataType::UnsignedShort:                 return GL_UNSIGNED_SHORT;
+	case ImageDataType::Int:                           return GL_INT;
+	case ImageDataType::UnsignedInt:                   return GL_UNSIGNED_INT;
+	case ImageDataType::Float:                         return GL_FLOAT;
+	case ImageDataType::HalfFloat:                     return GL_HALF_FLOAT;
+	case ImageDataType::UnsignedByte332:               return GL_UNSIGNED_BYTE_3_3_2;
+	case ImageDataType::UnsignedShort4444:             return GL_UNSIGNED_SHORT_4_4_4_4;
+	case ImageDataType::UnsignedShort5551:             return GL_UNSIGNED_SHORT_5_5_5_1;
+	case ImageDataType::UnsignedInt8888:               return GL_UNSIGNED_INT_8_8_8_8;
+	case ImageDataType::UnsignedInt1010102:            return GL_UNSIGNED_INT_10_10_10_2;
+	case ImageDataType::UnsignedByte233Reversed:       return GL_UNSIGNED_BYTE_2_3_3_REV;
+	case ImageDataType::UnsignedShort565:              return GL_UNSIGNED_SHORT_5_6_5;
+	case ImageDataType::UnsignedShort565Reversed:      return GL_UNSIGNED_SHORT_5_6_5_REV;
+	case ImageDataType::UnsignedShort4444Reversed:     return GL_UNSIGNED_SHORT_4_4_4_4_REV;
+	case ImageDataType::UnsignedShort1555Reversed:     return GL_UNSIGNED_SHORT_1_5_5_5_REV;
+	case ImageDataType::UnsignedInt8888Reversed:       return GL_UNSIGNED_INT_8_8_8_8_REV;
+	case ImageDataType::UnsignedInt2101010Reversed:    return GL_UNSIGNED_INT_2_10_10_10_REV;
+	case ImageDataType::UnsignedInt248:                return GL_UNSIGNED_INT_24_8;
+	case ImageDataType::UnsignedInt10F11F11FReversed:  return GL_UNSIGNED_INT_10F_11F_11F_REV;
+	case ImageDataType::UnsignedInt5999Reversed:       return GL_UNSIGNED_INT_5_9_9_9_REV;
+	case ImageDataType::Float32UnsignedInt248Reversed: return GL_FLOAT_32_UNSIGNED_INT_24_8_REV;
+	}
 
+	return -1;
+}
+#pragma endregion
 /************************************************************************************************/
 /*                                           RenderBuffer                                       */
 /************************************************************************************************/
 #pragma region RenderState
+// ------------------------------------------------------------------------------------------------
 unsigned int glWrap( const RenderBuffer::Format &format )
 {
 	switch( format )

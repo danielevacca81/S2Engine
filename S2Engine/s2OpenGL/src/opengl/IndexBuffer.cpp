@@ -15,19 +15,15 @@ IndexBuffer::IndexBuffer()
 {}
 
 // -------------------------------------------------------------------------------------------------
-IndexBuffer::IndexBuffer( int sizeInBytes, const IndexDataType &dataType, const BufferObject::BufferUsageHint &usageHint )
+IndexBuffer::IndexBuffer( int sizeInBytes, const IndexDataType &dataType, const BufferObject::UsageHint &usageHint )
 {
 	set( sizeInBytes, dataType, usageHint );
 }
 
 //-------------------------------------------------------------------------------------------------
-IndexBuffer::~IndexBuffer()
-{}
-
-//-------------------------------------------------------------------------------------------------
-void IndexBuffer::set( int sizeInBytes, const IndexDataType &dataType, const BufferObject::BufferUsageHint &usageHint )
+void IndexBuffer::set( int sizeInBytes, const IndexDataType &dataType, const BufferObject::UsageHint &usageHint )
 {
-	_bufferObject = BufferObject::New( sizeInBytes, BufferObject::ElementBuffer, usageHint );
+	_bufferObject = BufferObject::New( sizeInBytes, BufferObject::Type::ElementBuffer, usageHint );
 	_valid        = true;
 	_dataType     = dataType;
 }
@@ -58,7 +54,7 @@ void * IndexBuffer::receiveData( int length, int offset )
 }
 
 //-------------------------------------------------------------------------------------------------
-void * IndexBuffer::mapData( BufferObject::BufferMapMode mode )
+void * IndexBuffer::mapData(const BufferObject::MapMode &mode )
 {
 	if( !_valid )
 		return 0;

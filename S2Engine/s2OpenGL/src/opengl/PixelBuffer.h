@@ -18,14 +18,20 @@ namespace OpenGL {
 class S2OPENGL_API WritePixelBuffer
 {
 public:
+	enum class UsageHint
+	{
+		Stream,
+		Static,
+		Dynamic
+	};
 
-	/*todo specialized usage hints: *Draw */
-	WritePixelBuffer( int sizeInBytes, const BufferObject::BufferUsageHint &usageHint);
+public:
+	WritePixelBuffer( int sizeInBytes, const UsageHint &usageHint);
 
 	int  sizeInBytes() const;
 
-	void bind();
-	void unbind();
+	void bind() const;
+	void unbind() const;
 
 	void  sendData(void *data, int length, int offset = 0);
 	void* receiveData(int length, int offset = 0);
@@ -40,14 +46,20 @@ private:
 class S2OPENGL_API ReadPixelBuffer
 {
 public:
-	/*todo specialized usage hints: *Read */
+	enum class UsageHint
+	{
+		Stream,
+		Static,
+		Dynamic
+	};
 
-	ReadPixelBuffer(int sizeInBytes, const BufferObject::BufferUsageHint &usageHint);
+public:
+	ReadPixelBuffer(int sizeInBytes, const UsageHint &usageHint);
 
 	int  sizeInBytes() const;
 
-	void bind();
-	void unbind();
+	void bind() const;
+	void unbind() const;
 
 	void  sendData(void *data, int length, int offset = 0);
 	void* receiveData(int length, int offset = 0);

@@ -3,6 +3,7 @@
 #include "OpenGL.h"
 
 #include <iostream>
+#include <sstream>
 
 //----------------------------------------------------------------------------------------------
 void s2::OpenGL::glCheckError(const char* file, unsigned line)

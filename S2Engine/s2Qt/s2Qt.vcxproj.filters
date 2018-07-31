@@ -26,9 +26,6 @@
     <Filter Include="src\uim">
       <UniqueIdentifier>{d5f672f3-1974-4e0d-a416-cc6c51bc1be0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\graphics items">
-      <UniqueIdentifier>{4b3f0523-131e-46a5-86da-bf90b7d8bc84}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\s2Qt_API.h">
@@ -63,12 +60,6 @@
     <ClCompile Include="tmp\GeneratedFiles\Release\moc_GLGraphicsScene.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="tmp\GeneratedFiles\Debug\moc_GraphicsItem.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="tmp\GeneratedFiles\Release\moc_GraphicsItem.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
     <ClCompile Include="tmp\GeneratedFiles\Debug\moc_GLGraphicsSceneUpdater.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
@@ -96,9 +87,6 @@
     <ClCompile Include="src\GestureStatus.cpp">
       <Filter>src\uim</Filter>
     </ClCompile>
-    <ClCompile Include="src\GraphicsItem.cpp">
-      <Filter>src\graphics items</Filter>
-    </ClCompile>
     <ClCompile Include="src\GLContext.cpp">
       <Filter>src\scenes</Filter>
     </ClCompile>
@@ -121,9 +109,6 @@
     </CustomBuild>
     <CustomBuild Include="src\GLGraphicsSceneUpdater.h">
       <Filter>src\scenes</Filter>
-    </CustomBuild>
-    <CustomBuild Include="src\GraphicsItem.h">
-      <Filter>src\graphics items</Filter>
     </CustomBuild>
     <CustomBuild Include="src\GLWidget.h">
       <Filter>src\scenes</Filter>

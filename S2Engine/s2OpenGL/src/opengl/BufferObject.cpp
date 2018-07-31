@@ -9,7 +9,7 @@ using namespace s2;
 using namespace s2::OpenGL;
 
 //-------------------------------------------------------------------------------------------------
-BufferObject::BufferObject( int size, const BufferType &type, const BufferUsageHint &usageHint )
+BufferObject::BufferObject( int size, const Type &type, const UsageHint &usageHint )
 : _size(size)
 , _type(type)
 , _usageHint(usageHint)
@@ -76,7 +76,7 @@ void * BufferObject::receiveData( int length, int offset )
 }
 
 //-------------------------------------------------------------------------------------------------
-void * BufferObject::mapData( const BufferMapMode &mode )
+void * BufferObject::mapData( const MapMode &mode )
 {
 	// Note that glMapBuffer() causes a synchronizing issue
 	glBindBuffer( glWrap(_type), _id );	

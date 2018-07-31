@@ -65,8 +65,8 @@ Surface::Surface()
 
 
 	_fbo = FrameBuffer::New();
-	_fbo->attach(FrameBuffer::ColorAttachment0, Texture2D::New(Texture2DDescription(w, h,TextureFormat::RedGreenBlueAlpha8)));
-	_fbo->attach(FrameBuffer::DepthAttachment, Texture2D::New(Texture2DDescription(w, h, TextureFormat::Depth24)));
+	_fbo->attach(FrameBuffer::ColorAttachment0, Texture2D::New(TextureDescription(w, h,TextureFormat::RedGreenBlueAlpha8)));
+	_fbo->attach(FrameBuffer::DepthAttachment, Texture2D::New(TextureDescription(w, h, TextureFormat::Depth24)));
 
 	initBlitShaderProgram();
 }
@@ -107,8 +107,8 @@ void Surface::draw(const Primitive &primitive, const Mesh &mesh, const DrawingSt
 // ------------------------------------------------------------------------------------------------
 void Surface::resize(int width, int height)
 {
-	_fbo->attach(FrameBuffer::ColorAttachment0, Texture2D::New(Texture2DDescription(width,height, TextureFormat::RedGreenBlueAlpha8)));
-	_fbo->attach(FrameBuffer::DepthAttachment, Texture2D::New(Texture2DDescription(width, height, TextureFormat::Depth24)));
+	_fbo->attach(FrameBuffer::ColorAttachment0, Texture2D::New(TextureDescription(width,height, TextureFormat::RedGreenBlueAlpha8)));
+	_fbo->attach(FrameBuffer::DepthAttachment, Texture2D::New(TextureDescription(width, height, TextureFormat::Depth24)));
 }
 
 // ------------------------------------------------------------------------------------------------

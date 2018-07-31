@@ -20,7 +20,7 @@ typedef std::shared_ptr<BufferObject>   BufferObjectPtr;
 class S2OPENGL_API BufferObject
 {
 public:
-	enum BufferUsageHint
+	enum class UsageHint
 	{
 		StreamDraw,
 		StreamRead,
@@ -33,7 +33,7 @@ public:
 		DynamicCopy,
 	};
 
-	enum BufferType
+	enum class Type
 	{
 		ArrayBuffer,
 		ElementBuffer,
@@ -41,7 +41,7 @@ public:
 		PixelPackBuffer
 	};
 
-	enum BufferMapMode
+	enum class MapMode
 	{
 		ReadOnly,
 		WriteOnly,
@@ -49,28 +49,28 @@ public:
 	};
 
 public:
-	static BufferObjectPtr New( int size, const BufferType &type, const BufferUsageHint &usageHint ) { return std::make_shared<BufferObject>( size, type, usageHint ); }
+	static BufferObjectPtr New( int size, const Type &type, const UsageHint &usageHint ) { return std::make_shared<BufferObject>( size, type, usageHint ); }
 
-	BufferObject( int size, const BufferType &type, const BufferUsageHint &usageHint );
+	BufferObject( int size, const Type &type, const UsageHint &usageHint );
 	~BufferObject();
 
 	void bind();
 	void unbind();
 
-	int size()                  const { return _size; }
-	BufferUsageHint usageHint() const { return _usageHint; }
-	BufferType      type()      const { return _type; }
+	int size()            const { return _size; }
+	UsageHint usageHint() const { return _usageHint; }
+	Type      type()      const { return _type; }
 
 	void  sendData( void *data, int length, int offset = 0 );
 	void* receiveData( int length, int offset = 0 );
-	void* mapData( const BufferMapMode &mode );
+	void* mapData( const MapMode &mode );
 	bool  unmapData();
 
 private:
-	unsigned int    _id;
-	unsigned int    _size; // byte size
-	BufferUsageHint _usageHint;
-	BufferType      _type;
+	unsigned int _id;
+	unsigned int _size; // byte size
+	UsageHint    _usageHint;
+	Type   _type;
 };
 
 } // namespace OpenGL

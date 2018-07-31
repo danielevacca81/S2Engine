@@ -9,46 +9,45 @@
 #include "TextureSampler.h"
 
 namespace s2 {
+namespace OpenGL {
 
-	namespace OpenGL {
-	
-		class S2OPENGL_API TextureUnit
-		{
-		
-		public:
-			TextureUnit( int index );
+class S2OPENGL_API TextureUnit
+{
 
-			void setTexture( const Texture2DPtr &texture );
-			void setTextureSampler( const TextureSamplerPtr &sampler );
+public:
+	TextureUnit( int index );
 
-			Texture2DPtr      texture() const;
-			TextureSamplerPtr sampler() const;
+	void setTexture( const Texture2DPtr &texture );
+	void setTextureSampler( const TextureSamplerPtr &sampler );
 
-			void use();
+	Texture2DPtr      texture() const;
+	TextureSamplerPtr sampler() const;
 
-		private:
-			void validate();
+	void use();
 
-		private:
-			enum Changes
-			{
-				None = 0,
-				Texture = 1,
-				Sampler = 2,
-				Both = Texture | Sampler
-			};
-		
-		private:
-			Texture2DPtr      _texture;
-			TextureSamplerPtr _textureSampler;
+private:
+	void validate();
 
-			int  _textureUnitIndex;
-			int  _textureUnit;
-			Changes _changes;
-		};
-	
+private:
+	enum Changes
+	{
+		None = 0,
+		Texture = 1,
+		Sampler = 2,
+		Both = Texture | Sampler
+	};
 
-	}
+private:
+	Texture2DPtr      _texture;
+	TextureSamplerPtr _textureSampler;
+
+	int  _textureUnitIndex;
+	int  _textureUnit;
+	Changes _changes;
+};
+
+
+}
 
 }
 

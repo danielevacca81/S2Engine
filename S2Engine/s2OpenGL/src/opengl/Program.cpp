@@ -17,6 +17,7 @@
 #include "UniformFloatMatrix33.h"
 #include "UniformFloatMatrix44.h"
 
+#include <vector>
 #include <sstream>
 
 using namespace s2;
@@ -199,11 +200,7 @@ bool Program::link( const std::string &name /* = std::string("") */ )
 
 	_name = name;
 	if( _name.empty() )
-	{
-		std::stringstream ss;
-		ss << "Shader_" << _progID;
-		_name = ss.str();
-	}
+		_name = "Shader_" + std::to_string(_progID);
 
 	findUniforms();
 
@@ -373,9 +370,7 @@ static inline std::string extraInfo( int programID, bool attrib )
 		{
 			for( int j = 0; j < size; j++ )
 			{
-				std::stringstream ss;
-				ss << name << "[" << j << "]";
-				std::string longName = ss.str();
+				std::string longName = "[" + std::to_string(j) + "]";
 				int location = 0;
 				if( attrib ) location = glGetAttribLocation( programID, longName.c_str() );
 				else         location = glGetUniformLocation( programID, longName.c_str() );
@@ -485,84 +480,6 @@ std::string Program::info( bool verbose ) const
 	}
 	return msg.str();
 }
-
-
-// ------------------------------------------------------------------------------------------------
-//UniformValue *Program::uniform( const std::string &name )
-//{
-//	auto it = _uniforms.find(name);
-//
-//	if( it == _uniforms.end() )
-//		return 0;
-//
-//	return it->second;
-//}
-
-// ------------------------------------------------------------------------------------------------
-//void Program::setVertexAttribute( const std::string &attribName, int size, int type, bool normalized, int stride, const void *ptr )
-//{
-//	//if( _attributes.find(attribName) == _attributes.end() )
-//	//{
-//	GLint location = glGetAttribLocation( _progID, attribName.c_str() );
-//
-//	if( location < 0 )
-//		return;
-//	
-//	glEnableVertexAttribArray(location);
-//	glVertexAttribPointer(location,size,type,normalized,stride,ptr);
-//
-//	//	_attributes[attribName] = location;
-//	//}
-//	
-//	//glEnableVertexAttribArray(_attributes[attribName]);
-//	//glVertexAttribPointer(_attributes[attribName],size,type,normalized,stride,ptr);
-//}
-
-//// ------------------------------------------------------------------------------------------------
-////void Program::addVertexAttribute( const std::string &attribName )
-////{
-////	GLint location = glGetAttribLocation( _progID, attribName.c_str() );
-////
-////	if( location > 0 )
-////		_attributes[attribName] = location;
-////}
-//
-//
-//// ------------------------------------------------------------------------------------------------
-//int Program::uniformLocation(const std::string &name) const {return glGetUniformLocation(_progID, name.c_str() );}
-//
-//// ------------------------------------------------------------------------------------------------
-//// Single valued (int)
-//void Program::uniform(const std::string &name, int x)                      const { glUniform1i( uniformLocation(name), x );          }
-//void Program::uniform(const std::string &name, int x, int y)               const { glUniform2i( uniformLocation(name), x, y );       } 
-//void Program::uniform(const std::string &name, int x, int y, int z)        const { glUniform3i( uniformLocation(name), x, y, z );    }
-//void Program::uniform(const std::string &name, int x, int y, int z, int w) const { glUniform4i( uniformLocation(name), x, y, z, w ); }
-//
-//// ------------------------------------------------------------------------------------------------
-//// Array values (int) 
-//void Program::uniform1v(const std::string &name, int size, const int *x)    const	{ glUniform1iv( uniformLocation(name), size, x);    }
-//void Program::uniform2v(const std::string &name, int size, const int *xy)   const	{ glUniform2iv( uniformLocation(name), size, xy);   }
-//void Program::uniform3v(const std::string &name, int size, const int *xyz)  const   { glUniform3iv( uniformLocation(name), size, xyz);  }
-//void Program::uniform4v(const std::string &name, int size, const int *xyzw) const   { glUniform4iv( uniformLocation(name), size, xyzw); }
-//
-//// ------------------------------------------------------------------------------------------------
-//// Single valued (float)
-//void Program::uniform(const std::string &name, float x)                            const { glUniform1f(uniformLocation(name), x); }
-//void Program::uniform(const std::string &name, float x, float y)                   const { glUniform2f(uniformLocation(name), x, y); }
-//void Program::uniform(const std::string &name, float x, float y, float z)          const { glUniform3f(uniformLocation(name), x, y, z); }
-//void Program::uniform(const std::string &name, float x, float y, float z, float w) const { glUniform4f(uniformLocation(name), x, y, z, w); }
-//
-//// Array values (float)
-//void Program::uniform1v(const std::string & name, int size, const float * x)     const { glUniform1fv(uniformLocation(name), size, x);    }
-//void Program::uniform2v(const std::string & name, int size, const float * xy)	 const { glUniform2fv(uniformLocation(name), size, xy);   }
-//void Program::uniform3v(const std::string & name, int size, const float * xyz)	 const { glUniform3fv(uniformLocation(name), size, xyz);  }
-//void Program::uniform4v(const std::string & name, int size, const float * xyzw)  const { glUniform4fv(uniformLocation(name), size, xyzw); }
-//
-//// ------------------------------------------------------------------------------------------------
-//// Matrix uniforms
-//void Program::uniformMatrix2( const std::string &name, int count, bool transpose, const float *values ) const {glUniformMatrix2fv(uniformLocation(name),count,transpose,values);}
-//void Program::uniformMatrix3( const std::string &name, int count, bool transpose, const float *values ) const {glUniformMatrix3fv(uniformLocation(name),count,transpose,values);}
-//void Program::uniformMatrix4( const std::string &name, int count, bool transpose, const float *values ) const {glUniformMatrix4fv(uniformLocation(name),count,transpose,values);}
 
 // ------------------------------------------------------------------------------------------------
 bool Program::operator==( const Program &p ) const { return _progID == p._progID; }

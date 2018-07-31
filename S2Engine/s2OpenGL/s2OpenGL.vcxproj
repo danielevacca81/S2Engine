@@ -22,34 +22,34 @@
     <ProjectGuid>{891D7C71-DF59-465C-B0E0-B170D3AF3CF6}</ProjectGuid>
     <RootNamespace>S2Core</RootNamespace>
     <ProjectName>s2OpenGL</ProjectName>
-    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -176,13 +176,6 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\Fonts\FontNew.h" />
-    <ClInclude Include="src\fonts\TextRenderer.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClInclude>
     <ClInclude Include="src\OpenGL\AttributeBuffer.h" />
     <ClInclude Include="src\OpenGL\BufferObject.h" />
     <ClInclude Include="src\opengl\ClearState.h" />
@@ -190,6 +183,7 @@
     <ClInclude Include="src\opengl\DrawingState.h" />
     <ClInclude Include="src\opengl\Extensions.h" />
     <ClInclude Include="src\OpenGL\FrameBuffer.h" />
+    <ClInclude Include="src\opengl\ImageFormat.h" />
     <ClInclude Include="src\OpenGL\IndexBuffer.h" />
     <ClInclude Include="src\OpenGL\Mesh.h" />
     <ClInclude Include="src\OpenGL\OpenGL.h" />
@@ -206,7 +200,6 @@
     <ClInclude Include="src\OpenGL\Tessellation.h" />
     <ClInclude Include="src\OpenGL\Texture.h" />
     <ClInclude Include="src\opengl\TextureDescription.h" />
-    <ClInclude Include="src\opengl\TextureFormat.h" />
     <ClInclude Include="src\opengl\TextureSampler.h" />
     <ClInclude Include="src\opengl\TextureUnit.h" />
     <ClInclude Include="src\OpenGL\Uniform.h" />
@@ -233,18 +226,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\ExtLibs\glew-2.1.0\src\glew.c" />
-    <ClCompile Include="src\Fonts\FontNew.cpp" />
-    <ClCompile Include="src\fonts\TextRenderer.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="src\OpenGL\AttributeBuffer.cpp" />
     <ClCompile Include="src\OpenGL\BufferObject.cpp" />
     <ClCompile Include="src\OpenGL\Context.cpp" />
     <ClCompile Include="src\opengl\Extensions.cpp" />
     <ClCompile Include="src\OpenGL\FrameBuffer.cpp" />
+    <ClCompile Include="src\opengl\ImageFormat.cpp" />
     <ClCompile Include="src\OpenGL\IndexBuffer.cpp" />
     <ClCompile Include="src\OpenGL\Mesh.cpp" />
     <ClCompile Include="src\OpenGL\OpenGL.cpp" />
@@ -259,7 +246,6 @@
     <ClCompile Include="src\OpenGL\Tessellation.cpp" />
     <ClCompile Include="src\OpenGL\Texture.cpp" />
     <ClCompile Include="src\opengl\TextureDescription.cpp" />
-    <ClCompile Include="src\opengl\TextureFormat.cpp" />
     <ClCompile Include="src\opengl\TextureSampler.cpp" />
     <ClCompile Include="src\opengl\TextureUnit.cpp" />
     <ClCompile Include="src\OpenGL\Uniform.cpp" />

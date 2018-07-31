@@ -25,10 +25,9 @@ public:
 
 public:
 	IndexBuffer();
-	IndexBuffer( int sizeInBytes, const IndexDataType &dataType, const BufferObject::BufferUsageHint &usageHint );
-	~IndexBuffer();
+	IndexBuffer( int sizeInBytes, const IndexDataType &dataType, const BufferObject::UsageHint &usageHint );
 
-	void set( int sizeInBytes, const IndexDataType &dataType, const BufferObject::BufferUsageHint &usageHint );
+	void set( int sizeInBytes, const IndexDataType &dataType, const BufferObject::UsageHint &usageHint );
 
 	bool isValid() const { return _valid; }
 
@@ -41,7 +40,7 @@ public:
 
 	void  sendData( void *data, int length, int offset = 0 );
 	void* receiveData( int length, int offset = 0 );
-	void* mapData( BufferObject::BufferMapMode mode );
+	void* mapData( const BufferObject::MapMode &mode );
 	bool  unmapData();
 
 private:

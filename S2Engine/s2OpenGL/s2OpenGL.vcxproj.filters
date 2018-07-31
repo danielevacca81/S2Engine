@@ -4,9 +4,6 @@
     <Filter Include="src">
       <UniqueIdentifier>{f3f50ac4-28a4-4ad4-872b-439b8b04e867}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\fonts">
-      <UniqueIdentifier>{738b23c8-9c78-4efd-89f1-305c0dc379e4}</UniqueIdentifier>
-    </Filter>
     <Filter Include="res">
       <UniqueIdentifier>{b38ba922-f0e5-49f8-a1ec-1ae231483b95}</UniqueIdentifier>
     </Filter>
@@ -24,6 +21,9 @@
     </Filter>
     <Filter Include="src\opengl\wrap\Textures">
       <UniqueIdentifier>{ec2bbc8a-6977-4278-b35c-97fe085752d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\opengl\wrap\BufferObjects">
+      <UniqueIdentifier>{c9467ca7-6e18-407e-a196-6656b454a87e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -75,28 +75,13 @@
     <ClInclude Include="src\OpenGL\UniformSampler.h">
       <Filter>src\opengl\wrap\UniformTypes</Filter>
     </ClInclude>
-    <ClInclude Include="src\Fonts\FontNew.h">
-      <Filter>src\fonts</Filter>
-    </ClInclude>
     <ClInclude Include="src\s2OpenGL_API.h">
       <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\OpenGL\AttributeBuffer.h">
-      <Filter>src\opengl\wrap</Filter>
-    </ClInclude>
-    <ClInclude Include="src\OpenGL\BufferObject.h">
-      <Filter>src\opengl\wrap</Filter>
     </ClInclude>
     <ClInclude Include="src\OpenGL\Context.h">
       <Filter>src\opengl\wrap</Filter>
     </ClInclude>
     <ClInclude Include="src\opengl\Extensions.h">
-      <Filter>src\opengl\wrap</Filter>
-    </ClInclude>
-    <ClInclude Include="src\OpenGL\FrameBuffer.h">
-      <Filter>src\opengl\wrap</Filter>
-    </ClInclude>
-    <ClInclude Include="src\OpenGL\IndexBuffer.h">
       <Filter>src\opengl\wrap</Filter>
     </ClInclude>
     <ClInclude Include="src\OpenGL\Mesh.h">
@@ -123,12 +108,6 @@
     <ClInclude Include="src\OpenGL\VertexArray.h">
       <Filter>src\opengl\wrap</Filter>
     </ClInclude>
-    <ClInclude Include="src\OpenGL\VertexBuffer.h">
-      <Filter>src\opengl\wrap</Filter>
-    </ClInclude>
-    <ClInclude Include="src\fonts\TextRenderer.h">
-      <Filter>src\fonts</Filter>
-    </ClInclude>
     <ClInclude Include="src\opengl\ClearState.h">
       <Filter>src\opengl\state</Filter>
     </ClInclude>
@@ -141,9 +120,6 @@
     <ClInclude Include="src\opengl\StateManager.h">
       <Filter>src\opengl\state</Filter>
     </ClInclude>
-    <ClInclude Include="src\opengl\RenderBuffer.h">
-      <Filter>src\opengl\wrap</Filter>
-    </ClInclude>
     <ClInclude Include="src\opengl\Primitive.h">
       <Filter>src\opengl\wrap</Filter>
     </ClInclude>
@@ -152,9 +128,6 @@
     </ClInclude>
     <ClInclude Include="src\opengl\DrawingState.h">
       <Filter>src\opengl\state</Filter>
-    </ClInclude>
-    <ClInclude Include="src\opengl\PixelBuffer.h">
-      <Filter>src\opengl\wrap</Filter>
     </ClInclude>
     <ClInclude Include="src\opengl\TextureSampler.h">
       <Filter>src\opengl\wrap\Textures</Filter>
@@ -165,39 +138,45 @@
     <ClInclude Include="src\opengl\TextureDescription.h">
       <Filter>src\opengl\wrap\Textures</Filter>
     </ClInclude>
-    <ClInclude Include="src\opengl\TextureFormat.h">
-      <Filter>src\opengl\wrap\Textures</Filter>
-    </ClInclude>
     <ClInclude Include="src\opengl\TextureUnit.h">
       <Filter>src\opengl\wrap\Textures</Filter>
     </ClInclude>
     <ClInclude Include="src\opengl\Surface.h">
       <Filter>src\opengl</Filter>
     </ClInclude>
+    <ClInclude Include="src\opengl\ImageFormat.h">
+      <Filter>src\opengl\wrap\Textures</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OpenGL\AttributeBuffer.h">
+      <Filter>src\opengl\wrap\BufferObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OpenGL\FrameBuffer.h">
+      <Filter>src\opengl\wrap\BufferObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OpenGL\IndexBuffer.h">
+      <Filter>src\opengl\wrap\BufferObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\opengl\PixelBuffer.h">
+      <Filter>src\opengl\wrap\BufferObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\opengl\RenderBuffer.h">
+      <Filter>src\opengl\wrap\BufferObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OpenGL\VertexBuffer.h">
+      <Filter>src\opengl\wrap\BufferObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OpenGL\BufferObject.h">
+      <Filter>src\opengl\wrap\BufferObjects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Fonts\FontNew.cpp">
-      <Filter>src\fonts</Filter>
-    </ClCompile>
-    <ClCompile Include="src\OpenGL\AttributeBuffer.cpp">
-      <Filter>src\opengl\wrap</Filter>
-    </ClCompile>
-    <ClCompile Include="src\OpenGL\BufferObject.cpp">
-      <Filter>src\opengl\wrap</Filter>
-    </ClCompile>
     <ClCompile Include="src\OpenGL\Context.cpp">
       <Filter>src\opengl\wrap</Filter>
     </ClCompile>
     <ClCompile Include="src\opengl\Extensions.cpp">
       <Filter>src\opengl\wrap</Filter>
     </ClCompile>
-    <ClCompile Include="src\OpenGL\FrameBuffer.cpp">
-      <Filter>src\opengl\wrap</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\ExtLibs\glew-2.1.0\src\glew.c">
-      <Filter>src\opengl\wrap</Filter>
-    </ClCompile>
-    <ClCompile Include="src\OpenGL\IndexBuffer.cpp">
       <Filter>src\opengl\wrap</Filter>
     </ClCompile>
     <ClCompile Include="src\OpenGL\Mesh.cpp">
@@ -224,34 +203,19 @@
     <ClCompile Include="src\OpenGL\VertexArray.cpp">
       <Filter>src\opengl\wrap</Filter>
     </ClCompile>
-    <ClCompile Include="src\OpenGL\VertexBuffer.cpp">
-      <Filter>src\opengl\wrap</Filter>
-    </ClCompile>
-    <ClCompile Include="src\fonts\TextRenderer.cpp">
-      <Filter>src\fonts</Filter>
-    </ClCompile>
     <ClCompile Include="src\opengl\ViewState.cpp">
       <Filter>src\opengl\state</Filter>
     </ClCompile>
     <ClCompile Include="src\opengl\StateManager.cpp">
       <Filter>src\opengl\state</Filter>
     </ClCompile>
-    <ClCompile Include="src\opengl\RenderBuffer.cpp">
-      <Filter>src\opengl\wrap</Filter>
-    </ClCompile>
     <ClCompile Include="src\opengl\Renderer.cpp">
-      <Filter>src\opengl\wrap</Filter>
-    </ClCompile>
-    <ClCompile Include="src\opengl\PixelBuffer.cpp">
       <Filter>src\opengl\wrap</Filter>
     </ClCompile>
     <ClCompile Include="src\OpenGL\Texture.cpp">
       <Filter>src\opengl\wrap\Textures</Filter>
     </ClCompile>
     <ClCompile Include="src\opengl\TextureDescription.cpp">
-      <Filter>src\opengl\wrap\Textures</Filter>
-    </ClCompile>
-    <ClCompile Include="src\opengl\TextureFormat.cpp">
       <Filter>src\opengl\wrap\Textures</Filter>
     </ClCompile>
     <ClCompile Include="src\opengl\TextureSampler.cpp">
@@ -262,6 +226,30 @@
     </ClCompile>
     <ClCompile Include="src\opengl\Surface.cpp">
       <Filter>src\opengl</Filter>
+    </ClCompile>
+    <ClCompile Include="src\opengl\ImageFormat.cpp">
+      <Filter>src\opengl\wrap\Textures</Filter>
+    </ClCompile>
+    <ClCompile Include="src\OpenGL\AttributeBuffer.cpp">
+      <Filter>src\opengl\wrap\BufferObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\OpenGL\FrameBuffer.cpp">
+      <Filter>src\opengl\wrap\BufferObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\OpenGL\IndexBuffer.cpp">
+      <Filter>src\opengl\wrap\BufferObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\opengl\PixelBuffer.cpp">
+      <Filter>src\opengl\wrap\BufferObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\opengl\RenderBuffer.cpp">
+      <Filter>src\opengl\wrap\BufferObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\OpenGL\VertexBuffer.cpp">
+      <Filter>src\opengl\wrap\BufferObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\OpenGL\BufferObject.cpp">
+      <Filter>src\opengl\wrap\BufferObjects</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

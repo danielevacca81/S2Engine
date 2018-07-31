@@ -45,9 +45,9 @@ public:
 	void setTextureCoords( const std::vector<Math::vec2>  &texCoords);
 	void setIndices( const std::vector<unsigned int> &indices );
 
-	BufferObject::BufferUsageHint usageHint;
-	Primitive                     primitiveType;
-	WindingOrder                  frontFaceWindingOrder;
+	BufferObject::UsageHint usageHint;
+	Primitive     primitiveType;
+	WindingOrder  frontFaceWindingOrder;
 
 private:
 	VertexArray _va;
