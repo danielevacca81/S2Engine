@@ -19,7 +19,7 @@ unsigned int glWrap( const IndexBuffer::IndexDataType &datatype )
 	case IndexBuffer::UnsignedInt:    return GL_UNSIGNED_INT;
 	case IndexBuffer::UnsignedShort:  return GL_UNSIGNED_SHORT;
 	}
-
+	assert( ( "Unknown IndexBuffer::IndexDataType", 0 ) );
 	return -1;
 }
 #pragma endregion
@@ -45,14 +45,15 @@ unsigned int glWrap( const AttributeBuffer::ComponentDatatype &datatype )
 	case AttributeBuffer::Double:        return GL_DOUBLE;
 	}
 
+	assert( ( "Unknown AttributeBuffer::ComponentDatatype", 0 ) );
 	return -1;
 }
 #pragma endregion
 
 /************************************************************************************************/
-/*                                        VertexBuffer                                    */
+/*                                           BufferObject                                       */
 /************************************************************************************************/
-#pragma region
+#pragma region BufferObject
 // ------------------------------------------------------------------------------------------------
 unsigned int glWrap( const BufferObject::UsageHint &hint )
 {
@@ -69,6 +70,7 @@ unsigned int glWrap( const BufferObject::UsageHint &hint )
 	case BufferObject::UsageHint::DynamicCopy: return GL_DYNAMIC_COPY;
 	}
 
+	assert( ( "Unknown BufferObject::UsageHint", 0 ) );
 	return -1;
 }
 
@@ -83,6 +85,7 @@ unsigned int glWrap( const BufferObject::Type &type )
 	case BufferObject::Type::PixelUnpackBuffer: return GL_PIXEL_UNPACK_BUFFER;
 	}
 
+	assert( ( "Unknown BufferObject::Type", 0 ) );
 	return -1;
 }
 
@@ -96,6 +99,7 @@ unsigned int glWrap( const BufferObject::MapMode &mode )
 	case BufferObject::MapMode::ReadWrite: return GL_READ_WRITE;
 	}
 
+	assert( ( "Unknown BufferObject::MapMode", 0 ) );
 	return -1;
 }
 #pragma endregion
@@ -166,6 +170,7 @@ unsigned int glWrap(const TextureFormat &format)
 	case TextureFormat::RedGreenBlue8i:        return GL_RGB8I;
 	}
 
+	assert( ( "Unknown TextureFormat", 0 ) );
 	return -1;
 }
 
@@ -231,6 +236,7 @@ unsigned int glWrapTextureFormatToPixelType( const TextureFormat &f )
 	case TextureFormat::RedGreenBlue8i:       return GL_UNSIGNED_BYTE;
 	}
 
+	assert( ( "Unknown TextureFormat", 0 ) );
 	return -1;
 }
 
@@ -303,6 +309,7 @@ unsigned int glWrapTextureFormatToPixelFormat(const TextureFormat &f)
 	case TextureFormat::RedGreenBlueAlpha8i:  return GL_RGBA_INTEGER;
 	case TextureFormat::RedGreenBlue8i:       return GL_RGB_INTEGER;
 	}
+	assert( ( "Unknown TextureFormat", 0 ) );
 	return -1;
 }
 
@@ -319,6 +326,7 @@ unsigned int glWrap( const TextureSampler::MinificationFilter &filter )
 	case TextureSampler::MinificationFilter::LinearMipmapLinear:   return GL_LINEAR_MIPMAP_LINEAR;
 	}
 
+	assert( ( "Unknown TextureSampler::MinificationFilter", 0 ) );
 	return -1;
 }
 
@@ -331,6 +339,7 @@ unsigned int glWrap( const TextureSampler::MagnificationFilter &filter )
 	case TextureSampler::MagnificationFilter::Linear:   return GL_LINEAR;
 	}
 
+	assert( ( "Unknown TextureSampler::MagnificationFilter", 0 ) );
 	return -1;
 }
 
@@ -344,6 +353,7 @@ unsigned int glWrap( const TextureSampler::Wrap &wrap )
 	case TextureSampler::Wrap::MirroredRepeat:  return GL_MIRRORED_REPEAT;
 	}
 
+	assert( ( "Unknown TextureSampler::Wrap", 0 ) );
 	return -1;
 }
 #pragma endregion
@@ -371,6 +381,7 @@ unsigned int glWrap( const FrameBuffer::AttachmentPoint &attachment )
 	case FrameBuffer::DepthStencilAttachment: return GL_DEPTH_STENCIL_ATTACHMENT;
 	}
 
+	assert( ( "Unknown FrameBuffer::AttachmentPoint", 0 ) );
 	return -1;
 }
 #pragma endregion
@@ -405,6 +416,7 @@ unsigned int glWrap( const ImageFormat &imgFormat )
 	case ImageFormat::BlueGreenRedAlphaInteger: return GL_BGRA_INTEGER;
 	}
 
+	assert( ( "Unknown ImageFormat", 0 ) );
 	return -1;
 }
 
@@ -439,13 +451,14 @@ unsigned int glWrap( const ImageDataType &imgDataType )
 	case ImageDataType::Float32UnsignedInt248Reversed: return GL_FLOAT_32_UNSIGNED_INT_24_8_REV;
 	}
 
+	assert( ( "Unknown ImageDataType", 0 ) );
 	return -1;
 }
 #pragma endregion
 /************************************************************************************************/
 /*                                           RenderBuffer                                       */
 /************************************************************************************************/
-#pragma region RenderState
+#pragma region RenderBuffer
 // ------------------------------------------------------------------------------------------------
 unsigned int glWrap( const RenderBuffer::Format &format )
 {
@@ -527,6 +540,7 @@ unsigned int glWrap( const RenderBuffer::Format &format )
 	case RenderBuffer::StencilIndex8:     return GL_STENCIL_INDEX8;
     case RenderBuffer::StencilIndex16:    return GL_STENCIL_INDEX16;
 	}
+	assert( ( "Unknown RenderBuffer", 0 ) );
 	return -1;
 }
 #pragma endregion
@@ -544,6 +558,7 @@ unsigned int glWrap( const FaceCulling::Face &face )
 	case FaceCulling::Back:         return GL_BACK;
 	case FaceCulling::FrontAndBack: return GL_FRONT_AND_BACK;
 	}
+	assert( ( "Unknown FaceCulling::Face", 0 ) );
 	return -1;
 }
 
@@ -555,6 +570,7 @@ unsigned int glWrap( const FaceCulling::WindingOrder &winding )
 	case FaceCulling::ClockWise:        return GL_CW;
 	case FaceCulling::CounterClockWise: return GL_CCW;
 	}
+	assert( ( "Unknown FaceCulling::WindingOrder", 0 ) );
 	return -1;
 }
 
@@ -572,6 +588,7 @@ unsigned int glWrap( const StencilTestFace::StencilOperation &op )
 	case StencilTestFace::IncrementWrap: return GL_INCR_WRAP;
 	case StencilTestFace::DecrementWrap: return GL_DECR_WRAP;
 	}
+	assert( ( "Unknown StencilTestFace::StencilOperation", 0 ) );
 	return -1;
 }
 
@@ -589,6 +606,7 @@ unsigned int glWrap( const StencilTestFace::StencilTestFunction &fun )
 	case StencilTestFace::GreaterThanOrEqual: return GL_GEQUAL;
 	case StencilTestFace::Always:             return GL_ALWAYS;
 	}
+	assert( ( "Unknown StencilTestFace::StencilTestFunction", 0 ) );
 	return -1;
 }
 
@@ -606,6 +624,7 @@ unsigned int glWrap( const DepthTest::DepthTestFunction &fun )
 	case DepthTest::GreaterThanOrEqual: return GL_GEQUAL;
 	case DepthTest::Always:             return GL_ALWAYS;
 	}
+	assert( ( "Unknown DepthTest::DepthTestFunction", 0 ) );
 	return -1;
 }
 
@@ -630,6 +649,7 @@ unsigned int glWrap( const Blending::BlendingFactor &factor )
 	case Blending::ConstantAlpha:            return GL_CONSTANT_ALPHA;
 	case Blending::OneMinusConstantAlpha:    return GL_ONE_MINUS_CONSTANT_ALPHA;
 	}
+	assert( ( "Unknown Blending::BlendingFactor", 0 ) );
 	return -1;
 }
 
@@ -644,6 +664,7 @@ unsigned int glWrap( const Blending::BlendEquation &equation )
 	case Blending::Subtract:        return GL_FUNC_SUBTRACT;
 	case Blending::ReverseSubtract: return GL_FUNC_REVERSE_SUBTRACT;
 	}
+	assert( ( "Unknown Blending::BlendEquation", 0 ) );
 	return -1;
 }
 
@@ -658,6 +679,7 @@ unsigned int glWrap( const ClearBuffers &buffers )
 	case ColorAndDepthBuffer: return GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT;
 	case All:                 return GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
 	}
+	assert( ( "Unknown ClearBuffers", 0 ) );
 	return -1;
 }
 
@@ -670,6 +692,7 @@ unsigned int glWrap( const RenderState::RasterizationMode &mode )
 	case RenderState::Line:  return GL_LINE;
 	case RenderState::Fill:  return GL_FILL;
 	}
+	assert( ( "Unknown enderState::RasterizationMode", 0 ) );
 	return -1;
 }
 
@@ -693,6 +716,7 @@ unsigned int glWrap( const Primitive &primitive )
 	case Primitive::Quads:         return GL_QUADS;
 	case Primitive::QuadStrip:     return GL_QUAD_STRIP;
 	}
+	assert( ( "Unknown Primitive", 0 ) );
 	return -1;
 }
 
