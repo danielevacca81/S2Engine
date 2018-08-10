@@ -10,6 +10,11 @@
 
 #include <iostream>
 
+s2::OpenGL::MeshPtr    GLResourcesLoader::_torus;
+s2::OpenGL::MeshPtr    GLResourcesLoader::_cube;
+s2::OpenGL::ProgramPtr GLResourcesLoader::_phong;
+s2::OpenGL::ProgramPtr GLResourcesLoader::_background;
+
 using namespace s2;
 
 // ------------------------------------------------------------------------------------------------
@@ -24,6 +29,12 @@ GLResourcesLoader::GLResourcesLoader( QWidget *parent )
 // ------------------------------------------------------------------------------------------------
 GLResourcesLoader::~GLResourcesLoader()
 {
+	makeCurrent();
+	_phong = nullptr;
+	_cube = nullptr;
+	_torus = nullptr;
+	_background = nullptr;
+	doneCurrent();
 }
 
  //------------------------------------------------------------------------------------------------
@@ -59,6 +70,7 @@ bool GLResourcesLoader::load()
 // ------------------------------------------------------------------------------------------------
 void GLResourcesLoader::initMeshes()
 {
+	if( !_cube )
 	{
 		std::vector< Math::vec3 > pts;
 		std::vector< Color  > colors;
@@ -112,9 +124,10 @@ void GLResourcesLoader::initMeshes()
 		pts.push_back( Math::vec3( -1.0f, 1.0f, -1.0f ) ); colors.push_back( Color::green().lighter() ); normals.push_back( Math::vec3( 0.0f, 1.0f, 0.0f ) );
 		pts.push_back( Math::vec3( -1.0f, 1.0f, 1.0f ) ); colors.push_back( Color::green().lighter() ); normals.push_back( Math::vec3( 0.0f, 1.0f, 0.0f ) );
 
-		_cube.setVertices( pts );
-		_cube.setColors( colors );
-		_cube.setNormals( normals );
+		_cube = s2::OpenGL::Mesh::New();
+		_cube->setVertices( pts );
+		_cube->setColors( colors );
+		_cube->setNormals( normals );
 
 	}
 
@@ -126,9 +139,9 @@ void GLResourcesLoader::initMeshes()
 		//_triangle.setColors( colors );
 	}
 
-
+	if( !_torus )
 	{
-		const Math::Mesh torusMesh = s2::torus( 2, 0.75, 64, 16 );
+		const Math::Mesh torusMesh = s2::torus( 1.0, 0.65, 64, 16 );
 		
 		// convert into glmesh
 		std::vector<Math::vec3> pts;
@@ -140,10 +153,12 @@ void GLResourcesLoader::initMeshes()
 		}
 
 		std::vector<Color> colors( torusMesh.vertices().size(), Color::cyan() );
-		_torus.setVertices( pts );
-		_torus.setIndices( torusMesh.indices() );
-		_torus.setNormals( normals );
-		_torus.setColors( colors );
+
+		_torus = s2::OpenGL::Mesh::New();
+		_torus->setVertices( pts );
+		_torus->setIndices( torusMesh.indices() );
+		_torus->setNormals( normals );
+		_torus->setColors( colors );
 	}
 }
 
@@ -153,7 +168,7 @@ void GLResourcesLoader::initShaders()
 	_phong = OpenGL::Program::New();
 	{
 		const bool vsOk = _phong->attachVertexShader( STRINGIFY(
-		#version 330\n
+		#version 400\n
 		uniform mat4 modelViewProjectionMatrix;
 		uniform mat4 modelViewMatrix;
 		uniform mat3 normalMatrix;
@@ -178,7 +193,7 @@ void GLResourcesLoader::initShaders()
 		) );
 
 		_phong->attachFragmentShader( STRINGIFY(
-		#version 330\n
+		#version 400\n
 		uniform vec4  lightPosition;
 		uniform vec4  lightAmbient;
 		uniform vec4  lightDiffuse;
@@ -226,6 +241,44 @@ void GLResourcesLoader::initShaders()
 		_phong->uniform<Math::mat4>( "modelViewProjectionMatrix" )->set( Math::mat4( 1 ) );
 		_phong->uniform<Math::mat4>( "modelViewMatrix"           )->set( Math::mat4( 1 ) );
 		_phong->uniform<Math::mat3>( "normalMatrix"              )->set( Math::mat3( 1 ) );
+	}
+
+	_background = OpenGL::Program::New();
+	{
+		const bool vsOk = _background->attachVertexShader( STRINGIFY(
+			#version 400\n
+			layout(location = 0) in vec3 in_Vertex;
+
+			out float gradient;
+
+			void main() 
+			{
+				gl_Position = vec4(in_Vertex,1.0);
+				gradient = in_Vertex.y * 0.5 + 0.5;
+			}
+		) );
+
+		_background->attachFragmentShader( STRINGIFY(
+			#version 400\n
+
+			uniform vec4 top_color;
+			uniform vec4 bot_color;
+			
+			in float gradient;
+			
+			out vec4 frag_color;
+
+			void main()
+			{
+				frag_color = mix( bot_color, top_color, gradient );
+				//frag_color = color;
+			}
+		) );
+
+		_background->link("Background");
+
+
+		std::cout << _background->info( true ) << std::endl;	
 	}
 
 /*	_shaderSimple = OpenGL::Program::New();

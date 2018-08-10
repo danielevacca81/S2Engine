@@ -21,7 +21,7 @@ public:
 	TestScene( QWidget *parent );
 	~TestScene();
 
-	void addMesh( const s2::OpenGL::Mesh &m );
+	void addMesh( const s2::OpenGL::MeshPtr &m );
 	void setShader( const s2::OpenGL::ProgramPtr &shader );
 
 	void resetView();
@@ -30,6 +30,8 @@ public:
 	void resizeGL( int w, int h ) override;
 	void paintGL() override;
 	void initializeGL() override;
+
+	void updateAnimations() override;
 
 private:
 	void onMousePressed();
@@ -44,6 +46,7 @@ private:
     int   _frames;
     QTime _time;
 
+	QTimer _t;
 
 	bool              _wireframe;
 
@@ -59,5 +62,6 @@ private:
 	s2::OpenGL::SurfacePtr _surface;
 	s2::OpenGL::ProgramPtr     _shader;
 
-	std::vector<s2::OpenGL::Mesh> _meshes;
+
+	std::vector<s2::OpenGL::MeshPtr> _meshes;
 };
