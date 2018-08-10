@@ -129,9 +129,6 @@
     <ClInclude Include="src\ViewState.h">
       <Filter>src\states</Filter>
     </ClInclude>
-    <ClInclude Include="src\VertexBuffer.h">
-      <Filter>src\states</Filter>
-    </ClInclude>
     <ClInclude Include="src\OpenGLWrap.h">
       <Filter>src\opengl</Filter>
     </ClInclude>
@@ -150,9 +147,6 @@
     <ClInclude Include="src\Device.h">
       <Filter>src\components</Filter>
     </ClInclude>
-    <ClInclude Include="src\ImageFormat.h">
-      <Filter>src\components</Filter>
-    </ClInclude>
     <ClInclude Include="src\Mesh.h">
       <Filter>src\components</Filter>
     </ClInclude>
@@ -162,14 +156,20 @@
     <ClInclude Include="src\Program.h">
       <Filter>src\components</Filter>
     </ClInclude>
-    <ClInclude Include="src\Renderer.h">
-      <Filter>src\components</Filter>
-    </ClInclude>
     <ClInclude Include="src\Surface.h">
       <Filter>src\components</Filter>
     </ClInclude>
     <ClInclude Include="src\VertexArray.h">
       <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ImageFormat.h">
+      <Filter>src\textures</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer.h">
+      <Filter>src\opengl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VertexBuffer.h">
+      <Filter>src\buffer objects</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -215,9 +215,6 @@
     <ClCompile Include="src\ViewState.cpp">
       <Filter>src\states</Filter>
     </ClCompile>
-    <ClCompile Include="src\VertexBuffer.cpp">
-      <Filter>src\states</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\ExtLibs\glew-2.1.0\src\glew.c">
       <Filter>src\opengl</Filter>
     </ClCompile>
@@ -233,16 +230,10 @@
     <ClCompile Include="src\Context.cpp">
       <Filter>src\components</Filter>
     </ClCompile>
-    <ClCompile Include="src\ImageFormat.cpp">
-      <Filter>src\components</Filter>
-    </ClCompile>
     <ClCompile Include="src\Mesh.cpp">
       <Filter>src\components</Filter>
     </ClCompile>
     <ClCompile Include="src\Program.cpp">
-      <Filter>src\components</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Renderer.cpp">
       <Filter>src\components</Filter>
     </ClCompile>
     <ClCompile Include="src\Surface.cpp">
@@ -250,6 +241,18 @@
     </ClCompile>
     <ClCompile Include="src\VertexArray.cpp">
       <Filter>src\components</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Device.cpp">
+      <Filter>src\components</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ImageFormat.cpp">
+      <Filter>src\textures</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer.cpp">
+      <Filter>src\opengl</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VertexBuffer.cpp">
+      <Filter>src\buffer objects</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

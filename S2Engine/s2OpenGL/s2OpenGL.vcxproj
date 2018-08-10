@@ -230,6 +230,7 @@
     <ClCompile Include="src\AttributeBuffer.cpp" />
     <ClCompile Include="src\BufferObject.cpp" />
     <ClCompile Include="src\Context.cpp" />
+    <ClCompile Include="src\Device.cpp" />
     <ClCompile Include="src\Extensions.cpp" />
     <ClCompile Include="src\FrameBuffer.cpp" />
     <ClCompile Include="src\ImageFormat.cpp" />
