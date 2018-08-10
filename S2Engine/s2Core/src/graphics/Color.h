@@ -5,6 +5,8 @@
 
 #include "s2Core_API.h"
 
+#include "math/Math.h"
+
 namespace s2 {
 
 class S2CORE_API Color
@@ -81,6 +83,7 @@ public:
 	// ------------------------------------------------------------------------------------------------
 	// Cast Operator
 	operator float const *()       { return &_r; }
+	operator Math::vec4 const( )   { return Math::vec4(_r,_g,_b,_a); }
 
 	Color operator +( const Color &c ) const;
 	bool operator==( const Color &c ) const;

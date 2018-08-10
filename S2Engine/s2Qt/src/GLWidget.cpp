@@ -10,10 +10,12 @@ GLWidget::GLWidget( QWidget *parent )
 , _animating( false )
 , _uim( this )
 {
-	connect( &_updateTimer, &QTimer::timeout, this, QOverload<>::of( &QOpenGLWidget::update ) );
+	//connect( this, &QObject::destroyed, this, &GLWidget::destroyGL );
+	
+	//connect( &_updateTimer, &QTimer::timeout, this, QOverload<>::of( &QOpenGLWidget::updateAnimations ) );
+	connect( &_updateTimer, &QTimer::timeout, this, &GLWidget::updateAnimations );
 	enableAnimation(10);
 }
-
 
 // ------------------------------------------------------------------------------------------------
 void GLWidget::enableAnimation( unsigned int refreshTime )
@@ -49,6 +51,10 @@ bool GLWidget::isAnimationEnabled() const
 
 // ------------------------------------------------------------------------------------------------
 void GLWidget::initializeGL()
+{}
+
+// ------------------------------------------------------------------------------------------------
+void GLWidget::updateAnimations()
 {}
 
 // -----------------------------------------------------------------------------------------------

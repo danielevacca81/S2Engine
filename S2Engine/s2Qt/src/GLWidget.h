@@ -36,6 +36,8 @@ public:
 	void disableAnimation();
 	bool isAnimationEnabled() const;
 
+	virtual void updateAnimations();
+
 protected:
     void initializeGL() override;
 
@@ -48,8 +50,8 @@ protected:
 	void keyPressEvent( QKeyEvent *e ) override;
 	void keyReleaseEvent( QKeyEvent *e ) override;
 
-//signals:
-//	void openGLInitialized();
+//protected slots:
+//	virtual void destroyGL() = 0;
 
 protected:
 	UserInteractionManager _uim;

@@ -20,19 +20,16 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;cxx;c;def</Extensions>
     </Filter>
-    <Filter Include="src\scenes">
-      <UniqueIdentifier>{3f8748ae-9adb-4f2d-a6bf-f25f4819d150}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\uim">
       <UniqueIdentifier>{d5f672f3-1974-4e0d-a416-cc6c51bc1be0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\opengl">
+      <UniqueIdentifier>{3f8748ae-9adb-4f2d-a6bf-f25f4819d150}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\s2Qt_API.h">
       <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\GLGraphicsView.h">
-      <Filter>src\scenes</Filter>
     </ClInclude>
     <ClInclude Include="src\UserInteractionManager.h">
       <Filter>src\uim</Filter>
@@ -50,31 +47,10 @@
       <Filter>src\uim</Filter>
     </ClInclude>
     <ClInclude Include="src\GLContext.h">
-      <Filter>src\scenes</Filter>
+      <Filter>src\opengl</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="tmp\GeneratedFiles\Debug\moc_GLGraphicsScene.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="tmp\GeneratedFiles\Release\moc_GLGraphicsScene.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="tmp\GeneratedFiles\Debug\moc_GLGraphicsSceneUpdater.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="tmp\GeneratedFiles\Release\moc_GLGraphicsSceneUpdater.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="src\GLGraphicsScene.cpp">
-      <Filter>src\scenes</Filter>
-    </ClCompile>
-    <ClCompile Include="src\GLGraphicsSceneUpdater.cpp">
-      <Filter>src\scenes</Filter>
-    </ClCompile>
-    <ClCompile Include="src\GLGraphicsView.cpp">
-      <Filter>src\scenes</Filter>
-    </ClCompile>
     <ClCompile Include="src\UserInteractionManager.cpp">
       <Filter>src\uim</Filter>
     </ClCompile>
@@ -88,10 +64,10 @@
       <Filter>src\uim</Filter>
     </ClCompile>
     <ClCompile Include="src\GLContext.cpp">
-      <Filter>src\scenes</Filter>
+      <Filter>src\opengl</Filter>
     </ClCompile>
     <ClCompile Include="src\GLWidget.cpp">
-      <Filter>src\scenes</Filter>
+      <Filter>src\opengl</Filter>
     </ClCompile>
     <ClCompile Include="src\UserInterface.cpp">
       <Filter>src\uim</Filter>
@@ -104,14 +80,8 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="src\GLGraphicsScene.h">
-      <Filter>src\scenes</Filter>
-    </CustomBuild>
-    <CustomBuild Include="src\GLGraphicsSceneUpdater.h">
-      <Filter>src\scenes</Filter>
-    </CustomBuild>
     <CustomBuild Include="src\GLWidget.h">
-      <Filter>src\scenes</Filter>
+      <Filter>src\opengl</Filter>
     </CustomBuild>
     <CustomBuild Include="src\UserInterface.h">
       <Filter>src\uim</Filter>

@@ -43,7 +43,7 @@ enum class FileFilterType
 	FilterByName
 };
 
-enum CopyDirOptions
+enum class CopyDirOptions
 {
 	OnlyFiles = 0,
 	Recursive = 1
