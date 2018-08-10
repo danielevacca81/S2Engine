@@ -554,9 +554,9 @@ unsigned int glWrap( const FaceCulling::Face &face )
 {
 	switch( face )
 	{
-	case FaceCulling::Front:        return GL_FRONT;
-	case FaceCulling::Back:         return GL_BACK;
-	case FaceCulling::FrontAndBack: return GL_FRONT_AND_BACK;
+	case FaceCulling::Face::Front:        return GL_FRONT;
+	case FaceCulling::Face::Back:         return GL_BACK;
+	case FaceCulling::Face::FrontAndBack: return GL_FRONT_AND_BACK;
 	}
 	assert( ( "Unknown FaceCulling::Face", 0 ) );
 	return -1;
@@ -567,8 +567,8 @@ unsigned int glWrap( const FaceCulling::WindingOrder &winding )
 {
 	switch( winding )
 	{
-	case FaceCulling::ClockWise:        return GL_CW;
-	case FaceCulling::CounterClockWise: return GL_CCW;
+	case FaceCulling::WindingOrder::ClockWise:        return GL_CW;
+	case FaceCulling::WindingOrder::CounterClockWise: return GL_CCW;
 	}
 	assert( ( "Unknown FaceCulling::WindingOrder", 0 ) );
 	return -1;
@@ -579,14 +579,14 @@ unsigned int glWrap( const StencilTestFace::StencilOperation &op )
 {
 	switch( op )
 	{
-	case StencilTestFace::Zero:          return GL_ZERO;
-	case StencilTestFace::Invert:        return GL_INVERT;
-	case StencilTestFace::Keep:          return GL_KEEP;
-	case StencilTestFace::Replace:       return GL_REPLACE;
-	case StencilTestFace::Increment:     return GL_INCR;
-	case StencilTestFace::Decrement:     return GL_DECR;
-	case StencilTestFace::IncrementWrap: return GL_INCR_WRAP;
-	case StencilTestFace::DecrementWrap: return GL_DECR_WRAP;
+	case StencilTestFace::StencilOperation::Zero:          return GL_ZERO;
+	case StencilTestFace::StencilOperation::Invert:        return GL_INVERT;
+	case StencilTestFace::StencilOperation::Keep:          return GL_KEEP;
+	case StencilTestFace::StencilOperation::Replace:       return GL_REPLACE;
+	case StencilTestFace::StencilOperation::Increment:     return GL_INCR;
+	case StencilTestFace::StencilOperation::Decrement:     return GL_DECR;
+	case StencilTestFace::StencilOperation::IncrementWrap: return GL_INCR_WRAP;
+	case StencilTestFace::StencilOperation::DecrementWrap: return GL_DECR_WRAP;
 	}
 	assert( ( "Unknown StencilTestFace::StencilOperation", 0 ) );
 	return -1;
@@ -597,14 +597,14 @@ unsigned int glWrap( const StencilTestFace::StencilTestFunction &fun )
 {
 	switch( fun )
 	{
-	case StencilTestFace::Never:              return GL_NEVER;
-	case StencilTestFace::Less:               return GL_LESS;
-	case StencilTestFace::Equal:              return GL_EQUAL;
-	case StencilTestFace::LessThanOrEqual:    return GL_LEQUAL;
-	case StencilTestFace::Greater:            return GL_GREATER;
-	case StencilTestFace::NotEqual:           return GL_NOTEQUAL;
-	case StencilTestFace::GreaterThanOrEqual: return GL_GEQUAL;
-	case StencilTestFace::Always:             return GL_ALWAYS;
+	case StencilTestFace::StencilTestFunction::Never:              return GL_NEVER;
+	case StencilTestFace::StencilTestFunction::Less:               return GL_LESS;
+	case StencilTestFace::StencilTestFunction::Equal:              return GL_EQUAL;
+	case StencilTestFace::StencilTestFunction::LessThanOrEqual:    return GL_LEQUAL;
+	case StencilTestFace::StencilTestFunction::Greater:            return GL_GREATER;
+	case StencilTestFace::StencilTestFunction::NotEqual:           return GL_NOTEQUAL;
+	case StencilTestFace::StencilTestFunction::GreaterThanOrEqual: return GL_GEQUAL;
+	case StencilTestFace::StencilTestFunction::Always:             return GL_ALWAYS;
 	}
 	assert( ( "Unknown StencilTestFace::StencilTestFunction", 0 ) );
 	return -1;
@@ -615,54 +615,54 @@ unsigned int glWrap( const DepthTest::DepthTestFunction &fun )
 {
 	switch( fun )
 	{
-	case DepthTest::Never:              return GL_NEVER;
-	case DepthTest::Less:               return GL_LESS;
-	case DepthTest::Equal:              return GL_EQUAL;
-	case DepthTest::LessThanOrEqual:    return GL_LEQUAL;
-	case DepthTest::Greater:            return GL_GREATER;
-	case DepthTest::NotEqual:           return GL_NOTEQUAL;
-	case DepthTest::GreaterThanOrEqual: return GL_GEQUAL;
-	case DepthTest::Always:             return GL_ALWAYS;
+	case DepthTest::DepthTestFunction::Never:              return GL_NEVER;
+	case DepthTest::DepthTestFunction::Less:               return GL_LESS;
+	case DepthTest::DepthTestFunction::Equal:              return GL_EQUAL;
+	case DepthTest::DepthTestFunction::LessThanOrEqual:    return GL_LEQUAL;
+	case DepthTest::DepthTestFunction::Greater:            return GL_GREATER;
+	case DepthTest::DepthTestFunction::NotEqual:           return GL_NOTEQUAL;
+	case DepthTest::DepthTestFunction::GreaterThanOrEqual: return GL_GEQUAL;
+	case DepthTest::DepthTestFunction::Always:             return GL_ALWAYS;
 	}
 	assert( ( "Unknown DepthTest::DepthTestFunction", 0 ) );
 	return -1;
 }
 
 // ------------------------------------------------------------------------------------------------
-unsigned int glWrap( const Blending::BlendingFactor &factor )
+unsigned int glWrap( const Blending::Factor &factor )
 {
 	switch( factor )
 	{
-	case Blending::Zero:                     return GL_ZERO;
-	case Blending::One:                      return GL_ONE;
-	case Blending::SourceAlpha:              return GL_SRC_ALPHA;
-	case Blending::OneMinusSourceAlpha:      return GL_ONE_MINUS_SRC_ALPHA;
-	case Blending::SourceColor:              return GL_SRC_COLOR;
-	case Blending::OneMinusSourceColor:      return GL_ONE_MINUS_SRC_COLOR;
-	case Blending::DestinationAlpha:         return GL_DST_ALPHA;
-	case Blending::OneMinusDestinationAlpha: return GL_ONE_MINUS_DST_ALPHA;
-	case Blending::DestinationColor:         return GL_DST_COLOR;
-	case Blending::OneMinusDestinationColor: return GL_ONE_MINUS_DST_COLOR;
-	case Blending::SourceAlphaSaturate:      return GL_SRC_ALPHA_SATURATE;
-	case Blending::ConstantColor:            return GL_CONSTANT_COLOR;
-	case Blending::OneMinusConstantColor:    return GL_ONE_MINUS_CONSTANT_COLOR;
-	case Blending::ConstantAlpha:            return GL_CONSTANT_ALPHA;
-	case Blending::OneMinusConstantAlpha:    return GL_ONE_MINUS_CONSTANT_ALPHA;
+	case Blending::Factor::Zero:                     return GL_ZERO;
+	case Blending::Factor::One:                      return GL_ONE;
+	case Blending::Factor::SourceAlpha:              return GL_SRC_ALPHA;
+	case Blending::Factor::OneMinusSourceAlpha:      return GL_ONE_MINUS_SRC_ALPHA;
+	case Blending::Factor::SourceColor:              return GL_SRC_COLOR;
+	case Blending::Factor::OneMinusSourceColor:      return GL_ONE_MINUS_SRC_COLOR;
+	case Blending::Factor::DestinationAlpha:         return GL_DST_ALPHA;
+	case Blending::Factor::OneMinusDestinationAlpha: return GL_ONE_MINUS_DST_ALPHA;
+	case Blending::Factor::DestinationColor:         return GL_DST_COLOR;
+	case Blending::Factor::OneMinusDestinationColor: return GL_ONE_MINUS_DST_COLOR;
+	case Blending::Factor::SourceAlphaSaturate:      return GL_SRC_ALPHA_SATURATE;
+	case Blending::Factor::ConstantColor:            return GL_CONSTANT_COLOR;
+	case Blending::Factor::OneMinusConstantColor:    return GL_ONE_MINUS_CONSTANT_COLOR;
+	case Blending::Factor::ConstantAlpha:            return GL_CONSTANT_ALPHA;
+	case Blending::Factor::OneMinusConstantAlpha:    return GL_ONE_MINUS_CONSTANT_ALPHA;
 	}
-	assert( ( "Unknown Blending::BlendingFactor", 0 ) );
+	assert( ( "Unknown Blending::Factor", 0 ) );
 	return -1;
 }
 
 // ------------------------------------------------------------------------------------------------
-unsigned int glWrap( const Blending::BlendEquation &equation )
+unsigned int glWrap( const Blending::Equation &equation )
 {
 	switch( equation )
 	{
-	case Blending::Add:             return GL_FUNC_ADD;
-	case Blending::Minimum:         return GL_MIN;
-	case Blending::Maximum:         return GL_MAX;
-	case Blending::Subtract:        return GL_FUNC_SUBTRACT;
-	case Blending::ReverseSubtract: return GL_FUNC_REVERSE_SUBTRACT;
+	case Blending::Equation::Add:             return GL_FUNC_ADD;
+	case Blending::Equation::Minimum:         return GL_MIN;
+	case Blending::Equation::Maximum:         return GL_MAX;
+	case Blending::Equation::Subtract:        return GL_FUNC_SUBTRACT;
+	case Blending::Equation::ReverseSubtract: return GL_FUNC_REVERSE_SUBTRACT;
 	}
 	assert( ( "Unknown Blending::BlendEquation", 0 ) );
 	return -1;
@@ -673,11 +673,11 @@ unsigned int glWrap( const ClearBuffers &buffers )
 {
 	switch( buffers )
 	{
-	case ColorBuffer:         return GL_COLOR_BUFFER_BIT;
-	case DepthBuffer:         return GL_DEPTH_BUFFER_BIT;
-	case StencilBuffer:       return GL_STENCIL_BUFFER_BIT;
-	case ColorAndDepthBuffer: return GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT;
-	case All:                 return GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
+	case ClearBuffers::ColorBuffer:         return GL_COLOR_BUFFER_BIT;
+	case ClearBuffers::DepthBuffer:         return GL_DEPTH_BUFFER_BIT;
+	case ClearBuffers::StencilBuffer:       return GL_STENCIL_BUFFER_BIT;
+	case ClearBuffers::ColorAndDepthBuffer: return GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT;
+	case ClearBuffers::All:                 return GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
 	}
 	assert( ( "Unknown ClearBuffers", 0 ) );
 	return -1;
@@ -688,9 +688,9 @@ unsigned int glWrap( const RenderState::RasterizationMode &mode )
 {
 	switch( mode )
 	{
-	case RenderState::Point: return GL_POINT;
-	case RenderState::Line:  return GL_LINE;
-	case RenderState::Fill:  return GL_FILL;
+	case RenderState::RasterizationMode::Point: return GL_POINT;
+	case RenderState::RasterizationMode::Line:  return GL_LINE;
+	case RenderState::RasterizationMode::Fill:  return GL_FILL;
 	}
 	assert( ( "Unknown enderState::RasterizationMode", 0 ) );
 	return -1;

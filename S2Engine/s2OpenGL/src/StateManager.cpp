@@ -176,7 +176,7 @@ void StateManager::applyRasterizationMode( const RenderState::RasterizationMode 
 	if( _renderState.rasterizationMode != rasterizationMode )
 #endif
 	{
-		glPolygonMode( glWrap(FaceCulling::FrontAndBack), glWrap(rasterizationMode) );
+		glPolygonMode( glWrap(FaceCulling::Face::FrontAndBack), glWrap(rasterizationMode) );
 		glCheck;
 		_renderState.rasterizationMode = rasterizationMode;
 	}
@@ -238,8 +238,8 @@ void StateManager::applyStencilTest( const StencilTest &stencilTest )
 
 	if( stencilTest.enabled )
 	{
-		applyStencil( FaceCulling::Front, _renderState.stencilTest.frontFace, stencilTest.frontFace);
-		applyStencil( FaceCulling::Back,  _renderState.stencilTest.backFace,  stencilTest.backFace);
+		applyStencil( FaceCulling::Face::Front, _renderState.stencilTest.frontFace, stencilTest.frontFace);
+		applyStencil( FaceCulling::Face::Back,  _renderState.stencilTest.backFace,  stencilTest.backFace);
 	}
 }
 

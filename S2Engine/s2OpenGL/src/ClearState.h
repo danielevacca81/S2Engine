@@ -16,7 +16,7 @@ struct ClearState
 	, depthMask(true)
 	, frontStencilMask(~0)
 	, backStencilMask(~0)
-	, buffers(ColorAndDepthBuffer)
+	, buffers(ClearBuffers::ColorAndDepthBuffer)
 	, color( Color::black() )
 	, depth( 1.f )
 	, stencil( 0 )

@@ -70,8 +70,8 @@ unsigned int glWrap( const FaceCulling::WindingOrder            &winding );
 unsigned int glWrap( const StencilTestFace::StencilOperation    &op );
 unsigned int glWrap( const StencilTestFace::StencilTestFunction &fun );
 unsigned int glWrap( const DepthTest::DepthTestFunction         &winding );
-unsigned int glWrap( const Blending::BlendingFactor             &factor );
-unsigned int glWrap( const Blending::BlendEquation              &equation );
+unsigned int glWrap( const Blending::Factor                     &factor );
+unsigned int glWrap( const Blending::Equation                   &equation );
 unsigned int glWrap( const ClearBuffers                         &buffers );
 unsigned int glWrap( const RenderState::RasterizationMode       &mode );
 
