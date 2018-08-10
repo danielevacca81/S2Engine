@@ -110,16 +110,11 @@ bool Program::attachVertexShader(const std::string &vertexSource)
 		glGetShaderiv(_vshd, GL_INFO_LOG_LENGTH, &maxLength);
 
 		std::vector<GLchar> infoLog(maxLength);
-		glGetShaderInfoLog(_vshd, maxLength, &maxLength, &infoLog[0]);
-
-		_compileMessage = std::string( infoLog.begin(), infoLog.end() );
-	
+		glGetShaderInfoLog(_vshd, maxLength, &maxLength, &infoLog[0]);	
 		glDeleteShader(_vshd);
 		return false;
 	}
 	
-	_compileMessage = "No compiler errors";
-
 	glAttachShader(_progID, _vshd);
 
 	return true;
@@ -145,15 +140,9 @@ bool Program::attachFragmentShader(const std::string &fragmentSource)
 
 		std::vector<GLchar> infoLog(maxLength);
 		glGetShaderInfoLog(_fshd, maxLength, &maxLength, &infoLog[0]);
-
-		_compileMessage = std::string( infoLog.begin(), infoLog.end() );
-	
 		glDeleteShader(_fshd);
 		return false;
 	}
-
-	_compileMessage = "No compiler errors";
-
 
 	glAttachShader(_progID, _fshd);
 	
@@ -181,13 +170,9 @@ bool Program::attachGeometryShader(const std::string &geometrySource)
 		std::vector<GLchar> infoLog(maxLength);
 		glGetShaderInfoLog(_gshd, maxLength, &maxLength, &infoLog[0]);
 
-		_compileMessage = std::string( infoLog.begin(), infoLog.end() );
-	
 		glDeleteShader(_gshd);
 		return false;
 	}
-
-	_compileMessage = "No compiler errors";
 
 	glAttachShader(_progID, _gshd);
 
@@ -418,15 +403,12 @@ std::string Program::info( bool verbose ) const
 		glGetProgramInfoLog( _progID, len, &len, &errorLog[0] );
 
 		msg << _name << " info:" << std::endl
-			<< _compileMessage << std::endl
 			<< std::string(errorLog.begin(),errorLog.end()) << std::endl;
 	}
 	else
 	{
 		msg << _name << " info" << std::endl
 			<< "--------------------" << std::endl;
-
-		msg << _compileMessage << std::endl;
 
 		if( _vshd > 0 )
 		{

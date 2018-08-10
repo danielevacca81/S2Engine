@@ -196,6 +196,7 @@
     <ClInclude Include="src\RenderBuffer.h" />
     <ClInclude Include="src\Renderer.h" />
     <ClInclude Include="src\RenderState.h" />
+    <ClInclude Include="src\Resource.h" />
     <ClInclude Include="src\s2OpenGL_API.h" />
     <ClInclude Include="src\StateManager.h" />
     <ClInclude Include="src\Surface.h" />
@@ -242,6 +243,7 @@
     <ClCompile Include="src\Program.cpp" />
     <ClCompile Include="src\RenderBuffer.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
+    <ClCompile Include="src\Resource.cpp" />
     <ClCompile Include="src\StateManager.cpp" />
     <ClCompile Include="src\Surface.cpp" />
     <ClCompile Include="src\Texture.cpp" />

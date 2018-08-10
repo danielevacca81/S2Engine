@@ -27,6 +27,7 @@ signals:
 	void resourcesInitialized();
 
 public:
+	static s2::OpenGL::ContextPtr _mainContext;
 	static s2::OpenGL::MeshPtr    _torus;
 	static s2::OpenGL::MeshPtr    _cube;
 	static s2::OpenGL::ProgramPtr _phong;

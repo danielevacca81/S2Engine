@@ -9,8 +9,32 @@
 
 static std::vector<std::string> _extensions;
 
-namespace s2 {
+//----------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------
+static bool supportMemoryQuery()
+{
+	static bool first   = true;
+	static bool support = false;
+	if( first )
+	{
+		//bool support = false;
+		for( size_t i=0; i < s2::OpenGL::extensions().size(); ++i )
+			if( s2::OpenGL::extensions()[i] == std::string( "GL_NVX_gpu_memory_info" ) )
+			{
+				support = true;
+				break;
+			}
 
+		first = false;
+	}
+
+	return support;
+}
+//----------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------
+
+
+namespace s2 {
 
 //----------------------------------------------------------------------------------------------
 std::vector<std::string> OpenGL::extensions()
@@ -79,27 +103,6 @@ std::string OpenGL::contextInfo()
 	else						ss << "Total Graphic Memory: Unknown" << std::endl;
 
 	return ss.str();
-}
-
-//----------------------------------------------------------------------------------------------
-bool OpenGL::supportMemoryQuery()
-{
-	static bool first   = true;
-	static bool support = false;
-	if( first )
-	{
-		//bool support = false;
-		for( size_t i=0; i < extensions().size(); ++i )
-			if( extensions()[i] == std::string( "GL_NVX_gpu_memory_info" ) )
-			{
-				support = true;
-				break;
-			}
-
-		first = false;
-	}
-
-	return support;
 }
 
 //----------------------------------------------------------------------------------------------

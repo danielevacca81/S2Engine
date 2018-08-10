@@ -17,10 +17,6 @@ enum class Primitive
 	TriangleFan,
 	Quads,
 	QuadStrip,
-	//LinesAdjacency,
-	//LineStripAdjacency,
-	//TrianglesAdjacency,
-	//TriangleStripAdjacency
 };
 
 }}

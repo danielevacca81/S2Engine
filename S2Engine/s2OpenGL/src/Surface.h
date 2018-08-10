@@ -11,37 +11,37 @@
 #include "Mesh.h"
 
 namespace s2 {
-	namespace OpenGL
-	{
-		class Surface;
-		typedef std::shared_ptr<Surface> SurfacePtr;
+namespace OpenGL {
 
-		class S2OPENGL_API Surface
-		{
-		public:
-			static SurfacePtr New();
+class Surface;
+typedef std::shared_ptr<Surface> SurfacePtr;
 
-		public:
-			Surface();
+class S2OPENGL_API Surface
+{
+public:
+	static SurfacePtr New();
 
-			void clear( const ClearState &cs );
-			void draw( const Primitive &primitive, const VertexArray &va, const DrawingState &ds);
-			void draw( const Primitive &primitive, const Mesh &mesh, const DrawingState &ds);
+public:
+	Surface();
 
-			void resize(int width, int height);
-			void swap(unsigned int targetFBO, const FrameBuffer::AttachmentPoint &att = FrameBuffer::ColorAttachment0);
-			//void addRenderTarget();
-			//textures
+	void clear( const ClearState &cs );
+	void draw( const Primitive &primitive, const VertexArray &va, const DrawingState &ds );
+	void draw( const Primitive &primitive, const Mesh &mesh, const DrawingState &ds );
 
-			// todo: enable state shadowing. consecutive draw calls can take advantage of unchanged state.
-			// qt will trash gl state. >> force state manager to set render state on clear/invalidate method
+	void resize( int width, int height );
+	void swap( unsigned int targetFBO, const FrameBuffer::AttachmentPoint &att = FrameBuffer::ColorAttachment0 );
+	//void addRenderTarget();
+	//textures
 
-		private:
-			FrameBufferPtr _fbo;
-			StateManager   _state;
-		};
+	// todo: enable state shadowing. consecutive draw calls can take advantage of unchanged state.
+	// qt will trash gl state. >> force state manager to set render state on clear/invalidate method
 
-	}
+private:
+	FrameBufferPtr _fbo;
+	StateManager   _state;
+};
+
+}
 }
 
 #endif // !SURFACE_ONCE

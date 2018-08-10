@@ -14,6 +14,7 @@ s2::OpenGL::MeshPtr    GLResourcesLoader::_torus;
 s2::OpenGL::MeshPtr    GLResourcesLoader::_cube;
 s2::OpenGL::ProgramPtr GLResourcesLoader::_phong;
 s2::OpenGL::ProgramPtr GLResourcesLoader::_background;
+s2::OpenGL::ContextPtr GLResourcesLoader::_mainContext;
 
 using namespace s2;
 
@@ -29,11 +30,14 @@ GLResourcesLoader::GLResourcesLoader( QWidget *parent )
 // ------------------------------------------------------------------------------------------------
 GLResourcesLoader::~GLResourcesLoader()
 {
+	//_mainContext->release();
+	_mainContext = nullptr;
+
 	makeCurrent();
-	_phong = nullptr;
+	//_phong = nullptr;
 	_cube = nullptr;
 	_torus = nullptr;
-	_background = nullptr;
+	//_background = nullptr;
 	doneCurrent();
 }
 
@@ -42,10 +46,10 @@ void GLResourcesLoader::initializeGL()
 {
 	hide();
 	
-	auto c = OpenGL::Context::Current(); // initializes extensions
+	_mainContext = OpenGL::Context::Current(); // initializes extensions
 	
-	std::cout << "Context ID: " << c->id() << std::endl 
-		<< c->info() << std::endl;
+	std::cout << "Context ID: " << _mainContext->id() << std::endl 
+		<< _mainContext->info() << std::endl;
 
 	load();
 	emit resourcesInitialized();

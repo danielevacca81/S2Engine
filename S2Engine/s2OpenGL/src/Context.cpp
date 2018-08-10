@@ -19,18 +19,22 @@
 using namespace s2;
 using namespace s2::OpenGL;
 
-std::map<void*, ContextPtr> Context::_contextList;
+std::map<void*, std::weak_ptr<Context> > Context::_contextList;
 
 // ------------------------------------------------------------------------------------------------
 Context::Context()
 : _hDC( nullptr )
 , _hRC( nullptr )
+, _external( false )
 {}
 
 // ------------------------------------------------------------------------------------------------
 Context::~Context()
 {
-	release();
+	releaseResources();
+
+	if( !_external )
+		release();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -102,6 +106,7 @@ ContextPtr Context::Current()
 		ContextPtr c = std::make_shared<Context>();
 		c->_hRC      = hRC;
 		c->_hDC      = wglGetCurrentDC();
+		c->_external = true;
 		
 		c->makeCurrent();
 		c->initExtensions();
@@ -110,7 +115,7 @@ ContextPtr Context::Current()
 		return c;
 	}
 
-	return it->second;
+	return it->second.lock();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -177,4 +182,16 @@ void Context::enableVSync( bool enabled )
 	   // wglSwapIntervalEXT(enabled ? 1 : 0);
 #else
 #endif
+}
+
+// ------------------------------------------------------------------------------------------------
+void Context::addResource( const ResourcePtr &res )
+{
+	_resources.insert( res );
+}
+
+// ------------------------------------------------------------------------------------------------
+void Context::releaseResources()
+{
+	_resources.clear();
 }

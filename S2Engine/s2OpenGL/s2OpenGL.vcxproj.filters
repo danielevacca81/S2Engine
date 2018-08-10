@@ -171,6 +171,9 @@
     <ClInclude Include="src\VertexBuffer.h">
       <Filter>src\buffer objects</Filter>
     </ClInclude>
+    <ClInclude Include="src\Resource.h">
+      <Filter>src\opengl</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\AttributeBuffer.cpp">
@@ -253,6 +256,9 @@
     </ClCompile>
     <ClCompile Include="src\VertexBuffer.cpp">
       <Filter>src\buffer objects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Resource.cpp">
+      <Filter>src\opengl</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

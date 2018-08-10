@@ -5,6 +5,9 @@
 
 #include "s2OpenGL_API.h"
 
+#include "Resource.h"
+#include "Context.h"
+
 #include "Uniform.h"
 
 #include <map>
@@ -18,12 +21,19 @@ namespace OpenGL {
 class Program;
 typedef std::shared_ptr<Program>   ProgramPtr;
 
-class S2OPENGL_API Program
+class S2OPENGL_API Program : public Resource
 {
 public:
-	static ProgramPtr New() { return std::make_shared<Program>(); }
+	static ProgramPtr New() 
+	{ 
+		auto prog = std::make_shared<Program>(); 
+		Context::Current()->addResource( prog ); 
+		return prog; 
+	}
+
+public:
 	Program();
-	~Program();
+	virtual ~Program();
 
 	bool attachVertexShader( const std::string &vertexSource );
 	bool attachFragmentShader( const std::string &fragmentSource );
@@ -71,7 +81,6 @@ protected:
 	unsigned int _progID;
 	bool         _linked;
 	std::string  _name;
-	std::string  _compileMessage;
 
 	std::map< std::string, unsigned int > _attributes;
 	std::map< std::string, Uniform*>       _uniforms;

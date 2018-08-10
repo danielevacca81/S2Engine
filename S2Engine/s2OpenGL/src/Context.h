@@ -5,12 +5,13 @@
 
 #include "s2OpenGL_API.h"
 
+#include "Resource.h"
+
 #include <vector>
+#include <set>
 #include <string>
 #include <map>
 #include <memory>
-
-// unused class
 
 namespace s2 {
 namespace OpenGL {
@@ -22,11 +23,13 @@ class S2OPENGL_API Context
 {
 public:
 	static ContextPtr Current();
-	static ContextPtr New( int majorVersion, int minorVersion );
+	static ContextPtr New( int majorVersion = 3, int minorVersion = 3);
 
 public:
 	Context();
 	~Context();
+
+	void addResource( const ResourcePtr &resource );
 
 	void makeCurrent();
 	void swapBuffers();
@@ -36,21 +39,20 @@ public:
 	std::vector<std::string> extensions() const;
 	std::string              info()       const;
 
-	bool operator<( const Context &c ) const
-	{
-		return id() < c.id();
-	}
 
 protected:
 	bool initExtensions() const;
 	void release();
+	void releaseResources();
 
 private:
-	static std::map<void*, ContextPtr> _contextList;
+	static std::map<void*, std::weak_ptr<Context> > _contextList;
 
 private:
 	void *_hDC;
 	void *_hRC;
+	bool _external; // handled by third party framework (i.e. Qt)
+	std::set<ResourcePtr> _resources;
 };
 
 
