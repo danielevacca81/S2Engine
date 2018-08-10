@@ -59,14 +59,6 @@ bool GLResourcesLoader::load()
 	return true;
 }
 
-//// ------------------------------------------------------------------------------------------------
-//void GLResourcesLoader::resizeGL( int width, int height )
-//{}
-//
-//// ------------------------------------------------------------------------------------------------
-//void GLResourcesLoader::paintGL()
-//{}
-
 // ------------------------------------------------------------------------------------------------
 void GLResourcesLoader::initMeshes()
 {
@@ -152,7 +144,7 @@ void GLResourcesLoader::initMeshes()
 			normals.push_back( v.normal );
 		}
 
-		std::vector<Color> colors( torusMesh.vertices().size(), Color::cyan() );
+		std::vector<Color> colors( torusMesh.vertices().size(), Color::cyan().transparent(.25) );
 
 		_torus = s2::OpenGL::Mesh::New();
 		_torus->setVertices( pts );

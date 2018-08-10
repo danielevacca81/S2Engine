@@ -47,7 +47,7 @@ void MainWindow::createScenes()
 		_ui.frameGLAreaLeft->setLayout( layout );
 	}
 
-	if( false )
+	//if( false )
 	{
 		_sceneRight          = new TestScene( this );
 

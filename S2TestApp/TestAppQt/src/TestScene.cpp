@@ -91,7 +91,7 @@ void TestScene::initFonts()
 void TestScene::paintGL()
 {
 	QPainter painter;
-	TimedBlock total( "total grid time" );
+	//TimedBlock total( "total grid time" );
 
 #if 1
 	painter.beginNativePainting();
@@ -117,18 +117,24 @@ void TestScene::paintGL()
 
 
 	OpenGL::DrawingState ds( _shader );	
+	ds.renderState.blending.enabled                = true;
+	ds.renderState.blending.sourceRGBFactor        = OpenGL::Blending::Factor::SourceAlpha;
+	ds.renderState.blending.sourceAlphaFactor      = OpenGL::Blending::Factor::SourceAlpha;
+	ds.renderState.blending.destinationRGBFactor   = OpenGL::Blending::Factor::OneMinusSourceAlpha;
+	ds.renderState.blending.destinationAlphaFactor = OpenGL::Blending::Factor::OneMinusSourceAlpha;
+
 	OpenGL::ViewState vs( _viewState );
 
 	{
 		// 88msec
-		const int g = 110;
+		const int g = 11;
 		for( int i=0; i < g; ++i )
 		{
 			for( int j=0; j < g; j++ )
 			{
-				if( i == 2 && j == 2 )
+				//if( i == 2 && j == 2 )
 				{
-					TimedBlock single("    SINGLE TIME");
+					//TimedBlock single("    SINGLE TIME");
 					Math::dmat4 m = Math::translate( Math::dmat4( 1.0 ), Math::dvec3( 4 * i - g*.5f, 4 * j - g*.5f, 0 ) );
 
 					vs.setModelMatrix( m*_viewState.modelMatrix() );
@@ -138,24 +144,24 @@ void TestScene::paintGL()
 					_shader->uniform<Math::mat3>( "normalMatrix" )->set( vs.normalMatrix() );
 
 
-					//OpenGL::MeshPtr mesh = (j+i*g)%2 == 0 ? GLResourcesLoader::_cube : GLResourcesLoader::_torus;
+					OpenGL::MeshPtr mesh = (j+i*g)%2 == 0 ? GLResourcesLoader::_cube : GLResourcesLoader::_torus;
 
-					OpenGL::MeshPtr mesh = GLResourcesLoader::_cube;
+					//OpenGL::MeshPtr mesh = GLResourcesLoader::_cube;
 					_surface->draw( OpenGL::Primitive::Triangles, mesh->vao(), ds );
 				}
-				else
-				{
-					Math::dmat4 m = Math::translate( Math::dmat4( 1.0 ), Math::dvec3( 4 * i - g*.5f, 4 * j - g*.5f, 0 ) );
+				//else
+				//{
+				//	Math::dmat4 m = Math::translate( Math::dmat4( 1.0 ), Math::dvec3( 4 * i - g*.5f, 4 * j - g*.5f, 0 ) );
 
-					vs.setModelMatrix( m*_viewState.modelMatrix() );
+				//	vs.setModelMatrix( m*_viewState.modelMatrix() );
 
-					_shader->uniform<Math::mat4>( "modelViewProjectionMatrix" )->set( vs.modelViewProjectionMatrix() );
-					_shader->uniform<Math::mat4>( "modelViewMatrix" )->set( vs.modelViewMatrix() );
-					_shader->uniform<Math::mat3>( "normalMatrix" )->set( vs.normalMatrix() );
+				//	_shader->uniform<Math::mat4>( "modelViewProjectionMatrix" )->set( vs.modelViewProjectionMatrix() );
+				//	_shader->uniform<Math::mat4>( "modelViewMatrix" )->set( vs.modelViewMatrix() );
+				//	_shader->uniform<Math::mat3>( "normalMatrix" )->set( vs.normalMatrix() );
 
-					OpenGL::MeshPtr mesh = GLResourcesLoader::_cube;
-					_surface->draw( OpenGL::Primitive::Triangles, mesh->vao(), ds );
-				}
+				//	OpenGL::MeshPtr mesh = GLResourcesLoader::_cube;
+				//	_surface->draw( OpenGL::Primitive::Triangles, mesh->vao(), ds );
+				//}
 			}
 		}
 	}
