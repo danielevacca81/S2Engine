@@ -5,19 +5,20 @@
 
 #include "s2OpenGL_API.h"
 
+#include "OpenGLObject.h"
+
 #include <memory>
 
 namespace s2 {
-
 namespace OpenGL {
-
-class BufferObject;
-typedef std::shared_ptr<BufferObject>   BufferObjectPtr;
 
 /************************************************************************************************/
 /*                                      BufferObject                                            */
 /************************************************************************************************/
-class S2OPENGL_API BufferObject
+class BufferObject;
+typedef std::shared_ptr<BufferObject>   BufferObjectPtr;
+
+class S2OPENGL_API BufferObject: public OpenGLObject, public std::enable_shared_from_this<BufferObject>
 {
 public:
 	enum class UsageHint
@@ -49,14 +50,33 @@ public:
 	};
 
 public:
-	static BufferObjectPtr New( int size, const Type &type, const UsageHint &usageHint ) { return std::make_shared<BufferObject>( size, type, usageHint ); }
+	struct Data 
+	{
+	public:
+		Data(): data( nullptr ), size( 0 ) 
+		{}
+		
+		Data( void* data_, int64_t size_ )
+		: data( data_ )
+		, size( size_ ) 
+		{}
+
+		void*   data;
+		int64_t size;
+	};
 
 public:
+	OBJECT_DISABLE_COPY( BufferObject )
+	OBJECT_DECLARE_MOVEABLE( BufferObject )
+
+	BufferObject();
 	BufferObject( int size, const Type &type, const UsageHint &usageHint );
 	~BufferObject();
 
-	void bind();
-	void unbind();
+	bool create()  override;
+	void destroy() override;
+	void bind()    const override;
+	void unbind()  const override;
 
 	int size()            const { return _size; }
 	UsageHint usageHint() const { return _usageHint; }
@@ -68,10 +88,12 @@ public:
 	bool  unmapData();
 
 private:
-	unsigned int _id;
+	void reset() override;
+
+private:
 	unsigned int _size; // byte size
 	UsageHint    _usageHint;
-	Type   _type;
+	Type         _type;
 };
 
 } // namespace OpenGL

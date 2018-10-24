@@ -48,7 +48,7 @@ private:
 	void applyBlending          ( const Blending &blending );
 	void applyColorMask         ( const ColorMask &colorMask );
 	void applyDepthMask         ( bool depthMask );
-	void applyShaderProgram     ( const ProgramPtr &program );
+	void applyShaderProgram     ( const ProgramPtr  &program );
 	void applyViewState         ( const ViewState &viewState );
 	void applyFramebuffer();
 	void setViewport            ( const Math::Rectangle &r );
@@ -58,7 +58,7 @@ private:
 	Color              _clearColor;
 	float              _clearDepth;
 	int                _clearStencil;
-	//Math::Rectangle  _viewport;
+
 	RenderState        _renderState;
 	ViewState          _viewState;
 	ProgramPtr         _currentShaderProgram;

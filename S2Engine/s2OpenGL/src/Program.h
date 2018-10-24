@@ -5,9 +5,7 @@
 
 #include "s2OpenGL_API.h"
 
-#include "Resource.h"
-#include "Context.h"
-
+#include "OpenGLObject.h"
 #include "Uniform.h"
 
 #include <map>
@@ -17,41 +15,48 @@
 namespace s2 {
 namespace OpenGL {
 
-// ------------------------------------------------------------------------------------------------
+/************************************************************************************************/
+/*                                           Program                                            */
+/************************************************************************************************/
 class Program;
 typedef std::shared_ptr<Program>   ProgramPtr;
 
-class S2OPENGL_API Program : public Resource
+class S2OPENGL_API Program : public OpenGLObject, public std::enable_shared_from_this<Program>
 {
 public:
-	static ProgramPtr New() 
-	{ 
-		auto prog = std::make_shared<Program>(); 
-		Context::Current()->addResource( prog ); 
-		return prog; 
-	}
+	OBJECT_DECLARE_MOVEABLE( Program )
+	OBJECT_DISABLE_COPY( Program )
 
-public:
 	Program();
-	virtual ~Program();
+	~Program();
 
+	// @todo: return this for concatenation
 	bool attachVertexShader( const std::string &vertexSource );
 	bool attachFragmentShader( const std::string &fragmentSource );
 	bool attachGeometryShader( const std::string &geometrySource );
 
 	bool link( const std::string &name = std::string( "" ) );
 
-	bool isValid()     const;
 	bool isLinked()    const;
 	std::string info( bool verbose = false ) const;
 	std::string name() const;
-	bool operator==( const Program & ) const;
-	bool operator!=( const Program & ) const;
 
-	void bind()   const;
-	void unbind() const;
+	bool create()  override;
+	void destroy() override;
+	void bind()    const override;
+	void unbind()  const override;
 
 	//Uniform *uniform( const std::string &name );
+
+
+	// operator [] 
+	//Uniform& Program::operator[](const std::string& uniformName) throw(std::out_of_range) {
+    //    return _uniforms.at(uniformName);
+    //}
+	//
+	//const Uniform& Program::operator[](const std::string& uniformName) const throw(std::out_of_range) {
+    //    return _uniforms.at(uniformName);
+    //}
 
 	template< typename T >
 	inline UniformValue<T> *uniform( const std::string &name ) const
@@ -64,21 +69,16 @@ public:
 		return dynamic_cast<UniformValue<T> *>( it->second );
 	}
 
+
 private:
-
-	bool create();
-	void detatch( unsigned int &shd );
-	void detatchAll();
-
+	void reset() override;
 	void findUniforms();
 	Uniform *createUniform( const std::string &name, unsigned int loc, unsigned int type );
 
-
-protected:
+private:
 	unsigned int _vshd;
 	unsigned int _gshd;
 	unsigned int _fshd;
-	unsigned int _progID;
 	bool         _linked;
 	std::string  _name;
 

@@ -5,6 +5,8 @@
 
 #include "s2OpenGL_API.h"
 
+#include "OpenGLObject.h"
+
 #include "Texture.h"
 
 #include <string>
@@ -14,10 +16,13 @@
 namespace s2 {
 namespace OpenGL {
 
+/************************************************************************************************/
+/*                                       FrameBuffer                                            */
+/************************************************************************************************/
 class FrameBuffer;
 typedef std::shared_ptr<FrameBuffer> FrameBufferPtr;
 
-class S2OPENGL_API FrameBuffer : public std::enable_shared_from_this<FrameBuffer>
+class S2OPENGL_API FrameBuffer : public OpenGLObject, public std::enable_shared_from_this<FrameBuffer>
 {
 public:
 	enum AttachmentPoint
@@ -37,16 +42,24 @@ public:
 	};
 
 public:
-	static FrameBufferPtr New();
+	//static FrameBufferPtr New();
 
 public:
+	OBJECT_DISABLE_COPY( FrameBuffer )
+	OBJECT_DECLARE_MOVEABLE( FrameBuffer )
+
 	FrameBuffer();
 	~FrameBuffer();
 
-	void bind();
-	static void unbind();
+	bool create()  override;
+	void destroy() override;
+	void bind()    const override;
+	void unbind()  const override;
+
+	//void bind();
+	//static void unbind();
 	
-	void attach(const AttachmentPoint &attachPoint, const Texture2DPtr &texture);
+	void attach( const AttachmentPoint &attachPoint, const Texture2DPtr &texture );
 
 	int colorAttachmentCount() const;
 	bool hasDepthAttachment() const;
@@ -55,13 +68,15 @@ public:
 	Texture2DPtr attachment( const AttachmentPoint &a ) const;
 
 	std::string info()        const;
+private:
+	void reset() override;
 
 private:
 	enum Changes
 	{
-		None   = 0,
-		Color = 1,
-		Depth = 2,
+		None         = 0,
+		Color        = 1,
+		Depth        = 2,
 		DepthStencil = 4
 	};
 
@@ -71,17 +86,17 @@ private:
 		bool         changed;
 
 		ColorAttachment()
-		: changed(false)
+		: changed( false )
 		{}
 	};
 
 private:
-	unsigned int              _fboID;
-	int                       _colorAttachmentCount;
-	std::vector<ColorAttachment> _colorAttachments;
-	Texture2DPtr              _depthAttachment;
-	Texture2DPtr              _depthStencilAttachment;
-	Changes                   _changes;
+	int          _colorAttachmentCount;
+	Texture2DPtr _depthAttachment;
+	Texture2DPtr _depthStencilAttachment;
+	
+	mutable std::vector<ColorAttachment> _colorAttachments;
+	mutable Changes                      _changes;
 };
 
 }}

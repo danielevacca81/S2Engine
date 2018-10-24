@@ -6,7 +6,7 @@
 #include "s2OpenGL_API.h"
 
 #include "Texture.h"
-#include "TextureSampler.h"
+#include "Sampler.h"
 
 #include <vector>
 
@@ -20,12 +20,12 @@ public:
 	TextureUnit( int index = -1);
 
 	void setTexture( const Texture2DPtr &texture );
-	void setTextureSampler( const TextureSamplerPtr &sampler );
+	void setSampler( const SamplerPtr &sampler );
 
-	Texture2DPtr      texture() const;
-	TextureSamplerPtr sampler() const;
+	Texture2DPtr texture() const;
+	SamplerPtr   sampler() const;
 
-	void use();
+	void bind();
 
 private:
 	void validate();
@@ -34,17 +34,17 @@ private:
 	enum Changes
 	{
 		None = 0,
-		Texture = 1,
-		Sampler = 2,
-		Both = Texture | Sampler
+		TextureChanged = 1,
+		SamplerChanged = 2,
+		Both = TextureChanged | SamplerChanged
 	};
 
 private:
-	Texture2DPtr      _texture;
-	TextureSamplerPtr _textureSampler;
+	Texture2DPtr _texture;
+	SamplerPtr   _sampler;
 
-	int  _textureUnitIndex;
-	int  _textureUnit;
+	int     _textureUnitIndex;
+	int     _textureUnit;
 	Changes _changes;
 };
 
@@ -55,7 +55,8 @@ class S2OPENGL_API TextureUnits
 public:
 	TextureUnits();
 
-	TextureUnit &unit( int index );
+	//TextureUnit &unit( int index );
+	TextureUnit &operator[] ( int index );
 
 	void set()const;
 

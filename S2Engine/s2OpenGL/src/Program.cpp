@@ -25,61 +25,101 @@ using namespace s2::OpenGL;
 
 // ------------------------------------------------------------------------------------------------
 Program::Program()
-: _linked(false)
-, _progID(0)
-, _vshd(0)
-, _gshd(0)
-, _fshd(0)
+: _linked( false )
+, _vshd( 0 )
+, _gshd( 0 )
+, _fshd( 0 )
 {
-//	create();
+	//create();
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Program::create()
+Program::Program( Program &&other )
+: Program()
 {
-	if( _progID != 0 )
-		return true;
-	
-	//if( isSupported() )
-	_progID = glCreateProgram();
-		
-	if( _name.empty() )
-		_name = "Shader";
+	std::swap( _vshd,       other._vshd );
+	std::swap( _gshd,       other._gshd );
+	std::swap( _fshd,       other._fshd );
+	std::swap( _linked,     other._linked );
+	std::swap( _name,       other._name );
+	std::swap( _attributes, other._attributes );
+	std::swap( _uniforms,   other._uniforms );
 
-	return _progID != 0;
+	std::swap( _created,   other._created);
+	std::swap( _objectID,  other._objectID);
 }
 
 // ------------------------------------------------------------------------------------------------
 Program::~Program()
 {
-	if( isValid() )
-	{
-		detatchAll();
-		glDeleteProgram( _progID );
-		glCheck;
-	}
+	destroy();
+}
+
+// ------------------------------------------------------------------------------------------------
+Program &Program::operator=( Program &&other )
+{
+	reset();
+
+	std::swap( _vshd,       other._vshd );
+	std::swap( _gshd,       other._gshd );
+	std::swap( _fshd,       other._fshd );
+	std::swap( _linked,     other._linked );
+	std::swap( _name,       other._name );
+	std::swap( _attributes, other._attributes );
+	std::swap( _uniforms,   other._uniforms );
+
+	std::swap( _created,   other._created);
+	std::swap( _objectID,  other._objectID);
+	return *this;
+}
+
+// -------------------------------------------------------------------------------------------------
+void Program::reset()
+{
+	OpenGLObject::reset();
+
+	_vshd   = 0;
+	_gshd   = 0;
+	_fshd   = 0;
+	_linked = false;
+	_name   = "";
 
 	for( auto &it : _uniforms )
-		 delete it.second;
+		delete it.second;
+
+	_attributes.clear();
+}
+
+// ------------------------------------------------------------------------------------------------
+bool Program::create()
+{
+	destroy();
+
+	//if( isSupported() )
+	_objectID = glCreateProgram();
+
+	if( _name.empty() )
+		_name = "Shader";
+
+	_created = true;
+	return _created;
+}
+
+// ------------------------------------------------------------------------------------------------
+void Program::destroy()
+{
+	if( !isCreated() )
+		return;
+
+	glDeleteShader( _vshd ); _vshd = 0;
+	glDeleteShader( _fshd ); _fshd = 0;
+	glDeleteShader( _gshd ); _gshd = 0;
+
+	glDeleteProgram( _objectID );
+	glCheck;
 
 	// delete attributes?
-}
-
-// ------------------------------------------------------------------------------------------------
-void Program::detatchAll()
-{
-	if(_progID == 0) return;
-
-	detatch(_vshd);
-	detatch(_fshd);
-	detatch(_gshd);
-}
-
-// ------------------------------------------------------------------------------------------------
-void Program::detatch( unsigned int &shd )
-{
-	if( shd ) glDeleteShader(shd); shd = 0;
-	glCheck;
+	reset();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -92,89 +132,88 @@ std::string Program::name() const
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Program::attachVertexShader(const std::string &vertexSource)
+bool Program::attachVertexShader( const std::string &vertexSource )
 {
-	if( !create() )
+	if( !isCreated() )
 		return false;
 
-	_vshd = glCreateShader(GL_VERTEX_SHADER);
+	_vshd = glCreateShader( GL_VERTEX_SHADER );
 	const char * s = vertexSource.c_str();
-	glShaderSource(_vshd, 1, &s, 0);
-	glCompileShader(_vshd);
+	glShaderSource( _vshd, 1, &s, 0 );
+	glCompileShader( _vshd );
 
 	GLint isCompiled = 0;
-	glGetShaderiv(_vshd, GL_COMPILE_STATUS, &isCompiled);
+	glGetShaderiv( _vshd, GL_COMPILE_STATUS, &isCompiled );
 	if( isCompiled == GL_FALSE )
 	{
 		GLint maxLength = 0;
-		glGetShaderiv(_vshd, GL_INFO_LOG_LENGTH, &maxLength);
+		glGetShaderiv( _vshd, GL_INFO_LOG_LENGTH, &maxLength );
 
-		std::vector<GLchar> infoLog(maxLength);
-		glGetShaderInfoLog(_vshd, maxLength, &maxLength, &infoLog[0]);	
-		glDeleteShader(_vshd);
+		std::vector<GLchar> infoLog( maxLength );
+		glGetShaderInfoLog( _vshd, maxLength, &maxLength, &infoLog[0] );
+		glDeleteShader( _vshd );
 		return false;
 	}
-	
-	glAttachShader(_progID, _vshd);
 
+	glAttachShader( _objectID, _vshd );
 	return true;
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Program::attachFragmentShader(const std::string &fragmentSource)
+bool Program::attachFragmentShader( const std::string &fragmentSource )
 {
-	if( !create() )
+	if( !isCreated() )
 		return false;
 
-	_fshd = glCreateShader(GL_FRAGMENT_SHADER);
+	_fshd = glCreateShader( GL_FRAGMENT_SHADER );
 	const char * s = fragmentSource.c_str();
-	glShaderSource(_fshd, 1, &s, 0);
-	glCompileShader(_fshd);
+	glShaderSource( _fshd, 1, &s, 0 );
+	glCompileShader( _fshd );
 
 	GLint isCompiled = 0;
-	glGetShaderiv(_fshd, GL_COMPILE_STATUS, &isCompiled);
+	glGetShaderiv( _fshd, GL_COMPILE_STATUS, &isCompiled );
 	if( isCompiled == GL_FALSE )
 	{
 		GLint maxLength = 0;
-		glGetShaderiv(_fshd, GL_INFO_LOG_LENGTH, &maxLength);
+		glGetShaderiv( _fshd, GL_INFO_LOG_LENGTH, &maxLength );
 
-		std::vector<GLchar> infoLog(maxLength);
-		glGetShaderInfoLog(_fshd, maxLength, &maxLength, &infoLog[0]);
-		glDeleteShader(_fshd);
+		std::vector<GLchar> infoLog( maxLength );
+		glGetShaderInfoLog( _fshd, maxLength, &maxLength, &infoLog[0] );
+		glDeleteShader( _fshd );
 		return false;
 	}
 
-	glAttachShader(_progID, _fshd);
-	
+	glAttachShader( _objectID, _fshd );
+
 	return true;
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Program::attachGeometryShader(const std::string &geometrySource)
+bool Program::attachGeometryShader( const std::string &geometrySource )
 {
-	if( !create() )
+	if( !isCreated() )
 		return false;
 
-	_gshd = glCreateShader(GL_GEOMETRY_SHADER);
+	_gshd = glCreateShader( GL_GEOMETRY_SHADER );
 	const char * s = geometrySource.c_str();
-	glShaderSource(_gshd, 1, &s, 0);
-	glCompileShader(_gshd);
+	glShaderSource( _gshd, 1, &s, 0 );
+	glCompileShader( _gshd );
 
 	GLint isCompiled = 0;
-	glGetShaderiv(_gshd, GL_COMPILE_STATUS, &isCompiled);
+	glGetShaderiv( _gshd, GL_COMPILE_STATUS, &isCompiled );
 	if( isCompiled == GL_FALSE )
 	{
 		GLint maxLength = 0;
-		glGetShaderiv(_gshd, GL_INFO_LOG_LENGTH, &maxLength);
+		glGetShaderiv( _gshd, GL_INFO_LOG_LENGTH, &maxLength );
 
-		std::vector<GLchar> infoLog(maxLength);
-		glGetShaderInfoLog(_gshd, maxLength, &maxLength, &infoLog[0]);
+		std::vector<GLchar> infoLog( maxLength );
+		glGetShaderInfoLog( _gshd, maxLength, &maxLength, &infoLog[0] );
 
-		glDeleteShader(_gshd);
+		glDeleteShader( _gshd );
 		return false;
 	}
 
-	glAttachShader(_progID, _gshd);
+	glAttachShader( _objectID, _gshd );
 
 	return true;
 }
@@ -182,7 +221,7 @@ bool Program::attachGeometryShader(const std::string &geometrySource)
 // ------------------------------------------------------------------------------------------------
 bool Program::link( const std::string &name /* = std::string("") */ )
 {
-	if( !create() )
+	if( !isCreated() )
 		return false;
 
 	if( isLinked() )
@@ -190,14 +229,14 @@ bool Program::link( const std::string &name /* = std::string("") */ )
 
 	_name = name;
 	if( _name.empty() )
-		_name = "Shader_" + std::to_string(_progID);
+		_name = "Shader_" + std::to_string( _objectID );
 
 	findUniforms();
 
-	glLinkProgram(_progID);
+	glLinkProgram( _objectID );
 
 	GLint ls = GL_FALSE;
-	glGetProgramiv(_progID, GL_LINK_STATUS, &ls);
+	glGetProgramiv( _objectID, GL_LINK_STATUS, &ls );
 
 	_linked = ls == GL_TRUE;
 
@@ -208,27 +247,24 @@ bool Program::link( const std::string &name /* = std::string("") */ )
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Program::isValid() const { return _progID != 0; }
-
-// ------------------------------------------------------------------------------------------------
-bool Program::isLinked() const	{ return _linked; }
+bool Program::isLinked() const { return _linked; }
 
 // ------------------------------------------------------------------------------------------------
 void Program::bind() const
 {
-	glUseProgram(_progID);
-	
+	glUseProgram( _objectID );
+
 	for( auto &it : _uniforms )
-		 it.second->set();
+		it.second->set();
 }
 
 // ------------------------------------------------------------------------------------------------
 void Program::unbind() const
 {
-	glUseProgram(0);
+	glUseProgram( 0 );
 
 	for( auto &it : _attributes )
-		glDisableVertexAttribArray(it.second);
+		glDisableVertexAttribArray( it.second );
 	//glVertexAttribPointer(location,size,type,normalized,stride,ptr);
 }
 
@@ -236,23 +272,23 @@ void Program::unbind() const
 void Program::findUniforms()
 {
 	int numberOfUniforms;
-	glGetProgramiv( _progID, GL_ACTIVE_UNIFORMS, &numberOfUniforms);
+	glGetProgramiv( _objectID, GL_ACTIVE_UNIFORMS, &numberOfUniforms );
 
 	int uniformNameMaxLength;
-	glGetProgramiv( _progID, GL_ACTIVE_UNIFORM_MAX_LENGTH, &uniformNameMaxLength);
+	glGetProgramiv( _objectID, GL_ACTIVE_UNIFORM_MAX_LENGTH, &uniformNameMaxLength );
 
 	for( int i = 0; i < numberOfUniforms; ++i )
 	{
 		int uniformNameLength;
 		int uniformSize;
 		GLenum uniformType;
-		std::vector<GLchar> uniformInternalName(uniformNameMaxLength);
-		glGetActiveUniform( _progID, i, uniformNameMaxLength, &uniformNameLength, &uniformSize, &uniformType, &uniformInternalName[0] );
-		
-		// TODO: need to correct ATI names
-		const std::string uniformName( uniformInternalName.begin(), uniformInternalName.begin()+uniformNameLength ); 
+		std::vector<GLchar> uniformInternalName( uniformNameMaxLength );
+		glGetActiveUniform( _objectID, i, uniformNameMaxLength, &uniformNameLength, &uniformSize, &uniformType, &uniformInternalName[0] );
 
-		if( uniformName.find("gl_") == 0 )
+		// TODO: need to correct ATI names
+		const std::string uniformName( uniformInternalName.begin(), uniformInternalName.begin() + uniformNameLength );
+
+		if( uniformName.find( "gl_" ) == 0 )
 		{
 			// Names starting with the reserved prefix of "gl_" have a location of -1.
 			continue;
@@ -262,7 +298,7 @@ void Program::findUniforms()
 		// -------------------
 		// Skip uniforms in a named block
 		//int uniformBlockIndex;
-		//glGetActiveUniformsiv(_progID, 1, &i, ActiveUniformParameter.UniformBlockIndex, &uniformBlockIndex);
+		//glGetActiveUniformsiv(_objectID, 1, &i, ActiveUniformParameter.UniformBlockIndex, &uniformBlockIndex);
 		//if (uniformBlockIndex != -1)
 		//{
 		//	continue;
@@ -274,40 +310,40 @@ void Program::findUniforms()
 			//throw new NotSupportedException("Uniform arrays are not supported.");
 		}
 
-		int uniformLocation = glGetUniformLocation( _progID, uniformName.c_str() );
+		int uniformLocation = glGetUniformLocation( _objectID, uniformName.c_str() );
 
-		_uniforms[ uniformName ] = createUniform( uniformName, uniformLocation, uniformType);
+		_uniforms[uniformName] = createUniform( uniformName, uniformLocation, uniformType );
 	}
 }
 
 // ------------------------------------------------------------------------------------------------
 Uniform *Program::createUniform( const std::string &name, unsigned int loc, unsigned int type )
 {
-	switch (type)
+	switch( type )
 	{
 		/*TODO: double types*/
 
-	case GL_FLOAT:           return new UniformFloat( loc,name );
-	case GL_FLOAT_VEC2:	     return new UniformFloatVector2( loc,name );
-	case GL_FLOAT_VEC3:      return new UniformFloatVector3( loc,name );
-	case GL_FLOAT_VEC4:      return new UniformFloatVector4( loc,name );
-	
-	case GL_INT:             return new UniformInt( loc,name );
-	case GL_INT_VEC2:        assert(false); break; //return new UniformIntVector2GL3x(name, location, this);
-	case GL_INT_VEC3:        assert(false); break; //return new UniformIntVector3GL3x(name, location, this);
-	case GL_INT_VEC4:        assert(false); break; //return new UniformIntVector4GL3x(name, location, this);
+	case GL_FLOAT:           return new UniformFloat( loc, name );
+	case GL_FLOAT_VEC2:	     return new UniformFloatVector2( loc, name );
+	case GL_FLOAT_VEC3:      return new UniformFloatVector3( loc, name );
+	case GL_FLOAT_VEC4:      return new UniformFloatVector4( loc, name );
 
-	case GL_BOOL:            return new UniformBool( loc,name );
-	case GL_BOOL_VEC2:       assert(false); break; //return new UniformBoolGL3x(name, location, this);
-	case GL_BOOL_VEC3:       assert(false); break; //return new UniformBoolGL3x(name, location, this);
-	case GL_BOOL_VEC4:       assert(false); break; //return new UniformBoolGL3x(name, location, this);
+	case GL_INT:             return new UniformInt( loc, name );
+	case GL_INT_VEC2:        assert( false ); break; //return new UniformIntVector2GL3x(name, location, this);
+	case GL_INT_VEC3:        assert( false ); break; //return new UniformIntVector3GL3x(name, location, this);
+	case GL_INT_VEC4:        assert( false ); break; //return new UniformIntVector4GL3x(name, location, this);
 
-	case GL_FLOAT_MAT2:      return new UniformFloatMatrix22( loc,name );
-	case GL_FLOAT_MAT3:      return new UniformFloatMatrix33( loc,name );
-	case GL_FLOAT_MAT4:      return new UniformFloatMatrix44( loc,name );
+	case GL_BOOL:            return new UniformBool( loc, name );
+	case GL_BOOL_VEC2:       assert( false ); break; //return new UniformBoolGL3x(name, location, this);
+	case GL_BOOL_VEC3:       assert( false ); break; //return new UniformBoolGL3x(name, location, this);
+	case GL_BOOL_VEC4:       assert( false ); break; //return new UniformBoolGL3x(name, location, this);
+
+	case GL_FLOAT_MAT2:      return new UniformFloatMatrix22( loc, name );
+	case GL_FLOAT_MAT3:      return new UniformFloatMatrix33( loc, name );
+	case GL_FLOAT_MAT4:      return new UniformFloatMatrix44( loc, name );
 
 	case GL_SAMPLER_2D:
-	case GL_SAMPLER_CUBE:    return new UniformSampler( loc,name );
+	case GL_SAMPLER_CUBE:    return new UniformSampler( loc, name );
 	}
 
 	return 0;
@@ -318,7 +354,7 @@ Uniform *Program::createUniform( const std::string &name, unsigned int loc, unsi
 // ------------------------------------------------------------------------------------------------
 static inline std::string extraInfo( int programID, bool attrib )
 {
-	auto GL_type_to_string = [] (GLenum type) -> std::string
+	auto GL_type_to_string = [] ( GLenum type ) -> std::string
 	{
 		switch( type )
 		{
@@ -353,23 +389,23 @@ static inline std::string extraInfo( int programID, bool attrib )
 		int max_length = 64;
 		int actual_length = 0;
 		int size = 0;
-		
+
 		GLenum type;
 		if( attrib )  glGetActiveAttrib( programID, i, max_length, &actual_length, &size, &type, name );
 		else          glGetActiveUniform( programID, i, max_length, &actual_length, &size, &type, name );
-		
+
 		if( size > 1 )
 		{
 			for( int j = 0; j < size; j++ )
 			{
-				std::string longName = "[" + std::to_string(j) + "]";
+				std::string longName = "[" + std::to_string( j ) + "]";
 				int location = 0;
 				if( attrib ) location = glGetAttribLocation( programID, longName.c_str() );
 				else         location = glGetUniformLocation( programID, longName.c_str() );
 				msg << "  loc " << location << "] "
-					<< GL_type_to_string( type ) 
+					<< GL_type_to_string( type )
 					<< " "
-					<< longName 
+					<< longName
 					<< std::endl;
 			}
 		}
@@ -378,11 +414,11 @@ static inline std::string extraInfo( int programID, bool attrib )
 			int location = 0;
 			if( attrib ) location = glGetAttribLocation( programID, name );
 			else         location = glGetUniformLocation( programID, name );
-			
+
 			msg << "  loc " << location << "] "
-				<< GL_type_to_string( type ) 
+				<< GL_type_to_string( type )
 				<< " "
-				<< name 
+				<< name
 				<< std::endl;
 		}
 	}
@@ -397,13 +433,13 @@ std::string Program::info( bool verbose ) const
 	if( !verbose )
 	{
 		GLint len = 0;
-		glGetProgramiv( _progID, GL_INFO_LOG_LENGTH, &len );
+		glGetProgramiv( _objectID, GL_INFO_LOG_LENGTH, &len );
 
-		std::vector<GLchar> errorLog(len+1);
-		glGetProgramInfoLog( _progID, len, &len, &errorLog[0] );
+		std::vector<GLchar> errorLog( len + 1 );
+		glGetProgramInfoLog( _objectID, len, &len, &errorLog[0] );
 
 		msg << _name << " info:" << std::endl
-			<< std::string(errorLog.begin(),errorLog.end()) << std::endl;
+			<< std::string( errorLog.begin(), errorLog.end() ) << std::endl;
 	}
 	else
 	{
@@ -413,63 +449,59 @@ std::string Program::info( bool verbose ) const
 		if( _vshd > 0 )
 		{
 			int isCompiled = 0;
-			glGetShaderiv(_vshd, GL_COMPILE_STATUS, &isCompiled);
+			glGetShaderiv( _vshd, GL_COMPILE_STATUS, &isCompiled );
 
 			int len = 0;
 			glGetShaderiv( _vshd, GL_INFO_LOG_LENGTH, &len );
-			
-			std::vector<GLchar> errorLog(len+1);
+
+			std::vector<GLchar> errorLog( len + 1 );
 			glGetShaderInfoLog( _vshd, len, &len, &errorLog[0] );
 
-			msg << "Vertex Shader Log:" << std::endl << std::string(errorLog.begin(),errorLog.end()) << std::endl;
+			msg << "Vertex Shader Log:" << std::endl << std::string( errorLog.begin(), errorLog.end() ) << std::endl;
 		}
 
 		if( _fshd > 0 )
 		{
 			int isCompiled = 0;
-			glGetShaderiv(_fshd, GL_COMPILE_STATUS, &isCompiled);
+			glGetShaderiv( _fshd, GL_COMPILE_STATUS, &isCompiled );
 
 			int len = 0;
 			glGetShaderiv( _fshd, GL_INFO_LOG_LENGTH, &len );
-			
-			std::vector<GLchar> errorLog(len+1);
+
+			std::vector<GLchar> errorLog( len + 1 );
 			glGetShaderInfoLog( _fshd, len, &len, &errorLog[0] );
 
-			msg << "Fragment Shader Log:" << std::endl << std::string(errorLog.begin(),errorLog.end()) << std::endl;
+			msg << "Fragment Shader Log:" << std::endl << std::string( errorLog.begin(), errorLog.end() ) << std::endl;
 		}
 
 		if( _gshd > 0 )
 		{
 			int isCompiled = 0;
-			glGetShaderiv(_gshd, GL_COMPILE_STATUS, &isCompiled);
+			glGetShaderiv( _gshd, GL_COMPILE_STATUS, &isCompiled );
 
 			int len = 0;
 			glGetShaderiv( _gshd, GL_INFO_LOG_LENGTH, &len );
-			
-			std::vector<GLchar> errorLog(len+1);
+
+			std::vector<GLchar> errorLog( len + 1 );
 			glGetShaderInfoLog( _gshd, len, &len, &errorLog[0] );
 
-			msg << "Geometry Shader Log:" << std::endl << std::string(errorLog.begin(),errorLog.end()) << std::endl;
+			msg << "Geometry Shader Log:" << std::endl << std::string( errorLog.begin(), errorLog.end() ) << std::endl;
 		}
 
 		int params = -1;
-		glGetProgramiv( _progID, GL_LINK_STATUS, &params );
-		msg << "GL_LINK_STATUS = "<< params <<std::endl;
+		glGetProgramiv( _objectID, GL_LINK_STATUS, &params );
+		msg << "GL_LINK_STATUS = " << params << std::endl;
 
-		glGetProgramiv( _progID, GL_ATTACHED_SHADERS, &params );
-		msg << "GL_ATTACHED_SHADERS = "<< params <<std::endl;
+		glGetProgramiv( _objectID, GL_ATTACHED_SHADERS, &params );
+		msg << "GL_ATTACHED_SHADERS = " << params << std::endl;
 
-		glGetProgramiv( _progID, GL_ACTIVE_ATTRIBUTES, &params );
+		glGetProgramiv( _objectID, GL_ACTIVE_ATTRIBUTES, &params );
 		msg << "GL_ACTIVE_ATTRIBUTES = " << params << std::endl;
-		msg << extraInfo( _progID, true ) << std::endl;
-		
-		glGetProgramiv( _progID, GL_ACTIVE_UNIFORMS, &params );
-		msg << "GL_ACTIVE_UNIFORMS = " << params << std::endl;		
-		msg << extraInfo( _progID, false ) << std::endl;
+		msg << extraInfo( _objectID, true ) << std::endl;
+
+		glGetProgramiv( _objectID, GL_ACTIVE_UNIFORMS, &params );
+		msg << "GL_ACTIVE_UNIFORMS = " << params << std::endl;
+		msg << extraInfo( _objectID, false ) << std::endl;
 	}
 	return msg.str();
 }
-
-// ------------------------------------------------------------------------------------------------
-bool Program::operator==( const Program &p ) const { return _progID == p._progID; }
-bool Program::operator!=( const Program &p ) const { return _progID != p._progID; }

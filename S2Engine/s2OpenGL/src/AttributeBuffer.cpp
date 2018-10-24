@@ -32,23 +32,51 @@ static int dataTypeSize( const AttributeBuffer::ComponentDatatype &type )
 
 //-------------------------------------------------------------------------------------------------
 AttributeBuffer::AttributeBuffer()
-	: _valid( false )
-	, _location( -1 )
-	, _normalize( false )
-	, _numberOfComponents( 0 )
-	, _offset( 0 )
-	, _stride( 0 )
-	, _componentDatatype( Byte )
+: _valid( false )
+, _location( -1 )
+, _normalize( false )
+, _numberOfComponents( 0 )
+, _offset( 0 )
+, _stride( 0 )
+, _componentDatatype( Byte )
 {}
+
+//-------------------------------------------------------------------------------------------------
+AttributeBuffer::AttributeBuffer( AttributeBuffer &&other )
+{
+	std::swap( _valid,             other._valid              );
+	std::swap( _location,          other._location           );
+	std::swap( _normalize,         other._normalize          );
+	std::swap( _numberOfComponents,other._numberOfComponents );
+	std::swap( _offset,            other._offset             );
+	std::swap( _stride,            other._stride             );
+	std::swap( _componentDatatype, other._componentDatatype  );
+	std::swap( _vertexBuffer,      other._vertexBuffer       );
+}
 
 //-------------------------------------------------------------------------------------------------
 AttributeBuffer::~AttributeBuffer()
 {}
 
 //-------------------------------------------------------------------------------------------------
-void AttributeBuffer::set( const VertexBuffer &buffer, const ComponentDatatype &componentDatatype, int numberOfComponents, bool normalize, int offset, int stride )
+AttributeBuffer &AttributeBuffer::operator=( AttributeBuffer &&other )
 {
-	_vertexBuffer       = buffer;
+	std::swap( _valid,             other._valid              );
+	std::swap( _location,          other._location           );
+	std::swap( _normalize,         other._normalize          );
+	std::swap( _numberOfComponents,other._numberOfComponents );
+	std::swap( _offset,            other._offset             );
+	std::swap( _stride,            other._stride             );
+	std::swap( _componentDatatype, other._componentDatatype  );
+	std::swap( _vertexBuffer,      other._vertexBuffer       );
+	return *this;
+}
+
+
+//-------------------------------------------------------------------------------------------------
+void AttributeBuffer::set( VertexBuffer &&buffer, const ComponentDatatype &componentDatatype, int numberOfComponents, bool normalize, int offset, int stride )
+{
+	_vertexBuffer       = std::move( buffer );
 	_componentDatatype  = componentDatatype;
 	_numberOfComponents = numberOfComponents;
 	_offset             = offset;

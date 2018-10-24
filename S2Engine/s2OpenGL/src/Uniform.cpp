@@ -21,15 +21,15 @@
 using namespace s2;
 using namespace OpenGL;
 
-void UniformBool::set()    { glUniform1i(_location,_value); }
-void UniformFloat::set()   { glUniform1f(_location,_value); }
-void UniformInt::set()     { glUniform1i(_location,_value); }
+void UniformBool::set()    { glUniform1i( _location, _value ); }
+void UniformFloat::set()   { glUniform1f( _location, _value ); }
+void UniformInt::set()     { glUniform1i( _location, _value ); }
 void UniformSampler::set() {}
 
-void UniformFloatVector2::set() { glUniform2fv( _location,1, Math::value_ptr(_value) ); }
-void UniformFloatVector3::set() { glUniform3fv( _location,1, Math::value_ptr(_value) ); }
-void UniformFloatVector4::set() { glUniform4fv( _location,1, Math::value_ptr(_value) ); }
+void UniformFloatVector2::set() { glUniform2fv( _location, 1, Math::value_ptr( _value ) ); }
+void UniformFloatVector3::set() { glUniform3fv( _location, 1, Math::value_ptr( _value ) ); }
+void UniformFloatVector4::set() { glUniform4fv( _location, 1, Math::value_ptr( _value ) ); }
 
-void UniformFloatMatrix22::set() { glUniformMatrix2fv( _location,1,false, Math::value_ptr(_value) ); }
-void UniformFloatMatrix33::set() { glUniformMatrix3fv( _location,1,false, Math::value_ptr(_value) ); }
-void UniformFloatMatrix44::set() { glUniformMatrix4fv( _location,1,false, Math::value_ptr(_value) ); }
+void UniformFloatMatrix22::set() { glUniformMatrix2fv( _location, 1, false, Math::value_ptr( _value ) ); }
+void UniformFloatMatrix33::set() { glUniformMatrix3fv( _location, 1, false, Math::value_ptr( _value ) ); }
+void UniformFloatMatrix44::set() { glUniformMatrix4fv( _location, 1, false, Math::value_ptr( _value ) ); }

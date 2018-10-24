@@ -24,8 +24,11 @@ public:
 	};
 
 public:
+	OBJECT_DECLARE_MOVEABLE( IndexBuffer )
+	OBJECT_DISABLE_COPY( IndexBuffer )
+
 	IndexBuffer();
-	IndexBuffer( int sizeInBytes, const IndexDataType &dataType, const BufferObject::UsageHint &usageHint );
+	//IndexBuffer( int sizeInBytes, const IndexDataType &dataType, const BufferObject::UsageHint &usageHint );
 
 	void set( int sizeInBytes, const IndexDataType &dataType, const BufferObject::UsageHint &usageHint );
 
@@ -44,7 +47,7 @@ public:
 	bool  unmapData();
 
 private:
-	BufferObjectPtr _bufferObject;
+	BufferObject    _bufferObject;
 	IndexDataType   _dataType;
 	int             _count;
 	bool            _valid;

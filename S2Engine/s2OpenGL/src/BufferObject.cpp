@@ -8,18 +8,76 @@
 using namespace s2;
 using namespace s2::OpenGL;
 
-//-------------------------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------------
+BufferObject::BufferObject()
+: BufferObject( 0, Type::ArrayBuffer, UsageHint::StaticDraw )
+{}
+
+// -------------------------------------------------------------------------------------------------
 BufferObject::BufferObject( int size, const Type &type, const UsageHint &usageHint )
-: _size(size)
-, _type(type)
-, _usageHint(usageHint)
+: _size( size )
+, _type( type )
+, _usageHint( usageHint )
 {
 	//if (sizeInBytes <= 0)
 	//{
 	//	throw new ArgumentOutOfRangeException("sizeInBytes", "sizeInBytes must be greater than zero.");
 	//}
+	//create();
+}
 
-	glGenBuffers( 1, &_id );
+// -------------------------------------------------------------------------------------------------
+BufferObject::BufferObject( BufferObject &&other )
+: BufferObject()
+{
+	std::swap( _usageHint, other._usageHint );
+	std::swap( _size,      other._size );
+	std::swap( _type,      other._type );
+	
+	std::swap( _created,   other._created);
+	std::swap( _objectID,  other._objectID);
+}
+
+// -------------------------------------------------------------------------------------------------
+BufferObject::~BufferObject()
+{
+	destroy();
+}
+
+// -------------------------------------------------------------------------------------------------
+BufferObject& BufferObject::operator=( BufferObject &&other )
+{
+	//if( this != &other )
+	//	return; //check for self assignment
+
+	reset();
+
+	std::swap( _usageHint, other._usageHint );
+	std::swap( _size,      other._size );
+	std::swap( _type,      other._type );
+	
+	std::swap( _created,   other._created);
+	std::swap( _objectID,  other._objectID);
+
+    return *this;
+}
+
+// -------------------------------------------------------------------------------------------------
+void BufferObject::reset()
+{
+	OpenGLObject::reset();
+	
+	 _usageHint =  UsageHint::StaticDraw;
+	 _size      =  0;
+	 _type      =  Type::ArrayBuffer;
+}
+
+// -------------------------------------------------------------------------------------------------
+bool BufferObject::create()
+{
+	destroy();
+
+	glGenBuffers( 1, &_objectID );
 	glCheck;
 	// Allocating here with GL.BufferData, then writing with GL.BufferSubData
 	// in CopyFromSystemMemory() should not have any serious overhead:
@@ -30,44 +88,49 @@ BufferObject::BufferObject( int size, const Type &type, const UsageHint &usageHi
 	// CopyFromSystemMemory() call.
 	//
 	//glBindVertexArray( 0 );
-	glBindBuffer( glWrap(_type), _id );
-	glBufferData( glWrap(_type), _size, 0, glWrap(_usageHint) );
-	glCheck;
+	glBindBuffer( glWrap( _type ), _objectID );
+	glBufferData( glWrap( _type ), _size, 0, glWrap( _usageHint ) );
+	
+	_created = true;
+	return _created;
 }
 
-//-------------------------------------------------------------------------------------------------
-BufferObject::~BufferObject()
+// -------------------------------------------------------------------------------------------------
+void BufferObject::destroy()
 {
-	glDeleteBuffers( 1, &_id );
-	glCheck;
+	if( !isCreated() )
+		return;
+
+	glDeleteBuffers( 1, &_objectID );
+	reset();
 }
 
-//-------------------------------------------------------------------------------------------------
-void BufferObject::bind()
+// -------------------------------------------------------------------------------------------------
+void BufferObject::bind() const
 {
-	glBindBuffer( glWrap(_type), _id );
+	glBindBuffer( glWrap( _type ), _objectID );
 	glCheck;
 }
 
-//-------------------------------------------------------------------------------------------------
-void BufferObject::unbind()
+// -------------------------------------------------------------------------------------------------
+void BufferObject::unbind() const
 {
-	glBindBuffer( glWrap(_type), 0 );
+	glBindBuffer( glWrap( _type ), 0 );
 	glCheck;
 }
 
-//-------------------------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------------
 void BufferObject::sendData( void *data, int length, int offset )
 {
 	// @TODO: check arguments validity
 
 	//glBindVertexArray( 0 );
-	glBindBuffer( glWrap(_type), _id );	
-	glBufferSubData( glWrap(_type), offset, length, data );
+	glBindBuffer( glWrap( _type ), _objectID );
+	glBufferSubData( glWrap( _type ), offset, length, data );
 	glCheck;
 }
 
-//-------------------------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------------
 void * BufferObject::receiveData( int length, int offset )
 {
 	// @TODO: check arguments validity
@@ -75,23 +138,23 @@ void * BufferObject::receiveData( int length, int offset )
 	unsigned char *data = new unsigned char[length];
 
 	//glBindVertexArray( 0 );
-	glBindBuffer( glWrap(_type), _id );	
-	glBufferSubData( glWrap(_type), offset, length, data );
+	glBindBuffer( glWrap( _type ), _objectID );
+	glBufferSubData( glWrap( _type ), offset, length, data );
 	glCheck;
 	return data;
 }
 
-//-------------------------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------------
 void * BufferObject::mapData( const MapMode &mode )
 {
 	// Note that glMapBuffer() causes a synchronizing issue
-	glBindBuffer( glWrap(_type), _id );	
-	return glMapBuffer( glWrap(_type), glWrap(mode) );
+	glBindBuffer( glWrap( _type ), _objectID );
+	return glMapBuffer( glWrap( _type ), glWrap( mode ) );
 }
 
-//-------------------------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------------
 bool BufferObject::unmapData()
 {
-	return (bool)glUnmapBuffer( glWrap(_type) );
+	return (bool) glUnmapBuffer( glWrap( _type ) );
 }
 

@@ -419,9 +419,9 @@ void StateManager::applyDepthMask(bool depthMask)
 }
 
 // ------------------------------------------------------------------------------------------------
-void StateManager::applyShaderProgram( const OpenGL::ProgramPtr &program )
+void StateManager::applyShaderProgram( const ProgramPtr &program )
 {
-	if( !program->isValid() )
+	if( !program || !program->isCreated() )
 		return;
 
 #if SHADOWING

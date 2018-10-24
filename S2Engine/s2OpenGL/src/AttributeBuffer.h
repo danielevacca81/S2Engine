@@ -31,11 +31,14 @@ public:
 	};
 
 public:
+	OBJECT_DECLARE_MOVEABLE( AttributeBuffer )
+	OBJECT_DISABLE_COPY( AttributeBuffer )
+
 	AttributeBuffer();
 	~AttributeBuffer();
 
 	void set(
-		const VertexBuffer      &buffer,
+		VertexBuffer      &&buffer,
 		const ComponentDatatype &componentDatatype,
 		int                     numberOfComponents,
 		bool normalize = false,
@@ -58,12 +61,12 @@ private:
 	VertexBuffer      _vertexBuffer;
 	ComponentDatatype _componentDatatype;
 
-	int  _location;
-	int  _numberOfComponents;
-	int  _offset;
-	int  _stride;
-	bool _normalize;
-	bool _valid;
+	int     _location;
+	int     _numberOfComponents;
+	int64_t _offset;
+	int64_t _stride;
+	bool    _normalize;
+	bool    _valid;
 };
 
 } // namespace OpenGL

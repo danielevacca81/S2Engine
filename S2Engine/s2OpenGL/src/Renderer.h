@@ -18,7 +18,7 @@ public:
 	Renderer() = delete;
 	~Renderer() = delete;
 
-	// @todo: set conditional rendering and queries
+	// @todo: conditional rendering and queries
 
 	static void draw( const Primitive &primitive, const VertexArray &va );
 	static void draw( const Primitive &primitive, const Mesh &m );

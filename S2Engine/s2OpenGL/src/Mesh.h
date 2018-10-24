@@ -37,12 +37,13 @@ public:
 	};
 
 public:
-	static MeshPtr New();
+	//static MeshPtr New();
 public:
 	Mesh();
 	~Mesh();
 
-	VertexArray vao()const { return _va; }
+	VertexArray &vao()    { return _va; }
+
 	void setVertices     ( const std::vector<Math::vec3>  &points   );
 	void setColors       ( const std::vector<Color>       &colors   );
 	void setNormals      ( const std::vector<Math::vec3>  &normals  );

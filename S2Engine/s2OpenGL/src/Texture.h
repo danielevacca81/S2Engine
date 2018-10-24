@@ -9,10 +9,11 @@
 #include "PixelBuffer.h"
 #include "TextureDescription.h"
 
+#include "OpenGLObject.h"
+
 #include <memory>
 
 namespace s2 {
-
 namespace OpenGL {
 
 /************************************************************************************************/
@@ -21,21 +22,28 @@ namespace OpenGL {
 class Texture2D;
 typedef std::shared_ptr<Texture2D> Texture2DPtr;
 
-class S2OPENGL_API Texture2D
+class S2OPENGL_API Texture2D : public OpenGLObject, public std::enable_shared_from_this<Texture2D>
 {
 public:	
-	static Texture2DPtr New(const TextureDescription &desc);
+	//static Texture2DPtr New(const TextureDescription &desc, void *data = nullptr);
 
 public:
-	Texture2D();
-	Texture2D(const TextureDescription &, void *data = nullptr);
-	virtual ~Texture2D();
+	OBJECT_DECLARE_MOVEABLE( Texture2D )
+	OBJECT_DISABLE_COPY( Texture2D )
+
+	Texture2D( const TextureDescription &description = {}/*, void *data = nullptr*/ );
+	~Texture2D();
 
 	TextureDescription description() const;
-	unsigned int id() const;
 
-	void bind();
-	static void unbind();
+	void bind()    const override;
+	void unbind()  const override;
+	bool create()  override;
+	void destroy() override;
+
+	static void unbindAll();
+
+	void setData( void* pixels /*, int rowAlignment = 4 */ );
 
 	void update( int xOffset, int yOffset, 
 				 int width, int height, 
@@ -50,9 +58,11 @@ public:
 				 const ReadPixelBuffer &gpuBuffer/*, int rowAlignment = 4 */);
 	
 	
-	//void clear();
 
-	/* todo: fromBufferWritePixelBuffer pixelBuffer,
+	/* todo: 
+	 void clear();
+	
+	fromBufferWritePixelBuffer pixelBuffer,
 	int xOffset,
 		int yOffset,
 		int width,
@@ -62,14 +72,14 @@ public:
 		int rowAlignment)
 */
 private:
+	void reset() override;
 	void validateAlignment( int );
 	void setDefaultSampler();
 	void generateMipmaps();
 
 
 private:
-	unsigned int _id;
-	TextureFormat        _format;
+	TextureFormat      _format;
 	TextureDescription _description;
 };
 

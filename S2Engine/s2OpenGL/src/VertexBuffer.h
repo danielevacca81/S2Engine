@@ -16,14 +16,17 @@ namespace OpenGL {
 class S2OPENGL_API VertexBuffer
 {
 public:
+	OBJECT_DECLARE_MOVEABLE( VertexBuffer )
+	OBJECT_DISABLE_COPY( VertexBuffer )
+
 	VertexBuffer();
-	VertexBuffer( const BufferObject::UsageHint &usageHint, int sizeInBytes );
+	//VertexBuffer( int sizeInBytes, const BufferObject::UsageHint &usageHint );
 	~VertexBuffer();
 
 	void set( int sizeInBytes, const BufferObject::UsageHint &usageHint );
 
-	bool isValid()     const { return _bufferObject != nullptr; }
-	int  sizeInBytes() const { return _bufferObject->size(); }
+	bool isValid()     const { return _bufferObject.id() !=  0; }
+	int  sizeInBytes() const { return _bufferObject.size(); }
 
 	void bind() const;
 	void unbind() const;
@@ -34,7 +37,7 @@ public:
 	bool  unmapData();
 
 private:
-	BufferObjectPtr _bufferObject;
+	BufferObject _bufferObject;
 };
 
 

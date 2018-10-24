@@ -18,11 +18,8 @@ struct DrawingState
 	ProgramPtr   shaderProgram;
 	TextureUnits textureUnits;
 
-	DrawingState()
-	{}
-
-	DrawingState( const ProgramPtr &shaderProgram, const RenderState &renderState = {} )
-	: shaderProgram( shaderProgram )
+	DrawingState( const ProgramPtr &shader, const RenderState &renderState = {} )
+	: shaderProgram( shader )
 	, renderState( renderState )
 	{}
 };

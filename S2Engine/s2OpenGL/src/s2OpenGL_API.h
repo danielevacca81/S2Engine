@@ -23,3 +23,12 @@
 
 #pragma warning (disable: 4251)
 #pragma warning (disable: 4275)
+
+#define OBJECT_DISABLE_COPY(Class) \
+    Class(const Class &) = delete;\
+    Class &operator=(const Class &) = delete;
+
+#define OBJECT_DECLARE_MOVEABLE(Class) \
+    Class(Class &&);\
+    Class &operator=(Class &&);
+

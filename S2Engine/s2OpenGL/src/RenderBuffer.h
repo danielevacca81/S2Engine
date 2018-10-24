@@ -5,18 +5,23 @@
 
 #include "s2OpenGL_API.h"
 
+#include "OpenGLObject.h"
+
 #include <memory>
 
 namespace s2 {
 namespace OpenGL {
 
+/************************************************************************************************/
+/*                                        RenderBuffer                                          */
+/************************************************************************************************/
 class RenderBuffer;
 typedef std::shared_ptr<RenderBuffer> RenderBufferPtr;
 
-class S2OPENGL_API RenderBuffer
+class S2OPENGL_API RenderBuffer : public OpenGLObject, public std::enable_shared_from_this<RenderBuffer>
 {
 public:
-	enum Format
+	enum class Format
 	{
 		R8,
 		R8_SNORM,
@@ -96,17 +101,32 @@ public:
 	};
 
 public:
-	static RenderBufferPtr New( const Format &format, int width, int height, int samples );
+	//static RenderBufferPtr New( const Format &format, int width, int height, int samples );
 
 public:
-	RenderBuffer( const Format &format, int width, int height, int samples = 0 );
-	virtual ~RenderBuffer();
+	OBJECT_DECLARE_MOVEABLE( RenderBuffer )
+	OBJECT_DISABLE_COPY( RenderBuffer )
 
-	unsigned int id() const;
-	void bind() const;
+	RenderBuffer();
+	RenderBuffer( const Format &format, int width, int height, int samples = 0 );
+	~RenderBuffer();
+
+	bool create()  override;
+	void destroy() override;
+
 
 private:
-	unsigned int _bufferID;
+	void reset() override;
+
+	// render buffers shall not be directly accessible. only use through a fbo
+	void bind()    const override;
+	void unbind()  const override;
+
+private:
+	Format _format;
+	int    _width;
+	int    _height;
+	int    _samples;
 };
 
 

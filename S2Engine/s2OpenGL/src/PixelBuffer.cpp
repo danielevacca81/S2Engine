@@ -8,7 +8,24 @@ using namespace s2::OpenGL;
 /************************************************************************************************/
 /*                                     WritePixelBuffer                                         */
 /************************************************************************************************/
-WritePixelBuffer::WritePixelBuffer( int sizeInBytes, const UsageHint &usageHint )
+WritePixelBuffer::WritePixelBuffer()
+{}
+
+// ------------------------------------------------------------------------------------------------
+WritePixelBuffer::WritePixelBuffer( WritePixelBuffer &&other )
+{
+	std::swap( _bufferObject, other._bufferObject );
+}
+
+// ------------------------------------------------------------------------------------------------
+WritePixelBuffer &WritePixelBuffer::operator=( WritePixelBuffer &&other )
+{
+	std::swap( _bufferObject, other._bufferObject );
+	return *this;
+}
+
+// ------------------------------------------------------------------------------------------------
+void WritePixelBuffer::set( int sizeInBytes, const UsageHint &usageHint )
 {
 	BufferObject::UsageHint usage = BufferObject::UsageHint::StaticDraw;
 
@@ -19,24 +36,41 @@ WritePixelBuffer::WritePixelBuffer( int sizeInBytes, const UsageHint &usageHint 
 	case UsageHint::Dynamic: usage = BufferObject::UsageHint::DynamicDraw; break;
 	}
 
-	_bufferObject = BufferObject::New( sizeInBytes, BufferObject::Type::PixelUnpackBuffer, usage );
+	_bufferObject = BufferObject( sizeInBytes, BufferObject::Type::PixelUnpackBuffer, usage );
 }
 
 // ------------------------------------------------------------------------------------------------
-int  WritePixelBuffer::sizeInBytes() const { return _bufferObject->size(); }
+int  WritePixelBuffer::sizeInBytes() const { return _bufferObject.size(); }
 
 // ------------------------------------------------------------------------------------------------
-void WritePixelBuffer::bind()   const { _bufferObject->bind(); }
-void WritePixelBuffer::unbind() const { _bufferObject->unbind(); }
+void WritePixelBuffer::bind()   const { _bufferObject.bind(); }
+void WritePixelBuffer::unbind() const { _bufferObject.unbind(); }
 
 // ------------------------------------------------------------------------------------------------
-void  WritePixelBuffer::sendData( void *data, int length, int offset ) { _bufferObject->sendData( data, length, offset ); }
-void* WritePixelBuffer::receiveData( int length, int offset )          { return _bufferObject->receiveData( length, offset ); }
+void  WritePixelBuffer::sendData( void *data, int length, int offset ) { _bufferObject.sendData( data, length, offset ); }
+void* WritePixelBuffer::receiveData( int length, int offset )          { return _bufferObject.receiveData( length, offset ); }
 
 /************************************************************************************************/
 /*                                       ReadPixelBuffer                                        */
 /************************************************************************************************/
-ReadPixelBuffer::ReadPixelBuffer( int sizeInBytes, const UsageHint &usageHint )
+ReadPixelBuffer::ReadPixelBuffer()
+{}
+
+// ------------------------------------------------------------------------------------------------
+ReadPixelBuffer::ReadPixelBuffer( ReadPixelBuffer &&other )
+{
+	std::swap( _bufferObject, other._bufferObject );
+}
+
+// ------------------------------------------------------------------------------------------------
+ReadPixelBuffer &ReadPixelBuffer::operator=( ReadPixelBuffer &&other )
+{
+	std::swap( _bufferObject, other._bufferObject );
+	return *this;
+}
+
+// ------------------------------------------------------------------------------------------------
+void ReadPixelBuffer::set( int sizeInBytes, const UsageHint &usageHint )
 {
 	BufferObject::UsageHint usage = BufferObject::UsageHint::StaticDraw;
 
@@ -47,16 +81,16 @@ ReadPixelBuffer::ReadPixelBuffer( int sizeInBytes, const UsageHint &usageHint )
 	case UsageHint::Dynamic: usage = BufferObject::UsageHint::DynamicRead; break;
 	}
 
-	_bufferObject = BufferObject::New( sizeInBytes, BufferObject::Type::PixelPackBuffer, usage );
+	_bufferObject = BufferObject( sizeInBytes, BufferObject::Type::PixelPackBuffer, usage );
 }
 
 // ------------------------------------------------------------------------------------------------
-int  ReadPixelBuffer::sizeInBytes() const { return _bufferObject->size(); }
+int  ReadPixelBuffer::sizeInBytes() const { return _bufferObject.size(); }
 
 // ------------------------------------------------------------------------------------------------
-void ReadPixelBuffer::bind()   const { _bufferObject->bind(); }
-void ReadPixelBuffer::unbind() const { _bufferObject->unbind(); }
+void ReadPixelBuffer::bind()   const { _bufferObject.bind(); }
+void ReadPixelBuffer::unbind() const { _bufferObject.unbind(); }
 
 // ------------------------------------------------------------------------------------------------
-void  ReadPixelBuffer::sendData( void *data, int length, int offset ) { _bufferObject->sendData( data, length, offset ); }
-void* ReadPixelBuffer::receiveData( int length, int offset ) { return _bufferObject->receiveData( length, offset ); }
+void  ReadPixelBuffer::sendData( void *data, int length, int offset ) { _bufferObject.sendData( data, length, offset ); }
+void* ReadPixelBuffer::receiveData( int length, int offset ) { return _bufferObject.receiveData( length, offset ); }

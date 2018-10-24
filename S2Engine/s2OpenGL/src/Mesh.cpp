@@ -9,10 +9,10 @@ using namespace s2::OpenGL;
 
 
 // ------------------------------------------------------------------------------------------------
-MeshPtr Mesh::New()
-{
-	return std::make_shared<Mesh>();
-}
+//MeshPtr Mesh::New()
+//{
+//	return std::make_shared<Mesh>();
+//}
 
 
 // ------------------------------------------------------------------------------------------------
@@ -23,9 +23,9 @@ MeshPtr Mesh::New()
 //   (3) texture coords
 // ------------------------------------------------------------------------------------------------
 Mesh::Mesh()
-: primitiveType(Primitive::Points)
-, frontFaceWindingOrder(WindingOrder::Counterclockwise)
-, usageHint(BufferObject::UsageHint::StaticDraw)
+: primitiveType( Primitive::Points )
+, frontFaceWindingOrder( WindingOrder::Counterclockwise )
+, usageHint( BufferObject::UsageHint::StaticDraw )
 {}
 
 // ------------------------------------------------------------------------------------------------
@@ -35,37 +35,41 @@ Mesh::~Mesh()
 // ------------------------------------------------------------------------------------------------
 void Mesh::setVertices( const std::vector<Math::vec3> &points )
 {
-	VertexBuffer buf( usageHint, points.size() * sizeof(Math::vec3) );
+	VertexBuffer buf;
+	buf.set( points.size() * sizeof( Math::vec3 ),usageHint );
 	buf.sendData( (void*)(&points[0]), points.size() * sizeof(Math::vec3), 0 );
 
-	_va.attribute(0).set( buf, AttributeBuffer::Float,3, false,0,0 );
+	_va.attribute(0).set( std::move(buf), AttributeBuffer::Float,3, false,0,0 );
 }
 
 // ------------------------------------------------------------------------------------------------
 void Mesh::setColors( const std::vector<Color>   &colors   )
 {
-	VertexBuffer buf(  usageHint, colors.size() * sizeof(Color) );
+	VertexBuffer buf;
+	buf.set( colors.size() * sizeof( Color ),usageHint );
 	buf.sendData( (void*)(&colors[0]), colors.size() * sizeof(Color), 0 );
 
-	_va.attribute(1).set( buf, AttributeBuffer::Float,4, false,0,0 );
+	_va.attribute(1).set( std::move(buf), AttributeBuffer::Float,4, false,0,0 );
 }
 
 // ------------------------------------------------------------------------------------------------
 void Mesh::setNormals( const std::vector<Math::vec3>  &normals  )
 {
-	VertexBuffer buf(  usageHint, normals.size() * sizeof(Math::vec3) );
+	VertexBuffer buf;
+	buf.set( normals.size() * sizeof( Math::vec3 ), usageHint );
 	buf.sendData( (void*)(&normals[0]), normals.size() * sizeof(Math::vec3), 0 );
 
-	_va.attribute(2).set( buf, AttributeBuffer::Float,3, false,0,0 );
+	_va.attribute(2).set( std::move(buf), AttributeBuffer::Float,3, false,0,0 );
 }
 
 // ------------------------------------------------------------------------------------------------
 void Mesh::setTextureCoords( const std::vector<Math::vec2>  &texCoords)
 {
-	VertexBuffer buf( usageHint, texCoords.size() * sizeof(Math::vec2) );
+	VertexBuffer buf;
+	buf.set( texCoords.size() * sizeof( Math::vec2 ),usageHint );
 	buf.sendData( (void*)(&texCoords[0]), texCoords.size() * sizeof(Math::vec2), 0 );
 
-	_va.attribute(3).set( buf, AttributeBuffer::Float,2, false,0,0 );
+	_va.attribute(3).set( std::move(buf), AttributeBuffer::Float,2, false,0,0 );
 }
 
 // ------------------------------------------------------------------------------------------------

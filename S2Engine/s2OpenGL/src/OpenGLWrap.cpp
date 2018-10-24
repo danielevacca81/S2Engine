@@ -314,46 +314,46 @@ unsigned int glWrapTextureFormatToPixelFormat(const TextureFormat &f)
 }
 
 // ------------------------------------------------------------------------------------------------
-unsigned int glWrap( const TextureSampler::MinificationFilter &filter )
+unsigned int glWrap( const Sampler::MinificationFilter &filter )
 {
 	switch( filter )
 	{
-	case TextureSampler::MinificationFilter::Nearest:              return GL_NEAREST;
-	case TextureSampler::MinificationFilter::NearestMipmapNearest: return GL_NEAREST_MIPMAP_NEAREST;
-	case TextureSampler::MinificationFilter::NearestMipmapLinear:  return GL_NEAREST_MIPMAP_LINEAR;
-	case TextureSampler::MinificationFilter::Linear:               return GL_LINEAR;
-	case TextureSampler::MinificationFilter::LinearMipmapNearest:  return GL_LINEAR_MIPMAP_NEAREST;
-	case TextureSampler::MinificationFilter::LinearMipmapLinear:   return GL_LINEAR_MIPMAP_LINEAR;
+	case Sampler::MinificationFilter::Nearest:              return GL_NEAREST;
+	case Sampler::MinificationFilter::NearestMipmapNearest: return GL_NEAREST_MIPMAP_NEAREST;
+	case Sampler::MinificationFilter::NearestMipmapLinear:  return GL_NEAREST_MIPMAP_LINEAR;
+	case Sampler::MinificationFilter::Linear:               return GL_LINEAR;
+	case Sampler::MinificationFilter::LinearMipmapNearest:  return GL_LINEAR_MIPMAP_NEAREST;
+	case Sampler::MinificationFilter::LinearMipmapLinear:   return GL_LINEAR_MIPMAP_LINEAR;
 	}
 
-	assert( ( "Unknown TextureSampler::MinificationFilter", 0 ) );
+	assert( ( "Unknown Sampler::MinificationFilter", 0 ) );
 	return -1;
 }
 
 // ------------------------------------------------------------------------------------------------
-unsigned int glWrap( const TextureSampler::MagnificationFilter &filter )
+unsigned int glWrap( const Sampler::MagnificationFilter &filter )
 {
 	switch( filter )
 	{
-	case TextureSampler::MagnificationFilter::Nearest:  return GL_NEAREST;
-	case TextureSampler::MagnificationFilter::Linear:   return GL_LINEAR;
+	case Sampler::MagnificationFilter::Nearest:  return GL_NEAREST;
+	case Sampler::MagnificationFilter::Linear:   return GL_LINEAR;
 	}
 
-	assert( ( "Unknown TextureSampler::MagnificationFilter", 0 ) );
+	assert( ( "Unknown Sampler::MagnificationFilter", 0 ) );
 	return -1;
 }
 
 // ------------------------------------------------------------------------------------------------
-unsigned int glWrap( const TextureSampler::Wrap &wrap )
+unsigned int glWrap( const Sampler::Wrap &wrap )
 {
 	switch( wrap )
 	{
-	case TextureSampler::Wrap::Clamp:           return GL_CLAMP_TO_EDGE;
-	case TextureSampler::Wrap::Repeat:          return GL_REPEAT;
-	case TextureSampler::Wrap::MirroredRepeat:  return GL_MIRRORED_REPEAT;
+	case Sampler::Wrap::Clamp:           return GL_CLAMP_TO_EDGE;
+	case Sampler::Wrap::Repeat:          return GL_REPEAT;
+	case Sampler::Wrap::MirroredRepeat:  return GL_MIRRORED_REPEAT;
 	}
 
-	assert( ( "Unknown TextureSampler::Wrap", 0 ) );
+	assert( ( "Unknown Sampler::Wrap", 0 ) );
 	return -1;
 }
 #pragma endregion
@@ -464,82 +464,83 @@ unsigned int glWrap( const RenderBuffer::Format &format )
 {
 	switch( format )
 	{
-    case RenderBuffer::R8:                return GL_R8;                
-    case RenderBuffer::R8_SNORM:          return GL_R8_SNORM;          
-    case RenderBuffer::R16:               return GL_R16;               
-    case RenderBuffer::R16_SNORM:         return GL_R16_SNORM;         
-    case RenderBuffer::RG8:               return GL_RG8;               
-    case RenderBuffer::RG8_SNORM:         return GL_RG8_SNORM;         
-    case RenderBuffer::RG16:              return GL_RG16;              
-    case RenderBuffer::RG16_SNORM:        return GL_RG16_SNORM;        
-    case RenderBuffer::R3_G3_B2:          return GL_R3_G3_B2;          
-    case RenderBuffer::RGB4:              return GL_RGB4;              
-    case RenderBuffer::RGB5:              return GL_RGB5;              
-    case RenderBuffer::RGB8:              return GL_RGB8;              
-    case RenderBuffer::RGB8_SNORM:        return GL_RGB8_SNORM;        
-    case RenderBuffer::RGB10:             return GL_RGB10;             
-    case RenderBuffer::RGB12:             return GL_RGB12;             
-    case RenderBuffer::RGB16:             return GL_RGB16;             
-    case RenderBuffer::RGB16_SNORM:       return GL_RGB16_SNORM;       
-    case RenderBuffer::RGBA2:             return GL_RGBA2;             
-    case RenderBuffer::RGBA4:             return GL_RGBA4;             
-    case RenderBuffer::RGB5_A1:           return GL_RGB5_A1;           
-    case RenderBuffer::RGBA8:             return GL_RGBA8;             
-    case RenderBuffer::RGBA8_SNORM:       return GL_RGBA8_SNORM;       
-    case RenderBuffer::RGB10_A2:          return GL_RGB10_A2;          
-    case RenderBuffer::RGB10_A2UI:        return GL_RGB10_A2UI;        
-    case RenderBuffer::RGBA12:            return GL_RGBA12;            
-    case RenderBuffer::RGBA16:            return GL_RGBA16;            
-    case RenderBuffer::RGBA16_SNORM:      return GL_RGBA16_SNORM;      
-    case RenderBuffer::SRGB8:             return GL_SRGB8;             
-    case RenderBuffer::SRGB8_ALPHA8:      return GL_SRGB8_ALPHA8;      
-    case RenderBuffer::R16F:              return GL_R16F;              
-    case RenderBuffer::RG16F:             return GL_RG16F;             
-    case RenderBuffer::RGB16F:            return GL_RGB16F;            
-    case RenderBuffer::RGBA16F:           return GL_RGBA16F;           
-    case RenderBuffer::R32F:              return GL_R32F;              
-    case RenderBuffer::RG32F:             return GL_RG32F;             
-    case RenderBuffer::RGB32F:            return GL_RGB32F;            
-    case RenderBuffer::RGBA32F:           return GL_RGBA32F;           
-    case RenderBuffer::R11F_G11F_B10F:    return GL_R11F_G11F_B10F;    
-    case RenderBuffer::RGB9_E5:           return GL_RGB9_E5;           
-    case RenderBuffer::R8I:               return GL_R8I;               
-    case RenderBuffer::R8UI:              return GL_R8UI;              
-    case RenderBuffer::R16I:              return GL_R16I;              
-    case RenderBuffer::R16UI:             return GL_R16UI;             
-    case RenderBuffer::R32I:              return GL_R32I;              
-    case RenderBuffer::R32UI:             return GL_R32UI;             
-    case RenderBuffer::RG8I:              return GL_RG8I;              
-    case RenderBuffer::RG8UI:             return GL_RG8UI;             
-    case RenderBuffer::RG16I:             return GL_RG16I;             
-    case RenderBuffer::RG16UI:            return GL_RG16UI;            
-    case RenderBuffer::RG32I:             return GL_RG32I;             
-    case RenderBuffer::RG32UI:            return GL_RG32UI;            
-    case RenderBuffer::RGB8I:             return GL_RGB8I;             
-    case RenderBuffer::RGB8UI:            return GL_RGB8UI;            
-    case RenderBuffer::RGB16I:            return GL_RGB16I;            
-    case RenderBuffer::RGB16UI:           return GL_RGB16UI;           
-    case RenderBuffer::RGB32I:            return GL_RGB32I;            
-    case RenderBuffer::RGB32UI:           return GL_RGB32UI;           
-    case RenderBuffer::RGBA8I:            return GL_RGBA8I;            
-    case RenderBuffer::RGBA8UI:           return GL_RGBA8UI;           
-    case RenderBuffer::RGBA16I:           return GL_RGBA16I;           
-    case RenderBuffer::RGBA16UI:          return GL_RGBA16UI;          
-    case RenderBuffer::RGBA32I:           return GL_RGBA32I;           
-    case RenderBuffer::RGBA32UI:          return GL_RGBA32UI;          
-    case RenderBuffer::DepthComponent:    return GL_DEPTH_COMPONENT;    
-    case RenderBuffer::DepthComponent16:  return GL_DEPTH_COMPONENT16;  
-    case RenderBuffer::DepthComponent24:  return GL_DEPTH_COMPONENT24;  
-    case RenderBuffer::DepthComponent32:  return GL_DEPTH_COMPONENT32;  
-    case RenderBuffer::DepthComponent32F: return GL_DEPTH_COMPONENT32F; 
-    case RenderBuffer::Depth24Stencil8:   return GL_DEPTH24_STENCIL8;
-    case RenderBuffer::Depth32FStencil8:  return GL_DEPTH32F_STENCIL8;
-    case RenderBuffer::StencilIndex:      return GL_STENCIL_INDEX;  
-    case RenderBuffer::StencilIndex1:     return GL_STENCIL_INDEX1;
-    case RenderBuffer::StencilIndex4:     return GL_STENCIL_INDEX4;
-	case RenderBuffer::StencilIndex8:     return GL_STENCIL_INDEX8;
-    case RenderBuffer::StencilIndex16:    return GL_STENCIL_INDEX16;
+	case RenderBuffer::Format::R8:                return GL_R8;                
+    case RenderBuffer::Format::R8_SNORM:          return GL_R8_SNORM;          
+    case RenderBuffer::Format::R16:               return GL_R16;               
+    case RenderBuffer::Format::R16_SNORM:         return GL_R16_SNORM;         
+    case RenderBuffer::Format::RG8:               return GL_RG8;               
+    case RenderBuffer::Format::RG8_SNORM:         return GL_RG8_SNORM;         
+    case RenderBuffer::Format::RG16:              return GL_RG16;              
+    case RenderBuffer::Format::RG16_SNORM:        return GL_RG16_SNORM;        
+    case RenderBuffer::Format::R3_G3_B2:          return GL_R3_G3_B2;          
+    case RenderBuffer::Format::RGB4:              return GL_RGB4;              
+    case RenderBuffer::Format::RGB5:              return GL_RGB5;              
+    case RenderBuffer::Format::RGB8:              return GL_RGB8;              
+    case RenderBuffer::Format::RGB8_SNORM:        return GL_RGB8_SNORM;        
+    case RenderBuffer::Format::RGB10:             return GL_RGB10;             
+    case RenderBuffer::Format::RGB12:             return GL_RGB12;             
+    case RenderBuffer::Format::RGB16:             return GL_RGB16;             
+    case RenderBuffer::Format::RGB16_SNORM:       return GL_RGB16_SNORM;       
+    case RenderBuffer::Format::RGBA2:             return GL_RGBA2;             
+    case RenderBuffer::Format::RGBA4:             return GL_RGBA4;             
+    case RenderBuffer::Format::RGB5_A1:           return GL_RGB5_A1;           
+    case RenderBuffer::Format::RGBA8:             return GL_RGBA8;             
+    case RenderBuffer::Format::RGBA8_SNORM:       return GL_RGBA8_SNORM;       
+    case RenderBuffer::Format::RGB10_A2:          return GL_RGB10_A2;          
+    case RenderBuffer::Format::RGB10_A2UI:        return GL_RGB10_A2UI;        
+    case RenderBuffer::Format::RGBA12:            return GL_RGBA12;            
+    case RenderBuffer::Format::RGBA16:            return GL_RGBA16;            
+    case RenderBuffer::Format::RGBA16_SNORM:      return GL_RGBA16_SNORM;      
+    case RenderBuffer::Format::SRGB8:             return GL_SRGB8;             
+    case RenderBuffer::Format::SRGB8_ALPHA8:      return GL_SRGB8_ALPHA8;      
+    case RenderBuffer::Format::R16F:              return GL_R16F;              
+    case RenderBuffer::Format::RG16F:             return GL_RG16F;             
+    case RenderBuffer::Format::RGB16F:            return GL_RGB16F;            
+    case RenderBuffer::Format::RGBA16F:           return GL_RGBA16F;           
+    case RenderBuffer::Format::R32F:              return GL_R32F;              
+    case RenderBuffer::Format::RG32F:             return GL_RG32F;             
+    case RenderBuffer::Format::RGB32F:            return GL_RGB32F;            
+    case RenderBuffer::Format::RGBA32F:           return GL_RGBA32F;           
+    case RenderBuffer::Format::R11F_G11F_B10F:    return GL_R11F_G11F_B10F;    
+    case RenderBuffer::Format::RGB9_E5:           return GL_RGB9_E5;           
+    case RenderBuffer::Format::R8I:               return GL_R8I;               
+    case RenderBuffer::Format::R8UI:              return GL_R8UI;              
+    case RenderBuffer::Format::R16I:              return GL_R16I;              
+    case RenderBuffer::Format::R16UI:             return GL_R16UI;             
+    case RenderBuffer::Format::R32I:              return GL_R32I;              
+    case RenderBuffer::Format::R32UI:             return GL_R32UI;             
+    case RenderBuffer::Format::RG8I:              return GL_RG8I;              
+    case RenderBuffer::Format::RG8UI:             return GL_RG8UI;             
+    case RenderBuffer::Format::RG16I:             return GL_RG16I;             
+    case RenderBuffer::Format::RG16UI:            return GL_RG16UI;            
+    case RenderBuffer::Format::RG32I:             return GL_RG32I;             
+    case RenderBuffer::Format::RG32UI:            return GL_RG32UI;            
+    case RenderBuffer::Format::RGB8I:             return GL_RGB8I;             
+    case RenderBuffer::Format::RGB8UI:            return GL_RGB8UI;            
+    case RenderBuffer::Format::RGB16I:            return GL_RGB16I;            
+    case RenderBuffer::Format::RGB16UI:           return GL_RGB16UI;           
+    case RenderBuffer::Format::RGB32I:            return GL_RGB32I;            
+    case RenderBuffer::Format::RGB32UI:           return GL_RGB32UI;           
+    case RenderBuffer::Format::RGBA8I:            return GL_RGBA8I;            
+    case RenderBuffer::Format::RGBA8UI:           return GL_RGBA8UI;           
+    case RenderBuffer::Format::RGBA16I:           return GL_RGBA16I;           
+    case RenderBuffer::Format::RGBA16UI:          return GL_RGBA16UI;          
+    case RenderBuffer::Format::RGBA32I:           return GL_RGBA32I;           
+    case RenderBuffer::Format::RGBA32UI:          return GL_RGBA32UI;          
+    case RenderBuffer::Format::DepthComponent:    return GL_DEPTH_COMPONENT;    
+    case RenderBuffer::Format::DepthComponent16:  return GL_DEPTH_COMPONENT16;  
+    case RenderBuffer::Format::DepthComponent24:  return GL_DEPTH_COMPONENT24;  
+    case RenderBuffer::Format::DepthComponent32:  return GL_DEPTH_COMPONENT32;  
+    case RenderBuffer::Format::DepthComponent32F: return GL_DEPTH_COMPONENT32F; 
+    case RenderBuffer::Format::Depth24Stencil8:   return GL_DEPTH24_STENCIL8;
+    case RenderBuffer::Format::Depth32FStencil8:  return GL_DEPTH32F_STENCIL8;
+    case RenderBuffer::Format::StencilIndex:      return GL_STENCIL_INDEX;  
+    case RenderBuffer::Format::StencilIndex1:     return GL_STENCIL_INDEX1;
+    case RenderBuffer::Format::StencilIndex4:     return GL_STENCIL_INDEX4;
+	case RenderBuffer::Format::StencilIndex8:     return GL_STENCIL_INDEX8;
+    case RenderBuffer::Format::StencilIndex16:    return GL_STENCIL_INDEX16;
 	}
+
 	assert( ( "Unknown RenderBuffer", 0 ) );
 	return -1;
 }
@@ -692,7 +693,7 @@ unsigned int glWrap( const RenderState::RasterizationMode &mode )
 	case RenderState::RasterizationMode::Line:  return GL_LINE;
 	case RenderState::RasterizationMode::Fill:  return GL_FILL;
 	}
-	assert( ( "Unknown enderState::RasterizationMode", 0 ) );
+	assert( ( "Unknown RenderState::RasterizationMode", 0 ) );
 	return -1;
 }
 
