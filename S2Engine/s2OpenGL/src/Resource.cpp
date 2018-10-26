@@ -1,5 +1,6 @@
 // Resource.cpp
 //
+#if 0
 #include "Resource.h"
 
 #include "Context.h"
@@ -35,3 +36,4 @@ std::string Resource::name() const
 {
 	return _name;
 }
+#endif

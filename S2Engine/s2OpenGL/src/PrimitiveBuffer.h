@@ -57,7 +57,7 @@ public:
 private:
 	VertexArrayPtr _va;
 
-	friend class Renderer;
+	friend class RenderingHelper;
 };
 
 }

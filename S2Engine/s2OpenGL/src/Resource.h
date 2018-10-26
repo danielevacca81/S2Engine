@@ -1,5 +1,6 @@
 // Resource.h
 //
+#if 0
 #ifndef RESOURCE_ONCE
 #define RESOURCE_ONCE
 
@@ -32,4 +33,5 @@ protected:
 }
 }
 
+#endif
 #endif

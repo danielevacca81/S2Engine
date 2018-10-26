@@ -1,4 +1,4 @@
-// Renderer.cpp
+// RenderingHelper.cpp
 //
 #include "Renderer.h"
 
@@ -12,14 +12,14 @@ using namespace s2::OpenGL;
 // Tesselation
 
 //-------------------------------------------------------------------------------------------------
-void Renderer::draw( const Primitive &primitive, const PrimitiveBufferPtr &m )
+void RenderingHelper::draw( const Primitive &primitive, const PrimitiveBufferPtr &m )
 {
 	draw( primitive, m->_va );
 }
 
 
 //-------------------------------------------------------------------------------------------------
-void Renderer::draw( const Primitive &primitive, const VertexArrayPtr &va )
+void RenderingHelper::draw( const Primitive &primitive, const VertexArrayPtr &va )
 {
 	va->bind();
 	

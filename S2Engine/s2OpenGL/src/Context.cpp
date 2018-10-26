@@ -31,7 +31,7 @@ Context::Context()
 // ------------------------------------------------------------------------------------------------
 Context::~Context()
 {
-	releaseResources();
+	//releaseResources();
 
 	if( !_external )
 		release();
@@ -185,27 +185,27 @@ void Context::enableVSync( bool enabled )
 }
 
 // ------------------------------------------------------------------------------------------------
-void Context::addResource( const ResourcePtr &res )
-{
-	_resources.insert( res );
-
-	std::cout << "Added resource [" << res->name() << "] to context " << id() << std::endl;
-}
-
-// ------------------------------------------------------------------------------------------------
-void Context::releaseResources()
-{
-	if( _resources.empty() )
-	{
-		std::cout << "Releasing resources from context " << id() << ":" << "No resources" << std::endl;
-		return;
-	}
-
-	std::cout << "Releasing resources from context " << id() << ":" << std::endl;	
-	for( auto &r : _resources )
-		std::cout << "    " << r->name();
-	
-	std::cout << std::endl;	
-
-	_resources.clear();
-}
+//void Context::addResource( const ResourcePtr &res )
+//{
+//	_resources.insert( res );
+//
+//	std::cout << "Added resource [" << res->name() << "] to context " << id() << std::endl;
+//}
+//
+//// ------------------------------------------------------------------------------------------------
+//void Context::releaseResources()
+//{
+//	if( _resources.empty() )
+//	{
+//		std::cout << "Releasing resources from context " << id() << ":" << "No resources" << std::endl;
+//		return;
+//	}
+//
+//	std::cout << "Releasing resources from context " << id() << ":" << std::endl;	
+//	for( auto &r : _resources )
+//		std::cout << "    " << r->name();
+//	
+//	std::cout << std::endl;	
+//
+//	_resources.clear();
+//}

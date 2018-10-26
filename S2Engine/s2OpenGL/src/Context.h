@@ -29,11 +29,12 @@ public:
 	Context();
 	~Context();
 
-	void addResource( const ResourcePtr &resource );
+	//void addResource( const ResourcePtr &resource );
 
 	void makeCurrent();
 	void swapBuffers();
 	void enableVSync( bool enable ); // @todo: set attributes
+	void release();
 
 	int64_t                  id()         const;
 	std::vector<std::string> extensions() const;
@@ -42,8 +43,7 @@ public:
 
 protected:
 	bool initExtensions() const;
-	void release();
-	void releaseResources();
+	//void releaseResources();
 
 private:
 	static std::map<void*, std::weak_ptr<Context> > _contextList;
@@ -52,7 +52,7 @@ private:
 	void *_hDC;
 	void *_hRC;
 	bool _external; // handled by third party framework (i.e. Qt)
-	std::set<ResourcePtr> _resources;
+	//std::set<ResourcePtr> _resources;
 };
 
 

@@ -55,7 +55,7 @@ void Surface::draw( const Primitive &primitive, const VertexArrayPtr &va, const 
 	_fbo->bind();
 	_state.setDrawState( ds );
 
-	Renderer::draw( primitive, va );
+	RenderingHelper::draw( primitive, va );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -64,7 +64,7 @@ void Surface::draw( const Primitive &primitive, const PrimitiveBufferPtr &mesh, 
 	_fbo->bind();
 	_state.setDrawState( ds );
 
-	Renderer::draw( primitive, mesh );
+	RenderingHelper::draw( primitive, mesh );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -95,7 +95,7 @@ void Surface::swap( unsigned int targetFBO, const FrameBuffer::AttachmentPoint &
 	quad->setVertices( vertices );
 	quad->setTextureCoords( texCoords );
 
-	Renderer::draw( Primitive::TriangleStrip, quad );
+	RenderingHelper::draw( Primitive::TriangleStrip, quad );
 }
 
 // ------------------------------------------------------------------------------------------------

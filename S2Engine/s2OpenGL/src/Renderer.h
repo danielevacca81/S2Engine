@@ -1,7 +1,7 @@
-// Renderer.h
+// RenderingHelper.h
 //
-#ifndef RENDERER_ONCE
-#define RENDERER_ONCE
+#ifndef RENDERINGHELPER_ONCE
+#define RENDERINGHELPER_ONCE
 
 #include "Primitive.h"
 #include "VertexArray.h"
@@ -12,11 +12,11 @@ namespace s2 {
 namespace OpenGL {
 
 // stateless rendering helper class. issues draw calls. for internal use
-class Renderer
+class RenderingHelper
 {
 public:
-	Renderer() = delete;
-	~Renderer() = delete;
+	RenderingHelper() = delete;
+	~RenderingHelper() = delete;
 
 	// @todo: conditional rendering and queries
 

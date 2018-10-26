@@ -55,7 +55,7 @@ private:
 	mutable std::vector<AttributeBuffer> _attributes;
 	mutable IndexBuffer                  _indexBuffer; //optional
 
-	friend class Renderer;
+	friend class RenderingHelper;
 };
 
 } // namespace OpenGL
