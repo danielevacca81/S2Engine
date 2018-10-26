@@ -18,7 +18,7 @@ namespace OpenGL{
 class Sampler;
 typedef std::shared_ptr<Sampler> SamplerPtr;
 
-class S2OPENGL_API Sampler : public OpenGLObject, public std::enable_shared_from_this<Sampler>
+class S2OPENGL_API Sampler : public OpenGLObject
 {
 public:
 	enum class Wrap 
@@ -45,13 +45,13 @@ public:
 	};
 
 public:
-	//static TextureSamplerPtr New(const MinificationFilter &minFilter, const MagnificationFilter &magFilter, const Wrap &wrapS, const Wrap &wrapT, float maxAnisotropy);
+	static SamplerPtr makeNew(const MinificationFilter &minFilter, const MagnificationFilter &magFilter, const Wrap &wrapS, const Wrap &wrapT, float maxAnisotropy);
 
 public:
-	OBJECT_DECLARE_MOVEABLE( Sampler )
-	OBJECT_DISABLE_COPY( Sampler )
+	//OBJECT_DECLARE_MOVEABLE( Sampler )
+	//OBJECT_DISABLE_COPY( Sampler )
 
-	Sampler();
+	//Sampler();
 	Sampler( const MinificationFilter &minFilter, const MagnificationFilter &magFilter, const Wrap &wrapS, const Wrap &wrapT, float maxAnisotropy );
 	~Sampler();
 

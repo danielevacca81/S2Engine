@@ -18,7 +18,7 @@ namespace OpenGL {
 class RenderBuffer;
 typedef std::shared_ptr<RenderBuffer> RenderBufferPtr;
 
-class S2OPENGL_API RenderBuffer : public OpenGLObject, public std::enable_shared_from_this<RenderBuffer>
+class S2OPENGL_API RenderBuffer : public OpenGLObject
 {
 public:
 	enum class Format
@@ -101,13 +101,13 @@ public:
 	};
 
 public:
-	//static RenderBufferPtr New( const Format &format, int width, int height, int samples );
+	static RenderBufferPtr makeNew( const Format &format, int width, int height, int samples );
 
 public:
-	OBJECT_DECLARE_MOVEABLE( RenderBuffer )
-	OBJECT_DISABLE_COPY( RenderBuffer )
+	//OBJECT_DECLARE_MOVEABLE( RenderBuffer )
+	//OBJECT_DISABLE_COPY( RenderBuffer )
 
-	RenderBuffer();
+	//RenderBuffer();
 	RenderBuffer( const Format &format, int width, int height, int samples = 0 );
 	~RenderBuffer();
 

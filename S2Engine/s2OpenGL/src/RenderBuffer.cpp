@@ -8,15 +8,15 @@
 using namespace s2::OpenGL;
 
 // ------------------------------------------------------------------------------------------------
-//RenderBufferPtr RenderBuffer::New( const Format &format, int width, int height, int samples )
-//{
-//	return std::make_shared<RenderBuffer>( format, width, height, samples );
-//}
+RenderBufferPtr RenderBuffer::makeNew( const Format &format, int width, int height, int samples )
+{
+	return std::make_shared<RenderBuffer>( format, width, height, samples );
+}
 
 // ------------------------------------------------------------------------------------------------
-RenderBuffer::RenderBuffer()
-: RenderBuffer( Format::RGBA8, 0, 0, 0 )
-{}
+//RenderBuffer::RenderBuffer()
+//: RenderBuffer( Format::RGBA8, 0, 0, 0 )
+//{}
 
 // ------------------------------------------------------------------------------------------------
 RenderBuffer::RenderBuffer( const Format &format, int width, int height, int samples )
@@ -24,21 +24,23 @@ RenderBuffer::RenderBuffer( const Format &format, int width, int height, int sam
 , _width( width )
 , _height( height )
 , _samples( samples )
-{}
+{
+	create();
+}
 
 // ------------------------------------------------------------------------------------------------
-RenderBuffer::RenderBuffer( RenderBuffer &&other )
-: RenderBuffer()
-{
-	std::swap( _format , other._format  );
-	std::swap( _width  , other._width   );
-	std::swap( _height , other._height  );
-	std::swap( _samples, other._samples );
-
-
-	std::swap( _created,   other._created);
-	std::swap( _objectID,  other._objectID);
-}
+//RenderBuffer::RenderBuffer( RenderBuffer &&other )
+//: RenderBuffer()
+//{
+//	std::swap( _format , other._format  );
+//	std::swap( _width  , other._width   );
+//	std::swap( _height , other._height  );
+//	std::swap( _samples, other._samples );
+//
+//
+//	std::swap( _created,   other._created);
+//	std::swap( _objectID,  other._objectID);
+//}
 
 // ------------------------------------------------------------------------------------------------
 RenderBuffer::~RenderBuffer()

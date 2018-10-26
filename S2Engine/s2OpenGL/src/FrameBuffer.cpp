@@ -19,10 +19,10 @@ static void makeGLAttachment( const FrameBuffer::AttachmentPoint &attachPoint, c
 // ------------------------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------------------------
-//FrameBufferPtr FrameBuffer::New()
-//{
-//	return std::make_shared<FrameBuffer>();
-//}
+FrameBufferPtr FrameBuffer::makeNew()
+{
+	return std::make_shared<FrameBuffer>();
+}
 
 // ------------------------------------------------------------------------------------------------
 FrameBuffer::FrameBuffer()
@@ -30,22 +30,22 @@ FrameBuffer::FrameBuffer()
 , _colorAttachments( 10 )
 , _colorAttachmentCount( 0 )
 {
-	//create();
+	create();
 }
 
 // ------------------------------------------------------------------------------------------------
-FrameBuffer::FrameBuffer( FrameBuffer &&other )
-: FrameBuffer()
-{
-	std::swap( _colorAttachmentCount,   other._colorAttachmentCount );
-	std::swap( _colorAttachments,       other._colorAttachments );
-	std::swap( _depthAttachment,        other._depthAttachment );
-	std::swap( _depthStencilAttachment, other._depthStencilAttachment);
-
-
-	std::swap( _created,   other._created);
-	std::swap( _objectID,  other._objectID);
-}
+//FrameBuffer::FrameBuffer( FrameBuffer &&other )
+//: FrameBuffer()
+//{
+//	std::swap( _colorAttachmentCount,   other._colorAttachmentCount );
+//	std::swap( _colorAttachments,       other._colorAttachments );
+//	std::swap( _depthAttachment,        other._depthAttachment );
+//	std::swap( _depthStencilAttachment, other._depthStencilAttachment);
+//
+//
+//	std::swap( _created,   other._created);
+//	std::swap( _objectID,  other._objectID);
+//}
 
 // ------------------------------------------------------------------------------------------------
 FrameBuffer::~FrameBuffer()
@@ -54,30 +54,31 @@ FrameBuffer::~FrameBuffer()
 }
 
 // ------------------------------------------------------------------------------------------------
-FrameBuffer& FrameBuffer::operator=( FrameBuffer &&other )
-{
-	reset();
-
-	std::swap( _colorAttachmentCount,   other._colorAttachmentCount );
-	std::swap( _colorAttachments,       other._colorAttachments );
-	std::swap( _depthAttachment,        other._depthAttachment );
-	std::swap( _depthStencilAttachment, other._depthStencilAttachment);
-
-
-	std::swap( _created,   other._created);
-	std::swap( _objectID,  other._objectID);
-	return *this;
-}
+//FrameBuffer& FrameBuffer::operator=( FrameBuffer &&other )
+//{
+//	reset();
+//
+//	std::swap( _colorAttachmentCount,   other._colorAttachmentCount );
+//	std::swap( _colorAttachments,       other._colorAttachments );
+//	std::swap( _depthAttachment,        other._depthAttachment );
+//	std::swap( _depthStencilAttachment, other._depthStencilAttachment);
+//
+//
+//	std::swap( _created,   other._created);
+//	std::swap( _objectID,  other._objectID);
+//	return *this;
+//}
 
 // -------------------------------------------------------------------------------------------------
 void FrameBuffer::reset()
 {
 	OpenGLObject::reset();
 
+	_changes                = Changes::None;
 	_colorAttachmentCount   = 0;
 	_depthAttachment        = {};
 	_depthStencilAttachment = {};
-	_colorAttachments.clear();
+	_colorAttachments       = std::vector<ColorAttachment>(10);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -118,7 +119,7 @@ void FrameBuffer::bind() const
 				_colorAttachments[i].changed = false;
 			}
 
-			if( _colorAttachments[i].texture->isCreated() )
+			if( _colorAttachments[i].texture )
 				drawBuffers.push_back( GL_COLOR_ATTACHMENT0 + i );
 		}
 		glDrawBuffers( (int) drawBuffers.size(), &drawBuffers[0] );
@@ -206,11 +207,11 @@ void FrameBuffer::attach( const AttachmentPoint &attachPoint, const Texture2DPtr
 
 		if( _colorAttachments[attachPoint].texture != texture )
 		{
-			if( _colorAttachments[attachPoint].texture->isCreated() && !texture->isCreated() )
+			if( _colorAttachments[attachPoint].texture && !texture )
 			{
 				--_colorAttachmentCount; //detach
 			}
-			else if( !_colorAttachments[attachPoint].texture->isCreated() && texture->isCreated() )
+			else if( !_colorAttachments[attachPoint].texture && texture )
 			{
 				++_colorAttachmentCount;
 			}

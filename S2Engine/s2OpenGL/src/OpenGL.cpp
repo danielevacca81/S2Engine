@@ -6,7 +6,7 @@
 #include <sstream>
 
 //----------------------------------------------------------------------------------------------
-void s2::OpenGL::glCheckError(const char* file, unsigned line)
+void s2::OpenGL::glCheckError( const char* file, unsigned line )
 {
 	GLenum err = glGetError();
 	if( err != GL_NO_ERROR )
@@ -18,14 +18,14 @@ void s2::OpenGL::glCheckError(const char* file, unsigned line)
 				        << " - "           << std::string( msg )
 						<< " ] "           << std::string( file )
 						<< ", "            << line
-						<< std::endl;
+						<< '\n';
 		}
 		else
 		{
 			std::cout << "OpenGL ERROR [ " << err 
 						<< " ] "           << std::string( file )
 						<< ", "            << line
-						<< std::endl;
+						<< '\n';
 		}
 	}
 }

@@ -72,7 +72,7 @@ enum class S2OPENGL_API TextureFormat
 class S2OPENGL_API TextureDescription
 {
 public:
-	TextureDescription();
+	//TextureDescription();
 	TextureDescription( int height, int width, const TextureFormat &format, bool generateMipmaps = false );
 	~TextureDescription();
 

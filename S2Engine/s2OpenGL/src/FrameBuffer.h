@@ -22,7 +22,7 @@ namespace OpenGL {
 class FrameBuffer;
 typedef std::shared_ptr<FrameBuffer> FrameBufferPtr;
 
-class S2OPENGL_API FrameBuffer : public OpenGLObject, public std::enable_shared_from_this<FrameBuffer>
+class S2OPENGL_API FrameBuffer : public OpenGLObject
 {
 public:
 	enum AttachmentPoint
@@ -42,11 +42,12 @@ public:
 	};
 
 public:
-	//static FrameBufferPtr New();
+	// CANNOT BE SHARED BETWEEN CONTEXTS
+	static FrameBufferPtr makeNew();
 
 public:
-	OBJECT_DISABLE_COPY( FrameBuffer )
-	OBJECT_DECLARE_MOVEABLE( FrameBuffer )
+	//OBJECT_DISABLE_COPY( FrameBuffer )
+	//OBJECT_DECLARE_MOVEABLE( FrameBuffer )
 
 	FrameBuffer();
 	~FrameBuffer();

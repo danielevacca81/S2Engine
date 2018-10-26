@@ -11,6 +11,8 @@
 
 #include "OpenGLObject.h"
 
+#include "graphics/ImageBuffer.h"
+
 #include <memory>
 
 namespace s2 {
@@ -22,16 +24,16 @@ namespace OpenGL {
 class Texture2D;
 typedef std::shared_ptr<Texture2D> Texture2DPtr;
 
-class S2OPENGL_API Texture2D : public OpenGLObject, public std::enable_shared_from_this<Texture2D>
+class S2OPENGL_API Texture2D : public OpenGLObject
 {
 public:	
-	//static Texture2DPtr New(const TextureDescription &desc, void *data = nullptr);
+	static Texture2DPtr makeNew( const TextureDescription &desc, void *data = nullptr );
 
 public:
-	OBJECT_DECLARE_MOVEABLE( Texture2D )
-	OBJECT_DISABLE_COPY( Texture2D )
+	//OBJECT_DECLARE_MOVEABLE( Texture2D )
+	//OBJECT_DISABLE_COPY( Texture2D )
 
-	Texture2D( const TextureDescription &description = {}/*, void *data = nullptr*/ );
+	Texture2D( const TextureDescription &description, void *data );
 	~Texture2D();
 
 	TextureDescription description() const;
@@ -57,7 +59,7 @@ public:
 				 const ImageDataType &imgDataType,
 				 const ReadPixelBuffer &gpuBuffer/*, int rowAlignment = 4 */);
 	
-	
+	ImageBufferPtr<unsigned char> readData() const;
 
 	/* todo: 
 	 void clear();

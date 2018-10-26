@@ -20,8 +20,13 @@
 #include <vector>
 #include <sstream>
 
-using namespace s2;
 using namespace s2::OpenGL;
+
+// ------------------------------------------------------------------------------------------------
+ProgramPtr Program::makeNew()
+{
+	return std::make_shared<Program>();
+}
 
 // ------------------------------------------------------------------------------------------------
 Program::Program()
@@ -30,24 +35,24 @@ Program::Program()
 , _gshd( 0 )
 , _fshd( 0 )
 {
-	//create();
+	create();
 }
 
 // ------------------------------------------------------------------------------------------------
-Program::Program( Program &&other )
-: Program()
-{
-	std::swap( _vshd,       other._vshd );
-	std::swap( _gshd,       other._gshd );
-	std::swap( _fshd,       other._fshd );
-	std::swap( _linked,     other._linked );
-	std::swap( _name,       other._name );
-	std::swap( _attributes, other._attributes );
-	std::swap( _uniforms,   other._uniforms );
-
-	std::swap( _created,   other._created);
-	std::swap( _objectID,  other._objectID);
-}
+//Program::Program( Program &&other )
+//: Program()
+//{
+//	std::swap( _vshd,       other._vshd );
+//	std::swap( _gshd,       other._gshd );
+//	std::swap( _fshd,       other._fshd );
+//	std::swap( _linked,     other._linked );
+//	std::swap( _name,       other._name );
+//	std::swap( _attributes, other._attributes );
+//	std::swap( _uniforms,   other._uniforms );
+//
+//	std::swap( _created,   other._created);
+//	std::swap( _objectID,  other._objectID);
+//}
 
 // ------------------------------------------------------------------------------------------------
 Program::~Program()
@@ -56,22 +61,22 @@ Program::~Program()
 }
 
 // ------------------------------------------------------------------------------------------------
-Program &Program::operator=( Program &&other )
-{
-	reset();
-
-	std::swap( _vshd,       other._vshd );
-	std::swap( _gshd,       other._gshd );
-	std::swap( _fshd,       other._fshd );
-	std::swap( _linked,     other._linked );
-	std::swap( _name,       other._name );
-	std::swap( _attributes, other._attributes );
-	std::swap( _uniforms,   other._uniforms );
-
-	std::swap( _created,   other._created);
-	std::swap( _objectID,  other._objectID);
-	return *this;
-}
+//Program &Program::operator=( Program &&other )
+//{
+//	reset();
+//
+//	std::swap( _vshd,       other._vshd );
+//	std::swap( _gshd,       other._gshd );
+//	std::swap( _fshd,       other._fshd );
+//	std::swap( _linked,     other._linked );
+//	std::swap( _name,       other._name );
+//	std::swap( _attributes, other._attributes );
+//	std::swap( _uniforms,   other._uniforms );
+//
+//	std::swap( _created,   other._created);
+//	std::swap( _objectID,  other._objectID);
+//	return *this;
+//}
 
 // -------------------------------------------------------------------------------------------------
 void Program::reset()

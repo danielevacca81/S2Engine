@@ -7,9 +7,9 @@ using namespace s2::OpenGL;
 /************************************************************************************************/
 /*                                      TextureDescription                                      */
 /************************************************************************************************/
-TextureDescription::TextureDescription()
-: TextureDescription( 0,0, TextureFormat::RedGreenBlue8, false )
-{}
+//TextureDescription::TextureDescription()
+//: TextureDescription( 0,0, TextureFormat::RedGreenBlue8, false )
+//{}
 
 // ------------------------------------------------------------------------------------------------
 TextureDescription::TextureDescription( int width, int height, const TextureFormat &format, bool generateMipmaps )

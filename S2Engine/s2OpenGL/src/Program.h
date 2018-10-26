@@ -21,11 +21,13 @@ namespace OpenGL {
 class Program;
 typedef std::shared_ptr<Program>   ProgramPtr;
 
-class S2OPENGL_API Program : public OpenGLObject, public std::enable_shared_from_this<Program>
+class S2OPENGL_API Program : public OpenGLObject
 {
 public:
-	OBJECT_DECLARE_MOVEABLE( Program )
-	OBJECT_DISABLE_COPY( Program )
+	static ProgramPtr makeNew();
+
+	//OBJECT_DECLARE_MOVEABLE( Program )
+	//OBJECT_DISABLE_COPY( Program )
 
 	Program();
 	~Program();

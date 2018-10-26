@@ -22,12 +22,15 @@ namespace OpenGL {
 class VertexArray;
 typedef std::shared_ptr<VertexArray>   VertexArrayPtr;
 
-class S2OPENGL_API VertexArray : public OpenGLObject, public std::enable_shared_from_this<VertexArray>
+class S2OPENGL_API VertexArray : public OpenGLObject
 {
 public:
-	OBJECT_DECLARE_MOVEABLE( VertexArray )
-	OBJECT_DISABLE_COPY( VertexArray )
+	//OBJECT_DECLARE_MOVEABLE( VertexArray )
+	//OBJECT_DISABLE_COPY( VertexArray )
 
+	// CANNOT BE SHARED BETWEEN CONTEXTS
+	static VertexArrayPtr makeNew();
+public:
 	VertexArray();
 	~VertexArray();
 

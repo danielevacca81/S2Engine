@@ -18,7 +18,7 @@ namespace OpenGL {
 class BufferObject;
 typedef std::shared_ptr<BufferObject>   BufferObjectPtr;
 
-class S2OPENGL_API BufferObject: public OpenGLObject, public std::enable_shared_from_this<BufferObject>
+class S2OPENGL_API BufferObject: public OpenGLObject
 {
 public:
 	enum class UsageHint
@@ -66,10 +66,13 @@ public:
 	};
 
 public:
-	OBJECT_DISABLE_COPY( BufferObject )
-	OBJECT_DECLARE_MOVEABLE( BufferObject )
+	//OBJECT_DISABLE_COPY( BufferObject )
+	//OBJECT_DECLARE_MOVEABLE( BufferObject )
 
-	BufferObject();
+	static BufferObjectPtr makeNew( int size, const Type &type, const UsageHint &usageHint );
+
+
+	//BufferObject();
 	BufferObject( int size, const Type &type, const UsageHint &usageHint );
 	~BufferObject();
 

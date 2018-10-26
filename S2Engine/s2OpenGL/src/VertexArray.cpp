@@ -13,19 +13,28 @@ using namespace s2::OpenGL;
 static int maxVertexAttrib = 16;
 
 // -------------------------------------------------------------------------------------------------
-VertexArray::VertexArray()
-{}
+VertexArrayPtr VertexArray::makeNew()
+{
+	return std::make_shared<VertexArray>();
+}
+
 
 // -------------------------------------------------------------------------------------------------
-VertexArray::VertexArray( VertexArray &&other )
-: VertexArray()
+VertexArray::VertexArray()
 {
-	std::swap( _attributes , other._attributes  );
-	std::swap( _indexBuffer, other._indexBuffer );
-
-	std::swap( _created,   other._created );
-	std::swap( _objectID,  other._objectID);
+	create();
 }
+
+// -------------------------------------------------------------------------------------------------
+//VertexArray::VertexArray( VertexArray &&other )
+//: VertexArray()
+//{
+//	std::swap( _attributes , other._attributes  );
+//	std::swap( _indexBuffer, other._indexBuffer );
+//
+//	std::swap( _created,   other._created );
+//	std::swap( _objectID,  other._objectID);
+//}
 
 // -------------------------------------------------------------------------------------------------
 VertexArray::~VertexArray()
@@ -34,24 +43,24 @@ VertexArray::~VertexArray()
 }
 
 // -------------------------------------------------------------------------------------------------
-VertexArray &VertexArray::operator=( VertexArray &&other )
-{
-	reset();
-
-	std::swap( _attributes , other._attributes  );
-	std::swap( _indexBuffer, other._indexBuffer );
-
-	std::swap( _created,   other._created );
-	std::swap( _objectID,  other._objectID);
-	return *this;
-}
+//VertexArray &VertexArray::operator=( VertexArray &&other )
+//{
+//	reset();
+//
+//	std::swap( _attributes , other._attributes  );
+//	std::swap( _indexBuffer, other._indexBuffer );
+//
+//	std::swap( _created,   other._created );
+//	std::swap( _objectID,  other._objectID);
+//	return *this;
+//}
 
 // -------------------------------------------------------------------------------------------------
 void VertexArray::reset()
 {
 	OpenGLObject::reset();
 	_attributes.clear();
-	_indexBuffer = {};
+	_indexBuffer = IndexBuffer( 0, IndexBuffer::IndexDataType::UnsignedInt, BufferObject::UsageHint::StaticDraw );
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -63,14 +72,18 @@ bool VertexArray::create()
 	_attributes.reserve( maxVertexAttrib );
 
 	glGenVertexArrays( 1, &_objectID );
-	glBindVertexArray( _objectID );
-
-	if( _indexBuffer.isValid() )
-		_indexBuffer.bind();
-
-	for( size_t i=0; i < _attributes.size(); ++i )
-		_attributes[i].attach( i );
+	glCheck;
 	
+	//bind();
+
+	//if( _indexBuffer.isValid() )
+	//	_indexBuffer.bind();
+
+	//for( size_t i=0; i < _attributes.size(); ++i )
+	//	_attributes[i].attach( i );
+	//
+	//unbind();
+
 	_created = true;
 	return _created;
 }
@@ -79,13 +92,25 @@ bool VertexArray::create()
 void VertexArray::destroy()
 {
 	glDeleteVertexArrays( 1, &_objectID );
+	glCheck;
 	reset();
 }
 
 // -------------------------------------------------------------------------------------------------
 void VertexArray::bind() const
 {
+	if( !isCreated() )
+		return;
+
 	glBindVertexArray( _objectID );
+	glCheck;
+
+	if( _indexBuffer.isValid() )
+		_indexBuffer.bind();
+
+	for( size_t i=0; i < _attributes.size(); ++i )
+		_attributes[i].attach( i );
+
 	glCheck;
 }
 

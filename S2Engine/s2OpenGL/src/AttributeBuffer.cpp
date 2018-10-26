@@ -39,44 +39,45 @@ AttributeBuffer::AttributeBuffer()
 , _offset( 0 )
 , _stride( 0 )
 , _componentDatatype( Byte )
+, _vertexBuffer( 0, BufferObject::UsageHint::StaticDraw )
 {}
 
 //-------------------------------------------------------------------------------------------------
-AttributeBuffer::AttributeBuffer( AttributeBuffer &&other )
-{
-	std::swap( _valid,             other._valid              );
-	std::swap( _location,          other._location           );
-	std::swap( _normalize,         other._normalize          );
-	std::swap( _numberOfComponents,other._numberOfComponents );
-	std::swap( _offset,            other._offset             );
-	std::swap( _stride,            other._stride             );
-	std::swap( _componentDatatype, other._componentDatatype  );
-	std::swap( _vertexBuffer,      other._vertexBuffer       );
-}
+//AttributeBuffer::AttributeBuffer( AttributeBuffer &&other )
+//{
+//	std::swap( _valid,             other._valid              );
+//	std::swap( _location,          other._location           );
+//	std::swap( _normalize,         other._normalize          );
+//	std::swap( _numberOfComponents,other._numberOfComponents );
+//	std::swap( _offset,            other._offset             );
+//	std::swap( _stride,            other._stride             );
+//	std::swap( _componentDatatype, other._componentDatatype  );
+//	std::swap( _vertexBuffer,      other._vertexBuffer       );
+//}
 
 //-------------------------------------------------------------------------------------------------
 AttributeBuffer::~AttributeBuffer()
 {}
 
 //-------------------------------------------------------------------------------------------------
-AttributeBuffer &AttributeBuffer::operator=( AttributeBuffer &&other )
-{
-	std::swap( _valid,             other._valid              );
-	std::swap( _location,          other._location           );
-	std::swap( _normalize,         other._normalize          );
-	std::swap( _numberOfComponents,other._numberOfComponents );
-	std::swap( _offset,            other._offset             );
-	std::swap( _stride,            other._stride             );
-	std::swap( _componentDatatype, other._componentDatatype  );
-	std::swap( _vertexBuffer,      other._vertexBuffer       );
-	return *this;
-}
+//AttributeBuffer &AttributeBuffer::operator=( AttributeBuffer &&other )
+//{
+//	std::swap( _valid,             other._valid              );
+//	std::swap( _location,          other._location           );
+//	std::swap( _normalize,         other._normalize          );
+//	std::swap( _numberOfComponents,other._numberOfComponents );
+//	std::swap( _offset,            other._offset             );
+//	std::swap( _stride,            other._stride             );
+//	std::swap( _componentDatatype, other._componentDatatype  );
+//	std::swap( _vertexBuffer,      other._vertexBuffer       );
+//	return *this;
+//}
 
 
 //-------------------------------------------------------------------------------------------------
-void AttributeBuffer::set( VertexBuffer &&buffer, const ComponentDatatype &componentDatatype, int numberOfComponents, bool normalize, int offset, int stride )
+void AttributeBuffer::set( const VertexBuffer &buffer, const ComponentDatatype &componentDatatype, int numberOfComponents, bool normalize, int offset, int stride )
 {
-	_vertexBuffer       = std::move( buffer );
+	_vertexBuffer       = buffer;
 	_componentDatatype  = componentDatatype;
 	_numberOfComponents = numberOfComponents;
 	_offset             = offset;

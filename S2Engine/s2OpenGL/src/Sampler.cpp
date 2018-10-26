@@ -8,14 +8,15 @@
 using namespace s2::OpenGL;
 
 // ------------------------------------------------------------------------------------------------
-//TextureSamplerPtr Sampler::New(const MinificationFilter &minFilter, const MagnificationFilter &magFilter, const Wrap &wrapS, const Wrap &wrapT, float maxAnisotropy)
-//{
-//	return std::make_shared<Sampler>( minFilter,magFilter,wrapS,wrapT,maxAnisotropy );
-//}
+SamplerPtr Sampler::makeNew(const MinificationFilter &minFilter, const MagnificationFilter &magFilter, const Wrap &wrapS, const Wrap &wrapT, float maxAnisotropy)
+{
+	return std::make_shared<Sampler>( minFilter,magFilter,wrapS,wrapT,maxAnisotropy );
+}
+
 // ------------------------------------------------------------------------------------------------
-Sampler::Sampler()
-: Sampler( MinificationFilter::Nearest, MagnificationFilter::Nearest, Wrap::Clamp, Wrap::Clamp, 1 )
-{}
+//Sampler::Sampler()
+//: Sampler( MinificationFilter::Nearest, MagnificationFilter::Nearest, Wrap::Clamp, Wrap::Clamp, 1 )
+//{}
 
 // ------------------------------------------------------------------------------------------------
 Sampler::Sampler( const MinificationFilter &minFilter, const MagnificationFilter &magFilter, const Wrap &wrapS, const Wrap &wrapT, float maxAnisotropy )
@@ -37,21 +38,22 @@ Sampler::Sampler( const MinificationFilter &minFilter, const MagnificationFilter
 	//		throw new InsufficientVideoCardException("Anisotropic filtering is not supported.  The extension GL_EXT_texture_filter_anisotropic was not found.");
 	//	}
 	//}
+	create();
 }
 
 // ------------------------------------------------------------------------------------------------
-Sampler::Sampler( Sampler &&other )
-: Sampler()
-{
-	std::swap( _minificationFilter , other._minificationFilter  );
-	std::swap( _magnificationFilter, other._magnificationFilter );
-	std::swap( _wrapS              , other._wrapS               );
-	std::swap( _wrapT              , other._wrapT               );
-	std::swap( _maximumAnistropy   , other._maximumAnistropy    );
-
-	std::swap( _created,   other._created);
-	std::swap( _objectID,  other._objectID);
-}
+//Sampler::Sampler( Sampler &&other )
+//: Sampler()
+//{
+//	std::swap( _minificationFilter , other._minificationFilter  );
+//	std::swap( _magnificationFilter, other._magnificationFilter );
+//	std::swap( _wrapS              , other._wrapS               );
+//	std::swap( _wrapT              , other._wrapT               );
+//	std::swap( _maximumAnistropy   , other._maximumAnistropy    );
+//
+//	std::swap( _created,   other._created);
+//	std::swap( _objectID,  other._objectID);
+//}
 
 // ------------------------------------------------------------------------------------------------
 Sampler::~Sampler()
@@ -60,20 +62,20 @@ Sampler::~Sampler()
 }
 
 // ------------------------------------------------------------------------------------------------
-Sampler &Sampler::operator=( Sampler &&other )
-{
-	reset();
-
-	std::swap( _minificationFilter , other._minificationFilter  );
-	std::swap( _magnificationFilter, other._magnificationFilter );
-	std::swap( _wrapS              , other._wrapS               );
-	std::swap( _wrapT              , other._wrapT               );
-	std::swap( _maximumAnistropy   , other._maximumAnistropy    );
-
-	std::swap( _created,   other._created);
-	std::swap( _objectID,  other._objectID);
-	return *this;
-}
+//Sampler &Sampler::operator=( Sampler &&other )
+//{
+//	reset();
+//
+//	std::swap( _minificationFilter , other._minificationFilter  );
+//	std::swap( _magnificationFilter, other._magnificationFilter );
+//	std::swap( _wrapS              , other._wrapS               );
+//	std::swap( _wrapT              , other._wrapT               );
+//	std::swap( _maximumAnistropy   , other._maximumAnistropy    );
+//
+//	std::swap( _created,   other._created);
+//	std::swap( _objectID,  other._objectID);
+//	return *this;
+//}
 
 // -------------------------------------------------------------------------------------------------
 void Sampler::reset()

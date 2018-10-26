@@ -27,7 +27,7 @@ typedef std::shared_ptr<Mesh>   MeshPtr;
 //   (1) colors
 //   (2) normals
 //   (3) texture coords
-class S2OPENGL_API Mesh
+class S2OPENGL_API Mesh //@todo: rename primitiveBuffer/primitivearray?
 {
 public:
 	enum class WindingOrder
@@ -37,12 +37,12 @@ public:
 	};
 
 public:
-	//static MeshPtr New();
+	// CANNOT BE SHARED BETWEEN CONTEXTS
+	static MeshPtr makeNew();
+
 public:
 	Mesh();
 	~Mesh();
-
-	VertexArray &vao()    { return _va; }
 
 	void setVertices     ( const std::vector<Math::vec3>  &points   );
 	void setColors       ( const std::vector<Color>       &colors   );
@@ -51,11 +51,11 @@ public:
 	void setIndices( const std::vector<unsigned int> &indices );
 
 	BufferObject::UsageHint usageHint;
-	Primitive     primitiveType;
-	WindingOrder  frontFaceWindingOrder;
+	Primitive               primitiveType;
+	WindingOrder            frontFaceWindingOrder;
 
 private:
-	VertexArray _va;
+	VertexArrayPtr _va;
 
 	friend class Renderer;
 };

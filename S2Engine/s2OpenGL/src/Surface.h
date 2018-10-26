@@ -10,8 +10,11 @@
 #include "VertexArray.h"
 #include "Mesh.h"
 
+#include "graphics/ImageBuffer.h"
+
 namespace s2 {
 namespace OpenGL {
+
 
 class Surface;
 typedef std::shared_ptr<Surface> SurfacePtr;
@@ -19,20 +22,25 @@ typedef std::shared_ptr<Surface> SurfacePtr;
 class S2OPENGL_API Surface
 {
 public:
-	static SurfacePtr New();
+	// CANNOT BE SHARED BETWEEN CONTEXTS
+	static SurfacePtr makeNew();
 
 public:
 	Surface();
 	~Surface();
 
 	void clear( const ClearState &cs );
-	void draw( const Primitive &primitive, const VertexArray &va, const DrawingState &ds );
-	void draw( const Primitive &primitive, const Mesh &mesh, const DrawingState &ds );
+	void draw( const Primitive &primitive, const VertexArrayPtr &va, const DrawingState &ds );
+	void draw( const Primitive &primitive, const MeshPtr &mesh, const DrawingState &ds );
+
+	int width()  const { return _width;  }
+	int height() const { return _height; }
 
 	void resize( int width, int height );
 	void swap( unsigned int targetFBO, const FrameBuffer::AttachmentPoint &att = FrameBuffer::ColorAttachment0 );
 	
 	// todo: grab image instead of swap?
+	ImageBufferPtr<unsigned char> grabImage() const;
 
 	
 	// void swap( SurfacePtr )
@@ -44,11 +52,14 @@ public:
 	// if qt will trash gl state. >> force state manager to set render state on clear/invalidate method
 
 private:
-	void init();
+	void create();
 
 private:
-	FrameBuffer  _fbo;
-	StateManager _state;
+	int            _width;
+	int            _height;
+
+	FrameBufferPtr _fbo;
+	StateManager   _state;
 };
 
 }

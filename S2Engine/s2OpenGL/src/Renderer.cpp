@@ -12,30 +12,30 @@ using namespace s2::OpenGL;
 // Tesselation
 
 //-------------------------------------------------------------------------------------------------
-void Renderer::draw( const Primitive &primitive, const Mesh &m )
+void Renderer::draw( const Primitive &primitive, const MeshPtr &m )
 {
-	draw( primitive, m._va );
+	draw( primitive, m->_va );
 }
 
 
 //-------------------------------------------------------------------------------------------------
-void Renderer::draw( const Primitive &primitive, const VertexArray &va )
+void Renderer::draw( const Primitive &primitive, const VertexArrayPtr &va )
 {
-	va.bind();
+	va->bind();
 	
-	if( va.isIndexed() )
+	if( va->isIndexed() )
 	{		
 		glDrawRangeElements( glWrap(primitive),
 			                 0,
-							 va.maxArrayIndex(),
-							 va.indexBuffer().count(),
-			                 glWrap( va.indexBuffer().dataType() ),
+							 va->maxArrayIndex(),
+							 va->indexBuffer().count(),
+			                 glWrap( va->indexBuffer().dataType() ),
 							 BUFFER_OFFSET(0) );
+		glCheck;
 	}
 	else
 	{
-		glDrawArrays( glWrap(primitive), 0, va.maxArrayIndex() + 1);
+		glDrawArrays( glWrap(primitive), 0, va->maxArrayIndex() + 1);
+		glCheck;
 	}
-
-	glCheck;
 }

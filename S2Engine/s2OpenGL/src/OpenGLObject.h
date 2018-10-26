@@ -14,7 +14,7 @@ class S2OPENGL_API OpenGLObject
 {
 public:
 	OpenGLObject() = default;	
-	~OpenGLObject() = default;
+	virtual ~OpenGLObject() = default;
 
 	virtual bool create() = 0;
 	virtual void destroy() = 0;
@@ -26,17 +26,11 @@ public:
 	// @todo:isSupported?
 	
 	// -----------------------------------------------------------------------------------------------
-	inline unsigned int id()        const 
-	{
-		if( !isCreated() )
-            const_cast<OpenGLObject*>(this)->create();
-		return _objectID;
-	}
+	inline unsigned int id()        const { return _objectID; }
 
 	// -----------------------------------------------------------------------------------------------
 	inline bool operator!=( const OpenGLObject &other ) const { return _objectID != other._objectID; }
 	inline bool operator==( const OpenGLObject &other ) const { return _objectID == other._objectID; }
-
 protected:
 	virtual void reset() 
 	{

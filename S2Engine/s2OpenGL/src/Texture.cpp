@@ -7,29 +7,35 @@
 
 #include "Sampler.h"
 
-#include "BuiltIn.h"
+#include "BuiltIn.h" //samplers
+
 using namespace s2::OpenGL;
 
 // -------------------------------------------------------------------------------------------------
-//Texture2DPtr Texture2D::New( const TextureDescription &desc, void *data )
-//{
-//	return std::make_shared<Texture2D>( desc );
-//}
-
-// -------------------------------------------------------------------------------------------------
-Texture2D::Texture2D( const TextureDescription &description /*, void* data*/ )
-: _description( description )
-{}
-
-// -------------------------------------------------------------------------------------------------
-Texture2D::Texture2D( Texture2D &&other )
+Texture2DPtr Texture2D::makeNew( const TextureDescription &desc, void *data )
 {
-	std::swap( _format     , other._format      );
-	std::swap( _description, other._description );
-
-	std::swap( _created,   other._created);
-	std::swap( _objectID,  other._objectID);
+	return std::make_shared<Texture2D>( desc, data );
 }
+
+// -------------------------------------------------------------------------------------------------
+Texture2D::Texture2D( const TextureDescription &description, void* data )
+: _description( description )
+{
+	create();
+
+	if( data )
+		setData( data );
+}
+
+// -------------------------------------------------------------------------------------------------
+//Texture2D::Texture2D( Texture2D &&other )
+//{
+//	std::swap( _format     , other._format      );
+//	std::swap( _description, other._description );
+//
+//	std::swap( _created,   other._created);
+//	std::swap( _objectID,  other._objectID);
+//}
 
 // -------------------------------------------------------------------------------------------------
 Texture2D::~Texture2D()
@@ -38,24 +44,24 @@ Texture2D::~Texture2D()
 }
 
 // -------------------------------------------------------------------------------------------------
-Texture2D &Texture2D::operator=( Texture2D &&other )
-{
-	reset();
-
-	std::swap( _format     , other._format      );
-	std::swap( _description, other._description );
-
-	std::swap( _created,   other._created);
-	std::swap( _objectID,  other._objectID);
-	return *this;
-}
+//Texture2D &Texture2D::operator=( Texture2D &&other )
+//{
+//	reset();
+//
+//	std::swap( _format     , other._format      );
+//	std::swap( _description, other._description );
+//
+//	std::swap( _created,   other._created);
+//	std::swap( _objectID,  other._objectID);
+//	return *this;
+//}
 
 // -------------------------------------------------------------------------------------------------
 void Texture2D::reset()
 {
 	OpenGLObject::reset();
 
-	_description = {};
+	_description = TextureDescription( 0,0, TextureFormat::RedGreenBlueAlpha8 );
 	_format      = {};
 }
 
@@ -89,6 +95,7 @@ bool Texture2D::create()
 void Texture2D::destroy()
 {
 	if( !isCreated() )
+		return;
 
 	glDeleteTextures( 1, &_objectID );
 	reset();
@@ -102,13 +109,13 @@ void Texture2D::unbindAll()    { glBindTexture( GL_TEXTURE_2D, 0 ); }
 // -------------------------------------------------------------------------------------------------
 void Texture2D::setDefaultSampler()
 {
-	const Sampler &sampler = BuiltIn::samplerLinearClamp;
+	const SamplerPtr sampler = BuiltIn::samplerLinearClamp;
 
 	/*todo : handle gl texture rectangle in case of description.isRectangle*/
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, glWrap( sampler.minificationFilter() ) );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, glWrap( sampler.magnificationFilter() ) );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,     glWrap( sampler.wrapS() ) );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,     glWrap( sampler.wrapT() ) );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, glWrap( sampler->minificationFilter() ) );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, glWrap( sampler->magnificationFilter() ) );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,     glWrap( sampler->wrapS() ) );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,     glWrap( sampler->wrapT() ) );
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -175,6 +182,59 @@ void Texture2D::update(int xOffset, int yOffset,
 					 glWrap( imgDataType ),
 					 nullptr );
 	unbind();
+}
+
+// -------------------------------------------------------------------------------------------------
+s2::ImageBufferPtr<unsigned char> Texture2D::readData() const
+{
+ //public override ReadPixelBuffer CopyToBuffer(
+	// ImageFormat format,
+	// ImageDatatype dataType,
+	// int rowAlignment )
+ //{
+	// if( format == ImageFormat.StencilIndex )
+	// {
+	//	 throw new ArgumentException( "StencilIndex is not supported by CopyToBuffer.  Try DepthStencil instead.", "format" );
+	// }
+
+	// VerifyRowAlignment( rowAlignment );
+
+	// ReadPixelBufferGL3x pixelBuffer = new ReadPixelBufferGL3x( PixelBufferHint.Stream,
+	//															TextureUtility.RequiredSizeInBytes( _description.Width, _description.Height, format, dataType, rowAlignment ) );
+
+	// pixelBuffer.Bind();
+	// BindToLastTextureUnit();
+	// GL.PixelStore( PixelStoreParameter.PackAlignment, rowAlignment );
+	// GL.GetTexImage( _target, 0,
+	//				 TypeConverterGL3x.To( format ),
+	//				 TypeConverterGL3x.To( dataType ),
+	//				 new IntPtr() );
+
+	// return pixelBuffer;
+ //}
+
+	// @todo: make user selectable
+	const int rowAlignment       = 4;
+	const ImageFormat format     = ImageFormat::RedGreenBlueAlpha;
+	const ImageDataType dataType = ImageDataType::UnsignedByte;
+	const int sizeInBytes        = computeRequiredSizeInBytes( _description.width(), _description.height(), format, dataType, rowAlignment );
+
+	glActiveTexture( GL_TEXTURE0 );
+	bind();
+	glPixelStorei( GL_PACK_ALIGNMENT, rowAlignment );
+	
+	ReadPixelBuffer pixelBuffer = ReadPixelBuffer( sizeInBytes, ReadPixelBuffer::UsageHint::Stream );
+	pixelBuffer.bind();
+	
+	glGetTexImage( GL_TEXTURE_2D, 0, glWrap( format ), glWrap( dataType ), BUFFER_OFFSET(0) );
+	glCheck;
+	//unbind();
+	//glCheck;
+
+	s2::ImageBufferPtr<unsigned char> img = s2::ImageBuffer<unsigned char>::New( _description.width(), _description.height(), 4, (unsigned char*)pixelBuffer.receiveData( sizeInBytes ) );
+	unbind();
+
+	return img;
 }
 
 

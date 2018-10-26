@@ -15,19 +15,22 @@ class S2OPENGL_API BuiltIn
 {
 public:
 	static bool init();
+	static void destroy();
 
 private:
 	static bool initSamplers();
 	static bool initShaders();
 
 public:
-	static Program shaderFullscreenQuad;
-	static Program shaderSimple;
+	static ProgramPtr shaderFullscreenQuad;
+	static ProgramPtr shaderSimple;
 
-	static Sampler samplerNearestClamp;
-	static Sampler samplerLinearClamp;
-	static Sampler samplerNearestRepeat;
-	static Sampler samplerLinearRepeat;
+	static SamplerPtr samplerNearestClamp;
+	static SamplerPtr samplerLinearClamp;
+	static SamplerPtr samplerNearestRepeat;
+	static SamplerPtr samplerLinearRepeat;
+
+	static void enableDebugOutput();
 
 
 private:

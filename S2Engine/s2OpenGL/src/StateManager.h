@@ -30,7 +30,7 @@ public:
 	StateManager();
 	~StateManager();
 
-	void setFrameBuffer( const FrameBufferPtr &fb );
+	//void setFrameBuffer( const FrameBufferPtr &fb );
 	void setClearState( const ClearState &cs );
 	void setDrawState( const DrawingState &ds );
 

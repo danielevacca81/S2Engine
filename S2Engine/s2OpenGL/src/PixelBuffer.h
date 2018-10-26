@@ -26,11 +26,11 @@ public:
 	};
 
 public:
-	OBJECT_DECLARE_MOVEABLE( WritePixelBuffer )
-	OBJECT_DISABLE_COPY( WritePixelBuffer )
+	//OBJECT_DECLARE_MOVEABLE( WritePixelBuffer )
+	//OBJECT_DISABLE_COPY( WritePixelBuffer )
 
-	WritePixelBuffer();
-	void set( int sizeInBytes, const UsageHint &usageHint);
+	WritePixelBuffer( int sizeInBytes, const UsageHint &usageHint);
+	//void set( int sizeInBytes, const UsageHint &usageHint);
 
 	int  sizeInBytes() const;
 
@@ -41,7 +41,7 @@ public:
 	void* receiveData(int length, int offset = 0);
 
 private:
-	BufferObject _bufferObject;
+	BufferObjectPtr _bufferObject;
 };
 
 /************************************************************************************************/
@@ -58,12 +58,12 @@ public:
 	};
 
 public:
-	OBJECT_DECLARE_MOVEABLE( ReadPixelBuffer )
-	OBJECT_DISABLE_COPY( ReadPixelBuffer )
+	//OBJECT_DECLARE_MOVEABLE( ReadPixelBuffer )
+	//OBJECT_DISABLE_COPY( ReadPixelBuffer )
 
-	ReadPixelBuffer();
+	ReadPixelBuffer( int sizeInBytes, const UsageHint &usageHint );
 	
-	void set( int sizeInBytes, const UsageHint &usageHint );
+	//void ;
 
 	int  sizeInBytes() const;
 
@@ -74,7 +74,7 @@ public:
 	void* receiveData(int length, int offset = 0);
 
 private:
-	BufferObject _bufferObject;
+	BufferObjectPtr _bufferObject;
 };
 
 }

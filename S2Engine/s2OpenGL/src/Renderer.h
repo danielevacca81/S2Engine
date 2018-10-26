@@ -11,7 +11,7 @@
 namespace s2 {
 namespace OpenGL {
 
-// stateless renderer class. issues draw calls. internal use
+// stateless rendering helper class. issues draw calls. for internal use
 class Renderer
 {
 public:
@@ -20,8 +20,8 @@ public:
 
 	// @todo: conditional rendering and queries
 
-	static void draw( const Primitive &primitive, const VertexArray &va );
-	static void draw( const Primitive &primitive, const Mesh &m );
+	static void draw( const Primitive &primitive, const VertexArrayPtr &va );
+	static void draw( const Primitive &primitive, const MeshPtr &m );
 };
 
 

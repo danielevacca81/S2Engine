@@ -5,13 +5,18 @@
 #include "OpenGL.h"
 #include "OpenGLWrap.h"
 
-using namespace s2;
 using namespace s2::OpenGL;
 
 // -------------------------------------------------------------------------------------------------
-BufferObject::BufferObject()
-: BufferObject( 0, Type::ArrayBuffer, UsageHint::StaticDraw )
-{}
+BufferObjectPtr BufferObject::makeNew( int size, const Type &type, const UsageHint &usageHint )
+{
+	return std::make_shared<BufferObject>( size, type, usageHint );
+}
+
+// -------------------------------------------------------------------------------------------------
+//BufferObject::BufferObject()
+//: BufferObject( 0, Type::ArrayBuffer, UsageHint::StaticDraw )
+//{}
 
 // -------------------------------------------------------------------------------------------------
 BufferObject::BufferObject( int size, const Type &type, const UsageHint &usageHint )
@@ -23,20 +28,20 @@ BufferObject::BufferObject( int size, const Type &type, const UsageHint &usageHi
 	//{
 	//	throw new ArgumentOutOfRangeException("sizeInBytes", "sizeInBytes must be greater than zero.");
 	//}
-	//create();
+	create();
 }
 
 // -------------------------------------------------------------------------------------------------
-BufferObject::BufferObject( BufferObject &&other )
-: BufferObject()
-{
-	std::swap( _usageHint, other._usageHint );
-	std::swap( _size,      other._size );
-	std::swap( _type,      other._type );
-	
-	std::swap( _created,   other._created);
-	std::swap( _objectID,  other._objectID);
-}
+//BufferObject::BufferObject( BufferObject &&other )
+//: BufferObject()
+//{
+//	std::swap( _usageHint, other._usageHint );
+//	std::swap( _size,      other._size );
+//	std::swap( _type,      other._type );
+//	
+//	std::swap( _created,   other._created);
+//	std::swap( _objectID,  other._objectID);
+//}
 
 // -------------------------------------------------------------------------------------------------
 BufferObject::~BufferObject()
@@ -45,22 +50,22 @@ BufferObject::~BufferObject()
 }
 
 // -------------------------------------------------------------------------------------------------
-BufferObject& BufferObject::operator=( BufferObject &&other )
-{
-	//if( this != &other )
-	//	return; //check for self assignment
-
-	reset();
-
-	std::swap( _usageHint, other._usageHint );
-	std::swap( _size,      other._size );
-	std::swap( _type,      other._type );
-	
-	std::swap( _created,   other._created);
-	std::swap( _objectID,  other._objectID);
-
-    return *this;
-}
+//BufferObject& BufferObject::operator=( BufferObject &&other )
+//{
+//	//if( this != &other )
+//	//	return; //check for self assignment
+//
+//	reset();
+//
+//	std::swap( _usageHint, other._usageHint );
+//	std::swap( _size,      other._size );
+//	std::swap( _type,      other._type );
+//	
+//	std::swap( _created,   other._created);
+//	std::swap( _objectID,  other._objectID);
+//
+//    return *this;
+//}
 
 // -------------------------------------------------------------------------------------------------
 void BufferObject::reset()
@@ -90,6 +95,7 @@ bool BufferObject::create()
 	//glBindVertexArray( 0 );
 	glBindBuffer( glWrap( _type ), _objectID );
 	glBufferData( glWrap( _type ), _size, 0, glWrap( _usageHint ) );
+	glCheck;
 	
 	_created = true;
 	return _created;
@@ -102,6 +108,7 @@ void BufferObject::destroy()
 		return;
 
 	glDeleteBuffers( 1, &_objectID );
+	glCheck;
 	reset();
 }
 
@@ -139,7 +146,7 @@ void * BufferObject::receiveData( int length, int offset )
 
 	//glBindVertexArray( 0 );
 	glBindBuffer( glWrap( _type ), _objectID );
-	glBufferSubData( glWrap( _type ), offset, length, data );
+	glGetBufferSubData( glWrap( _type ), offset, length, data );
 	glCheck;
 	return data;
 }

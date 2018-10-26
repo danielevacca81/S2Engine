@@ -8,7 +8,6 @@
 #include "s2OpenGL_API.h"
 
 namespace s2 {
-
 namespace OpenGL {
 
 /************************************************************************************************/
@@ -31,14 +30,14 @@ public:
 	};
 
 public:
-	OBJECT_DECLARE_MOVEABLE( AttributeBuffer )
-	OBJECT_DISABLE_COPY( AttributeBuffer )
+	//OBJECT_DECLARE_MOVEABLE( AttributeBuffer )
+	//OBJECT_DISABLE_COPY( AttributeBuffer )
 
 	AttributeBuffer();
 	~AttributeBuffer();
 
 	void set(
-		VertexBuffer      &&buffer,
+		const VertexBuffer      &buffer,
 		const ComponentDatatype &componentDatatype,
 		int                     numberOfComponents,
 		bool normalize = false,
