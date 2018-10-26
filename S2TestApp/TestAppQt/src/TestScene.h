@@ -21,9 +21,6 @@ public:
 	TestScene( QWidget *parent );
 	~TestScene();
 
-	void addMesh( const s2::OpenGL::MeshPtr &m );
-	void setShader( const s2::OpenGL::ProgramPtr &shader );
-
 	void resetView();
 	void toggleWireframe();
 
@@ -57,10 +54,10 @@ private:
 	//Math::dvec3 _target;
 	//Math::dvec3 _up;
 
-	s2::OpenGL::ViewState      _viewState;
+	s2::OpenGL::ViewState  _viewState;
 	//s2::OpenGL::FrameBufferPtr _fb;
 	s2::OpenGL::SurfacePtr _surface;
-	s2::OpenGL::ProgramPtr     _shader;
+	//s2::OpenGL::ProgramPtr _shader;
 
 
 	std::vector<s2::OpenGL::MeshPtr> _meshes;

@@ -1,6 +1,7 @@
 #pragma once
 
 
+#include "opengl/Context.h"
 #include "opengl/Program.h"
 #include "opengl/Mesh.h"
 
@@ -15,7 +16,9 @@ public:
 	GLResourcesLoader( QWidget *parent );
 	~GLResourcesLoader();
 
-	bool load();
+	bool initSharedResources();
+
+	bool initMyVR();
 
 
 private:
@@ -28,8 +31,9 @@ signals:
 
 public:
 	static s2::OpenGL::ContextPtr _mainContext;
-	static s2::OpenGL::MeshPtr    _torus;
-	static s2::OpenGL::MeshPtr    _cube;
-	static s2::OpenGL::ProgramPtr _phong;
-	static s2::OpenGL::ProgramPtr _background;
+	static s2::OpenGL::MeshPtr       _torus;
+	static s2::OpenGL::MeshPtr       _cube;
+	static s2::OpenGL::ProgramPtr    _phong;
+	static s2::OpenGL::ProgramPtr    _background;
+	//static int _composite;
 };

@@ -8,6 +8,7 @@
 #include "qt/MouseStatus.h"
 
 #include "opengl/Extensions.h"
+#include "graphics/ImageBuffer.h"
 #include "utils/String.h"
 #include "utils/TimedBlock.h"
 #include "resources/R.h"
@@ -15,6 +16,8 @@
 #include "math/Ray.h"
 #include "math/Plane.h"
 #include "math/Mesh.h"
+
+//#include "mMap/API.h"
 
 #include <QPainter>
 #include <QTimer>
@@ -28,6 +31,8 @@ TestScene::TestScene( QWidget *parent )
 , _wireframe( false )
 , _frames( 0 )
 {
+	// no opengl here because no context yet
+
 	_uim.registerMouseCommand( s2::Qt::UIMCommand( "Wheel",                [&] () { onMouseWheel(); } ) );
 	_uim.registerMouseCommand( s2::Qt::UIMCommand( "LeftButton",           [&] () { onMousePressed(); } ) );
 	_uim.registerMouseCommand( s2::Qt::UIMCommand( "RightButton",          [&] () { onMousePressed(); } ) );
@@ -40,25 +45,7 @@ TestScene::TestScene( QWidget *parent )
 
 // ------------------------------------------------------------------------------------------------
 TestScene::~TestScene()
-{
-	makeCurrent();
-	_surface = nullptr;
-	_shader = nullptr;
-	_meshes.clear();
-	doneCurrent();
-}
-
-// ------------------------------------------------------------------------------------------------
-void TestScene::addMesh( const s2::OpenGL::MeshPtr &m )
-{
-	_meshes.push_back( m );
-}
-
-// ------------------------------------------------------------------------------------------------
-void TestScene::setShader( const s2::OpenGL::ProgramPtr &shader )
-{
-	_shader = shader;
-}
+{}
 
 // ------------------------------------------------------------------------------------------------
 void TestScene::resetView()
@@ -74,11 +61,12 @@ void TestScene::resetView()
 // ------------------------------------------------------------------------------------------------
 void TestScene::initializeGL()
 {
+	// internally called by opengl when the context for this widget is ready and current
 	s2::OpenGL::initExtensions();
-	_surface = s2::OpenGL::Surface::New();
+	_surface = s2::OpenGL::Surface::makeNew();
 
 	GLResourcesLoader::_background->uniform < Math::vec4 >("top_color")->set( Color::gray().lighter(.25) );
-	GLResourcesLoader::_background->uniform < Math::vec4 >("bot_color")->set( Color::gray().darker(.25) );
+	GLResourcesLoader::_background->uniform < Math::vec4 >("bot_color")->set( Color::blue().darker(.25) );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -89,105 +77,70 @@ void TestScene::initFonts()
 
 // ------------------------------------------------------------------------------------------------
 void TestScene::paintGL()
-{
+{	
 	QPainter painter;
-	//TimedBlock total( "total grid time" );
-
-#if 1
 	painter.beginNativePainting();
 
 	OpenGL::ClearState clear;
 	clear.color = Color::gray();
 
 	_surface->clear( clear );
-	
+
 	{
 		OpenGL::DrawingState ds( GLResourcesLoader::_background );
 		ds.renderState.depthTest.enabled = false;
 
 		std::vector<s2::Math::vec3> vertices = { {-1,1,0},{-1,-1,0},{1,1,0},{1,-1,0} };
-
 		
-		OpenGL::Mesh m;
-		m.setVertices( vertices );
+		OpenGL::MeshPtr m = OpenGL::Mesh::makeNew();
+		m->setVertices( vertices );
 
-	
-		_surface->draw( OpenGL::Primitive::TriangleStrip, m.vao(), ds );
+		_surface->draw( OpenGL::Primitive::TriangleStrip, m, ds );
 	}
 
-
-	OpenGL::DrawingState ds( _shader );	
-	ds.renderState.blending.enabled                = true;
-	ds.renderState.blending.sourceRGBFactor        = OpenGL::Blending::Factor::SourceAlpha;
-	ds.renderState.blending.sourceAlphaFactor      = OpenGL::Blending::Factor::SourceAlpha;
-	ds.renderState.blending.destinationRGBFactor   = OpenGL::Blending::Factor::OneMinusSourceAlpha;
-	ds.renderState.blending.destinationAlphaFactor = OpenGL::Blending::Factor::OneMinusSourceAlpha;
-
-	OpenGL::ViewState vs( _viewState );
 
 	{
-		// 88msec
-		const int g = 11;
-		for( int i=0; i < g; ++i )
-		{
-			for( int j=0; j < g; j++ )
-			{
-				//if( i == 2 && j == 2 )
-				{
-					//TimedBlock single("    SINGLE TIME");
-					Math::dmat4 m = Math::translate( Math::dmat4( 1.0 ), Math::dvec3( 4 * i - g*.5f, 4 * j - g*.5f, 0 ) );
+		OpenGL::DrawingState ds( GLResourcesLoader::_phong );
+		ds.renderState.blending.enabled                = true;
+		ds.renderState.blending.sourceRGBFactor        = OpenGL::Blending::Factor::SourceAlpha;
+		ds.renderState.blending.sourceAlphaFactor      = OpenGL::Blending::Factor::SourceAlpha;
+		ds.renderState.blending.destinationRGBFactor   = OpenGL::Blending::Factor::OneMinusSourceAlpha;
+		ds.renderState.blending.destinationAlphaFactor = OpenGL::Blending::Factor::OneMinusSourceAlpha;
 
-					vs.setModelMatrix( m*_viewState.modelMatrix() );
-
-					_shader->uniform<Math::mat4>( "modelViewProjectionMatrix" )->set( vs.modelViewProjectionMatrix() );
-					_shader->uniform<Math::mat4>( "modelViewMatrix" )->set( vs.modelViewMatrix() );
-					_shader->uniform<Math::mat3>( "normalMatrix" )->set( vs.normalMatrix() );
-
-
-					OpenGL::MeshPtr mesh = (j+i*g)%2 == 0 ? GLResourcesLoader::_cube : GLResourcesLoader::_torus;
-
-					//OpenGL::MeshPtr mesh = GLResourcesLoader::_cube;
-					_surface->draw( OpenGL::Primitive::Triangles, mesh->vao(), ds );
-				}
-				//else
-				//{
-				//	Math::dmat4 m = Math::translate( Math::dmat4( 1.0 ), Math::dvec3( 4 * i - g*.5f, 4 * j - g*.5f, 0 ) );
-
-				//	vs.setModelMatrix( m*_viewState.modelMatrix() );
-
-				//	_shader->uniform<Math::mat4>( "modelViewProjectionMatrix" )->set( vs.modelViewProjectionMatrix() );
-				//	_shader->uniform<Math::mat4>( "modelViewMatrix" )->set( vs.modelViewMatrix() );
-				//	_shader->uniform<Math::mat3>( "normalMatrix" )->set( vs.normalMatrix() );
-
-				//	OpenGL::MeshPtr mesh = GLResourcesLoader::_cube;
-				//	_surface->draw( OpenGL::Primitive::Triangles, mesh->vao(), ds );
-				//}
-			}
-		}
+//		_surface->draw( OpenGL::Primitive::Triangles, GLResourcesLoader::_cube, ds );
 	}
-	_surface->swap( defaultFramebufferObject() );
+
+	//_surface->swap( defaultFramebufferObject() );
+	auto frame = _surface->grabImage();
+	frame->dump("prova.tga");
 	painter.endNativePainting();
-#endif
 
-#if 1
 	painter.begin( this );
-	if( const int elapsed = _time.elapsed() )
 	{
-		QString framesPerSecond;
-		framesPerSecond.setNum( _frames / ( elapsed / 1000.0 ), 'f', 2 );
-		painter.setPen( ::Qt::white );
-		painter.drawText( 10, 40, framesPerSecond + " paintGL calls / s" );
-	}
+		if( const int elapsed = _time.elapsed() )
+		{
+			QString framesPerSecond;
+			framesPerSecond.setNum( _frames / ( elapsed / 1000.0 ), 'f', 2 );
+			painter.setPen( ::Qt::white );
+			painter.drawText( 10, 40, framesPerSecond + " paintGL calls / s" );
+		}
 
-	if( !( _frames % 100 ) ) {
-		_time.start();
-		_frames = 0;
+		if( !( _frames % 100 ) )
+		{
+			_time.start();
+			_frames = 0;
+		}
+
+
+		QImage img( frame->pixels(), frame->width(), frame->height(), QImage::Format::Format_RGBA8888 );
+		//img.save("prova.png");
+		
+
+		painter.drawImage( 0, 0, img );
 	}
 	painter.end();
 	++_frames;
-#endif
 	update();
-	//QTimer::singleShot( 100, [this] () {  update(); } );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -276,6 +229,10 @@ void TestScene::onMouseWheel()
 	const s2::Qt::MouseStatus ms = _uim.mouseStatus();
 	const double z               = ms.wheel();
 
+	auto p = ms.currentPosition();
+
+	//myVR::inputEvent( GLResourcesLoader::_composite, myVR::ZOOM_EVENT, p.x, p.y, p.x, p.y, z );
+
 	//_viewState.setModelMatrix( Math::scale( _viewState.modelMatrix(), Math::dvec3( z ) ) );
 
 	_camera.set( _camera.position()+Math::dvec3(0,0,z), _camera.target(), _camera.upVector() );
@@ -316,18 +273,5 @@ void TestScene::resizeGL( int w, int h )
 	_viewState.setProjectionMatrix( Math::perspective( 45.0, w / (double) h, 0.1, 100.0 ) );
 	_trackball.resize( w, h );
 
-
-
-#if 0	
-	_viewState.view.setAspectRatio( w / (double) h );
-	_viewState.view.setPerspective( w / (double) h, 45.0, 0.1, 1000 );
-
-	_trackball.resize( w, h );
-#endif
+	//myVR::setCompositeWindow( GLResourcesLoader::_composite,0,0,w,h); 
 }
-
-//// -----------------------------------------------------------------------------------------------
-//void TestScene::refreshScene()
-//{
-//
-//}

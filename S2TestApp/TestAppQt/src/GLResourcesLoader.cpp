@@ -1,20 +1,82 @@
 #include "GLResourcesLoader.h"
 
+#include "opengl/BuiltIn.h"
 #include "opengl/Extensions.h"
 #include "opengl/Program.h"
-#include "opengl/Context.h"
 
 #include "math/Mesh.h"
 #include "math/Geometry.h"
 #include "utils/String.h"
 
+//#include "mMap/API.h"
+
 #include <iostream>
+
+
+/*********************************/
+// JSON to configure the mMap SDK
+// for a complete list of options see Native Functions/myVR in the SDK documentation
+const char* JSON_mMapInitialize = R"json(
+{
+})json";
+
+// This will create a service layer to provide open street map tiles for the 2D Map layer
+const char* JSON_Layer_OpenStreetMapService = R"json(
+{
+    "createLayer": {
+        "type": "OpenStreetMapService",
+        "execute": {
+            "configure": {
+                "default-server-type": 0,
+                "projection": "EPSG:3857",
+                "servers": [
+                    {
+                        "type": 0,
+                        "urls": [
+                            "http://osmtiles.myvr.net/osm_tiles/%l/%x/%y.png"
+                        ]
+                    }
+                ]
+            }
+        }
+    }
+})json";
+
+// This creates the 2D Map layer and then runs some configuration on it
+const char* JSON_Layer_Map2D = R"json(
+{
+    "createLayer": {
+        "type": "Map2D",
+    "id" : 50,
+        "execute": [
+            {
+                "configure": {
+                    "type": 0,
+                    "default-texture": "http://config-srk.myvr.net/mMapNative/configs-test/myvr-default.png"
+                }
+            },
+            {
+                "setPosition": {
+                    "longitude": 10.75,
+                    "latitude": 59.916667,
+                    "lod": 15,
+                    "time": 0
+                }
+            }
+        ]
+    }
+})json";
+
+/**************************************************************************************************/
+
+
 
 s2::OpenGL::MeshPtr    GLResourcesLoader::_torus;
 s2::OpenGL::MeshPtr    GLResourcesLoader::_cube;
 s2::OpenGL::ProgramPtr GLResourcesLoader::_phong;
 s2::OpenGL::ProgramPtr GLResourcesLoader::_background;
 s2::OpenGL::ContextPtr GLResourcesLoader::_mainContext;
+//int                  GLResourcesLoader::_composite = -666;
 
 using namespace s2;
 
@@ -23,7 +85,8 @@ GLResourcesLoader::GLResourcesLoader( QWidget *parent )
 : QOpenGLWidget(parent)
 {
 	//create();
-	//load();
+	//initSharedResources();
+	std::cout << "Constructor GLSharedResources" << std::endl;
 }
 
 
@@ -31,14 +94,20 @@ GLResourcesLoader::GLResourcesLoader( QWidget *parent )
 GLResourcesLoader::~GLResourcesLoader()
 {
 	//_mainContext->release();
-	_mainContext = nullptr;
+	//_mainContext = nullptr;
 
 	makeCurrent();
-	//_phong = nullptr;
-	_cube = nullptr;
-	_torus = nullptr;
-	//_background = nullptr;
-	doneCurrent();
+	//s2::OpenGL::BuiltIn::destroy();
+
+	_phong      = nullptr;
+	_cube       = nullptr;
+	_torus      = nullptr;
+	_background = nullptr;
+
+	//myVR::destroyComposite(_composite);
+	//myVR::destroy(nullptr); 
+
+	//doneCurrent();
 }
 
  //------------------------------------------------------------------------------------------------
@@ -46,17 +115,24 @@ void GLResourcesLoader::initializeGL()
 {
 	hide();
 	
-	_mainContext = OpenGL::Context::Current(); // initializes extensions
-	
+	_mainContext = OpenGL::Context::Current(); // initializes extensions also
+
 	std::cout << "Context ID: " << _mainContext->id() << std::endl 
 		<< _mainContext->info() << std::endl;
 
-	load();
+	s2::OpenGL::BuiltIn::enableDebugOutput();
+	s2::OpenGL::BuiltIn::init();
+
+
+	initMyVR();
+
+	initSharedResources();
+
 	emit resourcesInitialized();
 }
 
 // ------------------------------------------------------------------------------------------------
-bool GLResourcesLoader::load()
+bool GLResourcesLoader::initSharedResources()
 {
 	initMeshes();
 	initShaders();
@@ -64,9 +140,25 @@ bool GLResourcesLoader::load()
 }
 
 // ------------------------------------------------------------------------------------------------
+bool GLResourcesLoader::initMyVR()
+{
+ //   myVR::initialize(JSON_mMapInitialize,nullptr);
+ //   _composite = myVR::createComposite();
+
+	//std::cout << "Composite ID " << _composite << std::endl;
+
+ //   // set up layers;
+ //   std::string jsonOut;
+ //   myVR::execute(_composite, JSON_Layer_OpenStreetMapService,jsonOut);
+ //   myVR::execute(_composite, JSON_Layer_Map2D, jsonOut);	
+	return true;
+}
+
+
+// ------------------------------------------------------------------------------------------------
 void GLResourcesLoader::initMeshes()
 {
-	if( !_cube )
+	//if( !_cube )
 	{
 		std::vector< Math::vec3 > pts;
 		std::vector< Color  > colors;
@@ -120,11 +212,10 @@ void GLResourcesLoader::initMeshes()
 		pts.push_back( Math::vec3( -1.0f, 1.0f, -1.0f ) ); colors.push_back( Color::green().lighter() ); normals.push_back( Math::vec3( 0.0f, 1.0f, 0.0f ) );
 		pts.push_back( Math::vec3( -1.0f, 1.0f, 1.0f ) ); colors.push_back( Color::green().lighter() ); normals.push_back( Math::vec3( 0.0f, 1.0f, 0.0f ) );
 
-		_cube = s2::OpenGL::Mesh::New();
+		_cube = s2::OpenGL::Mesh::makeNew();
 		_cube->setVertices( pts );
 		_cube->setColors( colors );
 		_cube->setNormals( normals );
-
 	}
 
 	{
@@ -135,7 +226,7 @@ void GLResourcesLoader::initMeshes()
 		//_triangle.setColors( colors );
 	}
 
-	if( !_torus )
+	//if( !_torus )
 	{
 		const Math::Mesh torusMesh = s2::torus( 1.0, 0.65, 64, 16 );
 		
@@ -150,7 +241,7 @@ void GLResourcesLoader::initMeshes()
 
 		std::vector<Color> colors( torusMesh.vertices().size(), Color::cyan().transparent(.25) );
 
-		_torus = s2::OpenGL::Mesh::New();
+		_torus = s2::OpenGL::Mesh::makeNew();
 		_torus->setVertices( pts );
 		_torus->setIndices( torusMesh.indices() );
 		_torus->setNormals( normals );
@@ -161,7 +252,7 @@ void GLResourcesLoader::initMeshes()
 // ------------------------------------------------------------------------------------------------
 void GLResourcesLoader::initShaders()
 {
-	_phong = OpenGL::Program::New();
+	_phong = OpenGL::Program::makeNew();
 	{
 		const bool vsOk = _phong->attachVertexShader( STRINGIFY(
 		#version 400\n
@@ -219,7 +310,8 @@ void GLResourcesLoader::initShaders()
 				vec4( lightAmbient +
 					  lightDiffuse  * lambertian +
 					  lightSpecular * specular );
-		} ) );
+		} 
+		) );
 
 		//_shader->attachVertexShader  ( R::string("Shaders/BlinnPhong.vs") );
 		//_shader->attachFragmentShader( R::string("Shaders/BlinnPhong.fs") );
@@ -239,27 +331,33 @@ void GLResourcesLoader::initShaders()
 		_phong->uniform<Math::mat3>( "normalMatrix"              )->set( Math::mat3( 1 ) );
 	}
 
-	_background = OpenGL::Program::New();
+	_background = OpenGL::Program::makeNew();
 	{
 		const bool vsOk = _background->attachVertexShader( STRINGIFY(
 			#version 400\n
 			layout(location = 0) in vec3 in_Vertex;
+			layout(location = 3) in vec2 in_TexCoord;
 
 			out float gradient;
+			out vec2 uv;
 
 			void main() 
 			{
 				gl_Position = vec4(in_Vertex,1.0);
 				gradient = in_Vertex.y * 0.5 + 0.5;
+				uv = in_TexCoord;
 			}
 		) );
 
-		_background->attachFragmentShader( STRINGIFY(
+		const bool fsOk = _background->attachFragmentShader( STRINGIFY(
 			#version 400\n
 
 			uniform vec4 top_color;
 			uniform vec4 bot_color;
 			
+			uniform sampler2D text;
+
+			in vec2  uv;
 			in float gradient;
 			
 			out vec4 frag_color;
@@ -267,14 +365,15 @@ void GLResourcesLoader::initShaders()
 			void main()
 			{
 				frag_color = mix( bot_color, top_color, gradient );
+				frag_color = frag_color * texture( text, uv );
 				//frag_color = color;
 			}
-		) );
+		));
 
-		_background->link("Background");
-
-
-		std::cout << _background->info( true ) << std::endl;	
+		if( _background->link( "Background" ) )
+			std::cout << _background->info( true ) << std::endl;
+		else
+			_background = nullptr;
 	}
 
 /*	_shaderSimple = OpenGL::Program::New();

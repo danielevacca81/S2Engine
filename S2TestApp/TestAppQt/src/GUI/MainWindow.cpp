@@ -26,7 +26,7 @@ MainWindow::MainWindow( QWidget *parent )
 
 	createScenes();
 
-	connect( &_res, &GLResourcesLoader::resourcesInitialized, this, &MainWindow::initResources );
+	//connect( &_res, &GLResourcesLoader::resourcesInitialized, this, &MainWindow::initResources );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -47,7 +47,7 @@ void MainWindow::createScenes()
 		_ui.frameGLAreaLeft->setLayout( layout );
 	}
 
-	//if( false )
+	if( false )
 	{
 		_sceneRight          = new TestScene( this );
 
@@ -62,16 +62,16 @@ void MainWindow::createScenes()
 // ------------------------------------------------------------------------------------------------
 void MainWindow::initResources()
 {
-	if( _sceneLeft )
-	{
-		_sceneLeft->addMesh( _res._cube );
-		_sceneLeft->setShader( _res._phong );
-	}
+	//if( _sceneLeft )
+	//{
+	//	_sceneLeft->addMesh( _res._cube );
+	//	_sceneLeft->setShader( _res._phong );
+	//}
 
-	if( _sceneRight )
-	{
-		_sceneRight->addMesh( _res._torus );
-		_sceneRight->setShader( _res._phong );
-	}
+	//if( _sceneRight )
+	//{
+	//	_sceneRight->addMesh( _res._torus );
+	//	_sceneRight->setShader( _res._phong );
+	//}
 }
 
