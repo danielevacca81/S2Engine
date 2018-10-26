@@ -3,16 +3,16 @@
 #ifndef CAMERA_ONCE
 #define CAMERA_ONCE
 
-#include "s2Renderer_API.h"
+#include "s2SceneGraph_API.h"
 
 #include "Math/Math.h"
 #include "Math/Box.h"
 #include "Math/Rectangle.h"
 
 namespace s2 {
-namespace Renderer {
+namespace SceneGraph {
 
-class S2RENDERER_API Camera
+class S2SCENEGRAPH_API Camera
 {
 public:
 	Camera();

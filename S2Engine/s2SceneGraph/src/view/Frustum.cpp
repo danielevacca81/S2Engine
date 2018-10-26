@@ -5,7 +5,7 @@
 #include <iostream>
 
 using namespace s2;
-using namespace Renderer;
+using namespace s2::SceneGraph;
 
 // ------------------------------------------------------------------------------------------------
 Frustum::Frustum()

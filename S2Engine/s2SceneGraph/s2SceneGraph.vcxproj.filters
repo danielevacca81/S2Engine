@@ -53,9 +53,6 @@
     <ClInclude Include="src\vobjects\VStyle.h">
       <Filter>src\vobjects</Filter>
     </ClInclude>
-    <ClInclude Include="src\s2Renderer_API.h">
-      <Filter>src</Filter>
-    </ClInclude>
     <ClInclude Include="src\view\Camera.h">
       <Filter>src\view</Filter>
     </ClInclude>
@@ -73,6 +70,9 @@
     </ClInclude>
     <ClInclude Include="src\view\Frustum.h">
       <Filter>src\view</Filter>
+    </ClInclude>
+    <ClInclude Include="src\s2SceneGraph_API.h">
+      <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

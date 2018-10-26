@@ -9,7 +9,7 @@
 #include <vector>
 
 namespace s2 {
-namespace Renderer {
+namespace SceneGraph {
 
 class Frustum
 {

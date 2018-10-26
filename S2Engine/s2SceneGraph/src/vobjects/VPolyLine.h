@@ -1,9 +1,9 @@
-// VPolygon.h
+// VPolyLine.h
 //
-#ifndef VPOLYGON_ONCE
-#define VPOLYGON_ONCE
+#ifndef VPOLYLINE_ONCE
+#define VPOLYLINE_ONCE
 
-#include "s2Renderer_API.h"
+#include "s2SceneGraph_API.h"
 
 #include "VObject.h"
 
@@ -12,20 +12,20 @@
 #include <vector>
 
 namespace s2 {
-namespace Renderer {
+namespace SceneGraph {
 
 
-class S2RENDERER_API VPolygon : public VObject
+class S2SCENEGRAPH_API VPolyLine : public VObject
 {
 private:
 	std::vector<Math::dvec3> _points;
-	std::vector<Math::dvec3> _border;
-	std::vector<int> _indices;
-public:
-	VPolygon();
-	VPolygon( const std::vector<Math::dvec3> &pts );
+	std::vector<int>         _indices;
 
-	~VPolygon() {}
+public:
+	VPolyLine();
+	VPolyLine( const std::vector<Math::dvec3> &pts );
+
+	~VPolyLine() {}
 
 	ObjectType type() const ;
 	std::vector<Math::dvec3> snapPoints() const;

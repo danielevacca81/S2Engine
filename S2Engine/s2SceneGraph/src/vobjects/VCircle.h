@@ -3,17 +3,17 @@
 #ifndef VCIRCLE_ONCE
 #define VCIRCLE_ONCE
 
-#include "s2Renderer_API.h"
+#include "s2SceneGraph_API.h"
 
 #include "VObject.h"
 
 #include "Math/Math.h"
 
 namespace s2 {
-namespace Renderer {
+namespace SceneGraph {
 
 
-class S2RENDERER_API VCircle : public VObject
+class S2SCENEGRAPH_API VCircle : public VObject
 {
 private:
 	Math::dvec3 _center;

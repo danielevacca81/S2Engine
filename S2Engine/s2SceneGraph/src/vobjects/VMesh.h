@@ -3,7 +3,7 @@
 #ifndef VMESH_ONCE
 #define VMESH_ONCE
 
-#include "s2Renderer_API.h"
+#include "s2SceneGraph_API.h"
 
 #include "VObject.h"
 
@@ -12,7 +12,7 @@
 
 
 namespace s2 {
-namespace Renderer {
+namespace SceneGraph {
 
 
 class S2CORE_API VMesh : public VObject

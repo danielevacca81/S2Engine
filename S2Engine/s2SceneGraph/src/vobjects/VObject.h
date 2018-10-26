@@ -3,7 +3,7 @@
 #ifndef VOBJECT_ONCE
 #define VOBJECT_ONCE
 
-#include "s2Renderer_API.h"
+#include "s2SceneGraph_API.h"
 
 #include "Math/Box.h"
 #include "graphics/Color.h"
@@ -16,7 +16,7 @@
 
 
 namespace s2 {
-namespace Renderer {
+namespace SceneGraph {
 
 class VObjectManager;
 

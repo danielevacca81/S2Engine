@@ -1,31 +1,29 @@
-// VPolyLine.h
+// VLine.h
 //
-#ifndef VPOLYLINE_ONCE
-#define VPOLYLINE_ONCE
+#ifndef VLINE_ONCE
+#define VLINE_ONCE
 
-#include "s2Renderer_API.h"
+#include "s2SceneGraph_API.h"
 
 #include "VObject.h"
 
 #include "Math/Math.h"
 
-#include <vector>
 
 namespace s2 {
-namespace Renderer {
+namespace SceneGraph {
 
 
-class S2RENDERER_API VPolyLine : public VObject
+class S2SCENEGRAPH_API VLine : public VObject
 {
 private:
-	std::vector<Math::dvec3> _points;
-	std::vector<int>         _indices;
+	std::vector<Math::dvec3> _pts;
 
 public:
-	VPolyLine();
-	VPolyLine( const std::vector<Math::dvec3> &pts );
+	VLine();
+	VLine( const Math::dvec3 &p0, const Math::dvec3 &p1 );
 
-	~VPolyLine() {}
+	~VLine() {}
 
 	ObjectType type() const ;
 	std::vector<Math::dvec3> snapPoints() const;

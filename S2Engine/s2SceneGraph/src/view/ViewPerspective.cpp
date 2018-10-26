@@ -3,7 +3,7 @@
 #include "ViewPerspective.h"
 
 using namespace s2;
-using namespace s2::Renderer;
+using namespace s2::SceneGraph;
 
 // ------------------------------------------------------------------------------------------------
 ViewPerspective::ViewPerspective()

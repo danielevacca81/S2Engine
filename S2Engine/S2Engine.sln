@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2048
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "s2Core", "s2Core\s2Core.vcxproj", "{4EBE6028-3331-4D7E-8F56-43A5F42322AF}"
 EndProject
@@ -15,11 +15,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "s2Qt", "s2Qt\s2Qt.vcxproj",
 		{4EBE6028-3331-4D7E-8F56-43A5F42322AF} = {4EBE6028-3331-4D7E-8F56-43A5F42322AF}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "s2Renderer", "s2Renderer\s2Renderer.vcxproj", "{B78E40A7-493A-4BF9-AC67-07ED1EC41A82}"
-	ProjectSection(ProjectDependencies) = postProject
-		{4EBE6028-3331-4D7E-8F56-43A5F42322AF} = {4EBE6028-3331-4D7E-8F56-43A5F42322AF}
-		{891D7C71-DF59-465C-B0E0-B170D3AF3CF6} = {891D7C71-DF59-465C-B0E0-B170D3AF3CF6}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "s2SceneGraph", "s2SceneGraph\s2SceneGraph.vcxproj", "{B78E40A7-493A-4BF9-AC67-07ED1EC41A82}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

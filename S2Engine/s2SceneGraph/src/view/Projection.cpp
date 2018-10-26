@@ -2,7 +2,7 @@
 // 
 #include "Projection.h"
 
-using namespace OpenGL;
+using namespace s2::SceneGraph;
 
 // ------------------------------------------------------------------------------------------------
 Projection::Projection()

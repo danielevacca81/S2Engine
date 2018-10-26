@@ -3,7 +3,7 @@
 #ifndef VSPLINESTRIP_ONCE
 #define VSPLINESTRIP_ONCE
 
-#include "s2Renderer_API.h"
+#include "s2SceneGraph_API.h"
 
 #include "VObject.h"
 
@@ -12,10 +12,10 @@
 #include <vector>
 
 namespace s2 {
-namespace Renderer {
+namespace SceneGraph {
 
 
-class S2RENDERER_API VSplineStrip : public VObject
+class S2SCENEGRAPH_API VSplineStrip : public VObject
 {
 private:
 	//bool _borders;

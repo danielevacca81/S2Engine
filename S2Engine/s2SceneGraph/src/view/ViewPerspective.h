@@ -3,14 +3,14 @@
 #ifndef VIEWPERSPECTIVE_ONCE
 #define VIEWPERSPECTIVE_ONCE
 
-#include "s2Renderer_API.h"
+#include "s2SceneGraph_API.h"
 
 #include "Math/Math.h"
 
 namespace s2 {
-namespace Renderer {
+namespace SceneGraph {
 
-class S2RENDERER_API ViewPerspective
+class S2SCENEGRAPH_API ViewPerspective
 {
 public:
 	ViewPerspective();

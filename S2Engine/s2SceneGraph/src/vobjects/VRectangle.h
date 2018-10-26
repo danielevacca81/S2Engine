@@ -3,7 +3,7 @@
 #ifndef VRECTANGLE_ONCE
 #define VRECTANGLE_ONCE
 
-#include "s2Renderer_API.h"
+#include "s2SceneGraph_API.h"
 
 #include "VObject.h"
 
@@ -11,10 +11,10 @@
 #include "Math/Box.h"
 
 namespace s2 {
-namespace Renderer {
+namespace SceneGraph {
 
 
-class S2RENDERER_API VRectangle : public VObject
+class S2SCENEGRAPH_API VRectangle : public VObject
 {
 private:
 	//Math::box3 _rect;

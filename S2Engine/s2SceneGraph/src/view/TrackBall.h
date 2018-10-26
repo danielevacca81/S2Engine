@@ -5,12 +5,12 @@
 
 #include "Math/Math.h"
 
-#include "s2Renderer_API.h"
+#include "s2SceneGraph_API.h"
 
 namespace s2 {
-namespace Renderer {
+namespace SceneGraph {
 
-class S2RENDERER_API TrackBall
+class S2SCENEGRAPH_API TrackBall
 {
 public:
 	enum UpdateMode { Start_Drag, End_Drag, Drag };
