@@ -530,7 +530,7 @@ void StateManager::setViewport( const Math::Rectangle &r )
 //}
 
 // ------------------------------------------------------------------------------------------------
-//void StateManager::draw( Primitive primitive, const Mesh &m, const ViewState &vs, const DrawingState &ds )
+//void StateManager::draw( Primitive primitive, const PrimitiveBuffer &m, const ViewState &vs, const DrawingState &ds )
 //{
 //	draw( primitive, m._va, vs, ds );
 //}

@@ -1,28 +1,29 @@
-// Mesh.cpp
+// PrimitiveBuffer.cpp
 //
-#include "Mesh.h"
+#include "PrimitiveBuffer.h"
 
 #include "Primitive.h"
+#include "Locations.h"
 
 using namespace s2;
 using namespace s2::OpenGL;
 
 
 // ------------------------------------------------------------------------------------------------
-MeshPtr Mesh::makeNew()
+PrimitiveBufferPtr PrimitiveBuffer::makeNew()
 {
-	return std::make_shared<Mesh>();
+	return std::make_shared<PrimitiveBuffer>();
 }
 
 
 // ------------------------------------------------------------------------------------------------
-// Mesh Attribute location:
+// PrimitiveBuffer Attribute location:
 //	 (0) vertices
 //   (1) colors
 //   (2) normals
 //   (3) texture coords
 // ------------------------------------------------------------------------------------------------
-Mesh::Mesh()
+PrimitiveBuffer::PrimitiveBuffer()
 : primitiveType( Primitive::Points )
 , frontFaceWindingOrder( WindingOrder::Counterclockwise )
 , usageHint( BufferObject::UsageHint::StaticDraw )
@@ -31,11 +32,11 @@ Mesh::Mesh()
 }
 
 // ------------------------------------------------------------------------------------------------
-Mesh::~Mesh()
+PrimitiveBuffer::~PrimitiveBuffer()
 {}
 
 // ------------------------------------------------------------------------------------------------
-void Mesh::setVertices( const std::vector<Math::vec3> &points )
+void PrimitiveBuffer::setVertices( const std::vector<Math::vec3> &points )
 {
 	VertexBuffer buf( points.size() * sizeof( Math::vec3 ),usageHint );
 	buf.sendData( (void*)(&points[0]), points.size() * sizeof(Math::vec3), 0 );
@@ -44,7 +45,7 @@ void Mesh::setVertices( const std::vector<Math::vec3> &points )
 }
 
 // ------------------------------------------------------------------------------------------------
-void Mesh::setColors( const std::vector<Color>   &colors )
+void PrimitiveBuffer::setColors( const std::vector<Color>   &colors )
 {
 	VertexBuffer buf( colors.size() * sizeof( Color ),usageHint );
 	buf.sendData( (void*)(&colors[0]), colors.size() * sizeof(Color), 0 );
@@ -53,7 +54,7 @@ void Mesh::setColors( const std::vector<Color>   &colors )
 }
 
 // ------------------------------------------------------------------------------------------------
-void Mesh::setNormals( const std::vector<Math::vec3>  &normals )
+void PrimitiveBuffer::setNormals( const std::vector<Math::vec3>  &normals )
 {
 	VertexBuffer buf( normals.size() * sizeof( Math::vec3 ), usageHint );
 	buf.sendData( (void*)(&normals[0]), normals.size() * sizeof(Math::vec3), 0 );
@@ -62,7 +63,7 @@ void Mesh::setNormals( const std::vector<Math::vec3>  &normals )
 }
 
 // ------------------------------------------------------------------------------------------------
-void Mesh::setTextureCoords( const std::vector<Math::vec2>  &texCoords )
+void PrimitiveBuffer::setTextureCoords( const std::vector<Math::vec2>  &texCoords )
 {
 	VertexBuffer buf( texCoords.size() * sizeof( Math::vec2 ),usageHint );
 	buf.sendData( (void*)(&texCoords[0]), texCoords.size() * sizeof(Math::vec2), 0 );
@@ -71,7 +72,7 @@ void Mesh::setTextureCoords( const std::vector<Math::vec2>  &texCoords )
 }
 
 // ------------------------------------------------------------------------------------------------
-//void Mesh::setAttribute( int attribID, void *data, int elementsCount, AttributeBuffer::ComponentDatatype dataType, int componentsCount )
+//void PrimitiveBuffer::setAttribute( int attribID, void *data, int elementsCount, AttributeBuffer::ComponentDatatype dataType, int componentsCount )
 //{
 // @tbd (
 //	VertexBuffer vb;
@@ -82,7 +83,7 @@ void Mesh::setTextureCoords( const std::vector<Math::vec2>  &texCoords )
 //}
 
 // ------------------------------------------------------------------------------------------------
-void Mesh::setIndices( const std::vector<unsigned int> &indices )
+void PrimitiveBuffer::setIndices( const std::vector<unsigned int> &indices )
 {
 	_va->indexBuffer().set( indices.size() * sizeof( unsigned int ), IndexBuffer::UnsignedInt, usageHint );
 	_va->indexBuffer().sendData( (void*)(&indices[0]), indices.size() * sizeof( unsigned int ), 0 );

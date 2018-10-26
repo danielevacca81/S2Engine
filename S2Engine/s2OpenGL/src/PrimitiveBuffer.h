@@ -1,7 +1,7 @@
-// Mesh.h
+// PrimitiveBuffer.h
 //
-#ifndef MESH_ONCE
-#define MESH_ONCE
+#ifndef PRIMITIVEBUFFER_ONCE
+#define PRIMITIVEBUFFER_ONCE
 
 #include "s2OpenGL_API.h"
 
@@ -18,16 +18,16 @@
 namespace s2 {
 namespace OpenGL {
 
-class Mesh;
-typedef std::shared_ptr<Mesh>   MeshPtr;
+class PrimitiveBuffer;
+typedef std::shared_ptr<PrimitiveBuffer>   PrimitiveBufferPtr;
 
 // ------------------------------------------------------------------------------------------------
-// Mesh Attribute location:
+// PrimitiveBuffer Attribute location:
 //	 (0) vertices
 //   (1) colors
 //   (2) normals
 //   (3) texture coords
-class S2OPENGL_API Mesh //@todo: rename primitiveBuffer/primitivearray?
+class S2OPENGL_API PrimitiveBuffer
 {
 public:
 	enum class WindingOrder
@@ -38,11 +38,11 @@ public:
 
 public:
 	// CANNOT BE SHARED BETWEEN CONTEXTS
-	static MeshPtr makeNew();
+	static PrimitiveBufferPtr makeNew();
 
 public:
-	Mesh();
-	~Mesh();
+	PrimitiveBuffer();
+	~PrimitiveBuffer();
 
 	void setVertices     ( const std::vector<Math::vec3>  &points   );
 	void setColors       ( const std::vector<Color>       &colors   );

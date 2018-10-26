@@ -59,7 +59,7 @@ void Surface::draw( const Primitive &primitive, const VertexArrayPtr &va, const 
 }
 
 // ------------------------------------------------------------------------------------------------
-void Surface::draw( const Primitive &primitive, const MeshPtr &mesh, const DrawingState &ds )
+void Surface::draw( const Primitive &primitive, const PrimitiveBufferPtr &mesh, const DrawingState &ds )
 {
 	_fbo->bind();
 	_state.setDrawState( ds );
@@ -88,7 +88,7 @@ void Surface::swap( unsigned int targetFBO, const FrameBuffer::AttachmentPoint &
 
 	_state.setDrawState( ds );
 
-	MeshPtr      quad = Mesh::makeNew();
+	PrimitiveBufferPtr      quad = PrimitiveBuffer::makeNew();
 	std::vector<Math::vec3> vertices  = { {-1,1,0},{-1,-1,0},{1,1,0},{1,-1,0} };
 	std::vector<Math::vec2> texCoords = { {0,1},{0,0},{1,1},{1,0} };
 

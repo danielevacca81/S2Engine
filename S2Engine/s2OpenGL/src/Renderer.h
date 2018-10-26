@@ -5,7 +5,7 @@
 
 #include "Primitive.h"
 #include "VertexArray.h"
-#include "Mesh.h"
+#include "PrimitiveBuffer.h"
 
 
 namespace s2 {
@@ -21,7 +21,7 @@ public:
 	// @todo: conditional rendering and queries
 
 	static void draw( const Primitive &primitive, const VertexArrayPtr &va );
-	static void draw( const Primitive &primitive, const MeshPtr &m );
+	static void draw( const Primitive &primitive, const PrimitiveBufferPtr &m );
 };
 
 

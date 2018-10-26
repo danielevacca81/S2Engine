@@ -188,7 +188,8 @@
     <ClInclude Include="src\FrameBuffer.h" />
     <ClInclude Include="src\ImageFormat.h" />
     <ClInclude Include="src\IndexBuffer.h" />
-    <ClInclude Include="src\Mesh.h" />
+    <ClInclude Include="src\Locations.h" />
+    <ClInclude Include="src\PrimitiveBuffer.h" />
     <ClInclude Include="src\OpenGL.h" />
     <ClInclude Include="src\OpenGLObject.h" />
     <ClInclude Include="src\OpenGLWrap.h" />
@@ -239,9 +240,8 @@
     <ClCompile Include="src\FrameBuffer.cpp" />
     <ClCompile Include="src\ImageFormat.cpp" />
     <ClCompile Include="src\IndexBuffer.cpp" />
-    <ClCompile Include="src\Mesh.cpp" />
+    <ClCompile Include="src\PrimitiveBuffer.cpp" />
     <ClCompile Include="src\OpenGL.cpp" />
-    <ClCompile Include="src\OpenGLObject.cpp" />
     <ClCompile Include="src\OpenGLWrap.cpp" />
     <ClCompile Include="src\PixelBuffer.cpp" />
     <ClCompile Include="src\Program.cpp" />

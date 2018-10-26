@@ -15,7 +15,7 @@
 #include "Program.h"
 #include "FrameBuffer.h"
 //#include "VertexArray.h"
-//#include "Mesh.h"
+//#include "PrimitiveBuffer.h"
 
 namespace s2 {
 namespace OpenGL {

@@ -10,12 +10,6 @@
     <Filter Include="src\states">
       <UniqueIdentifier>{25c11b07-b058-450f-9b8b-066071201703}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\textures">
-      <UniqueIdentifier>{ec2bbc8a-6977-4278-b35c-97fe085752d5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\uniforms">
-      <UniqueIdentifier>{48434ad6-a884-41d1-8fb8-7cbbc9f7e63e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\components">
       <UniqueIdentifier>{41307c8e-f286-4511-a2d0-62329fe68f08}</UniqueIdentifier>
     </Filter>
@@ -30,6 +24,12 @@
     </Filter>
     <Filter Include="src\opengl wrap">
       <UniqueIdentifier>{48819c35-3eb1-4aca-ad11-4fad8b5c84aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\opengl objects\textures">
+      <UniqueIdentifier>{ec2bbc8a-6977-4278-b35c-97fe085752d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\opengl objects\uniforms">
+      <UniqueIdentifier>{48434ad6-a884-41d1-8fb8-7cbbc9f7e63e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -55,67 +55,67 @@
       <Filter>src\states</Filter>
     </ClInclude>
     <ClInclude Include="src\Uniform.h">
-      <Filter>src\uniforms</Filter>
+      <Filter>src\opengl objects\uniforms</Filter>
     </ClInclude>
     <ClInclude Include="src\UniformBool.h">
-      <Filter>src\uniforms</Filter>
+      <Filter>src\opengl objects\uniforms</Filter>
     </ClInclude>
     <ClInclude Include="src\UniformBoolVector2.h">
-      <Filter>src\uniforms</Filter>
+      <Filter>src\opengl objects\uniforms</Filter>
     </ClInclude>
     <ClInclude Include="src\UniformBoolVector3.h">
-      <Filter>src\uniforms</Filter>
+      <Filter>src\opengl objects\uniforms</Filter>
     </ClInclude>
     <ClInclude Include="src\UniformBoolVector4.h">
-      <Filter>src\uniforms</Filter>
+      <Filter>src\opengl objects\uniforms</Filter>
     </ClInclude>
     <ClInclude Include="src\UniformFloat.h">
-      <Filter>src\uniforms</Filter>
+      <Filter>src\opengl objects\uniforms</Filter>
     </ClInclude>
     <ClInclude Include="src\UniformFloatMatrix22.h">
-      <Filter>src\uniforms</Filter>
+      <Filter>src\opengl objects\uniforms</Filter>
     </ClInclude>
     <ClInclude Include="src\UniformFloatMatrix33.h">
-      <Filter>src\uniforms</Filter>
+      <Filter>src\opengl objects\uniforms</Filter>
     </ClInclude>
     <ClInclude Include="src\UniformFloatMatrix44.h">
-      <Filter>src\uniforms</Filter>
+      <Filter>src\opengl objects\uniforms</Filter>
     </ClInclude>
     <ClInclude Include="src\UniformFloatVector2.h">
-      <Filter>src\uniforms</Filter>
+      <Filter>src\opengl objects\uniforms</Filter>
     </ClInclude>
     <ClInclude Include="src\UniformFloatVector3.h">
-      <Filter>src\uniforms</Filter>
+      <Filter>src\opengl objects\uniforms</Filter>
     </ClInclude>
     <ClInclude Include="src\UniformFloatVector4.h">
-      <Filter>src\uniforms</Filter>
+      <Filter>src\opengl objects\uniforms</Filter>
     </ClInclude>
     <ClInclude Include="src\UniformInt.h">
-      <Filter>src\uniforms</Filter>
+      <Filter>src\opengl objects\uniforms</Filter>
     </ClInclude>
     <ClInclude Include="src\UniformIntVector2.h">
-      <Filter>src\uniforms</Filter>
+      <Filter>src\opengl objects\uniforms</Filter>
     </ClInclude>
     <ClInclude Include="src\UniformIntVector3.h">
-      <Filter>src\uniforms</Filter>
+      <Filter>src\opengl objects\uniforms</Filter>
     </ClInclude>
     <ClInclude Include="src\UniformIntVector4.h">
-      <Filter>src\uniforms</Filter>
+      <Filter>src\opengl objects\uniforms</Filter>
     </ClInclude>
     <ClInclude Include="src\UniformSampler.h">
-      <Filter>src\uniforms</Filter>
+      <Filter>src\opengl objects\uniforms</Filter>
     </ClInclude>
     <ClInclude Include="src\RenderState.h">
       <Filter>src\states</Filter>
     </ClInclude>
     <ClInclude Include="src\TextureDescription.h">
-      <Filter>src\textures</Filter>
+      <Filter>src\opengl objects\textures</Filter>
     </ClInclude>
     <ClInclude Include="src\TextureFormat.h">
-      <Filter>src\textures</Filter>
+      <Filter>src\opengl objects\textures</Filter>
     </ClInclude>
     <ClInclude Include="src\TextureUnit.h">
-      <Filter>src\textures</Filter>
+      <Filter>src\opengl objects\textures</Filter>
     </ClInclude>
     <ClInclude Include="src\ViewState.h">
       <Filter>src\states</Filter>
@@ -138,9 +138,6 @@
     <ClInclude Include="src\Device.h">
       <Filter>src\components</Filter>
     </ClInclude>
-    <ClInclude Include="src\Mesh.h">
-      <Filter>src\components</Filter>
-    </ClInclude>
     <ClInclude Include="src\Primitive.h">
       <Filter>src\components</Filter>
     </ClInclude>
@@ -148,7 +145,7 @@
       <Filter>src\components</Filter>
     </ClInclude>
     <ClInclude Include="src\ImageFormat.h">
-      <Filter>src\textures</Filter>
+      <Filter>src\opengl objects\textures</Filter>
     </ClInclude>
     <ClInclude Include="src\Renderer.h">
       <Filter>src\opengl wrap</Filter>
@@ -177,7 +174,6 @@
     <ClInclude Include="src\RenderBuffer.h">
       <Filter>src\opengl objects</Filter>
     </ClInclude>
-    <ClInclude Include="src\TextureSampler.h" />
     <ClInclude Include="src\BuiltIn.h">
       <Filter>src\builtin</Filter>
     </ClInclude>
@@ -185,6 +181,12 @@
       <Filter>src\opengl objects</Filter>
     </ClInclude>
     <ClInclude Include="src\Sampler.h">
+      <Filter>src\opengl objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Locations.h">
+      <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\PrimitiveBuffer.h">
       <Filter>src\opengl objects</Filter>
     </ClInclude>
   </ItemGroup>
@@ -202,16 +204,16 @@
       <Filter>src\states</Filter>
     </ClCompile>
     <ClCompile Include="src\Uniform.cpp">
-      <Filter>src\uniforms</Filter>
+      <Filter>src\opengl objects\uniforms</Filter>
     </ClCompile>
     <ClCompile Include="src\TextureDescription.cpp">
-      <Filter>src\textures</Filter>
+      <Filter>src\opengl objects\textures</Filter>
     </ClCompile>
     <ClCompile Include="src\TextureFormat.cpp">
-      <Filter>src\textures</Filter>
+      <Filter>src\opengl objects\textures</Filter>
     </ClCompile>
     <ClCompile Include="src\TextureUnit.cpp">
-      <Filter>src\textures</Filter>
+      <Filter>src\opengl objects\textures</Filter>
     </ClCompile>
     <ClCompile Include="src\ViewState.cpp">
       <Filter>src\states</Filter>
@@ -231,9 +233,6 @@
     <ClCompile Include="src\Context.cpp">
       <Filter>src\components</Filter>
     </ClCompile>
-    <ClCompile Include="src\Mesh.cpp">
-      <Filter>src\components</Filter>
-    </ClCompile>
     <ClCompile Include="src\Surface.cpp">
       <Filter>src\components</Filter>
     </ClCompile>
@@ -241,7 +240,7 @@
       <Filter>src\components</Filter>
     </ClCompile>
     <ClCompile Include="src\ImageFormat.cpp">
-      <Filter>src\textures</Filter>
+      <Filter>src\opengl objects\textures</Filter>
     </ClCompile>
     <ClCompile Include="src\Renderer.cpp">
       <Filter>src\opengl wrap</Filter>
@@ -270,14 +269,13 @@
     <ClCompile Include="src\RenderBuffer.cpp">
       <Filter>src\opengl objects</Filter>
     </ClCompile>
-    <ClCompile Include="src\TextureSampler.cpp" />
     <ClCompile Include="src\BuiltIn.cpp">
       <Filter>src\builtin</Filter>
     </ClCompile>
-    <ClCompile Include="src\OpenGLObject.cpp">
+    <ClCompile Include="src\Sampler.cpp">
       <Filter>src\opengl objects</Filter>
     </ClCompile>
-    <ClCompile Include="src\Sampler.cpp">
+    <ClCompile Include="src\PrimitiveBuffer.cpp">
       <Filter>src\opengl objects</Filter>
     </ClCompile>
   </ItemGroup>

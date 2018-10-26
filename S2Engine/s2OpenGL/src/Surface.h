@@ -8,7 +8,7 @@
 #include "StateManager.h"
 #include "Primitive.h"
 #include "VertexArray.h"
-#include "Mesh.h"
+#include "PrimitiveBuffer.h"
 
 #include "graphics/ImageBuffer.h"
 
@@ -31,7 +31,7 @@ public:
 
 	void clear( const ClearState &cs );
 	void draw( const Primitive &primitive, const VertexArrayPtr &va, const DrawingState &ds );
-	void draw( const Primitive &primitive, const MeshPtr &mesh, const DrawingState &ds );
+	void draw( const Primitive &primitive, const PrimitiveBufferPtr &mesh, const DrawingState &ds );
 
 	int width()  const { return _width;  }
 	int height() const { return _height; }

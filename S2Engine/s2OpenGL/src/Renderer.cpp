@@ -12,7 +12,7 @@ using namespace s2::OpenGL;
 // Tesselation
 
 //-------------------------------------------------------------------------------------------------
-void Renderer::draw( const Primitive &primitive, const MeshPtr &m )
+void Renderer::draw( const Primitive &primitive, const PrimitiveBufferPtr &m )
 {
 	draw( primitive, m->_va );
 }
