@@ -1,0 +1,279 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{f3f50ac4-28a4-4ad4-872b-439b8b04e867}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="res">
+      <UniqueIdentifier>{b38ba922-f0e5-49f8-a1ec-1ae231483b95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\states">
+      <UniqueIdentifier>{25c11b07-b058-450f-9b8b-066071201703}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\components">
+      <UniqueIdentifier>{41307c8e-f286-4511-a2d0-62329fe68f08}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\opengl objects">
+      <UniqueIdentifier>{acf415bb-9f80-4e45-9da6-afc67900b4b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\opengl objects\buffer objects">
+      <UniqueIdentifier>{c9467ca7-6e18-407e-a196-6656b454a87e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\builtin">
+      <UniqueIdentifier>{59d8d5b9-05d3-4848-9bb2-8eee15f03a36}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\opengl wrap">
+      <UniqueIdentifier>{48819c35-3eb1-4aca-ad11-4fad8b5c84aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\opengl objects\textures">
+      <UniqueIdentifier>{ec2bbc8a-6977-4278-b35c-97fe085752d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\opengl objects\uniforms">
+      <UniqueIdentifier>{48434ad6-a884-41d1-8fb8-7cbbc9f7e63e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\AttributeBuffer.h">
+      <Filter>src\opengl objects\buffer objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ClearState.h">
+      <Filter>src\states</Filter>
+    </ClInclude>
+    <ClInclude Include="src\DrawingState.h">
+      <Filter>src\states</Filter>
+    </ClInclude>
+    <ClInclude Include="src\IndexBuffer.h">
+      <Filter>src\opengl objects\buffer objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\PixelBuffer.h">
+      <Filter>src\opengl objects\buffer objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\StateManager.h">
+      <Filter>src\states</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Uniform.h">
+      <Filter>src\opengl objects\uniforms</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UniformBool.h">
+      <Filter>src\opengl objects\uniforms</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UniformBoolVector2.h">
+      <Filter>src\opengl objects\uniforms</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UniformBoolVector3.h">
+      <Filter>src\opengl objects\uniforms</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UniformBoolVector4.h">
+      <Filter>src\opengl objects\uniforms</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UniformFloat.h">
+      <Filter>src\opengl objects\uniforms</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UniformFloatMatrix22.h">
+      <Filter>src\opengl objects\uniforms</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UniformFloatMatrix33.h">
+      <Filter>src\opengl objects\uniforms</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UniformFloatMatrix44.h">
+      <Filter>src\opengl objects\uniforms</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UniformFloatVector2.h">
+      <Filter>src\opengl objects\uniforms</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UniformFloatVector3.h">
+      <Filter>src\opengl objects\uniforms</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UniformFloatVector4.h">
+      <Filter>src\opengl objects\uniforms</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UniformInt.h">
+      <Filter>src\opengl objects\uniforms</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UniformIntVector2.h">
+      <Filter>src\opengl objects\uniforms</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UniformIntVector3.h">
+      <Filter>src\opengl objects\uniforms</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UniformIntVector4.h">
+      <Filter>src\opengl objects\uniforms</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UniformSampler.h">
+      <Filter>src\opengl objects\uniforms</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RenderState.h">
+      <Filter>src\states</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TextureDescription.h">
+      <Filter>src\opengl objects\textures</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TextureFormat.h">
+      <Filter>src\opengl objects\textures</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TextureUnit.h">
+      <Filter>src\opengl objects\textures</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OpenGLWrap.h">
+      <Filter>src\opengl wrap</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OpenGL.h">
+      <Filter>src\opengl wrap</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Extensions.h">
+      <Filter>src\opengl wrap</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ExtLibs\glew-2.1.0\include\GL\glew.h">
+      <Filter>src\opengl wrap</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Context.h">
+      <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Device.h">
+      <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Primitive.h">
+      <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Surface.h">
+      <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ImageFormat.h">
+      <Filter>src\opengl objects\textures</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer.h">
+      <Filter>src\opengl wrap</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VertexBuffer.h">
+      <Filter>src\opengl objects\buffer objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Resource.h">
+      <Filter>src\opengl wrap</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VertexArray.h">
+      <Filter>src\opengl objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Program.h">
+      <Filter>src\opengl objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\BufferObject.h">
+      <Filter>src\opengl objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FrameBuffer.h">
+      <Filter>src\opengl objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Texture.h">
+      <Filter>src\opengl objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RenderBuffer.h">
+      <Filter>src\opengl objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\BuiltIn.h">
+      <Filter>src\builtin</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OpenGLObject.h">
+      <Filter>src\opengl objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Sampler.h">
+      <Filter>src\opengl objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Locations.h">
+      <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\PrimitiveBuffer.h">
+      <Filter>src\opengl objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\s2Renderer_API.h">
+      <Filter>src</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\AttributeBuffer.cpp">
+      <Filter>src\opengl objects\buffer objects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\IndexBuffer.cpp">
+      <Filter>src\opengl objects\buffer objects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PixelBuffer.cpp">
+      <Filter>src\opengl objects\buffer objects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\StateManager.cpp">
+      <Filter>src\states</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Uniform.cpp">
+      <Filter>src\opengl objects\uniforms</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TextureDescription.cpp">
+      <Filter>src\opengl objects\textures</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TextureFormat.cpp">
+      <Filter>src\opengl objects\textures</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TextureUnit.cpp">
+      <Filter>src\opengl objects\textures</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ExtLibs\glew-2.1.0\src\glew.c">
+      <Filter>src\opengl wrap</Filter>
+    </ClCompile>
+    <ClCompile Include="src\OpenGLWrap.cpp">
+      <Filter>src\opengl wrap</Filter>
+    </ClCompile>
+    <ClCompile Include="src\OpenGL.cpp">
+      <Filter>src\opengl wrap</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Extensions.cpp">
+      <Filter>src\opengl wrap</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Context.cpp">
+      <Filter>src\components</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Surface.cpp">
+      <Filter>src\components</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Device.cpp">
+      <Filter>src\components</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ImageFormat.cpp">
+      <Filter>src\opengl objects\textures</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer.cpp">
+      <Filter>src\opengl wrap</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VertexBuffer.cpp">
+      <Filter>src\opengl objects\buffer objects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Resource.cpp">
+      <Filter>src\opengl wrap</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VertexArray.cpp">
+      <Filter>src\opengl objects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Program.cpp">
+      <Filter>src\opengl objects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BufferObject.cpp">
+      <Filter>src\opengl objects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FrameBuffer.cpp">
+      <Filter>src\opengl objects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Texture.cpp">
+      <Filter>src\opengl objects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RenderBuffer.cpp">
+      <Filter>src\opengl objects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BuiltIn.cpp">
+      <Filter>src\builtin</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Sampler.cpp">
+      <Filter>src\opengl objects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PrimitiveBuffer.cpp">
+      <Filter>src\opengl objects</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="MakeSDK.bat" />
+  </ItemGroup>
+</Project>
