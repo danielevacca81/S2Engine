@@ -3,6 +3,10 @@
 #ifndef CORE_MATH_H
 #define CORE_MATH_H
 
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+
 #include "glm.hpp"
 
 #include "gtc/quaternion.hpp"
