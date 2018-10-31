@@ -31,9 +31,9 @@ public:
 	void setName( const std::string &name );
 	void setSelected( bool on );
 	void setHilighted( bool on );
-	void setStyle( const VStyle &s);
+	void setStyle( const VObjectStyle &s);
 	void setColor( const OpenGL::Color &c );
-	void enableSelection( bool );
+	void setSelectable( bool );
 
 
 	void                     addObject( const VObjectPtr &obj );

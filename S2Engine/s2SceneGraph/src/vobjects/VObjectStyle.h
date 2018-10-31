@@ -1,7 +1,7 @@
-// VStyle.h
+// VObjectStyle.h
 // 
-#ifndef VSTYLE_ONCE
-#define VSTYLE_ONCE
+#ifndef VOBJECTSTYLE_ONCE
+#define VOBJECTSTYLE_ONCE
 
 #include "s2SceneGraph_API.h"
 
@@ -10,15 +10,15 @@
 namespace s2 {
 namespace SceneGraph {
 
-class S2SCENEGRAPH_API VStyle
+class S2SCENEGRAPH_API VObjectStyle
 {
 public:
 	enum DrawStyle { WireFrame, Points, Fill, Outline };
-	enum PenStyle { SolidPen, DashedPen, DottedPen };
+	enum PenStyle  { SolidPen, DashedPen, DottedPen };
 
 public:
-	VStyle();
-	virtual ~VStyle();
+	VObjectStyle();
+	virtual ~VObjectStyle();
 
 	void setPenSize( float pixelWidth );
 	void setBorderSize( float pixelWidth );
@@ -27,29 +27,29 @@ public:
 	void setPenStyle( const PenStyle &style );
 	void setBaseColor( const Color &color );
 	void setSelectedColor( const Color &color );
-	//void setHilightedColor( const Color &color );
+	void setHilightedColor( const Color &color );
 	void setBorderColor( const Color &color );
 
 	float penSize() const;
 	float borderSize() const;
 
-	DrawStyle     drawStyle() const;
-	PenStyle      penStyle() const;
-	Color baseColor() const;
-	Color selectedColor() const;
-	//OpenGL::Color hilightedColor() const;
-	Color borderColor() const;
+	DrawStyle drawStyle()      const;
+	PenStyle  penStyle()       const;
+	Color     baseColor()      const;
+	Color     selectedColor()  const;
+	Color     hilightedColor() const;
+	Color     borderColor()    const;
 
 protected:
 	float _penSize;
 	float _borderSize;
 
-	DrawStyle     _drawStyle;
-	PenStyle      _penStyle;
-	Color _baseColor;
-	Color _selectedColor;
-	//Color _hilightedColor;
-	Color _borderColor;
+	DrawStyle _drawStyle;
+	PenStyle _penStyle;
+	Color    _baseColor;
+	Color    _selectedColor;
+	Color    _hilightedColor;
+	Color    _borderColor;
 };
 
 

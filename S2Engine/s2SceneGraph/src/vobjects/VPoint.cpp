@@ -2,34 +2,23 @@
 //
 #include "VPoint.h"
 
-#include "OpenGL/Renderer.h"
-#include "OpenGL/Selection.h"
-#include "OpenGL/OpenGL.h"
+#include "renderer/Surface.h"
 
 #include <iostream>
 
 using namespace s2;
-using namespace s2::Renderer;
+using namespace s2::SceneGraph;
 
 // ------------------------------------------------------------------------------------------------
 VPoint::VPoint()
 {}
 
 // ------------------------------------------------------------------------------------------------
-VPoint::VPoint( double x, double y, double z )
-{
-	_coords.push_back( Math::dvec3(x,y,z) );
-
-	_boundingBox.extend( _coords[0] );
-	_boundingBox.scale(1.2);
-}
-
-// ------------------------------------------------------------------------------------------------
 VPoint::VPoint( const Math::dvec3 &p )
 {
-	_coords.push_back( p );
+	_coords = p;
 
-	_boundingBox.extend( p );
+	_boundingBox.extend( _coords );
 	_boundingBox.scale(1.2);
 }
 
@@ -37,36 +26,23 @@ VPoint::VPoint( const Math::dvec3 &p )
 VObject::ObjectType VPoint::type() const		{ return Point; }
 
 // ------------------------------------------------------------------------------------------------
-std::vector<Math::dvec3> VPoint::snapPoints() const
+void VPoint::draw( const Renderer::SurfacePtr &surface, const Renderer::DrawingState &ds ) const
 {
-	return _coords;
-}
+	//const float borderSize = style().penSize() + style().borderSize();
+	//glPointSize(borderSize + (isHilighted() * 3.f) );
+	//glColor4fv( style().borderColor() );
 
-// ------------------------------------------------------------------------------------------------
-Math::dvec3 VPoint::center() const
-{
-	return _coords[0];
-}
+	//r->beginRendering();
+	//r->setVertex3DArray( _coords );
+	//// background as border
+	//glDrawArrays( GL_POINTS, 0, 1 );
 
-// ------------------------------------------------------------------------------------------------
-void VPoint::draw( OpenGL::Renderer *r ) const
-{
-	//Math::dvec3 o = r->origin();
-	const float borderSize = style().penSize() + style().borderSize();
-	glPointSize(borderSize + (isHilighted() * 3.f) );
-	glColor4fv( style().borderColor() );
+	//glColor4fv( color() );
+	//glPointSize(style().penSize() + (isHilighted() * 3.f) );
 
-	r->beginRendering();
-	r->setVertex3DArray( _coords );
-	// background as border
-	glDrawArrays( GL_POINTS, 0, 1 );
+	//glDrawArrays( GL_POINTS, 0, 1 );
 
-	glColor4fv( color() );
-	glPointSize(style().penSize() + (isHilighted() * 3.f) );
-
-	glDrawArrays( GL_POINTS, 0, 1 );
-
-	r->endRendering();
+	//r->endRendering();
 }
 
 // ------------------------------------------------------------------------------------------------

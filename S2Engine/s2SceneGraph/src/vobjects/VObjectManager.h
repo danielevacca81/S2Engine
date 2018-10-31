@@ -5,89 +5,100 @@
 
 #include "s2SceneGraph_API.h"
 
-#include "Math/Math.h"
-#include "Math/Box.h"
-
 #include "VObject.h"
+#include "SelectionSet.h"
+
+#include "patterns/Observer.h"
+#include "math/Math.h"
+#include "math/Box.h"
+
+#include "renderer/Surface.h"
+#include "renderer/PrimitiveBuffer.h"
 
 #include <map>
+#include <unordered_map>
 #include <vector>
 #include <list>
 
 namespace s2 {
 namespace SceneGraph {
 
-class SelectionSet;
-
-class S2SCENEGRAPH_API VObjectManager
+class S2SCENEGRAPH_API VObjectManager : public Observer, std::enable_shared_from_this<VObjectManager>
 {
 public: 
-	enum SelectionPolicy 
-	{ 
-		SelectionNone     = 0x0000, 
-		SelectionSingle   = 0x0001, 
-		SelectionMultiple = 0x0002, 
-		SelectionNotEmpty = 0x0010,
-		SelectionDefault  = SelectionMultiple,
-	};
-
-private:
-	typedef std::list< VObjectPtr >             VObjectList;
-	typedef std::map<unsigned int, VObjectList> VObjectIndex;	// map from object types to objectList
-
-	OpenGL::Renderer   *_renderer; // not owned
-	SelectionSet       *_selectionSet;
-	Math::dvec3 _pickPoint;
-	VObjectPtr          _hilightedObject;
-
-
-	VObjectList  _objects;
-	VObjectIndex _objectIndex;
-
-	void VObjectManager::drawForSelection() const;
-	void createIndex( VObjectPtr obj );
-	void removeIndex( VObjectPtr obj );
-	VObjectList::const_iterator findObject( unsigned int id ) const;
-	void hilightObject( VObjectPtr obj );
-	void selectArea( const Math::box3 &area );
-	void updateSelection();
-
-	void notifyObjectSelected( const VObjectPtr &obj );
-	void notifyObjectHilighted( const VObjectPtr &obj );
-
-	friend class VObject;
+	typedef std::list< VObjectPtr >                                        VObjectList;
+	typedef std::map<unsigned int, VObjectList>                            VObjectIndex;	// map from object types to objectList
+	typedef std::unordered_map<unsigned int, Renderer::PrimitiveBufferPtr> VObjectPrimitive;
 
 public:
-	explicit VObjectManager( OpenGL::Renderer *r );
+	VObjectManager();
 	~VObjectManager();
 
-	bool addObject( VObject *obj );
-	bool addObject( VObjectPtr obj );
+	bool                    addObject( const VObjectPtr &obj );
+	void                    removeObject( const VObjectPtr &obj );
+	void                    removeAllObjects();
 
-	std::vector<VObjectPtr> getObjects() const;
-	VObjectPtr getObject( unsigned int id ) const;
-	VObjectPtr getHilightedObject() const;
+	void                    enableSelection( bool enable );
+	void                    enableHilight( bool enable );
+	void                    setVisible( bool enable );
 
-	void hilightObject( int id );
-	void hilightObjectAt( const Math::dvec3 &p );
-	void selectObjectAt( const Math::dvec3 &p );
-	void setSelectionPolicy( unsigned int policyMask );
-	void selectObject( int id );
-	void unselectObject( int id );
-	void selectArea( const Math::dvec3 &p0, const Math::dvec3 &p1 );
-	void clearSelection();
+	void                    hilightObject( const VObjectPtr &obj );
+	VObjectPtr              hilightObjectAt( const Math::ivec2 &screenCoord );
+	void                    selectObject( const VObjectPtr &obj, bool select = true );
+	VObjectPtr              selectObjectAt( const Math::ivec2 &screenCoord, bool select = true );
+	std::vector<VObjectPtr> selectObjectsInArea( const Math::ivec2 &p0, const Math::ivec2 &p1 );
+
+	void                    setSelectionPolicy( const SelectionSet::Policy &policyMask );
+	void                    clearSelection();
+	void                    clearHilight();
+
+	VObjectPtr              objectByID( unsigned int id ) const;
+    VObjectPtr              findObjectData( const VObject::ObjectData &data  ) const;
+	std::vector<VObjectPtr> objects()                     const;
+	VObjectPtr              hilightedObject()     const;
+	unsigned int            objectCount()         const;
+	unsigned int            selectedObjectCount() const;
+	std::vector<VObjectPtr> selectedObjects()     const;
+    bool                    isSelectionEnabled()  const;
+    bool                    isHilightEnabled()    const;
+    bool                    isVisible()           const;
+	bool                    isEmpty()             const;
+	Math::box3              boundingBox()         const;
+	SelectionSet::Policy    selectionPolicy()     const;
+
+	void draw( const Renderer::SurfacePtr &surface, const Renderer::DrawingState &drawState ) const;
+	void notify( Observable *o, const std::any &message ) override;
+
+private:
+    VObjectList                 cullObjects() const;
+    VObjectList                 sortObjects(const VObjectList &) const;
+    void                        drawForSelection() const;
+	void                        createIndex( const VObjectPtr &obj );
+	void                        removeIndex( const VObjectPtr &obj );
+	VObjectList::const_iterator findObjectIndex( const VObjectPtr &obj ) const;
 	
-	unsigned int objectCount() const;
-	unsigned int selectedObjectCount() const;
-	std::vector<unsigned int> getSelectedObjects()const; // TODO: return std::vector<VObject*>
+	std::vector<VObjectPtr>     selectArea( const Math::Rectangle &area );
+	void                        updateSelection();
 
-	void removeObject( unsigned int id );
-	void removeAllObjects();
+	VObjectPtr                  extractObjectAt( const Math::ivec2 &screenCoords );
+
+	void                        updateBuffers();
+
+private:
+	Renderer::SurfacePtr  _surface;
+	SelectionSet        _selectionSet;
 	
+	VObjectPtr          _hilightedObject;
 
-	Math::box3 boundingBox() const;
+    bool                _selectionEnabled;
+    bool                _hilightEnabled;
+    bool                _visible;
 
-	void drawObjects() const;
+	VObjectPrimitive    _primitiveBuffers;
+	VObjectList         _objects;
+	VObjectIndex        _objectIndex;
+
+	//friend class VObject;
 };
 
 }}

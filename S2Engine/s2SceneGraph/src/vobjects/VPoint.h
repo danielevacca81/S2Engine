@@ -7,35 +7,42 @@
 
 #include "VObject.h"
 
-#include "Math/Math.h"
+#include "math/Math.h"
+
 
 namespace s2 {
 namespace SceneGraph {
 
+// ********************************************************
+class VPoint;
+typedef std::shared_ptr<VPoint> VPointPtr;
+// ********************************************************
 
-class S2SCENEGRAPH_API VPoint : public VObject
+class S2SCENEGRAPH_API VPoint: public VObject
 {
-private:
-	std::vector<Math::dvec3> _coords;
+public:
+	static VPointPtr New() { return std::make_shared<VPoint>(); }
+	static VPointPtr New( const Math::dvec3 &p ) { return std::make_shared<VPoint>( p ); }
+	static VPointPtr New( double x, double y, double z ) { return std::make_shared<VPoint>( x, y, z ); }
 
 public:
 	VPoint();
-	VPoint( double x, double y, double z );
 	VPoint( const Math::dvec3 &p );
-
 	~VPoint() {}
 
-	ObjectType type() const ;
-	std::vector<Math::dvec3> snapPoints() const;
-	Math::dvec3 center() const ;
+	ObjectType               type() const { return Point; }
 
-	void draw( OpenGL::Renderer *r ) const;
-	void drawForSelection( OpenGL::Renderer *r ) const;
-	bool intersects( const Math::box3 &b ) const;
+	void        draw( const Renderer::SurfacePtr &surface, const Renderer::DrawingState &ds ) const override;
+	bool intersects( const Math::box3 &b ) const override;
 
-	virtual std::vector<Math::dvec3> getPoints() const;
-	virtual VObject* clone() const;
+	std::vector<Math::dvec3> points() const override;
+	VObjectPtr clone() const override;
+	void set( const VObjectPtr &o ) override;
+
+private:
+	Math::dvec3 _coords;
 };
+
 
 }}
 #endif

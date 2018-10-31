@@ -2,81 +2,86 @@
 //	
 #include "VObjectManager.h"
 
-#include "OpenGL/Renderer.h"
-#include "OpenGL/OpenGL.h"
-
-#include "Geometry/SelectionSet.h"
+#include "SelectionSet.h"
 
 #include <assert.h>
 
 #include <iostream>
 
 using namespace s2;
-using namespace s2::Renderer;
+using namespace s2::SceneGraph;
 
 // ------------------------------------------------------------------------------------------------
-VObjectManager::VObjectManager( OpenGL::Renderer *r )
-: _renderer(r)
-, _hilightedObject(0)
-, _selectionSet( new SelectionSet )
+VObjectManager::VObjectManager()
+: _visible( true )
+, _selectionEnabled( true)
+, _hilightEnabled( true )
 {}
 
 // ------------------------------------------------------------------------------------------------
 VObjectManager::~VObjectManager()
 {
 	removeAllObjects();
-
-	delete _selectionSet;
 }
 
 // ------------------------------------------------------------------------------------------------
-bool VObjectManager::addObject( VObjectPtr obj )
+void VObjectManager::enableSelection( bool enable )                               { _selectionEnabled = enable; if( !enable ) clearSelection(); }
+void VObjectManager::enableHilight( bool enable )                                 { _hilightEnabled   = enable; if( !enable ) clearHilight();   }
+void VObjectManager::setVisible( bool enable )                                    { _visible          = enable; }
+void VObjectManager::setSelectionPolicy( const SelectionSet::Policy &policyMask ) { _selectionSet.setPolicy( policyMask ); }
+
+// ------------------------------------------------------------------------------------------------
+bool VObjectManager::isSelectionEnabled()              const { return _selectionEnabled; }
+bool VObjectManager::isHilightEnabled()                const { return _hilightEnabled;   }
+bool VObjectManager::isVisible()                       const { return _visible;          }
+bool VObjectManager::isEmpty()                         const { return _objects.empty();  }
+SelectionSet::Policy VObjectManager::selectionPolicy() const { return _selectionSet.policy(); }
+
+
+// ------------------------------------------------------------------------------------------------
+bool VObjectManager::addObject( const VObjectPtr &obj )
 {
 	// Null objects are discarded
 	if( !obj )
 		return false;
 
+
+	// @todo: recursive addObject if object is GROUP?
+
 	// If object with the same id exists, this means that object is already inserted
-	if( getObject( obj->id() ) )
-		removeObject( obj->id() );
+	if( objectByID( obj->id() ) )
+		removeObject( obj );
 
 	_objects.push_back( obj );
 
-	createIndex(obj);
+	createIndex( obj );
 
-	obj->setManager(this);
+	obj->_manager = shared_from_this(); // weak reference
+	obj->registerObserver( this );
 
 	return true;
 }
 
 // ------------------------------------------------------------------------------------------------
-bool VObjectManager::addObject( VObject *obj )
+void VObjectManager::removeObject( const VObjectPtr &obj )
 {
-	return addObject( std::shared_ptr<VObject>(obj) );
-}
-
-// ------------------------------------------------------------------------------------------------
-void VObjectManager::removeObject( unsigned int id )
-{
-	VObjectList::const_iterator it = findObject( id );
+	VObjectList::const_iterator it = findObjectIndex( obj );
 
 	if( it == _objects.end() )
 		return; // object not found
 
-	removeIndex( (*it) );
-	_selectionSet->removeObject( (*it)->id() );
-	(*it)->setManager(0);
-	 
-	_objects.erase(it);
+	removeIndex( ( *it ) );
+	_selectionSet.removeItem( ( *it )->id() );
+	( *it )->unregisterObserver( this );
 
-
-
-	//return (*it).get();
+	_objects.erase( it );
 }
 
 // ------------------------------------------------------------------------------------------------
 void VObjectManager::removeAllObjects()
 {
+	for( auto &obj : _objects )
+		obj->unregisterObserver( this );
 	//for( VObjectList::iterator it = _objects.begin();
 	//	 it != _objects.end();
 	//	 ++it )
@@ -84,7 +89,7 @@ void VObjectManager::removeAllObjects()
 	//	delete (*it);
 	//}
 
-	_selectionSet->reset();
+	_selectionSet.clear( SelectionSet::IgnorePolicy );
 	_objects.clear();
 	_objectIndex.clear();
 }
@@ -98,20 +103,21 @@ unsigned int VObjectManager::objectCount() const
 // ------------------------------------------------------------------------------------------------
 unsigned int VObjectManager::selectedObjectCount() const
 {
+	// @tbd
 	return (unsigned int) _objects.size();
 }
 
 // ------------------------------------------------------------------------------------------------
-void VObjectManager::createIndex( VObjectPtr obj )
+void VObjectManager::createIndex( const VObjectPtr &obj )
 {
 	if( !obj )
 		return;
 
-	_objectIndex[ obj->type() ].push_back( obj );
+	_objectIndex[obj->type()].push_back( obj );
 }
 
 // ------------------------------------------------------------------------------------------------
-void VObjectManager::removeIndex( VObjectPtr obj )
+void VObjectManager::removeIndex( const VObjectPtr &obj )
 {
 	if( !obj )
 		return;
@@ -119,21 +125,22 @@ void VObjectManager::removeIndex( VObjectPtr obj )
 	VObjectIndex::iterator it = _objectIndex.find( obj->type() );
 
 	assert( it != _objectIndex.end() );
-	
-	it->second.remove(obj);
+
+	it->second.remove( obj );
 }
 
 // ------------------------------------------------------------------------------------------------
-VObjectManager::VObjectList::const_iterator VObjectManager::findObject( unsigned int id ) const
+VObjectManager::VObjectList::const_iterator VObjectManager::findObjectIndex( const VObjectPtr &key ) const
 {
+
 	for( VObjectList::const_iterator it = _objects.begin();
 		 it != _objects.end();
 		 ++it )
 	{
-		if( (*it)->id() == id )
+		if( ( *it )->id() == key->id() )
 			return it; // object found
 	}
-	
+
 	return _objects.end();
 }
 
@@ -143,300 +150,345 @@ Math::box3 VObjectManager::boundingBox() const
 {
 	Math::box3 box;
 
-	for( VObjectList::const_iterator it = _objects.begin();
-		 it != _objects.end();
-		 ++it )
-	{
-		box.extend( (*it)->boundingBox() );
-	}
-	
+	for( auto &obj : _objects )
+		box.extend( obj->boundingBox() );
+
 	return box;
 }
 
 // ------------------------------------------------------------------------------------------------
-VObjectPtr VObjectManager::getObject( unsigned int id ) const
+VObjectPtr VObjectManager::objectByID( unsigned int id ) const
 {
 	for( VObjectList::const_iterator it= _objects.begin();
-		it != _objects.end();
-		++it )
+		 it != _objects.end();
+		 ++it )
 	{
-		if( (*it)->id() == id )
-			return (*it); // object found
+		if( ( *it )->id() == id )
+			return ( *it ); // object found
 	}
 	return nullptr;
 }
 
 // ------------------------------------------------------------------------------------------------
-std::vector<VObjectPtr> VObjectManager::getObjects() const
+std::vector<VObjectPtr> VObjectManager::objects() const
 {
-	std::vector<VObjectPtr> objs;
-	
-	for( VObjectList::const_iterator it= _objects.begin();
-		it != _objects.end();
-		++it )
-		objs.push_back(*it);
-
-	return objs;
+	return std::vector<VObjectPtr>( _objects.begin(), _objects.end() );
 }
 
 // ------------------------------------------------------------------------------------------------
-VObjectPtr VObjectManager::getHilightedObject() const
+VObjectPtr VObjectManager::hilightedObject() const
 {
 	return _hilightedObject;
 }
 
 // ------------------------------------------------------------------------------------------------
-void VObjectManager::hilightObject( VObjectPtr obj )
+void VObjectManager::hilightObject( const VObjectPtr &obj )
 {
-	if(_hilightedObject == obj )
+	if( !_hilightEnabled )
+		return;
+
+	if( _hilightedObject == obj )
 		return;
 
 	// undo highlighting on the current object
-	if(_hilightedObject)
-		_hilightedObject->hilight(false);
+	if( _hilightedObject )
+		_hilightedObject->setHilighted( false );
+		//_hilightedObject->setState(_hilightedObject->state() -= VObject::State::Hilighted);
+
+	// set highlighting to the hovered object (if any)
+	if( obj )
+		obj->setHilighted( true );
+		//obj->setState(_hilightedObject->state() += VObject::State::Hilighted);
 
 	// get new highlighted object (it may be NULL)
 	_hilightedObject = obj;
-
-	// set highlighting to the hovered object (if any)
-	if( _hilightedObject )	
-		_hilightedObject->hilight(true);
 }
 
 // ------------------------------------------------------------------------------------------------
-void VObjectManager::hilightObject( int id )
+VObjectPtr VObjectManager::hilightObjectAt( const Math::ivec2 &screenCoord )
 {
-	if(_hilightedObject && _hilightedObject->id() == id )
+	if( !_hilightEnabled )
+		return nullptr;
+
+	VObjectPtr obj = extractObjectAt( screenCoord );
+
+	hilightObject( obj );
+	return obj;
+}
+
+// ------------------------------------------------------------------------------------------------
+void VObjectManager::selectObject( const VObjectPtr &obj, bool select )
+{
+	if( !_selectionEnabled )
+		return;	
+
+	if( !obj )
 		return;
 
-	// undo highlighting on the current object
-	if(_hilightedObject)
-		_hilightedObject->hilight(false);
-
-	// get new highlighted object (it may be NULL)
-	_hilightedObject = nullptr;
-	VObjectList::const_iterator it = findObject(id);
-	if( it == _objects.end() )
-		return;
-	_hilightedObject = *it;
-
-	// set highlighting to the hovered object (if any)
-	if(_hilightedObject)	
-		_hilightedObject->hilight(true);
-}
-
-// ------------------------------------------------------------------------------------------------
-void VObjectManager::hilightObjectAt( const Math::dvec3 &p )
-{
-	_pickPoint = _renderer->convertWorldToWindow(p,false);
-	
-	std::vector<unsigned int> v = _renderer->getSelectionNames( OpenGL::Selection::All );
-
-	if( v.empty() )
+	if( obj->isSelectable() )
 	{
-		hilightObject( nullptr );
-		return;
-	}
-
-	// loop through objects list
-	VObjectPtr obj = nullptr;
-	size_t i = 0;
-	do 
-	{
-		// hilight the first hilightable object in the list
-		obj = getObject( v[i++] );
-		
-		if( obj && obj->isSelectionEnabled() )
-		{
-			hilightObject( obj );
-			break;
-		}
-	} 
-	while( i<v.size() );
-}
-
-// ------------------------------------------------------------------------------------------------
-void VObjectManager::setSelectionPolicy(  unsigned int policyMask )
-{
-	_selectionSet->setPolicy( (SelectionSet::SelectionPolicy) policyMask );
-}
-
-// ------------------------------------------------------------------------------------------------
-void VObjectManager::selectArea( const Math::dvec3 &p0, const Math::dvec3 &p1 )
-{
-	const double threshold = _renderer->pixelToWorldSize(4); // four pixel threshold
-	
-	if( Math::distance( p0,p1 ) < threshold )
-		selectObjectAt(p0);
-	else
-	{
-		Math::box3 selectionArea;
-		selectionArea.extend(p0);
-		selectionArea.extend(p1);
-
-		selectArea(selectionArea);
-	}
-}
-
-// ------------------------------------------------------------------------------------------------
-void VObjectManager::selectArea( const Math::box3 &area )
-{
-	_selectionSet->reset();
-
-	bool added = false;
-	for( VObjectList::iterator it = _objects.begin();
-		it != _objects.end();
-		++it )
-	{
-		if( area.overlaps2D( (*it)->boundingBox() ) )
-			if( area.contains2D( (*it)->boundingBox() ) || (*it)->intersects( area ) )
-				if( (*it)->isSelectionEnabled() )
-					_selectionSet->addObject((*it)->id());
+		if( select ) _selectionSet.addItem( obj->id() );
+		else         _selectionSet.removeItem( obj->id() ); // does nothing if not found
 	}
 
 	updateSelection();
 }
 
 // ------------------------------------------------------------------------------------------------
-void VObjectManager::selectObject( int id )
+VObjectPtr VObjectManager::selectObjectAt( const Math::ivec2 &p, bool select )
 {
-	_selectionSet->reset();
+	if( !_selectionEnabled )
+		return nullptr;
 
-	if( id>=0 )
+	VObjectPtr obj = extractObjectAt( p );
+
+	if( !obj )
 	{
-		VObjectList::const_iterator it = findObject( id );
-		
-		if( it != _objects.end() )
-			if( (*it)->isSelectionEnabled() )_selectionSet->addObject( (*it)->id() );
-	}
+		if( !(_selectionSet.policy() & SelectionSet::NotEmpty ) )
+			_selectionSet.clear( SelectionSet::IgnorePolicy );
 
-	updateSelection();
-}
-
-// ------------------------------------------------------------------------------------------------
-void VObjectManager::selectObjectAt( const Math::dvec3 &p )
-{
-	_selectionSet->reset();
-
-	_pickPoint = _renderer->convertWorldToWindow(p,false);
-	
-	std::vector<unsigned int> v = _renderer->getSelectionNames();
-
-	VObjectPtr obj = nullptr;
-	if( v.empty() )
 		updateSelection();
-	else
-	{
-		//_selectionSet->setPolicy( SelectionSet::PolicyExclusive );
-
-		obj = getObject(v[0]);
-		if( obj )
-			if( obj->isSelectionEnabled() )_selectionSet->addObject( obj->id() );
-
-		//const VObjectPtr 
-		//if( obj )
-		//	obj->setSelected( _selectionSet->addObject(v[0]) );	
+		return nullptr;
 	}
 
+	if( obj->isSelectable() )
+	{
+		if( select ) _selectionSet.addItem( obj->id() );
+		else         _selectionSet.removeItem( obj->id() );
+	}
 
 	hilightObject( obj );
 	updateSelection();
+	return obj;
 }
 
 // ------------------------------------------------------------------------------------------------
-void VObjectManager::unselectObject( int id )
+std::vector<VObjectPtr> VObjectManager::selectObjectsInArea( const Math::ivec2 &p0, const Math::ivec2 &p1 )
 {
-	if( id<0 )
-		_selectionSet->reset();
+	const float threshold = 4.f; // pixels // _renderer->pixelToWorldSize( 4 ); // four pixel threshold
+
+	// distance accepts only floating points
+	if( Math::distance( Math::vec2(p0), Math::vec2(p1) ) < threshold )
+		return { selectObjectAt( p0 ) };
 	else
 	{
-		VObjectList::const_iterator it = findObject( id );
+		//Math::box3 selectionArea;
+		//selectionArea.extend( p0 );
+		//selectionArea.extend( p1 );
 
-		if( it != _objects.end() )
-			_selectionSet->removeObject( (*it)->id() );
+		return selectArea( Math::Rectangle( p0,p1 ) );
 	}
+}
+
+
+// ------------------------------------------------------------------------------------------------
+std::vector<VObjectPtr> VObjectManager::selectArea( const Math::Rectangle &area )
+{
+	if( !_selectionEnabled )
+		return {};
+	
+	std::vector<VObjectPtr> selectedObjects;
+	// todo: cull objects (do not check culled objects)
+	for( auto &obj : _objects )
+	{
+		if( !obj->isSelectable() )
+			continue;
+
+		//const Rectangle r = obj->boundingBox().transformed().toRectangle();
+
+		//if( area.overlaps( r ) )
+		//	if( area.contains( r ) || area->intersects( r ) )
+		//		_selectionSet.addItem( obj->id() );
+	}
+	
+	if( !(_selectionSet.policy() & SelectionSet::NotEmpty ) )
+		_selectionSet.clear( SelectionSet::IgnorePolicy );
 
 	updateSelection();
+	return selectedObjects;
+}
+
+
+// ------------------------------------------------------------------------------------------------
+VObjectPtr VObjectManager::extractObjectAt( const Math::ivec2 &screenCoords )
+{
+	// @todo: 
+	//auto rgb = _surface->readPixelAt( screenCoords.x, screenCoords.y, Renderer::FrameBuffer::ColorAttachment0 );
+	// SelectionName name = SelectionName::fromRGB(rgb);
+	const int id = 0;
+
+
+	VObjectPtr obj = objectByID( id ); // obj is either a leaf or the root of a tree-group
+	
+	if( !obj )
+		return nullptr; // assert ?
+
+
+	//if( obj->isGroup() )
+	//	obj->dynamicCastTo<VGroup>()->setChangedLeaf( id );
+
+	return obj;
+}
+
+// ------------------------------------------------------------------------------------------------
+VObjectPtr VObjectManager::findObjectData( const VObject::ObjectData &data ) const
+{
+	auto it = std::find_if( _objects.begin(), _objects.end(), 
+							[data] ( const VObjectPtr &a ) 
+	{ return a->userData() == data; } 
+	);
+
+	if( it == _objects.end() )
+		return nullptr; // not found
+
+	return *it;
 }
 
 // ------------------------------------------------------------------------------------------------
 void VObjectManager::clearSelection()
 {
-	_selectionSet->reset();
+	if( !_selectionEnabled )
+		return;
 
-	for( VObjectList::iterator it = _objects.begin();
-		it != _objects.end();
-		++it )
-		(*it)->select(false);
+	_selectionSet.clear( SelectionSet::IgnorePolicy );
+
+	for( auto &obj : _objects )
+		obj->setSelected( false );
+		//obj->setState( (*it)->state() -= VObject::State::Selected );
 }
 
 // ------------------------------------------------------------------------------------------------
-void VObjectManager::notifyObjectSelected( const VObjectPtr &obj )
+void VObjectManager::clearHilight()
 {
-	if( obj->isSelected() )
-		selectObject( obj->id() ); 
-	else
-		unselectObject( obj->id() );
+	// undo highlighting on the current object
+	if( _hilightedObject )
+        _hilightedObject->setHilighted( false );
+	
+	_hilightedObject = nullptr;
 }
 
 // ------------------------------------------------------------------------------------------------
-void VObjectManager::notifyObjectHilighted( const VObjectPtr &obj )
+void VObjectManager::notify( Observable *o, const std::any &message )
 {
-	if( obj->isHilighted() )
-		hilightObject(obj);  
+	using ObjectUpdateMessage = std::pair<std::string, bool>; // @todo: add object ID
+ 
+	try
+    {
+		const ObjectUpdateMessage msg = std::any_cast<ObjectUpdateMessage>( message );
+
+		if      ( msg.first == "selected"  ) {}
+		else if ( msg.first == "hilighted" ) {}
+		//else if ( msg.first == "hilighted" ) {}
+		//else if ( msg.first == "hilighted" ) {}
+		//else if ( msg.first == "hilighted" ) {}
+    }
+	catch( const std::bad_any_cast& e )
+    {
+        std::cout << "Malformed VObject message" << '\n';
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
 void VObjectManager::updateSelection()
 {
-	SelectionSet::SelectionList selected = _selectionSet->get();
+	if( !_selectionEnabled )
+		return;
 
+	SelectionSet::Items selected = _selectionSet.items();
+
+	// ultra inefficient two pass selection update
+	
 	// deselect all
-	for( VObjectList::iterator it = _objects.begin();
-		it != _objects.end();
-		++it )
-		(*it)->select(false);
+	for( auto &obj : _objects )
+		 obj->setSelected( false );
+		//obj->setState( (*it)->state() -= VObject::State::Selected );
 
-
-	for( SelectionSet::SelectionList::iterator it = selected.begin();
-		 it != selected.end();
-		 ++it )
-		getObject( *it )->select(true);	
+	// set selected only those in the selectionset (if any)
+	for( auto &itemID : selected )
+		objectByID( itemID )->setSelected( true );
+		//objectByID( itemID )->setState( obj->state() += VObject::State::Selected );
 }
 
 // ------------------------------------------------------------------------------------------------
-std::vector<unsigned int> VObjectManager::getSelectedObjects() const
+std::vector<VObjectPtr> VObjectManager::selectedObjects() const
 {
-	std::vector<unsigned int> selectedObjects;
+	SelectionSet::Items list = _selectionSet.items();
 
-	SelectionSet::SelectionList list = _selectionSet->get();
+	std::vector<VObjectPtr> selectedObjects;
 
-	for( SelectionSet::SelectionList::iterator it = list.begin();
-		 it != list.end();
-		 ++it )
-		selectedObjects.push_back( *it );
+	for( auto &itemID : list )
+		selectedObjects.push_back( objectByID( itemID ) );
 
 	return selectedObjects;
 }
 
 // ------------------------------------------------------------------------------------------------
-void VObjectManager::drawObjects() const
+VObjectManager::VObjectList VObjectManager::cullObjects() const
 {
+	// use transform feedback to cull object on GPU
+	return { };
+}
+
+// ------------------------------------------------------------------------------------------------
+VObjectManager::VObjectList VObjectManager::sortObjects( const VObjectList &objList ) const
+{
+	struct
+	{
+		bool operator()( const VObjectPtr &a, const VObjectPtr &b )
+		{
+			return a->boundingBox().diag() > b->boundingBox().diag();
+		}
+	} compareBBox;
+
+	VObjectList sortedList(objList);
+	sortedList.sort( compareBBox );
+
+	return sortedList;
+}
+
+// ------------------------------------------------------------------------------------------------
+void VObjectManager::updateBuffers()
+{
+	// compute VBOs for drawing
+	// 1 vbo per object type?
+}
+
+// ------------------------------------------------------------------------------------------------
+void VObjectManager::draw( const Renderer::SurfacePtr &surface, const Renderer::DrawingState &drawState ) const
+{
+	if( !_visible || _objects.empty() )
+		return;
+
+	// no more need to cull objects on CPU if use transform feedback
+	//VObjectList visibleObjs = cullObjects();
+
+	for( auto &b : _primitiveBuffers )
+	{
+		Renderer::Primitive p;
+		switch( b.first )
+		{
+		case 0: p = Renderer::Primitive::Points; break;
+		case 1: p = Renderer::Primitive::Lines; break;
+		case 2: p = Renderer::Primitive::Triangles; break;
+		case 3: p = Renderer::Primitive::TriangleStrip; break;
+		}
+
+		surface->draw( p, b.second, drawState );
+	}
+
+#if 0
 	glPushAttrib( GL_ALL_ATTRIB_BITS );
 	{
-		//glEnable(GL_POLYGON_SMOOTH);
-		glEnable(GL_POINT_SMOOTH);
-		glEnable(GL_LINE_SMOOTH);
-		glHint(GL_POINT_SMOOTH_HINT,   GL_NICEST);
-		glHint(GL_LINE_SMOOTH_HINT,    GL_NICEST);
-		glDepthFunc(GL_LEQUAL);
-		//glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
+		glEnable( GL_POINT_SMOOTH );
+		glEnable( GL_LINE_SMOOTH );
+		glHint( GL_POINT_SMOOTH_HINT, GL_NICEST );
+		glHint( GL_LINE_SMOOTH_HINT, GL_NICEST );
+		glDepthFunc( GL_LEQUAL );
 
-		//glDepthMask(GL_TRUE);
-		glEnable(GL_DEPTH_TEST);
+		glEnable( GL_DEPTH_TEST );
 
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); 
+		glEnable( GL_BLEND );
+		glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
 		const bool textEnabled  = true;
 		const int  textSize     = 12;
@@ -454,83 +506,82 @@ void VObjectManager::drawObjects() const
 				 ++jt )
 			{
 				// skip the hilighted obj
-				if( (*jt)->isHilighted() )
+				if( ( *jt )->isHilighted() )
 					continue;
 
-				if( (*jt)->isSelected() )
+				if( ( *jt )->isSelected() )
 				{
-					selectedList.push_back(jt);
+					selectedList.push_back( jt );
 					continue;
 				}
 
-				(*jt)->draw(_renderer);
+				( *jt )->draw( _renderer );
 
-				if( textEnabled && (*jt)->isVisible() )
-					_renderer->addText( (*jt)->center(), (*jt)->name(), textColor, textSize, OpenGL::TextRenderer::AlignCenter );
+				if( textEnabled && ( *jt )->isVisible() )
+					_renderer->addText( ( *jt )->center(), ( *jt )->name(), textColor, textSize, OpenGL::TextRenderer::AlignCenter );
 			}
 		}
 
-		glDisable(GL_DEPTH_TEST);
+		glDisable( GL_DEPTH_TEST );
 		// draw selected objects
-		for( size_t i=0; i<selectedList.size(); ++i )
-			(*selectedList[i])->draw( _renderer );
+		for( size_t i=0; i < selectedList.size(); ++i )
+			( *selectedList[i] )->draw( _renderer );
 
 		// at the end draw the hilighted (if any)
 		if( _hilightedObject )
 		{
-			_hilightedObject->draw(_renderer);
-			_renderer->addText( _hilightedObject->center(), _hilightedObject->name(), _hilightedObject->color() , textSize, OpenGL::TextRenderer::AlignCenter );
+			_hilightedObject->draw( _renderer );
+			_renderer->addText( _hilightedObject->center(), _hilightedObject->name(), _hilightedObject->color(), textSize, OpenGL::TextRenderer::AlignCenter );
 		}
 	}
 	glPopAttrib();
 
-	//drawForSelection();
-	
+	drawForSelection();
 	glCheck;
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
-void VObjectManager::drawForSelection( ) const
+void VObjectManager::drawForSelection() const
 {
-	glPushAttrib(GL_ALL_ATTRIB_BITS);
-	glDisable(GL_TEXTURE_2D);
-	glColor3ub(255,255,255);
+	//glPushAttrib( GL_ALL_ATTRIB_BITS );
+	//glDisable( GL_TEXTURE_2D );
+	//glColor3ub( 255, 255, 255 );
 
-	do
-	{
-		Math::dmat4 selMatrix = _renderer->openSelectionMode((int)_pickPoint.x,(int)_pickPoint.y);
-		_renderer->computeClipMatrix(_renderer->modelViewMatrix(),selMatrix);
-		//_renderer->computeClipMatrix(Math::dmat4(1),selMatrix);
+	//do
+	//{
+	//	Math::dmat4 selMatrix = _renderer->openSelectionMode( (int) _pickPoint.x, (int) _pickPoint.y );
+	//	_renderer->computeClipMatrix( _renderer->modelViewMatrix(), selMatrix );
+	//	//_renderer->computeClipMatrix(Math::dmat4(1),selMatrix);
 
-		const int typesCount  = (int)_objectIndex.size();
-		const float depthStep = 1.f / typesCount;
-		float currDepth = 0.f;
+	//	const int typesCount  = (int) _objectIndex.size();
+	//	const float depthStep = 1.f / typesCount;
+	//	float currDepth = 0.f;
 
-		// draw objects by type (shapes, lines, points)
-		for( VObjectIndex::const_reverse_iterator it = _objectIndex.rbegin();
-			 it != _objectIndex.rend();
-			 ++it )
-		{
-			glPushMatrix();
-			glTranslatef(0,0,currDepth);
-			for( VObjectList::const_iterator jt = it->second.begin();
-				 jt != it->second.end();
-				 ++jt )
-			{
-				if( !_renderer->isVisible( (*jt)->boundingBox() ) )
-					continue; //culling
+	//	// draw objects by type (shapes, lines, points)
+	//	for( VObjectIndex::const_reverse_iterator it = _objectIndex.rbegin();
+	//		 it != _objectIndex.rend();
+	//		 ++it )
+	//	{
+	//		glPushMatrix();
+	//		glTranslatef( 0, 0, currDepth );
+	//		for( VObjectList::const_iterator jt = it->second.begin();
+	//			 jt != it->second.end();
+	//			 ++jt )
+	//		{
+	//			if( !_renderer->isVisible( ( *jt )->boundingBox() ) )
+	//				continue; //culling
 
-				if( (*jt)->isVisible() && (*jt)->isSelectionEnabled() )
-					(*jt)->drawForSelection(_renderer);			
-			}
-			glPopMatrix();
+	//			if( ( *jt )->isVisible() && ( *jt )->isSelectable() )
+	//				( *jt )->drawForSelection( _renderer );
+	//		}
+	//		glPopMatrix();
 
-			currDepth += depthStep;
-		}
+	//		currDepth += depthStep;
+	//	}
 
-		_renderer->closeSelectionMode();
-	}
-	while( _renderer->selectionFailed() );
+	//	_renderer->closeSelectionMode();
+	//} while( _renderer->selectionFailed() );
 
-	glPopAttrib();
+	//glPopAttrib();
 }

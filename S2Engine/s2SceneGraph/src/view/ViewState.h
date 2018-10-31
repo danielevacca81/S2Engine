@@ -3,23 +3,22 @@
 #ifndef VIEWSTATE_ONCE
 #define VIEWSTATE_ONCE
 
-#include "s2OpenGL_API.h"
+#include "s2SceneGraph_API.h"
 
 #include "Math/Math.h"
 #include "Math/Rectangle.h"
-#include "Math/Ray.h"
 
 namespace s2 {
-namespace OpenGL {
+namespace SceneGraph {
 
-class S2OPENGL_API ViewState
+class S2SCENEGRAPH_API ViewState
 {
 public:
 	ViewState( 
-		const Math::Rectangle &viewport   = Math::Rectangle(),
-		const Math::dmat4     &model      = Math::dmat4(1.0),
-		const Math::dmat4     &view       = Math::dmat4(1.0),
-		const Math::dmat4     &projection = Math::dmat4(1.0) )
+		const Math::Rectangle &viewport   = Math::Rectangle() ,
+		const Math::dmat4     &model      = Math::dmat4( 1.0 ),
+		const Math::dmat4     &view       = Math::dmat4( 1.0 ),
+		const Math::dmat4     &projection = Math::dmat4( 1.0 ) )
 	: _viewport( viewport )
 	, _modelMatrix( model )
 	, _viewMatrix( view )

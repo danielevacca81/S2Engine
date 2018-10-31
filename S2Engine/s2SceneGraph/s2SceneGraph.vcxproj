@@ -98,7 +98,8 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>S2SCENEGRAPH_EXPORTS;WIN32;_DEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\..\SDK\ExtLibs\glm-0.9.9.0\glm;..\..\SDK\s2Core\include;..\..\SDK\s2OpenGL\include;src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\SDK\ExtLibs\glm-0.9.9.0\glm;..\..\SDK\s2Core\include;..\..\SDK\s2Renderer\include;src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link />
     <Link>
@@ -112,8 +113,9 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>S2SCENEGRAPH_EXPORTS;;_DEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\..\SDK\ExtLibs\glm-0.9.9.0\glm;..\..\SDK\s2Core\include;..\..\SDK\s2OpenGL\include;src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\SDK\ExtLibs\glm-0.9.9.0\glm;..\..\SDK\s2Core\include;..\..\SDK\s2Renderer\include;src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MinimalRebuild>false</MinimalRebuild>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link />
     <PostBuildEvent>
@@ -133,7 +135,8 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>S2SCENEGRAPH_EXPORTS;WIN32;NDEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\..\SDK\ExtLibs\glm-0.9.9.0\glm;..\..\SDK\s2Core\include;..\..\SDK\s2OpenGL\include;src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\SDK\ExtLibs\glm-0.9.9.0\glm;..\..\SDK\s2Core\include;..\..\SDK\s2Renderer\include;src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -152,7 +155,8 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>S2SCENEGRAPH_EXPORTS;NDEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\..\SDK\ExtLibs\glm-0.9.9.0\glm;..\..\SDK\s2Core\include;..\..\SDK\s2OpenGL\include;src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\SDK\ExtLibs\glm-0.9.9.0\glm;..\..\SDK\s2Core\include;..\..\SDK\s2Renderer\include;src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -175,18 +179,21 @@
     <ClInclude Include="src\view\TrackBall.h" />
     <ClInclude Include="src\view\ViewOrthographic.h" />
     <ClInclude Include="src\view\ViewPerspective.h" />
+    <ClInclude Include="src\view\ViewState.h" />
+    <ClInclude Include="src\vobjects\SelectionSet.h" />
     <ClInclude Include="src\vobjects\VCircle.h" />
     <ClInclude Include="src\vobjects\VGroup.h" />
     <ClInclude Include="src\vobjects\VLine.h" />
     <ClInclude Include="src\vobjects\VMesh.h" />
     <ClInclude Include="src\vobjects\VObject.h" />
     <ClInclude Include="src\vobjects\VObjectManager.h" />
+    <ClInclude Include="src\vobjects\VObjectState.h" />
     <ClInclude Include="src\vobjects\VPoint.h" />
     <ClInclude Include="src\vobjects\VPolygon.h" />
     <ClInclude Include="src\vobjects\VPolyLine.h" />
     <ClInclude Include="src\vobjects\VRectangle.h" />
     <ClInclude Include="src\vobjects\VSplineStrip.h" />
-    <ClInclude Include="src\vobjects\VStyle.h" />
+    <ClInclude Include="src\vobjects\VObjectStyle.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\view\Camera.cpp" />
@@ -198,6 +205,8 @@
     <ClCompile Include="src\view\TrackBall.cpp" />
     <ClCompile Include="src\view\ViewOrthographic.cpp" />
     <ClCompile Include="src\view\ViewPerspective.cpp" />
+    <ClCompile Include="src\view\ViewState.cpp" />
+    <ClCompile Include="src\vobjects\SelectionSet.cpp" />
     <ClCompile Include="src\vobjects\VCircle.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
@@ -222,16 +231,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="src\vobjects\VObject.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="src\vobjects\VObjectManager.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="src\vobjects\VObject.cpp" />
+    <ClCompile Include="src\vobjects\VObjectManager.cpp" />
     <ClCompile Include="src\vobjects\VPoint.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
@@ -262,12 +263,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="src\vobjects\VStyle.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="src\vobjects\VObjectStyle.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="MakeSDK.bat" />

@@ -88,7 +88,7 @@ void VGroup::setHilighted( bool on )
 }
 
 // ------------------------------------------------------------------------------------------------
-void VGroup::setStyle( const VStyle &s)
+void VGroup::setStyle( const VObjectStyle &s)
 {
 	VObject::setStyle(s);
 
@@ -114,15 +114,15 @@ void VGroup::setColor( const OpenGL::Color &c )
 }
 
 // ------------------------------------------------------------------------------------------------
-void VGroup::enableSelection( bool enable )
+void VGroup::setSelectable( bool enable )
 {
-	VObject::enableSelection(enable);
+	VObject::setSelectable(enable);
 
 	for( auto it = _objects.begin();
 		it != _objects.end();
 		++it )
 	{
-		it->second->enableSelection(enable);
+		it->second->setSelectable(enable);
 	}
 }
 
