@@ -6,6 +6,8 @@
 #include "s2Core_API.h"
 
 #include <vector>
+#include <algorithm>
+#include <any>
 
 namespace s2 {
 
@@ -16,66 +18,57 @@ class Observable;
 class S2CORE_API Observer
 {
 public:
-	Observer()
-	: _enabled(true)
-	{}
+	Observer() = default;
+	virtual ~Observer() = default;
 
-	~Observer()
-	{}
+	void    enableNotifcations( bool enable ) { _enabled = enable; }
+	bool    isNotificationEnabled() const { return _enabled; }
 
-	void    enableNotify( bool enable ) { _enabled = enable; }
-	bool    isEnabled() const           { return _enabled;}
-
-	virtual void notify( Observable *o ) = 0;
+	virtual void notify( Observable *o, const std::any &message ) = 0;
 
 protected:
-	bool _enabled;
+	bool _enabled = true;
 };
+
+
 
 // ------------------------------------------------------------------------------------------------
 class S2CORE_API Observable
 {
 public:
-	Observable()
-	{}
-
-	~Observable()
-	{}
-
 	// ------------------------------------------------------------------------------------------------
-	void registerObserver  ( Observer *o )
+	void registerObserver( Observer *o )
 	{
-		unregisterObserver(o);
+		if( !o ) return; // assert?
+
+		unregisterObserver( o );
 		_observerCollection.push_back( o );
 	}
 
 	// ------------------------------------------------------------------------------------------------
-	bool unregisterObserver( Observer *o )
+	void unregisterObserver( Observer *o )
 	{
-		bool success = false;
-		for( auto it = _observerCollection.begin();
-			it     != _observerCollection.end();
-			++it )
-		{
-			if( *it == o )
-			{
-				_observerCollection.erase( it );
-				success = true;
-				break;
-			}
-		}
+		if( !o ) return; // assert?
 
-		return success;
+		_observerCollection.erase(
+			std::remove_if(
+				_observerCollection.begin(),
+				_observerCollection.end(),
+				[o] ( Observer *curr ) 
+				{
+					return o == curr;
+				} )
+		);
 	}
 
 	// ------------------------------------------------------------------------------------------------
-	void notifyObservers()
+	void notifyObservers( const std::any &message )
 	{
-		for( auto it = _observerCollection.begin();
-			it     != _observerCollection.end();
-			++it )
-			if( (*it)->isEnabled() )
-				(*it)->notify(this);
+		for( auto &it : _observerCollection )
+		{
+			if( it->isNotificationEnabled() )
+				it->notify( this, message );
+		}
 	}
 
 private:

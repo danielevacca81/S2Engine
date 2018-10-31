@@ -81,6 +81,7 @@
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>.\src;$(SolutionDir)..\SDK\ExtLibs\glm-0.9.9.0\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>S2CORE_EXPORTS;GLM_ENABLE_EXPERIMENTAL;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies>psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -101,6 +102,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalIncludeDirectories>.\src;$(SolutionDir)..\SDK\ExtLibs\glm-0.9.9.0\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>S2CORE_EXPORTS;GLM_ENABLE_EXPERIMENTAL;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -123,6 +125,7 @@
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <SDLCheck>true</SDLCheck>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <PostBuildEvent>
       <Command>call MakeSDK.bat</Command>
@@ -136,6 +139,7 @@
     <ClCompile>
       <AdditionalIncludeDirectories>.\src;$(SolutionDir)..\SDK\ExtLibs\glm-0.9.9.0\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>S2CORE_EXPORTS;GLM_ENABLE_EXPERIMENTAL;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <PostBuildEvent>
       <Command>call MakeSDK.bat</Command>
