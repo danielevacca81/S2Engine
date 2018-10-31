@@ -92,6 +92,7 @@
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\..\SDK\ExtLibs\glew-2.1.0\include;..\..\SDK\ExtLibs\glm-0.9.9.0\glm;..\..\SDK\s2Core\include;src</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>S2RENDERER_EXPORTS;GLEW_STATIC;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies>s2Core.lib;opengl32.lib;glu32.lib;user32.lib;gdi32.lib</AdditionalDependencies>
@@ -113,6 +114,7 @@
       <PreprocessorDefinitions>S2RENDERER_EXPORTS;GLEW_STATIC;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <SDLCheck>true</SDLCheck>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies>s2Core.lib;opengl32.lib;glu32.lib;user32.lib;gdi32.lib</AdditionalDependencies>
@@ -135,6 +137,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalIncludeDirectories>..\..\SDK\ExtLibs\glew-2.1.0\include;..\..\SDK\ExtLibs\glm-0.9.9.0\glm;..\..\SDK\s2Core\include;src</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>S2RENDERER_EXPORTS;GLEW_STATIC;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -159,6 +162,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalIncludeDirectories>..\..\SDK\ExtLibs\glew-2.1.0\include;..\..\SDK\ExtLibs\glm-0.9.9.0\glm;..\..\SDK\s2Core\include;src</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>S2RENDERER_EXPORTS;GLEW_STATIC;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
