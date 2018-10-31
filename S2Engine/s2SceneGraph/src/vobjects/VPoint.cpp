@@ -28,6 +28,12 @@ VObject::ObjectType VPoint::type() const		{ return Point; }
 // ------------------------------------------------------------------------------------------------
 void VPoint::draw( const Renderer::SurfacePtr &surface, const Renderer::DrawingState &ds ) const
 {
+	// inefficient draw
+	Renderer::PrimitiveBufferPtr buf = Renderer::PrimitiveBuffer::makeNew();
+	buf->setVertices( { _coords } );
+
+	surface->draw( Renderer::Primitive::Points, buf, ds );
+
 	//const float borderSize = style().penSize() + style().borderSize();
 	//glPointSize(borderSize + (isHilighted() * 3.f) );
 	//glColor4fv( style().borderColor() );
@@ -63,13 +69,13 @@ void VPoint::drawForSelection( OpenGL::Renderer *r ) const
 // ------------------------------------------------------------------------------------------------
 bool VPoint::intersects( const Math::box3 &b ) const
 {
-	return b.contains( _coords[0] );
+	return b.contains( _coords );
 }
 
 // ------------------------------------------------------------------------------------------------
-std::vector<Math::dvec3> VPoint::getPoints() const
+std::vector<Math::dvec3> VPoint::points() const
 {
-	return _coords;
+	return { _coords };
 }
 
 // ------------------------------------------------------------------------------------------------

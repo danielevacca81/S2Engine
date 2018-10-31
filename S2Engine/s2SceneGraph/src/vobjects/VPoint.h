@@ -23,7 +23,6 @@ class S2SCENEGRAPH_API VPoint: public VObject
 public:
 	static VPointPtr New() { return std::make_shared<VPoint>(); }
 	static VPointPtr New( const Math::dvec3 &p ) { return std::make_shared<VPoint>( p ); }
-	static VPointPtr New( double x, double y, double z ) { return std::make_shared<VPoint>( x, y, z ); }
 
 public:
 	VPoint();
@@ -36,8 +35,8 @@ public:
 	bool intersects( const Math::box3 &b ) const override;
 
 	std::vector<Math::dvec3> points() const override;
-	VObjectPtr clone() const override;
-	void set( const VObjectPtr &o ) override;
+	VObjectPtr               clone() const override;
+	void                     set( const VObjectPtr &o ) override;
 
 private:
 	Math::dvec3 _coords;
