@@ -7,18 +7,27 @@
 
 namespace glm {
 
-class Rectangle
+class Rectangle// templated and class name lowercase? irect,frect,drect
 {
 public:
+	// ------------------------------------------------------------------------------------------------
+	Rectangle() 
+	: _left(0), _bottom(0), _width(0), _height(0)
+	{}
+
 	// ------------------------------------------------------------------------------------------------
 	Rectangle( int l, int b, int w, int h ) 
 	: _left(l), _bottom(b), _width(w), _height(h)
 	{}
 
 	// ------------------------------------------------------------------------------------------------
-	Rectangle() 
-	: _left(0), _bottom(0), _width(0), _height(0)
-	{}
+	Rectangle( const ivec2 &p0, const ivec2 &p1 ) 
+	{
+		_left   = p0.x < p1.x ? p0.x : p1.x;
+		_bottom = p0.y < p1.y ? p0.y : p1.y;
+		_width  = glm::abs( p1.x - p0.x );
+		_height = glm::abs( p1.y - p0.y );
+	}
 
 	// ------------------------------------------------------------------------------------------------
 	bool equals( const Rectangle &other ) const 
