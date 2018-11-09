@@ -23,9 +23,6 @@ VPoint::VPoint( const Math::dvec3 &p )
 }
 
 // ------------------------------------------------------------------------------------------------
-VObject::ObjectType VPoint::type() const		{ return Point; }
-
-// ------------------------------------------------------------------------------------------------
 void VPoint::draw( const Renderer::SurfacePtr &surface, const Renderer::DrawingState &ds ) const
 {
 	// inefficient draw
@@ -52,19 +49,19 @@ void VPoint::draw( const Renderer::SurfacePtr &surface, const Renderer::DrawingS
 }
 
 // ------------------------------------------------------------------------------------------------
-void VPoint::drawForSelection( OpenGL::Renderer *r ) const
-{
-	OpenGL::Selection::Name name( _id );
-
-	glPointSize(style().penSize());
-
-	r->beginRendering();
-	r->setVertex3DArray( _coords );
-
-	glDrawArrays( GL_POINTS, 0, 1 );
-
-	r->endRendering();
-}
+//void VPoint::drawForSelection( OpenGL::Renderer *r ) const
+//{
+//	OpenGL::Selection::Name name( _id );
+//
+//	glPointSize(style().penSize());
+//
+//	r->beginRendering();
+//	r->setVertex3DArray( _coords );
+//
+//	glDrawArrays( GL_POINTS, 0, 1 );
+//
+//	r->endRendering();
+//}
 
 // ------------------------------------------------------------------------------------------------
 bool VPoint::intersects( const Math::box3 &b ) const
@@ -79,12 +76,12 @@ std::vector<Math::dvec3> VPoint::points() const
 }
 
 // ------------------------------------------------------------------------------------------------
-VObject* VPoint::clone() const
-{
-	VPoint* clone= new VPoint;
-	this->copyDataIn( clone );
-
-	clone->_coords=	_coords;
-
-	return clone;
-}
+//VObject* VPoint::clone() const
+//{
+//	VPoint* clone= new VPoint;
+//	this->copyDataIn( clone );
+//
+//	clone->_coords=	_coords;
+//
+//	return clone;
+//}

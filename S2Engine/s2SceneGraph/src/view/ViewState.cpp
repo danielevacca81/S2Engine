@@ -3,7 +3,7 @@
 #include "ViewState.h"
 
 using namespace s2;
-using namespace s2::Renderer;
+using namespace s2::SceneGraph;
 
 // -------------------------------------------------------------------------------------
 //double ViewState::pixelSize( const Math::dvec3 &p) const

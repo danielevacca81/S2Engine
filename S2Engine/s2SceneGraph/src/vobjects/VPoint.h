@@ -35,8 +35,8 @@ public:
 	bool intersects( const Math::box3 &b ) const override;
 
 	std::vector<Math::dvec3> points() const override;
-	VObjectPtr               clone() const override;
-	void                     set( const VObjectPtr &o ) override;
+	VObjectPtr               clone() const override { return { }; } 
+	void                     set( const VObjectPtr &o ) override {}
 
 private:
 	Math::dvec3 _coords;

@@ -66,7 +66,7 @@ public:
 	virtual Math::dmat4              matrix()  const;
 	virtual Math::box3               boundingBox()  const;
 	virtual bool                     intersects( const Math::box3 &b ) const;
-	virtual std::vector<Math::dvec3> points()       const;
+	virtual std::vector<Math::dvec3> points()       const { return {}; }
 	virtual void                     draw( const Renderer::SurfacePtr &surface, const Renderer::DrawingState &ds ) const;
 	
 	virtual void       set( const VObjectPtr &o ) = 0;	
