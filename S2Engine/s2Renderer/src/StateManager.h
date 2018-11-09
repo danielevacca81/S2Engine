@@ -8,7 +8,7 @@
 #include "DrawingState.h"
 #include "ClearState.h"
 #include "RenderState.h"
-#include "ViewState.h"
+//#include "ViewState.h"
 
 #include "graphics/Color.h"
 
