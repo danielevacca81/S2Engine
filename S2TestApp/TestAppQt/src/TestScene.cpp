@@ -7,7 +7,7 @@
 #include "qt/UserInteractionManager.h"
 #include "qt/MouseStatus.h"
 
-#include "opengl/Extensions.h"
+#include "renderer/Extensions.h"
 #include "graphics/ImageBuffer.h"
 #include "utils/String.h"
 #include "utils/TimedBlock.h"
@@ -16,6 +16,7 @@
 #include "math/Ray.h"
 #include "math/Plane.h"
 #include "math/Mesh.h"
+#include "math/Geometry.h"
 
 //#include "mMap/API.h"
 
@@ -62,11 +63,33 @@ void TestScene::resetView()
 void TestScene::initializeGL()
 {
 	// internally called by opengl when the context for this widget is ready and current
-	s2::OpenGL::initExtensions();
-	_surface = s2::OpenGL::Surface::makeNew();
+	Renderer::initExtensions();
+	_surface = Renderer::Surface::makeNew();
+
+
+	const Math::Mesh torusMesh = s2::torus( 1.0, 0.65, 64, 16 );
+		
+	// convert into glmesh
+	std::vector<Math::vec3> pts;
+	std::vector<Math::vec3> normals;
+	for( auto &v : torusMesh.vertices() )
+	{
+		pts.push_back( v.position );
+		normals.push_back( v.normal );
+	}
+
+	std::vector<Color> colors( torusMesh.vertices().size(), Color::cyan().transparent(.25) );
+
+	auto torus = s2::Renderer::PrimitiveBuffer::makeNew();
+	torus->setVertices( pts );
+	torus->setIndices( torusMesh.indices() );
+	torus->setNormals( normals );
+	torus->setColors( colors );
+
+	_meshes.push_back( torus );
 
 	GLResourcesLoader::_background->uniform < Math::vec4 >("top_color")->set( Color::gray().lighter(.25) );
-	GLResourcesLoader::_background->uniform < Math::vec4 >("bot_color")->set( Color::blue().darker(.25) );
+	GLResourcesLoader::_background->uniform < Math::vec4 >("bot_color")->set( Color::gray().darker(.25) );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -81,38 +104,42 @@ void TestScene::paintGL()
 	QPainter painter;
 	painter.beginNativePainting();
 
-	OpenGL::ClearState clear;
+	Renderer::ClearState clear;
 	clear.color = Color::gray();
 
 	_surface->clear( clear );
 
 	{
-		OpenGL::DrawingState ds( GLResourcesLoader::_background );
+		Renderer::DrawingState ds( GLResourcesLoader::_background );
 		ds.renderState.depthTest.enabled = false;
 
 		std::vector<s2::Math::vec3> vertices = { {-1,1,0},{-1,-1,0},{1,1,0},{1,-1,0} };
 		
-		OpenGL::MeshPtr m = OpenGL::Mesh::makeNew();
+		Renderer::PrimitiveBufferPtr m = Renderer::PrimitiveBuffer::makeNew();
 		m->setVertices( vertices );
 
-		_surface->draw( OpenGL::Primitive::TriangleStrip, m, ds );
+		_surface->draw( Renderer::Primitive::TriangleStrip, m, ds );
 	}
 
 
 	{
-		OpenGL::DrawingState ds( GLResourcesLoader::_phong );
-		ds.renderState.blending.enabled                = true;
-		ds.renderState.blending.sourceRGBFactor        = OpenGL::Blending::Factor::SourceAlpha;
-		ds.renderState.blending.sourceAlphaFactor      = OpenGL::Blending::Factor::SourceAlpha;
-		ds.renderState.blending.destinationRGBFactor   = OpenGL::Blending::Factor::OneMinusSourceAlpha;
-		ds.renderState.blending.destinationAlphaFactor = OpenGL::Blending::Factor::OneMinusSourceAlpha;
+		Renderer::DrawingState ds( GLResourcesLoader::_phong );
+		ds.renderState.blending.enabled                = false;
+		ds.renderState.blending.sourceRGBFactor        = Renderer::Blending::Factor::SourceAlpha;
+		ds.renderState.blending.sourceAlphaFactor      = Renderer::Blending::Factor::SourceAlpha;
+		ds.renderState.blending.destinationRGBFactor   = Renderer::Blending::Factor::OneMinusSourceAlpha;
+		ds.renderState.blending.destinationAlphaFactor = Renderer::Blending::Factor::OneMinusSourceAlpha;
 
-//		_surface->draw( OpenGL::Primitive::Triangles, GLResourcesLoader::_cube, ds );
+		ds.shaderProgram->uniform<Math::mat4>( "modelViewMatrix" )->set( _viewState.modelViewMatrix() );
+		ds.shaderProgram->uniform<Math::mat4>( "modelViewProjectionMatrix" )->set( _viewState.modelViewProjectionMatrix() );
+		ds.shaderProgram->uniform<Math::mat3>( "normalMatrix" )->set( _viewState.normalMatrix() );
+
+		_surface->draw( Renderer::Primitive::Triangles, _meshes[0], ds );
 	}
 
-	//_surface->swap( defaultFramebufferObject() );
-	auto frame = _surface->grabImage();
-	frame->dump("prova.tga");
+	_surface->swap( defaultFramebufferObject() );
+	//auto frame = _surface->grabImage();
+	//frame->dump("prova.tga");
 	painter.endNativePainting();
 
 	painter.begin( this );
@@ -132,11 +159,9 @@ void TestScene::paintGL()
 		}
 
 
-		QImage img( frame->pixels(), frame->width(), frame->height(), QImage::Format::Format_RGBA8888 );
+		//QImage img( frame->pixels(), frame->width(), frame->height(), QImage::Format::Format_RGBA8888 );
+		//painter.drawImage( 0, 0, img );
 		//img.save("prova.png");
-		
-
-		painter.drawImage( 0, 0, img );
 	}
 	painter.end();
 	++_frames;
@@ -173,7 +198,7 @@ void TestScene::onMousePressed()
 	const s2::Qt::MouseStatus ms = _uim.mouseStatus();
 
 	if( ms.buttonDown() & s2::Qt::MouseStatus::ButtonRight )
-		_trackball.update( s2::Renderer::TrackBall::Start_Drag, Math::ivec2( ms.currentPosition().x, ms.currentPosition().y ) );
+		_trackball.update( s2::SceneGraph::TrackBall::Start_Drag, Math::ivec2( ms.currentPosition().x, ms.currentPosition().y ) );
 #endif
 }
 
@@ -184,7 +209,7 @@ void TestScene::onMouseReleased()
 	const s2::Qt::MouseStatus ms = _uim.mouseStatus();
 
 	if( ms.buttonUp() & s2::Qt::MouseStatus::ButtonRight )
-		_trackball.update( s2::Renderer::TrackBall::End_Drag, Math::ivec2( ms.currentPosition().x, ms.currentPosition().y ) );
+		_trackball.update( s2::SceneGraph::TrackBall::End_Drag, Math::ivec2( ms.currentPosition().x, ms.currentPosition().y ) );
 #endif
 }
 
@@ -210,7 +235,7 @@ void TestScene::onMouseMoved()
 #endif
 
 	if( ms.buttonDown() & s2::Qt::MouseStatus::ButtonRight )
-		_trackball.update( s2::Renderer::TrackBall::Drag, Math::ivec2( ms.currentPosition().x, ms.currentPosition().y ) );
+		_trackball.update( s2::SceneGraph::TrackBall::Drag, Math::ivec2( ms.currentPosition().x, ms.currentPosition().y ) );
 
 	Math::dmat4 m = Math::scale( Math::dmat4( 1 ), Math::dvec3( 1.0 ) ) *
 		Math::translate( Math::dmat4( 1 ), _camera.target() )*

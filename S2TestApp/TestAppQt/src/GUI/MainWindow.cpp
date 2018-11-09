@@ -10,7 +10,7 @@
 #include "math/Mesh.h"
 #include "math/Geometry.h"
 
-#include "opengl/Program.h"
+#include "renderer/Program.h"
 #include "utils/String.h"
 
 
@@ -47,7 +47,7 @@ void MainWindow::createScenes()
 		_ui.frameGLAreaLeft->setLayout( layout );
 	}
 
-	if( false )
+	//if( false )
 	{
 		_sceneRight          = new TestScene( this );
 

@@ -1,9 +1,9 @@
 #pragma once
 
 
-#include "opengl/Context.h"
-#include "opengl/Program.h"
-#include "opengl/Mesh.h"
+#include "renderer/Context.h"
+#include "renderer/Program.h"
+#include "renderer/PrimitiveBuffer.h"
 
 #include <QOffscreenSurface>
 #include <QOpenGLWidget>
@@ -30,10 +30,10 @@ signals:
 	void resourcesInitialized();
 
 public:
-	static s2::OpenGL::ContextPtr _mainContext;
-	static s2::OpenGL::MeshPtr       _torus;
-	static s2::OpenGL::MeshPtr       _cube;
-	static s2::OpenGL::ProgramPtr    _phong;
-	static s2::OpenGL::ProgramPtr    _background;
+	static s2::Renderer::ContextPtr _mainContext;
+	static s2::Renderer::PrimitiveBufferPtr       _torus;
+	static s2::Renderer::PrimitiveBufferPtr       _cube;
+	static s2::Renderer::ProgramPtr    _phong;
+	static s2::Renderer::ProgramPtr    _background;
 	//static int _composite;
 };

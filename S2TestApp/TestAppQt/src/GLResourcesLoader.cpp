@@ -1,8 +1,8 @@
 #include "GLResourcesLoader.h"
 
-#include "opengl/BuiltIn.h"
-#include "opengl/Extensions.h"
-#include "opengl/Program.h"
+#include "renderer/BuiltIn.h"
+#include "renderer/Extensions.h"
+#include "renderer/Program.h"
 
 #include "math/Mesh.h"
 #include "math/Geometry.h"
@@ -71,11 +71,11 @@ const char* JSON_Layer_Map2D = R"json(
 
 
 
-s2::OpenGL::MeshPtr    GLResourcesLoader::_torus;
-s2::OpenGL::MeshPtr    GLResourcesLoader::_cube;
-s2::OpenGL::ProgramPtr GLResourcesLoader::_phong;
-s2::OpenGL::ProgramPtr GLResourcesLoader::_background;
-s2::OpenGL::ContextPtr GLResourcesLoader::_mainContext;
+s2::Renderer::PrimitiveBufferPtr    GLResourcesLoader::_torus;
+s2::Renderer::PrimitiveBufferPtr    GLResourcesLoader::_cube;
+s2::Renderer::ProgramPtr GLResourcesLoader::_phong;
+s2::Renderer::ProgramPtr GLResourcesLoader::_background;
+s2::Renderer::ContextPtr GLResourcesLoader::_mainContext;
 //int                  GLResourcesLoader::_composite = -666;
 
 using namespace s2;
@@ -115,13 +115,13 @@ void GLResourcesLoader::initializeGL()
 {
 	hide();
 	
-	_mainContext = OpenGL::Context::Current(); // initializes extensions also
+	_mainContext = Renderer::Context::Current(); // initializes extensions also
 
 	std::cout << "Context ID: " << _mainContext->id() << std::endl 
 		<< _mainContext->info() << std::endl;
 
-	s2::OpenGL::BuiltIn::enableDebugOutput();
-	s2::OpenGL::BuiltIn::init();
+	s2::Renderer::BuiltIn::enableDebugOutput();
+	s2::Renderer::BuiltIn::init();
 
 
 	initMyVR();
@@ -212,7 +212,7 @@ void GLResourcesLoader::initMeshes()
 		pts.push_back( Math::vec3( -1.0f, 1.0f, -1.0f ) ); colors.push_back( Color::green().lighter() ); normals.push_back( Math::vec3( 0.0f, 1.0f, 0.0f ) );
 		pts.push_back( Math::vec3( -1.0f, 1.0f, 1.0f ) ); colors.push_back( Color::green().lighter() ); normals.push_back( Math::vec3( 0.0f, 1.0f, 0.0f ) );
 
-		_cube = s2::OpenGL::Mesh::makeNew();
+		_cube = s2::Renderer::PrimitiveBuffer::makeNew();
 		_cube->setVertices( pts );
 		_cube->setColors( colors );
 		_cube->setNormals( normals );
@@ -241,7 +241,7 @@ void GLResourcesLoader::initMeshes()
 
 		std::vector<Color> colors( torusMesh.vertices().size(), Color::cyan().transparent(.25) );
 
-		_torus = s2::OpenGL::Mesh::makeNew();
+		_torus = s2::Renderer::PrimitiveBuffer::makeNew();
 		_torus->setVertices( pts );
 		_torus->setIndices( torusMesh.indices() );
 		_torus->setNormals( normals );
@@ -252,7 +252,7 @@ void GLResourcesLoader::initMeshes()
 // ------------------------------------------------------------------------------------------------
 void GLResourcesLoader::initShaders()
 {
-	_phong = OpenGL::Program::makeNew();
+	_phong = Renderer::Program::makeNew();
 	{
 		const bool vsOk = _phong->attachVertexShader( STRINGIFY(
 		#version 400\n
@@ -331,7 +331,7 @@ void GLResourcesLoader::initShaders()
 		_phong->uniform<Math::mat3>( "normalMatrix"              )->set( Math::mat3( 1 ) );
 	}
 
-	_background = OpenGL::Program::makeNew();
+	_background = Renderer::Program::makeNew();
 	{
 		const bool vsOk = _background->attachVertexShader( STRINGIFY(
 			#version 400\n

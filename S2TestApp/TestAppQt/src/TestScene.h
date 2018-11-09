@@ -4,14 +4,15 @@
 
 #include "qt/GLWidget.h"
 
-#include "opengl/Mesh.h"
-#include "opengl/Program.h"
-#include "opengl/FrameBuffer.h"
-#include "opengl/Surface.h"
+#include "renderer/PrimitiveBuffer.h"
+#include "renderer/Program.h"
+#include "renderer/FrameBuffer.h"
+#include "renderer/Surface.h"
 //#include "Renderer/TextRenderer.h"
 
 #include "view/Trackball.h"
 #include "view/Camera.h"
+#include "view/ViewState.h"
 
 #include <QOpenGLFunctions>
 
@@ -47,18 +48,17 @@ private:
 
 	bool              _wireframe;
 
-	s2::Renderer::TrackBall     _trackball;
-	s2::Renderer::Camera        _camera;
+	s2::SceneGraph::TrackBall     _trackball;
+	s2::SceneGraph::Camera        _camera;
 
 	s2::Math::dvec3 _center;
 	//Math::dvec3 _target;
 	//Math::dvec3 _up;
 
-	s2::OpenGL::ViewState  _viewState;
+	s2::SceneGraph::ViewState  _viewState;
 	//s2::OpenGL::FrameBufferPtr _fb;
-	s2::OpenGL::SurfacePtr _surface;
+	s2::Renderer::SurfacePtr _surface;
 	//s2::OpenGL::ProgramPtr _shader;
 
-
-	std::vector<s2::OpenGL::MeshPtr> _meshes;
+	std::vector<s2::Renderer::PrimitiveBufferPtr> _meshes;
 };
