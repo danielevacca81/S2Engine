@@ -12,7 +12,7 @@
 using namespace s2::Renderer;
 
 // -------------------------------------------------------------------------------------------------
-Texture2DPtr Texture2D::makeNew( const TextureDescription &desc, void *data )
+Texture2DPtr Texture2D::New( const TextureDescription &desc, void *data )
 {
 	return std::make_shared<Texture2D>( desc, data );
 }

@@ -10,7 +10,7 @@ using namespace s2::Renderer;
 
 
 // ------------------------------------------------------------------------------------------------
-PrimitiveBufferPtr PrimitiveBuffer::makeNew()
+PrimitiveBufferPtr PrimitiveBuffer::New()
 {
 	return std::make_shared<PrimitiveBuffer>();
 }
@@ -28,7 +28,7 @@ PrimitiveBuffer::PrimitiveBuffer()
 , frontFaceWindingOrder( WindingOrder::Counterclockwise )
 , usageHint( BufferObject::UsageHint::StaticDraw )
 {
-	_va = VertexArray::makeNew();
+	_va = VertexArray::New();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -38,6 +38,9 @@ PrimitiveBuffer::~PrimitiveBuffer()
 // ------------------------------------------------------------------------------------------------
 void PrimitiveBuffer::setVertices( const std::vector<Math::vec3> &points )
 {
+	if( points.empty() )
+		return;
+
 	VertexBuffer buf( points.size() * sizeof( Math::vec3 ),usageHint );
 	buf.sendData( (void*)(&points[0]), points.size() * sizeof(Math::vec3), 0 );
 
@@ -47,6 +50,9 @@ void PrimitiveBuffer::setVertices( const std::vector<Math::vec3> &points )
 // ------------------------------------------------------------------------------------------------
 void PrimitiveBuffer::setColors( const std::vector<Color>   &colors )
 {
+	if( colors.empty() )
+		return;
+
 	VertexBuffer buf( colors.size() * sizeof( Color ),usageHint );
 	buf.sendData( (void*)(&colors[0]), colors.size() * sizeof(Color), 0 );
 
@@ -56,6 +62,9 @@ void PrimitiveBuffer::setColors( const std::vector<Color>   &colors )
 // ------------------------------------------------------------------------------------------------
 void PrimitiveBuffer::setNormals( const std::vector<Math::vec3>  &normals )
 {
+	if( normals.empty() )
+		return;
+
 	VertexBuffer buf( normals.size() * sizeof( Math::vec3 ), usageHint );
 	buf.sendData( (void*)(&normals[0]), normals.size() * sizeof(Math::vec3), 0 );
 
@@ -65,6 +74,9 @@ void PrimitiveBuffer::setNormals( const std::vector<Math::vec3>  &normals )
 // ------------------------------------------------------------------------------------------------
 void PrimitiveBuffer::setTextureCoords( const std::vector<Math::vec2>  &texCoords )
 {
+	if( texCoords.empty() )
+		return;
+
 	VertexBuffer buf( texCoords.size() * sizeof( Math::vec2 ),usageHint );
 	buf.sendData( (void*)(&texCoords[0]), texCoords.size() * sizeof(Math::vec2), 0 );
 
@@ -85,6 +97,9 @@ void PrimitiveBuffer::setTextureCoords( const std::vector<Math::vec2>  &texCoord
 // ------------------------------------------------------------------------------------------------
 void PrimitiveBuffer::setIndices( const std::vector<unsigned int> &indices )
 {
+	if( indices.empty() )
+		return;
+
 	_va->indexBuffer().set( indices.size() * sizeof( unsigned int ), IndexBuffer::UnsignedInt, usageHint );
 	_va->indexBuffer().sendData( (void*)(&indices[0]), indices.size() * sizeof( unsigned int ), 0 );
 }

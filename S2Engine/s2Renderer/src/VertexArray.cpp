@@ -13,7 +13,7 @@ using namespace s2::Renderer;
 static int maxVertexAttrib = 16;
 
 // -------------------------------------------------------------------------------------------------
-VertexArrayPtr VertexArray::makeNew()
+VertexArrayPtr VertexArray::New()
 {
 	return std::make_shared<VertexArray>();
 }

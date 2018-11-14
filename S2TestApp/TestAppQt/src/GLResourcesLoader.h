@@ -35,5 +35,6 @@ public:
 	static s2::Renderer::PrimitiveBufferPtr       _cube;
 	static s2::Renderer::ProgramPtr    _phong;
 	static s2::Renderer::ProgramPtr    _background;
+	static s2::Renderer::ProgramPtr    _simpleShader;
 	//static int _composite;
 };

@@ -70,7 +70,7 @@ bool BuiltIn::init()
 bool BuiltIn::initShaders()
 {
 	// @todo: read shaders from resources
-	shaderFullscreenQuad = Program::makeNew();
+	shaderFullscreenQuad = Program::New();
 
 	bool ok = true;
 	ok &= shaderFullscreenQuad->attachVertexShader( STRINGIFY(
@@ -108,9 +108,9 @@ bool BuiltIn::initShaders()
 // ------------------------------------------------------------------------------------------------
 bool BuiltIn::initSamplers()
 {
-	samplerNearestClamp  = Sampler::makeNew( Sampler::MinificationFilter::Nearest, Sampler::MagnificationFilter::Nearest, Sampler::Wrap::Clamp, Sampler::Wrap::Clamp,  1 );
-	samplerLinearClamp   = Sampler::makeNew( Sampler::MinificationFilter::Linear,  Sampler::MagnificationFilter::Linear,  Sampler::Wrap::Clamp, Sampler::Wrap::Clamp,  1 );
-	samplerNearestRepeat = Sampler::makeNew( Sampler::MinificationFilter::Nearest, Sampler::MagnificationFilter::Nearest, Sampler::Wrap::Repeat,Sampler::Wrap::Repeat, 1 );
-	samplerLinearRepeat  = Sampler::makeNew( Sampler::MinificationFilter::Linear,  Sampler::MagnificationFilter::Linear,  Sampler::Wrap::Repeat,Sampler::Wrap::Repeat, 1 );
+	samplerNearestClamp  = Sampler::New( Sampler::MinificationFilter::Nearest, Sampler::MagnificationFilter::Nearest, Sampler::Wrap::Clamp, Sampler::Wrap::Clamp,  1 );
+	samplerLinearClamp   = Sampler::New( Sampler::MinificationFilter::Linear,  Sampler::MagnificationFilter::Linear,  Sampler::Wrap::Clamp, Sampler::Wrap::Clamp,  1 );
+	samplerNearestRepeat = Sampler::New( Sampler::MinificationFilter::Nearest, Sampler::MagnificationFilter::Nearest, Sampler::Wrap::Repeat,Sampler::Wrap::Repeat, 1 );
+	samplerLinearRepeat  = Sampler::New( Sampler::MinificationFilter::Linear,  Sampler::MagnificationFilter::Linear,  Sampler::Wrap::Repeat,Sampler::Wrap::Repeat, 1 );
 	return true;
 }

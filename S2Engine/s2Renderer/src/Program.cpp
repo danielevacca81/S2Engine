@@ -23,7 +23,7 @@
 using namespace s2::Renderer;
 
 // ------------------------------------------------------------------------------------------------
-ProgramPtr Program::makeNew()
+ProgramPtr Program::New()
 {
 	return std::make_shared<Program>();
 }

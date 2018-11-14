@@ -31,12 +31,15 @@ public:
 
 	ObjectType               type() const { return Point; }
 
-	void        draw( const Renderer::SurfacePtr &surface, const Renderer::DrawingState &ds ) const override;
+	void draw( const Renderer::SurfacePtr &surface, const Renderer::DrawingState &ds ) const override;
 	bool intersects( const Math::box3 &b ) const override;
 
 	std::vector<Math::dvec3> points() const override;
 	VObjectPtr               clone() const override { return { }; } 
 	void                     set( const VObjectPtr &o ) override {}
+
+protected:
+	VObjectBuffer toBuffer() const override;
 
 private:
 	Math::dvec3 _coords;

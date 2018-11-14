@@ -18,6 +18,9 @@
 #include "math/Mesh.h"
 #include "math/Geometry.h"
 
+#include "vobjects/VPoint.h"
+#include "vobjects/VPolyLine.h"
+
 //#include "mMap/API.h"
 
 #include <QPainter>
@@ -64,29 +67,45 @@ void TestScene::initializeGL()
 {
 	// internally called by opengl when the context for this widget is ready and current
 	Renderer::initExtensions();
-	_surface = Renderer::Surface::makeNew();
+	_surface = Renderer::Surface::New();
 
-
-	const Math::Mesh torusMesh = s2::torus( 1.0, 0.65, 64, 16 );
-		
-	// convert into glmesh
-	std::vector<Math::vec3> pts;
-	std::vector<Math::vec3> normals;
-	for( auto &v : torusMesh.vertices() )
+	const Math::Mesh torusMesh = s2::torus( 1.5, 0.65, 64, 16 );
 	{
-		pts.push_back( v.position );
-		normals.push_back( v.normal );
+		// convert into glmesh
+		std::vector<Math::vec3> pts;
+		std::vector<Math::vec3> normals;
+		for( auto &v : torusMesh.vertices() )
+		{
+			pts.push_back( v.position );
+			normals.push_back( v.normal );
+		}
+
+		std::vector<Color> colors( torusMesh.vertices().size(), Color::cyan().transparent( .25 ) );
+
+		auto torus = s2::Renderer::PrimitiveBuffer::New();
+		torus->setVertices( pts );
+		torus->setIndices( torusMesh.indices() );
+		torus->setNormals( normals );
+		torus->setColors( colors );
+
+		_meshes.push_back( torus );
 	}
 
-	std::vector<Color> colors( torusMesh.vertices().size(), Color::cyan().transparent(.25) );
+	// SCENEGRAPH 
+	{
+		SceneGraph::VPointPtr p = SceneGraph::VPoint::New( { 0.0,0.0,0.0 } );
+	
+		SceneGraph::VPolyLinePtr l0 = SceneGraph::VPolyLine::New( { { 0.0,0.0,0.0 }, { 0.0,0.5,0.0 }, { 1.0,1.0,0.0 }, } );
+		SceneGraph::VPolyLinePtr l1 = SceneGraph::VPolyLine::New( { { 0.0,0.0,0.0 }, { 0.0,0.5,0.0 }, { 1.0,1.0,0.0 }, } );
+		SceneGraph::VPolyLinePtr l2 = SceneGraph::VPolyLine::New( { { 0.0,0.0,0.0 }, { -.5,-.5,0.0 }, { 0.0,-1.0,0.0 }, } );
+		SceneGraph::VPolyLinePtr l3 = SceneGraph::VPolyLine::New( { { 0.0,-1.0,0.0 }, { 1.0,0.0,0.0 } } );
 
-	auto torus = s2::Renderer::PrimitiveBuffer::makeNew();
-	torus->setVertices( pts );
-	torus->setIndices( torusMesh.indices() );
-	torus->setNormals( normals );
-	torus->setColors( colors );
-
-	_meshes.push_back( torus );
+		_sceneGraph.addObject( p );
+		_sceneGraph.addObject( l0 );
+		_sceneGraph.addObject( l1 );
+		_sceneGraph.addObject( l2 );
+		_sceneGraph.addObject( l3 );
+	}
 
 	GLResourcesLoader::_background->uniform < Math::vec4 >("top_color")->set( Color::gray().lighter(.25) );
 	GLResourcesLoader::_background->uniform < Math::vec4 >("bot_color")->set( Color::gray().darker(.25) );
@@ -115,26 +134,47 @@ void TestScene::paintGL()
 
 		std::vector<s2::Math::vec3> vertices = { {-1,1,0},{-1,-1,0},{1,1,0},{1,-1,0} };
 		
-		Renderer::PrimitiveBufferPtr m = Renderer::PrimitiveBuffer::makeNew();
+		Renderer::PrimitiveBufferPtr m = Renderer::PrimitiveBuffer::New();
 		m->setVertices( vertices );
 
 		_surface->draw( Renderer::Primitive::TriangleStrip, m, ds );
 	}
 
 
+	if( false )
 	{
 		Renderer::DrawingState ds( GLResourcesLoader::_phong );
-		ds.renderState.blending.enabled                = false;
+		ds.renderState.blending.enabled                = true;
 		ds.renderState.blending.sourceRGBFactor        = Renderer::Blending::Factor::SourceAlpha;
 		ds.renderState.blending.sourceAlphaFactor      = Renderer::Blending::Factor::SourceAlpha;
 		ds.renderState.blending.destinationRGBFactor   = Renderer::Blending::Factor::OneMinusSourceAlpha;
 		ds.renderState.blending.destinationAlphaFactor = Renderer::Blending::Factor::OneMinusSourceAlpha;
+
+		//ds.renderState.programPointSize.enabled
 
 		ds.shaderProgram->uniform<Math::mat4>( "modelViewMatrix" )->set( _viewState.modelViewMatrix() );
 		ds.shaderProgram->uniform<Math::mat4>( "modelViewProjectionMatrix" )->set( _viewState.modelViewProjectionMatrix() );
 		ds.shaderProgram->uniform<Math::mat3>( "normalMatrix" )->set( _viewState.normalMatrix() );
 
 		_surface->draw( Renderer::Primitive::Triangles, _meshes[0], ds );
+	}
+
+	{
+		Renderer::DrawingState ds( GLResourcesLoader::_simpleShader );
+		ds.shaderProgram->uniform<Math::mat4>( "modelViewProjectionMatrix" )->set( _viewState.modelViewProjectionMatrix() );
+
+		// VOBJECTS QUICK DRAWING
+
+		//SceneGraph::VPoint p( { 0.0,0.0,0.0 } );
+		//p.draw( _surface, ds );
+
+		//SceneGraph::VLine l( { { 0.0,0.0,0.0 },
+		//					   { 0.0,0.5,0.0 },
+		//					   { 1.0,1.0,0.0 },
+		//					 } );
+		//l.draw( _surface, ds );
+		
+		_sceneGraph.draw( _surface, ds );
 	}
 
 	_surface->swap( defaultFramebufferObject() );
@@ -181,7 +221,7 @@ void TestScene::updateAnimations()
 		;
 
 	angle = angle+1.0;
-	_viewState.setModelMatrix( m );
+	//_viewState.setModelMatrix( m );
 }
 
 
@@ -258,10 +298,10 @@ void TestScene::onMouseWheel()
 
 	//myVR::inputEvent( GLResourcesLoader::_composite, myVR::ZOOM_EVENT, p.x, p.y, p.x, p.y, z );
 
-	//_viewState.setModelMatrix( Math::scale( _viewState.modelMatrix(), Math::dvec3( z ) ) );
+	_viewState.setModelMatrix( Math::scale( _viewState.modelMatrix(), Math::dvec3( z ) ) );
 
-	_camera.set( _camera.position()+Math::dvec3(0,0,z), _camera.target(), _camera.upVector() );
-	_viewState.setViewMatrix( _camera.matrix() * _trackball.matrix() );
+	//_camera.set( _camera.position()+Math::dvec3(0,0,z), _camera.target(), _camera.upVector() );
+	//_viewState.setViewMatrix( _camera.matrix() * _trackball.matrix() );
 
 	//_viewState.camera.zoomToTarget(1.5);
 	//const Math::dvec3 pos( currentWorldPoint.x, currentWorldPoint.y, 0.0 );

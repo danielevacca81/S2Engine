@@ -36,7 +36,7 @@ WritePixelBuffer::WritePixelBuffer( int sizeInBytes, const UsageHint &usageHint 
 	case UsageHint::Dynamic: usage = BufferObject::UsageHint::DynamicDraw; break;
 	}
 
-	_bufferObject = BufferObject::makeNew( sizeInBytes, BufferObject::Type::PixelUnpackBuffer, usage );
+	_bufferObject = BufferObject::New( sizeInBytes, BufferObject::Type::PixelUnpackBuffer, usage );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -81,7 +81,7 @@ ReadPixelBuffer::ReadPixelBuffer( int sizeInBytes, const UsageHint &usageHint )
 	case UsageHint::Dynamic: usage = BufferObject::UsageHint::DynamicRead; break;
 	}
 
-	_bufferObject = BufferObject::makeNew( sizeInBytes, BufferObject::Type::PixelPackBuffer, usage );
+	_bufferObject = BufferObject::New( sizeInBytes, BufferObject::Type::PixelPackBuffer, usage );
 }
 
 // ------------------------------------------------------------------------------------------------

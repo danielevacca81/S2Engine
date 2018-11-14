@@ -23,15 +23,15 @@ namespace SceneGraph {
 
 class VObjectManager;
 
+// ********************************************************
 class VObject;
 typedef std::shared_ptr<VObject> VObjectPtr;
-
-
+// ********************************************************
 
 class S2SCENEGRAPH_API VObject : public Observable, public std::enable_shared_from_this<VObject>
 {
 public:
-	enum ObjectType { Point, Line, PolyLine, Shape, Mesh, Group, Unknown };
+	enum ObjectType { Point, Polyline, Polygon, Mesh, Group, Unknown };
 	
 	typedef std::variant<std::vector<int>, float, double, int, std::string> ObjectData;
 
@@ -59,7 +59,7 @@ public:
 	ObjectData                    userData()     const;
 	Color                         color()        const;
 	VObjectStyle                  &style()       const;
-	std::weak_ptr<VObjectManager> manager()      const;
+	//std::weak_ptr<VObjectManager> manager()      const;
 	bool                          hasStyle()     const;	
 
 	virtual ObjectType               type()    const;
@@ -73,16 +73,29 @@ public:
 	virtual VObjectPtr clone()   const = 0;
 
 protected:
+	struct VObjectBuffer
+	{
+		const int32_t PrimitiveRestartIndex = 0xffff;
+		
+		std::vector<Math::dvec3> vertices;
+		std::vector<Math::vec3>  normals;
+		std::vector<Color>       colors;
+		std::vector<Math::dvec2> textureCoords;
+		std::vector<int32_t>     indices;
+
+		void operator+=( const VObjectBuffer &other );
+	};
+
+	virtual VObjectBuffer toBuffer() const = 0;
+
 	//virtual void drawForSelection( OpenGL::Renderer *r )const;
 	//static OpenGL::Color  _selectionColor;
 	//static OpenGL::Color  _hilightColor;
 
-	//void setManager(  VObjectManager *mgr );
-
 protected:
 	uint64_t                      _id;
 	std::weak_ptr<VObject>        _parent;
-	std::weak_ptr<VObjectManager> _manager; //needed?
+	//std::weak_ptr<VObjectManager> _manager; //needed?
 
 	// attributes
 	ObjectData            _userData;

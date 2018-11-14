@@ -23,7 +23,7 @@ class S2RENDERER_API Surface
 {
 public:
 	// CANNOT BE SHARED BETWEEN CONTEXTS
-	static SurfacePtr makeNew();
+	static SurfacePtr New();
 
 public:
 	Surface();

@@ -15,8 +15,8 @@ namespace Renderer {
 struct PrimitiveRestart
 {
 	PrimitiveRestart()
-	: enabled(false)
-	, index(0) 
+	: enabled( false )
+	, index( 0xffff )
 	{}
 
 	bool enabled;
@@ -35,16 +35,16 @@ struct FaceCulling
 		FrontAndBack,
 	};
 
-	enum class WindingOrder 
+	enum class WindingOrder
 	{
-		ClockWise, 
-		CounterClockWise, 
+		ClockWise,
+		CounterClockWise,
 	};
 
-	FaceCulling() 
-	: enabled(true)
-	, cullFace(Face::Back)
-	, frontFaceWindingOrder(WindingOrder::CounterClockWise) 
+	FaceCulling()
+	: enabled( true )
+	, cullFace( Face::Back )
+	, frontFaceWindingOrder( WindingOrder::CounterClockWise )
 	{}
 
 
@@ -61,7 +61,7 @@ struct ProgramPointSize
 	bool enabled;
 
 	ProgramPointSize()
-	: enabled(false) 
+	: enabled( false )
 	{}
 };
 
@@ -71,8 +71,8 @@ struct ProgramPointSize
 struct ScissorTest
 {
 	ScissorTest()
-	: rect( 0,0,0,0 )
-	, enabled(false) 
+	: rect( 0, 0, 0, 0 )
+	, enabled( false )
 	{}
 
 	bool            enabled;
@@ -91,7 +91,7 @@ struct StencilTestFace
 		Keep,
 		Replace,
 		Increment,
-		Decrement,     
+		Decrement,
 		IncrementWrap,
 		DecrementWrap,
 	};
@@ -109,19 +109,19 @@ struct StencilTestFace
 	};
 
 	StencilTestFace()
-	: stencilFailOperation(StencilOperation::Keep)
-	, depthFailStencilPassOperation(StencilOperation::Keep)
-	, depthPassStencilPassOperation(StencilOperation::Keep)
-	, function(StencilTestFunction::Always)
-	, referenceValue(0)
-	, mask(~0)
+	: stencilFailOperation( StencilOperation::Keep )
+	, depthFailStencilPassOperation( StencilOperation::Keep )
+	, depthPassStencilPassOperation( StencilOperation::Keep )
+	, function( StencilTestFunction::Always )
+	, referenceValue( 0 )
+	, mask( ~0 )
 	{}
 
 	StencilOperation    stencilFailOperation;
 	StencilOperation    depthFailStencilPassOperation;
 	StencilOperation    depthPassStencilPassOperation;
 	StencilTestFunction function;
-	int                 referenceValue;		
+	int                 referenceValue;
 	int                 mask;
 };
 
@@ -129,7 +129,7 @@ struct StencilTestFace
 struct StencilTest
 {
 	StencilTest()
-	: enabled(false)
+	: enabled( false )
 	{}
 
 	bool            enabled;
@@ -144,19 +144,19 @@ struct DepthTest
 {
 	enum class DepthTestFunction
 	{
-		Never, 
-		Less, 
-		Equal, 
-		LessThanOrEqual, 
-		Greater, 
-		NotEqual, 
-		GreaterThanOrEqual, 
+		Never,
+		Less,
+		Equal,
+		LessThanOrEqual,
+		Greater,
+		NotEqual,
+		GreaterThanOrEqual,
 		Always,
 	};
 
-	DepthTest() 
-	: enabled(true)
-	, function(DepthTestFunction::Less) 
+	DepthTest()
+	: enabled( true )
+	, function( DepthTestFunction::Less )
 	{}
 
 	bool              enabled;
@@ -169,8 +169,8 @@ struct DepthTest
 struct DepthRange
 {
 	DepthRange()
-	: nearValue(0.0)
-	, farValue(1.0) 
+	: nearValue( 0.0 )
+	, farValue( 1.0 )
 	{}
 
 	double nearValue;
@@ -183,7 +183,7 @@ struct DepthRange
 struct Blending
 {
 	enum class Factor
-	{ 
+	{
 		Zero,
 		One,
 		SourceAlpha,
@@ -211,15 +211,15 @@ struct Blending
 	};
 
 
-	Blending() 
-	: enabled(false)
-	, sourceRGBFactor(Factor::One)
-	, sourceAlphaFactor(Factor::One)
-	, destinationRGBFactor(Factor::Zero)
-	, destinationAlphaFactor(Factor::Zero)
-	, rgbEquation(Equation::Add)
-	, alphaEquation(Equation::Add)
-	, color(0.f,0,0,0)
+	Blending()
+	: enabled( false )
+	, sourceRGBFactor( Factor::One )
+	, sourceAlphaFactor( Factor::One )
+	, destinationRGBFactor( Factor::Zero )
+	, destinationAlphaFactor( Factor::Zero )
+	, rgbEquation( Equation::Add )
+	, alphaEquation( Equation::Add )
+	, color( 0.f, 0, 0, 0 )
 	{}
 
 	bool     enabled;
@@ -239,10 +239,10 @@ struct Blending
 struct ColorMask
 {
 	ColorMask( bool redBit, bool greenBit, bool blueBit, bool alphaBit )
-	: r(redBit)
-	, g(greenBit)
-	, b(blueBit)
-	, a(alphaBit)
+	: r( redBit )
+	, g( greenBit )
+	, b( blueBit )
+	, a( alphaBit )
 	{}
 
 	bool r;
@@ -252,7 +252,7 @@ struct ColorMask
 
 	bool equals( const ColorMask &other )
 	{
-		return 
+		return
 			r == other.r &&
 			g == other.g &&
 			b == other.b &&
@@ -264,9 +264,9 @@ struct ColorMask
 /*                            CLEARBUFFERS                              */
 /************************************************************************/
 enum class ClearBuffers
-{ 
+{
 	ColorBuffer,
-	DepthBuffer, 
+	DepthBuffer,
 	StencilBuffer,
 	ColorAndDepthBuffer,
 	All,
@@ -278,24 +278,24 @@ enum class ClearBuffers
 struct RenderState
 {
 	enum class RasterizationMode
-	{ 
+	{
 		Point,
-		Line, 
+		Line,
 		Fill,
 	};
 
-	RenderState() 
+	RenderState()
 	: primitiveRestart()
 	, faceCulling()
 	, programPointSize()
-	, rasterizationMode(RasterizationMode::Fill)
+	, rasterizationMode( RasterizationMode::Fill )
 	, scissorTest()
 	, stencilTest()
 	, depthTest()
 	, depthRange()
 	, blending()
-	, colorMask(true,true,true,true)
-	, depthMask(true)
+	, colorMask( true, true, true, true )
+	, depthMask( true )
 	{}
 
 	PrimitiveRestart  primitiveRestart;

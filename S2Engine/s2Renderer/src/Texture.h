@@ -27,7 +27,7 @@ typedef std::shared_ptr<Texture2D> Texture2DPtr;
 class S2RENDERER_API Texture2D : public OpenGLObject
 {
 public:	
-	static Texture2DPtr makeNew( const TextureDescription &desc, void *data = nullptr );
+	static Texture2DPtr New( const TextureDescription &desc, void *data = nullptr );
 
 public:
 	//OBJECT_DECLARE_MOVEABLE( Texture2D )

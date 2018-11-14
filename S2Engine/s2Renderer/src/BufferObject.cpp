@@ -8,7 +8,7 @@
 using namespace s2::Renderer;
 
 // -------------------------------------------------------------------------------------------------
-BufferObjectPtr BufferObject::makeNew( int size, const Type &type, const UsageHint &usageHint )
+BufferObjectPtr BufferObject::New( int size, const Type &type, const UsageHint &usageHint )
 {
 	return std::make_shared<BufferObject>( size, type, usageHint );
 }

@@ -39,7 +39,7 @@ VertexBuffer::~VertexBuffer()
 // -------------------------------------------------------------------------------------------------
 void VertexBuffer::set( int sizeInBytes, const BufferObject::UsageHint &usageHint )
 {
-	_bufferObject = BufferObject::makeNew( sizeInBytes, BufferObject::Type::ArrayBuffer, usageHint );
+	_bufferObject = BufferObject::New( sizeInBytes, BufferObject::Type::ArrayBuffer, usageHint );
 }
 
 // -------------------------------------------------------------------------------------------------

@@ -24,7 +24,7 @@ typedef std::shared_ptr<Program>   ProgramPtr;
 class S2RENDERER_API Program : public OpenGLObject
 {
 public:
-	static ProgramPtr makeNew();
+	static ProgramPtr New();
 
 	//OBJECT_DECLARE_MOVEABLE( Program )
 	//OBJECT_DISABLE_COPY( Program )

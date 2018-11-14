@@ -45,7 +45,7 @@ public:
 	};
 
 public:
-	static SamplerPtr makeNew(const MinificationFilter &minFilter, const MagnificationFilter &magFilter, const Wrap &wrapS, const Wrap &wrapT, float maxAnisotropy);
+	static SamplerPtr New(const MinificationFilter &minFilter, const MagnificationFilter &magFilter, const Wrap &wrapS, const Wrap &wrapT, float maxAnisotropy);
 
 public:
 	//OBJECT_DECLARE_MOVEABLE( Sampler )

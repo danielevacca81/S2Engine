@@ -13,8 +13,9 @@
 #include "view/Trackball.h"
 #include "view/Camera.h"
 #include "view/ViewState.h"
+#include "vobjects/VObjectManager.h"
 
-#include <QOpenGLFunctions>
+//#include <QOpenGLFunctions>
 
 class TestScene: public s2::Qt::GLWidget
 {
@@ -50,6 +51,7 @@ private:
 
 	s2::SceneGraph::TrackBall     _trackball;
 	s2::SceneGraph::Camera        _camera;
+	s2::SceneGraph::VObjectManager _sceneGraph;
 
 	s2::Math::dvec3 _center;
 	//Math::dvec3 _target;

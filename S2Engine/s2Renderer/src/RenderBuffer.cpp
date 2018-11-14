@@ -8,7 +8,7 @@
 using namespace s2::Renderer;
 
 // ------------------------------------------------------------------------------------------------
-RenderBufferPtr RenderBuffer::makeNew( const Format &format, int width, int height, int samples )
+RenderBufferPtr RenderBuffer::New( const Format &format, int width, int height, int samples )
 {
 	return std::make_shared<RenderBuffer>( format, width, height, samples );
 }

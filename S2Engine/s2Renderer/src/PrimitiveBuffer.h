@@ -38,7 +38,7 @@ public:
 
 public:
 	// CANNOT BE SHARED BETWEEN CONTEXTS
-	static PrimitiveBufferPtr makeNew();
+	static PrimitiveBufferPtr New();
 
 public:
 	PrimitiveBuffer();

@@ -66,7 +66,7 @@ Math::box3                    VObject::boundingBox()  const { return _boundingBo
 VObject::ObjectType           VObject::type()         const { return Unknown; }
 VObjectStyle                 &VObject::style()        const { return _styled ? _style : _defaultStyle; }
 bool                          VObject::hasStyle()     const { return _styled; }
-std::weak_ptr<VObjectManager> VObject::manager()      const { return _manager; }
+//std::weak_ptr<VObjectManager> VObject::manager()      const { return _manager; }
 VObject::ObjectData           VObject::userData()     const { return _userData; }
 Math::dmat4                   VObject::matrix()       const { return _matrix; }
 
@@ -94,4 +94,25 @@ Color VObject::color() const
 bool VObject::intersects( const Math::box3 &b )  const
 {
 	return false;
-} 
+}
+
+// ------------------------------------------------------------------------------------------------
+void VObject::VObjectBuffer::operator+=( const VObjectBuffer &other )
+{
+	if( !other.indices.empty() )
+	{
+		indices.push_back( PrimitiveRestartIndex );
+		for( auto &i : other.indices )
+		{
+			if( i == PrimitiveRestartIndex )
+				continue;
+			
+			indices.push_back( i + vertices.size() );
+		}
+	}
+		
+	vertices.insert     ( vertices.end(),      other.vertices.begin(),      other.vertices.end() );
+	colors.insert       ( colors.end(),        other.colors.begin(),        other.colors.end() );
+	normals.insert      ( normals.end(),       other.normals.begin(),       other.normals.end() );
+	textureCoords.insert( textureCoords.end(), other.textureCoords.begin(), other.textureCoords.end() );
+}

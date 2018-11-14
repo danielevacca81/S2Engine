@@ -17,7 +17,7 @@ using namespace s2::Renderer;
 // @todo: link to context?
 
 // ------------------------------------------------------------------------------------------------
-SurfacePtr Surface::makeNew()
+SurfacePtr Surface::New()
 {
 	return std::make_shared<Surface>();
 }
@@ -37,7 +37,7 @@ Surface::~Surface()
 // ------------------------------------------------------------------------------------------------
 void Surface::create()
 {
-	_fbo = FrameBuffer::makeNew();
+	_fbo = FrameBuffer::New();
 	resize( 64, 64 );
 }
 
@@ -73,8 +73,8 @@ void Surface::resize( int width, int height )
 	_width  = width;
 	_height = height;
 
-	_fbo->attach( FrameBuffer::ColorAttachment0, Texture2D::makeNew( TextureDescription( width, height, TextureFormat::RedGreenBlueAlpha8 ) ) );
-	_fbo->attach( FrameBuffer::DepthAttachment,  Texture2D::makeNew( TextureDescription( width, height, TextureFormat::Depth24 ) ) );
+	_fbo->attach( FrameBuffer::ColorAttachment0, Texture2D::New( TextureDescription( width, height, TextureFormat::RedGreenBlueAlpha8 ) ) );
+	_fbo->attach( FrameBuffer::DepthAttachment,  Texture2D::New( TextureDescription( width, height, TextureFormat::Depth24 ) ) );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -88,7 +88,7 @@ void Surface::swap( unsigned int targetFBO, const FrameBuffer::AttachmentPoint &
 
 	_state.setDrawState( ds );
 
-	PrimitiveBufferPtr      quad = PrimitiveBuffer::makeNew();
+	PrimitiveBufferPtr      quad = PrimitiveBuffer::New();
 	std::vector<Math::vec3> vertices  = { {-1,1,0},{-1,-1,0},{1,1,0},{1,-1,0} };
 	std::vector<Math::vec2> texCoords = { {0,1},{0,0},{1,1},{1,0} };
 

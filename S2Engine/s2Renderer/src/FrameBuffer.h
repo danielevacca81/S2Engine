@@ -43,7 +43,7 @@ public:
 
 public:
 	// CANNOT BE SHARED BETWEEN CONTEXTS
-	static FrameBufferPtr makeNew();
+	static FrameBufferPtr New();
 
 public:
 	//OBJECT_DISABLE_COPY( FrameBuffer )

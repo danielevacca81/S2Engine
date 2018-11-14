@@ -19,7 +19,7 @@ static void makeGLAttachment( const FrameBuffer::AttachmentPoint &attachPoint, c
 // ------------------------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------------------------
-FrameBufferPtr FrameBuffer::makeNew()
+FrameBufferPtr FrameBuffer::New()
 {
 	return std::make_shared<FrameBuffer>();
 }

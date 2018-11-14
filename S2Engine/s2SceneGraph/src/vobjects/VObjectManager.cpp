@@ -16,6 +16,7 @@ VObjectManager::VObjectManager()
 : _visible( true )
 , _selectionEnabled( true)
 , _hilightEnabled( true )
+, _needUpdate( false )
 {}
 
 // ------------------------------------------------------------------------------------------------
@@ -56,8 +57,10 @@ bool VObjectManager::addObject( const VObjectPtr &obj )
 
 	createIndex( obj );
 
-	obj->_manager = shared_from_this(); // weak reference
+	//obj->_manager = shared_from_this(); // weak reference
 	obj->registerObserver( this );
+
+	_needUpdate = true;
 
 	return true;
 }
@@ -92,6 +95,8 @@ void VObjectManager::removeAllObjects()
 	_selectionSet.clear( SelectionSet::IgnorePolicy );
 	_objects.clear();
 	_objectIndex.clear();
+
+	_needUpdate = true;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -426,7 +431,7 @@ std::vector<VObjectPtr> VObjectManager::selectedObjects() const
 VObjectManager::VObjectList VObjectManager::cullObjects() const
 {
 	// use transform feedback to cull object on GPU
-	return { };
+	return _objects;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -440,7 +445,7 @@ VObjectManager::VObjectList VObjectManager::sortObjects( const VObjectList &objL
 		}
 	} compareBBox;
 
-	VObjectList sortedList(objList);
+	VObjectList sortedList( objList );
 	sortedList.sort( compareBBox );
 
 	return sortedList;
@@ -449,8 +454,64 @@ VObjectManager::VObjectList VObjectManager::sortObjects( const VObjectList &objL
 // ------------------------------------------------------------------------------------------------
 void VObjectManager::updateBuffers()
 {
-	// compute VBOs for drawing
-	// 1 vbo per object type?
+	if( !_needUpdate )
+		return;
+
+	// compute VBOs for drawing ( // @todo: only for changed objects! )
+	_meshesBuffers.clear();
+	
+	// no more need to cull objects on CPU if use transform feedback
+	VObjectList visibleObjs = cullObjects();
+
+	VObject::VObjectBuffer points;
+	VObject::VObjectBuffer polylines;
+
+		
+	for( auto &obj : visibleObjs )
+	{
+		switch( obj->type() )
+		{
+		case VObject::Point:    points    += obj->toBuffer(); break;
+		case VObject::Polyline: polylines += obj->toBuffer(); break;
+		case VObject::Mesh:
+		{
+			const VObject::VObjectBuffer buffer = obj->toBuffer();
+
+			Renderer::PrimitiveBufferPtr m;
+			m->setVertices     ( { buffer.vertices.begin(),      buffer.vertices.end() } );
+			m->setColors       ( { buffer.colors.begin(),        buffer.colors.end() } );
+			m->setNormals      ( { buffer.normals.begin(),       buffer.normals.end() } );
+			m->setTextureCoords( { buffer.textureCoords.begin(), buffer.textureCoords.end() } );
+			_meshesBuffers.push_back( m );
+		}
+		break;
+		}
+	}
+
+
+	// SLOW == COPY FROM BEGINNING TO END == SLOW // (in order to convert from dvec3 to vec3 )
+	// send points to VAO
+	
+	if( !_pointsBuffer )
+		_pointsBuffer = Renderer::PrimitiveBuffer::New();
+
+	_pointsBuffer->setVertices      ( { points.vertices.begin(),      points.vertices.end() } );
+	_pointsBuffer->setColors        ( { points.colors.begin(),        points.colors.end() } );
+	_pointsBuffer->setNormals       ( { points.normals.begin(),       points.normals.end() } );
+	_pointsBuffer->setTextureCoords ( { points.textureCoords.begin(), points.textureCoords.end() } );
+	//_pointsBuffer->setIndices       ( { points.indices.begin(),       points.indices.end() } ); // points usually are not indexed
+
+	// send polylines to VAO
+	if( !_polylinesBuffer )
+		_polylinesBuffer = Renderer::PrimitiveBuffer::New();
+
+	_polylinesBuffer->setVertices      ( { polylines.vertices.begin(),      polylines.vertices.end() } );
+	_polylinesBuffer->setColors        ( { polylines.colors.begin(),        polylines.colors.end() } );
+	_polylinesBuffer->setNormals       ( { polylines.normals.begin(),       polylines.normals.end() } );
+	_polylinesBuffer->setTextureCoords ( { polylines.textureCoords.begin(), polylines.textureCoords.end() } );
+	_polylinesBuffer->setIndices       ( { polylines.indices.begin(),       polylines.indices.end() } );
+
+	_needUpdate = false;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -459,22 +520,17 @@ void VObjectManager::draw( const Renderer::SurfacePtr &surface, const Renderer::
 	if( !_visible || _objects.empty() )
 		return;
 
-	// no more need to cull objects on CPU if use transform feedback
-	//VObjectList visibleObjs = cullObjects();
+	const_cast<VObjectManager*>(this)->updateBuffers(); // @todo: use helper class for rendering
 
-	for( auto &b : _primitiveBuffers )
-	{
-		Renderer::Primitive p;
-		switch( b.first )
-		{
-		case 0: p = Renderer::Primitive::Points; break;
-		case 1: p = Renderer::Primitive::Lines; break;
-		case 2: p = Renderer::Primitive::Triangles; break;
-		case 3: p = Renderer::Primitive::TriangleStrip; break;
-		}
+	for( auto &m : _meshesBuffers )
+		surface->draw( m->primitiveType, m, drawState  );
 
-		surface->draw( p, b.second, drawState );
-	}
+	Renderer::DrawingState ds( drawState );
+	ds.renderState.primitiveRestart.enabled = true;
+	//ds.renderState.primitiveRestart.index   = 0xffff;
+	
+	surface->draw( Renderer::Primitive::LineStrip, _polylinesBuffer,  ds  );
+	surface->draw( Renderer::Primitive::Points,    _pointsBuffer,     ds  );
 
 #if 0
 	glPushAttrib( GL_ALL_ATTRIB_BITS );

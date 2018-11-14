@@ -8,7 +8,7 @@
 using namespace s2::Renderer;
 
 // ------------------------------------------------------------------------------------------------
-SamplerPtr Sampler::makeNew(const MinificationFilter &minFilter, const MagnificationFilter &magFilter, const Wrap &wrapS, const Wrap &wrapT, float maxAnisotropy)
+SamplerPtr Sampler::New(const MinificationFilter &minFilter, const MagnificationFilter &magFilter, const Wrap &wrapS, const Wrap &wrapT, float maxAnisotropy)
 {
 	return std::make_shared<Sampler>( minFilter,magFilter,wrapS,wrapT,maxAnisotropy );
 }

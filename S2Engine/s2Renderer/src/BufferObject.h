@@ -69,7 +69,7 @@ public:
 	//OBJECT_DISABLE_COPY( BufferObject )
 	//OBJECT_DECLARE_MOVEABLE( BufferObject )
 
-	static BufferObjectPtr makeNew( int size, const Type &type, const UsageHint &usageHint );
+	static BufferObjectPtr New( int size, const Type &type, const UsageHint &usageHint );
 
 
 	//BufferObject();

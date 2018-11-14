@@ -23,29 +23,24 @@ VPoint::VPoint( const Math::dvec3 &p )
 }
 
 // ------------------------------------------------------------------------------------------------
+VObject::VObjectBuffer VPoint::toBuffer() const
+{
+	VObjectBuffer b;
+	b.vertices = { _coords };
+
+	return std::move( b );
+}
+
+// ------------------------------------------------------------------------------------------------
 void VPoint::draw( const Renderer::SurfacePtr &surface, const Renderer::DrawingState &ds ) const
 {
 	// inefficient draw
-	Renderer::PrimitiveBufferPtr buf = Renderer::PrimitiveBuffer::makeNew();
-	buf->setVertices( { _coords } );
+	Renderer::PrimitiveBufferPtr buf = Renderer::PrimitiveBuffer::New();
+
+	auto obj = toBuffer();
+	buf->setVertices( { obj.vertices.begin(),obj.vertices.end() } );
 
 	surface->draw( Renderer::Primitive::Points, buf, ds );
-
-	//const float borderSize = style().penSize() + style().borderSize();
-	//glPointSize(borderSize + (isHilighted() * 3.f) );
-	//glColor4fv( style().borderColor() );
-
-	//r->beginRendering();
-	//r->setVertex3DArray( _coords );
-	//// background as border
-	//glDrawArrays( GL_POINTS, 0, 1 );
-
-	//glColor4fv( color() );
-	//glPointSize(style().penSize() + (isHilighted() * 3.f) );
-
-	//glDrawArrays( GL_POINTS, 0, 1 );
-
-	//r->endRendering();
 }
 
 // ------------------------------------------------------------------------------------------------

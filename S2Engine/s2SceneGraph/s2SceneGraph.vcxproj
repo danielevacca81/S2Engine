@@ -191,14 +191,14 @@
     <ClInclude Include="src\vobjects\SelectionSet.h" />
     <ClInclude Include="src\vobjects\VCircle.h" />
     <ClInclude Include="src\vobjects\VGroup.h" />
-    <ClInclude Include="src\vobjects\VLine.h" />
+    <ClInclude Include="src\vobjects\VPolyLine.h" />
     <ClInclude Include="src\vobjects\VMesh.h" />
     <ClInclude Include="src\vobjects\VObject.h" />
     <ClInclude Include="src\vobjects\VObjectManager.h" />
+    <ClInclude Include="src\vobjects\VObjectManagerHelper.h" />
     <ClInclude Include="src\vobjects\VObjectState.h" />
     <ClInclude Include="src\vobjects\VPoint.h" />
     <ClInclude Include="src\vobjects\VPolygon.h" />
-    <ClInclude Include="src\vobjects\VPolyLine.h" />
     <ClInclude Include="src\vobjects\VRectangle.h" />
     <ClInclude Include="src\vobjects\VSplineStrip.h" />
     <ClInclude Include="src\vobjects\VObjectStyle.h" />
@@ -227,12 +227,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="src\vobjects\VLine.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="src\vobjects\VPolyLine.cpp" />
     <ClCompile Include="src\vobjects\VMesh.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
@@ -241,14 +236,9 @@
     </ClCompile>
     <ClCompile Include="src\vobjects\VObject.cpp" />
     <ClCompile Include="src\vobjects\VObjectManager.cpp" />
+    <ClCompile Include="src\vobjects\VObjectManagerHelper.cpp" />
     <ClCompile Include="src\vobjects\VPoint.cpp" />
     <ClCompile Include="src\vobjects\VPolygon.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="src\vobjects\VPolyLine.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>

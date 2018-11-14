@@ -71,11 +71,12 @@ const char* JSON_Layer_Map2D = R"json(
 
 
 
-s2::Renderer::PrimitiveBufferPtr    GLResourcesLoader::_torus;
-s2::Renderer::PrimitiveBufferPtr    GLResourcesLoader::_cube;
-s2::Renderer::ProgramPtr GLResourcesLoader::_phong;
-s2::Renderer::ProgramPtr GLResourcesLoader::_background;
-s2::Renderer::ContextPtr GLResourcesLoader::_mainContext;
+s2::Renderer::PrimitiveBufferPtr  GLResourcesLoader::_torus;
+s2::Renderer::PrimitiveBufferPtr  GLResourcesLoader::_cube;
+s2::Renderer::ProgramPtr          GLResourcesLoader::_phong;
+s2::Renderer::ProgramPtr          GLResourcesLoader::_background;
+s2::Renderer::ProgramPtr          GLResourcesLoader::_simpleShader;
+s2::Renderer::ContextPtr          GLResourcesLoader::_mainContext;
 //int                  GLResourcesLoader::_composite = -666;
 
 using namespace s2;
@@ -212,7 +213,7 @@ void GLResourcesLoader::initMeshes()
 		pts.push_back( Math::vec3( -1.0f, 1.0f, -1.0f ) ); colors.push_back( Color::green().lighter() ); normals.push_back( Math::vec3( 0.0f, 1.0f, 0.0f ) );
 		pts.push_back( Math::vec3( -1.0f, 1.0f, 1.0f ) ); colors.push_back( Color::green().lighter() ); normals.push_back( Math::vec3( 0.0f, 1.0f, 0.0f ) );
 
-		_cube = s2::Renderer::PrimitiveBuffer::makeNew();
+		_cube = s2::Renderer::PrimitiveBuffer::New();
 		_cube->setVertices( pts );
 		_cube->setColors( colors );
 		_cube->setNormals( normals );
@@ -241,7 +242,7 @@ void GLResourcesLoader::initMeshes()
 
 		std::vector<Color> colors( torusMesh.vertices().size(), Color::cyan().transparent(.25) );
 
-		_torus = s2::Renderer::PrimitiveBuffer::makeNew();
+		_torus = s2::Renderer::PrimitiveBuffer::New();
 		_torus->setVertices( pts );
 		_torus->setIndices( torusMesh.indices() );
 		_torus->setNormals( normals );
@@ -252,7 +253,7 @@ void GLResourcesLoader::initMeshes()
 // ------------------------------------------------------------------------------------------------
 void GLResourcesLoader::initShaders()
 {
-	_phong = Renderer::Program::makeNew();
+	_phong = Renderer::Program::New();
 	{
 		const bool vsOk = _phong->attachVertexShader( STRINGIFY(
 		#version 400\n
@@ -331,7 +332,7 @@ void GLResourcesLoader::initShaders()
 		_phong->uniform<Math::mat3>( "normalMatrix"              )->set( Math::mat3( 1 ) );
 	}
 
-	_background = Renderer::Program::makeNew();
+	_background = Renderer::Program::New();
 	{
 		const bool vsOk = _background->attachVertexShader( STRINGIFY(
 			#version 400\n
@@ -376,11 +377,12 @@ void GLResourcesLoader::initShaders()
 			_background = nullptr;
 	}
 
-/*	_shaderSimple = OpenGL::Program::New();
+	_simpleShader = Renderer::Program::New();
 	{
 
-		const bool vsOk = _shaderSimple->attachVertexShader( STRINGIFY(
+		const bool vsOk = _simpleShader->attachVertexShader( STRINGIFY(
 		#version 400\n
+		uniform mat4 modelViewProjectionMatrix;
 
 		in vec3 in_Vertex;
 		in vec4 in_Color;
@@ -389,17 +391,18 @@ void GLResourcesLoader::initShaders()
 
 		void main()
 		{
-			gl_Position = vec4( in_Vertex, 1.0 );
-			color       = in_Color;
+			gl_Position = modelViewProjectionMatrix * vec4( in_Vertex, 1.0 );
+			//color       = in_Color;
+			color       = vec4( 1.0, 0.0, 1.0, 1.0 );
 		}
 		) );
 
 
-		_shaderSimple->attachFragmentShader( STRINGIFY(
-			#version 400\n
+		_simpleShader->attachFragmentShader( STRINGIFY(
+		#version 400\n
 
-			in vec4 color;
-			out vec4 fragColor;
+		in vec4 color;
+		out vec4 fragColor;
 
 		void main()
 		{
@@ -407,9 +410,9 @@ void GLResourcesLoader::initShaders()
 		}
 		) );
 
-		_shaderSimple->link("Simple");
+		_simpleShader->link("Simple");
 
 
-		std::cout << _shaderSimple->info( true ) << std::endl;
-	}*/
+		std::cout << _simpleShader->info( true ) << std::endl;
+	}
 }

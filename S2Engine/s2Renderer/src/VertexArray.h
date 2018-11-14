@@ -29,7 +29,7 @@ public:
 	//OBJECT_DISABLE_COPY( VertexArray )
 
 	// CANNOT BE SHARED BETWEEN CONTEXTS
-	static VertexArrayPtr makeNew();
+	static VertexArrayPtr New();
 public:
 	VertexArray();
 	~VertexArray();

@@ -26,13 +26,15 @@ namespace SceneGraph {
 class S2SCENEGRAPH_API VObjectManager : public Observer, std::enable_shared_from_this<VObjectManager>
 {
 public: 
-	typedef std::list< VObjectPtr >                                        VObjectList;
-	typedef std::map<unsigned int, VObjectList>                            VObjectIndex;	// map from object types to objectList
-	typedef std::unordered_map<unsigned int, Renderer::PrimitiveBufferPtr> VObjectPrimitive;
+	typedef std::list< VObjectPtr >              VObjectList;
+	typedef std::map<unsigned int, VObjectList>  VObjectIndex;	// map from object types to objectList
+	//typedef std::unordered_map<unsigned int, Renderer::PrimitiveBufferPtr> VObjectPrimitive;
 
 public:
 	VObjectManager();
 	~VObjectManager();
+
+	// void                 setView...
 
 	bool                    addObject( const VObjectPtr &obj );
 	void                    removeObject( const VObjectPtr &obj );
@@ -85,16 +87,23 @@ private:
 	void                        updateBuffers();
 
 private:
-	Renderer::SurfacePtr  _surface;
+	Renderer::SurfacePtr         _surface;
+	
+	Renderer::PrimitiveBufferPtr _pointsBuffer;
+	Renderer::PrimitiveBufferPtr _polylinesBuffer;
+	//Renderer::PrimitiveBufferPtr _polygonsBuffer;
+	std::vector<Renderer::PrimitiveBufferPtr> _meshesBuffers;
+
 	SelectionSet        _selectionSet;
 	
-	VObjectPtr          _hilightedObject;
+	VObjectPtr          _hilightedObject; // weakPtr?
 
     bool                _selectionEnabled;
     bool                _hilightEnabled;
     bool                _visible;
 
-	VObjectPrimitive    _primitiveBuffers;
+	bool                _needUpdate;
+
 	VObjectList         _objects;
 	VObjectIndex        _objectIndex;
 

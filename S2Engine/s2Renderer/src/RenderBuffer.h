@@ -101,7 +101,7 @@ public:
 	};
 
 public:
-	static RenderBufferPtr makeNew( const Format &format, int width, int height, int samples );
+	static RenderBufferPtr New( const Format &format, int width, int height, int samples );
 
 public:
 	//OBJECT_DECLARE_MOVEABLE( RenderBuffer )

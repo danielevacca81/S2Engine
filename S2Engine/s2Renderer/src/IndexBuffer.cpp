@@ -42,7 +42,7 @@ IndexBuffer::IndexBuffer( int sizeInBytes, const IndexDataType &dataType, const 
 //-------------------------------------------------------------------------------------------------
 void IndexBuffer::set( int sizeInBytes, const IndexDataType &dataType, const BufferObject::UsageHint &usageHint )
 {
-	_bufferObject = BufferObject::makeNew( sizeInBytes, BufferObject::Type::ElementBuffer, usageHint );
+	_bufferObject = BufferObject::New( sizeInBytes, BufferObject::Type::ElementBuffer, usageHint );
 	_valid        = true;
 	_dataType     = dataType;
 }

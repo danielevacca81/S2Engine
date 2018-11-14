@@ -50,15 +50,24 @@ public:
 	{
 		if( !o ) return; // assert?
 
-		_observerCollection.erase(
-			std::remove_if(
-				_observerCollection.begin(),
-				_observerCollection.end(),
-				[o] ( Observer *curr ) 
-				{
-					return o == curr;
-				} )
-		);
+		// sort
+		std::sort( _observerCollection.begin(), _observerCollection.end() );
+		
+		// remove consecutive duplicates
+		auto last = std::unique( _observerCollection.begin(), _observerCollection.end() );
+		
+		// remove trailing empty elements
+		_observerCollection.erase( last, _observerCollection.end() );
+
+		//_observerCollection.erase(
+		//	std::remove_if(
+		//		_observerCollection.begin(),
+		//		_observerCollection.end(),
+		//		[o] ( Observer *curr ) 
+		//		{
+		//			return o == curr;
+		//		} )
+		//);
 	}
 
 	// ------------------------------------------------------------------------------------------------

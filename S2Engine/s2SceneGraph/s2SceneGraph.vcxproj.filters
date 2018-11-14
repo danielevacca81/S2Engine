@@ -23,9 +23,6 @@
     <ClInclude Include="src\vobjects\VGroup.h">
       <Filter>src\vobjects</Filter>
     </ClInclude>
-    <ClInclude Include="src\vobjects\VLine.h">
-      <Filter>src\vobjects</Filter>
-    </ClInclude>
     <ClInclude Include="src\vobjects\VMesh.h">
       <Filter>src\vobjects</Filter>
     </ClInclude>
@@ -39,9 +36,6 @@
       <Filter>src\vobjects</Filter>
     </ClInclude>
     <ClInclude Include="src\vobjects\VPolygon.h">
-      <Filter>src\vobjects</Filter>
-    </ClInclude>
-    <ClInclude Include="src\vobjects\VPolyLine.h">
       <Filter>src\vobjects</Filter>
     </ClInclude>
     <ClInclude Include="src\vobjects\VRectangle.h">
@@ -83,15 +77,18 @@
     <ClInclude Include="src\vobjects\VObjectStyle.h">
       <Filter>src\vobjects</Filter>
     </ClInclude>
+    <ClInclude Include="src\vobjects\VObjectManagerHelper.h">
+      <Filter>src\vobjects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\vobjects\VPolyLine.h">
+      <Filter>src\vobjects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\vobjects\VCircle.cpp">
       <Filter>src\vobjects</Filter>
     </ClCompile>
     <ClCompile Include="src\vobjects\VGroup.cpp">
-      <Filter>src\vobjects</Filter>
-    </ClCompile>
-    <ClCompile Include="src\vobjects\VLine.cpp">
       <Filter>src\vobjects</Filter>
     </ClCompile>
     <ClCompile Include="src\vobjects\VMesh.cpp">
@@ -107,9 +104,6 @@
       <Filter>src\vobjects</Filter>
     </ClCompile>
     <ClCompile Include="src\vobjects\VPolygon.cpp">
-      <Filter>src\vobjects</Filter>
-    </ClCompile>
-    <ClCompile Include="src\vobjects\VPolyLine.cpp">
       <Filter>src\vobjects</Filter>
     </ClCompile>
     <ClCompile Include="src\vobjects\VRectangle.cpp">
@@ -143,6 +137,12 @@
       <Filter>src\view</Filter>
     </ClCompile>
     <ClCompile Include="src\vobjects\VObjectStyle.cpp">
+      <Filter>src\vobjects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vobjects\VObjectManagerHelper.cpp">
+      <Filter>src\vobjects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vobjects\VPolyLine.cpp">
       <Filter>src\vobjects</Filter>
     </ClCompile>
   </ItemGroup>
