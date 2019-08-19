@@ -36,7 +36,7 @@ namespace Math = glm;
 }
 
 namespace glm {
-	//// ------------------------------------------------------------------------------------------------
+	// ------------------------------------------------------------------------------------------------
 	template<length_t L, typename T, qualifier Q>
 	GLM_FUNC_QUALIFIER typename vec<L, T, Q>::value_type
 	angleBetween( const vec<L,T,Q> &d,

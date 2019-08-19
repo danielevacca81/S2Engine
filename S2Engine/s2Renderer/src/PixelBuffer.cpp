@@ -40,11 +40,17 @@ WritePixelBuffer::WritePixelBuffer( int sizeInBytes, const UsageHint &usageHint 
 }
 
 // ------------------------------------------------------------------------------------------------
+WritePixelBuffer::~WritePixelBuffer()
+{}
+
+// ------------------------------------------------------------------------------------------------
 int  WritePixelBuffer::sizeInBytes() const { return _bufferObject->size(); }
 
 // ------------------------------------------------------------------------------------------------
-void WritePixelBuffer::bind()   const { _bufferObject->bind(); }
-void WritePixelBuffer::unbind() const { _bufferObject->unbind(); }
+void WritePixelBuffer::bind()       const { _bufferObject->bind(); }
+void WritePixelBuffer::unbind()     const { _bufferObject->unbind(); }
+void* WritePixelBuffer::mapData()   const { return _bufferObject->mapData( BufferObject::MapMode::WriteOnly );}
+bool  WritePixelBuffer::unmapData() const { return _bufferObject->unmapData(); }
 
 // ------------------------------------------------------------------------------------------------
 void  WritePixelBuffer::sendData( void *data, int length, int offset ) { _bufferObject->sendData( data, length, offset ); }
@@ -85,11 +91,17 @@ ReadPixelBuffer::ReadPixelBuffer( int sizeInBytes, const UsageHint &usageHint )
 }
 
 // ------------------------------------------------------------------------------------------------
+ReadPixelBuffer::~ReadPixelBuffer()
+{}
+
+// ------------------------------------------------------------------------------------------------
 int  ReadPixelBuffer::sizeInBytes() const { return _bufferObject->size(); }
 
 // ------------------------------------------------------------------------------------------------
 void ReadPixelBuffer::bind()   const { _bufferObject->bind(); }
 void ReadPixelBuffer::unbind() const { _bufferObject->unbind(); }
+void* ReadPixelBuffer::mapData()   const { return _bufferObject->mapData( BufferObject::MapMode::ReadOnly );}
+bool  ReadPixelBuffer::unmapData() const { return _bufferObject->unmapData(); }
 
 // ------------------------------------------------------------------------------------------------
 void  ReadPixelBuffer::sendData( void *data, int length, int offset ) { _bufferObject->sendData( data, length, offset ); }

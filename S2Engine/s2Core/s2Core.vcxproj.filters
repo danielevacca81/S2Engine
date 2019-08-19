@@ -177,6 +177,9 @@
     <ClInclude Include="src\math\Geometry.h">
       <Filter>src\math</Filter>
     </ClInclude>
+    <ClInclude Include="src\math\Space.h">
+      <Filter>src\math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\commandline\ApplicationFlag.cpp">

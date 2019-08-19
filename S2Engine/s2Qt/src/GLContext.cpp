@@ -27,7 +27,7 @@ bool s2::Qt::createOpenGLContext( int openGLMajorVer, int openGLMinorVer )
 	if( !context.create() )
 	{
 		std::cout << "OpenGL Version " << context.format().majorVersion() << "." << context.format().minorVersion() 
-			      << " not supported";
+			      << " not supported" << std::endl;
 		return false;
 	}
 

@@ -116,6 +116,7 @@ void GLResourcesLoader::initializeGL()
 {
 	hide();
 	
+#if 1
 	_mainContext = Renderer::Context::Current(); // initializes extensions also
 
 	std::cout << "Context ID: " << _mainContext->id() << std::endl 
@@ -130,6 +131,7 @@ void GLResourcesLoader::initializeGL()
 	initSharedResources();
 
 	emit resourcesInitialized();
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------

@@ -33,6 +33,7 @@ void UserInteractionManager::setPreferences( const Preferences &p )
 	_preferences = p;
 }
 
+// ------------------------------------------------------------------------------------------------
 UserInteractionManager::Preferences UserInteractionManager::preferences() const { return _preferences; }
 
 // ------------------------------------------------------------------------------------------------

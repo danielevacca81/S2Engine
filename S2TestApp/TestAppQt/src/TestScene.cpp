@@ -88,7 +88,30 @@ void TestScene::initializeGL()
 		torus->setNormals( normals );
 		torus->setColors( colors );
 
-		_meshes.push_back( torus );
+		//_meshes.push_back( torus );
+	}
+
+
+	const Math::Mesh cylinderMesh = s2::cylinder( Math::dvec3(0.0,0.0,0.0), Math::dvec3(3.0,.0,0.0), .2, true, true );
+	{
+		// convert into glmesh
+		std::vector<Math::vec3> pts;
+		std::vector<Math::vec3> normals;
+		for( auto &v : cylinderMesh.vertices() )
+		{
+			pts.push_back( v.position );
+			normals.push_back( v.normal );
+		}
+
+		std::vector<Color> colors( cylinderMesh.vertices().size(), Color::yellow() );
+
+		auto cyl = s2::Renderer::PrimitiveBuffer::New();
+		cyl->setVertices( pts );
+		cyl->setIndices( cylinderMesh.indices() );
+		cyl->setNormals( normals );
+		cyl->setColors( colors );
+
+		_meshes.push_back( cyl );
 	}
 
 	// SCENEGRAPH 
@@ -141,24 +164,27 @@ void TestScene::paintGL()
 	}
 
 
-	if( false )
+	if( true )
 	{
 		Renderer::DrawingState ds( GLResourcesLoader::_phong );
-		ds.renderState.blending.enabled                = true;
+		//ds.renderState.blending.enabled                = true;
 		ds.renderState.blending.sourceRGBFactor        = Renderer::Blending::Factor::SourceAlpha;
 		ds.renderState.blending.sourceAlphaFactor      = Renderer::Blending::Factor::SourceAlpha;
 		ds.renderState.blending.destinationRGBFactor   = Renderer::Blending::Factor::OneMinusSourceAlpha;
 		ds.renderState.blending.destinationAlphaFactor = Renderer::Blending::Factor::OneMinusSourceAlpha;
+		//ds.renderState.rasterizationMode               = Renderer::RenderState::RasterizationMode::Line;
+		ds.renderState.faceCulling.enabled             = false;
 
-		//ds.renderState.programPointSize.enabled
 
 		ds.shaderProgram->uniform<Math::mat4>( "modelViewMatrix" )->set( _viewState.modelViewMatrix() );
 		ds.shaderProgram->uniform<Math::mat4>( "modelViewProjectionMatrix" )->set( _viewState.modelViewProjectionMatrix() );
 		ds.shaderProgram->uniform<Math::mat3>( "normalMatrix" )->set( _viewState.normalMatrix() );
 
-		_surface->draw( Renderer::Primitive::Triangles, _meshes[0], ds );
+		for( auto &m : _meshes )
+			_surface->draw( Renderer::Primitive::Triangles, m, ds );
 	}
 
+	if( false )
 	{
 		Renderer::DrawingState ds( GLResourcesLoader::_simpleShader );
 		ds.shaderProgram->uniform<Math::mat4>( "modelViewProjectionMatrix" )->set( _viewState.modelViewProjectionMatrix() );

@@ -1,4 +1,4 @@
-// Plane.h
+﻿// Plane.h
 //
 #ifndef PLANE_ONCE
 #define PLANE_ONCE
@@ -29,13 +29,17 @@ public:
 
 public:
 	// -----------------------------------------------------------------------------------------------
-	GLM_FUNC_DECL tplane()					{}
+	GLM_FUNC_DECL tplane()					                                                {}
 	GLM_FUNC_DECL tplane( const tvec3<T,P> &normal, T distance )	: n(normal),d(distance) {}
-	GLM_FUNC_DECL tplane( const tvec4<T,P> &coeff  )	{ n = tvec3<T,P>(coeff.x,coeff.y,coeff.z); d = coeff.w; }
+	GLM_FUNC_DECL tplane( const tvec4<T,P> &coeff  )	                                    { n = tvec3<T,P>(coeff.x,coeff.y,coeff.z); d = coeff.w; }
 
-	GLM_FUNC_DECL bool isPointFront ( const tvec3<T,P> &p ) const { return (distanceFrom(p) > 0.0) ? true: false; }
-	GLM_FUNC_DECL bool isPointBehind( const tvec3<T,P> &p ) const { return !(isPointFront(p)); }
-	GLM_FUNC_DECL T    distanceFrom ( const tvec3<T,P> &p ) const { return dot(n,p) + d; }
+	GLM_FUNC_DECL bool       isPointFront ( const tvec3<T,P> &p ) const { return (distanceFrom(p) > 0.0) ? true: false; }
+	GLM_FUNC_DECL bool       isPointBehind( const tvec3<T,P> &p ) const { return !(isPointFront(p)); }
+	GLM_FUNC_DECL T          distanceFrom ( const tvec3<T,P> &p ) const { return dot(n,p) + d; }
+	
+	// compute orthogonal projection of a point onto the plane
+	// p' = p - (n ⋅ p + d) * n
+	GLM_FUNC_DECL tvec3<T,P> projectPoint ( const tvec3<T,P> &p ) const  { return p - ( ( dot(n,p) + d ) * n ); }
 };
 
 } // end namespace detail

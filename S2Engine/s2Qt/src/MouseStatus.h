@@ -9,7 +9,6 @@
 
 #include "math/Math.h"
 
-class QWidget;
 
 // to be removed...
 class QGraphicsSceneEvent;
@@ -18,6 +17,7 @@ class QGraphicsSceneWheelEvent;
 // ....
 
 
+class QWidget;
 class QEvent;
 class QMouseEvent;
 class QWheelEvent;

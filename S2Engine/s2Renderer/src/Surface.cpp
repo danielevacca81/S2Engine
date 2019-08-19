@@ -4,10 +4,12 @@
 
 #include "Renderer.h"
 #include "OpenGL.h"
+#include "OpenGLWrap.h"
 #include "Texture.h"
 #include "TextureUnit.h"
 #include "Sampler.h"
 #include "BuiltIn.h"
+
 
 
 #include <iostream>
@@ -102,9 +104,28 @@ void Surface::swap( unsigned int targetFBO, const FrameBuffer::AttachmentPoint &
 s2::ImageBufferPtr<unsigned char> Surface::grabImage() const
 {
 	// @todo: ok for multisample buffers?
+	
+	//auto img = _fbo->attachment( FrameBuffer::ColorAttachment0 )->readData();
+	const int rowAlignment       = 4;
+	const ImageFormat format     = ImageFormat::RedGreenBlueAlpha;
+	const ImageDataType dataType = ImageDataType::UnsignedByte;
+	const int sizeInBytes        = computeRequiredSizeInBytes( _width, _height, format, dataType, rowAlignment );
 
-	auto img = _fbo->attachment( FrameBuffer::ColorAttachment0 )->readData();
+	_fbo->bind();
+	//glPixelStorei( GL_PACK_ALIGNMENT, rowAlignment );
+	
+	ReadPixelBuffer pixelBuffer = ReadPixelBuffer( sizeInBytes, ReadPixelBuffer::UsageHint::Static );
+	pixelBuffer.bind();
+	
+	glReadPixels( 0,0, _width, _height, glWrap( format ), glWrap( dataType ), BUFFER_OFFSET(0) );
+	glCheck;
+	//unbind();
+	//glCheck;
 
+	s2::ImageBufferPtr<unsigned char> img = s2::ImageBuffer<unsigned char>::New( _width, _height, 4, (unsigned char*)pixelBuffer.mapData() );
+	pixelBuffer.unmapData();
+	pixelBuffer.unbind();
+	_fbo->unbind();
 
 	return img;
 }

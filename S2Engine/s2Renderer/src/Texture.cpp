@@ -219,11 +219,11 @@ s2::ImageBufferPtr<unsigned char> Texture2D::readData() const
 	const ImageDataType dataType = ImageDataType::UnsignedByte;
 	const int sizeInBytes        = computeRequiredSizeInBytes( _description.width(), _description.height(), format, dataType, rowAlignment );
 
-	glActiveTexture( GL_TEXTURE0 );
+	//glActiveTexture( GL_TEXTURE0 );
 	bind();
-	glPixelStorei( GL_PACK_ALIGNMENT, rowAlignment );
+	//glPixelStorei( GL_PACK_ALIGNMENT, rowAlignment );
 	
-	ReadPixelBuffer pixelBuffer = ReadPixelBuffer( sizeInBytes, ReadPixelBuffer::UsageHint::Stream );
+	ReadPixelBuffer pixelBuffer = ReadPixelBuffer( sizeInBytes, ReadPixelBuffer::UsageHint::Dynamic );
 	pixelBuffer.bind();
 	
 	glGetTexImage( GL_TEXTURE_2D, 0, glWrap( format ), glWrap( dataType ), BUFFER_OFFSET(0) );
@@ -231,7 +231,9 @@ s2::ImageBufferPtr<unsigned char> Texture2D::readData() const
 	//unbind();
 	//glCheck;
 
-	s2::ImageBufferPtr<unsigned char> img = s2::ImageBuffer<unsigned char>::New( _description.width(), _description.height(), 4, (unsigned char*)pixelBuffer.receiveData( sizeInBytes ) );
+	s2::ImageBufferPtr<unsigned char> img = s2::ImageBuffer<unsigned char>::New( _description.width(), _description.height(), 4, (unsigned char*)pixelBuffer.mapData() );
+	pixelBuffer.unmapData();
+	pixelBuffer.unbind();
 	unbind();
 
 	return img;

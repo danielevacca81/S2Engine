@@ -2,6 +2,10 @@
 // 
 #include "Geometry.h"
 
+#include "Space.h"
+
+#include <gtx/projection.hpp>
+
 #include <iostream>
 
 namespace s2 {
@@ -11,13 +15,13 @@ std::vector< Math::dvec2 > circle( const Math::dvec2 &center, double radius, int
 {
 	std::vector< Math::dvec2 > circlePoints;
 
-	const double step = Math::pi<double>()*2.0 / LOD;
+	const double step = Math::two_pi<double>() / LOD;
 
 	circlePoints.push_back( Math::dvec2( center ) ); // center as first point
 
 	for( int i=0; i <= LOD; ++i )
 	{
-		const double angle  = i*step;
+		const double angle  = i * step;
 		const Math::dvec2 p =  Math::dvec2( Math::cos( angle ), Math::sin( angle ) )*radius;
 
 		circlePoints.push_back( center + p );
@@ -34,15 +38,15 @@ Math::Mesh torus( double innerRadius, double outerRadius, int numc, int numt )
 	std::vector<Math::dvec3> points;
 	std::vector<unsigned int> indices;
 	std::vector<Math::vec3> normals;
-	
+
 	// numc = numero di circonferenze (sectors)
 	for( int i = 0; i < numc; ++i )
 	{
 		// numt = punti per circonferenza
-		for( int j = 0; j < numt; ++j ) 
+		for( int j = 0; j < numt; ++j )
 		{
-			const double t = twopi * i / (double)numc;
-			const double p = twopi * j / (double)numt;
+			const double t = twopi * i / (double) numc;
+			const double p = twopi * j / (double) numt;
 
 			const double x = ( innerRadius + outerRadius * Math::cos( p ) ) * Math::cos( t );
 			const double y = ( innerRadius + outerRadius * Math::cos( p ) ) * Math::sin( t );
@@ -50,12 +54,12 @@ Math::Mesh torus( double innerRadius, double outerRadius, int numc, int numt )
 
 			points.push_back( Math::dvec3( x, y, z ) );
 
-			const Math::dvec3 T( -Math::sin(t), Math::cos(t), 0);
-			const Math::dvec3 B( Math::cos(t)*( -Math::sin(p) ),
-								 Math::sin(t)*(-Math::sin(p) ),
-								 Math::cos(p) );
+			const Math::dvec3 T( -Math::sin( t ), Math::cos( t ), 0 );
+			const Math::dvec3 B( Math::cos( t )*( -Math::sin( p ) ),
+								 Math::sin( t )*( -Math::sin( p ) ),
+								 Math::cos( p ) );
 
-			normals.push_back( Math::cross(T,B) );
+			normals.push_back( Math::cross( T, B ) );
 			//normals.push_back( Math::normalize( Math::dvec3( x, y, z ) ) );
 
 			// first_triangle
@@ -73,6 +77,87 @@ Math::Mesh torus( double innerRadius, double outerRadius, int numc, int numt )
 	Math::Mesh m( points, normals, indices );
 	return m;
 }
+
+// ------------------------------------------------------------------------------------------------
+Math::Mesh cylinder( const Math::dvec3 &startPoint, const Math::dvec3 &endPoint, double radius, bool capStart, bool capEnd, int slices )
+{
+	const double len      = Math::length( endPoint - startPoint );
+	const Math::dvec3 dir = Math::normalize( endPoint - startPoint );
+	const double twopi    = Math::two_pi<double>();
+	const int loopIndex   = slices * 2;  // two rings (start/end)
+
+	//const Math::dplane p( dir, Math::length( startPoint ) );
+	//auto pX        = p.projectPoint( { 1.0,0.0,0.0 } );
+	//auto pY        = p.projectPoint( { 0.0,1.0,0.0 } );
+	//auto pZ        = p.projectPoint( { 0.0,0.0,1.0 } );
+	//
+	//auto candidate = [] ( const Math::dvec3 &x, const Math::dvec3 &y, const Math::dvec3 &z )
+	//{
+	//	const auto lX = Math::length( x );
+	//	const auto lY = Math::length( y );
+	//	const auto lZ = Math::length( z );
+	//	
+	//	if( lX > lY )
+	//	{
+	//		if( lX > lZ ) return x;
+	//		else          return z;
+	//	}
+	//	else
+	//	{
+	//		if( lY > lZ ) return y;
+	//		else          return z;
+	//	}
+	//}( pX, pY, pZ );
+	//
+	//auto ortho     = Math::cross( dir, candidate );
+
+	//const auto u0 = dir;
+	//const auto u1 = Math::normalize( candidate - Math::proj( candidate, u0 ) );
+	//const auto u2 = Math::normalize( ortho     - Math::proj( ortho, u0 )     - Math::proj( ortho, u1 ) );
+
+	Math::dmat4 basis = Math::localFrame( dir );
+	basis[3] = {0.0, 0.0, 0.0, 1.0};
+
+	const Math::dmat4 rotateAroundStartPoint = basis * Math::translate( Math::dmat4( 1.0 ), startPoint );
+
+	std::vector<Math::dvec3>  vertices;
+	std::vector<unsigned int> indices;
+	std::vector<Math::vec3>   normals;
+
+	// two points per iteration, one around at startPoint one around endPoint
+	for( int s=0,idx=0; s < slices; ++s, idx+=2 )
+	{
+		const double theta = twopi * ( s / (double) slices);
+		const double ct = Math::cos( theta );
+		const double st = Math::sin( theta );
+
+		// build a circle on the plane YZ
+		const Math::dvec3 p = { 0.0, ct * radius, st * radius };
+		const Math::dvec3 n = Math::dvec3( 0.0, ct, st );
+
+		const Math::dvec3 pStart = rotateAroundStartPoint * Math::dvec4( p,1.0 );
+		const Math::dvec3 pEnd   = pStart + dir * len;
+
+		vertices.push_back( pEnd );
+		vertices.push_back( pStart );
+		normals.push_back( Math::dmat3( basis ) * n );
+		normals.push_back( Math::dmat3( basis ) * n );
+		
+		// six indices per slices, i+=2
+		// 0 , 1 , 3
+		// 0 , 3 , 2		
+		indices.push_back( idx+0 );
+		indices.push_back( idx+1 );
+		indices.push_back( (idx+3) % loopIndex);
+		
+		indices.push_back( idx+0 );
+		indices.push_back( (idx+3) % loopIndex );
+		indices.push_back( (idx+2) % loopIndex );
+	}
+
+	return Math::Mesh ( vertices, normals,indices );
+}
+
 
 
 // ------------------------------------------------------------------------------------------------
@@ -438,10 +523,10 @@ static void build_teapot() {
 			double u = 1.0 * ru / ( RESU - 1 );
 			for( int rv = 0; rv <= RESV - 1; rv++ ) {
 				double v = 1.0 * rv / ( RESV - 1 );
-				teapot_vertices[p*RESU*RESV + ru*RESV + rv] = compute_position( control_points_k, u, v );
-				teapot_colors[p*RESU*RESV * 3 + ru*RESV * 3 + rv * 3 + 0] = 1.0 * p / TEAPOT_NB_PATCHES;
-				teapot_colors[p*RESU*RESV * 3 + ru*RESV * 3 + rv * 3 + 1] = 1.0 * p / TEAPOT_NB_PATCHES;
-				teapot_colors[p*RESU*RESV * 3 + ru*RESV * 3 + rv * 3 + 2] = 0.8;
+				teapot_vertices[p*RESU*RESV + ru * RESV + rv] = compute_position( control_points_k, u, v );
+				teapot_colors[p*RESU*RESV * 3 + ru * RESV * 3 + rv * 3 + 0] = 1.0 * p / TEAPOT_NB_PATCHES;
+				teapot_colors[p*RESU*RESV * 3 + ru * RESV * 3 + rv * 3 + 1] = 1.0 * p / TEAPOT_NB_PATCHES;
+				teapot_colors[p*RESU*RESV * 3 + ru * RESV * 3 + rv * 3 + 2] = 0.8;
 			}
 		}
 	}
@@ -453,13 +538,13 @@ static void build_teapot() {
 			for( int rv = 0; rv < RESV - 1; rv++ ) {
 				// 1 square ABCD = 2 triangles ABC + CDA
 				// ABC
-				teapot_elements[n] = p*RESU*RESV + ru   *RESV + rv; n++;
-				teapot_elements[n] = p*RESU*RESV + ru   *RESV + ( rv + 1 ); n++;
-				teapot_elements[n] = p*RESU*RESV + ( ru + 1 )*RESV + ( rv + 1 ); n++;
+				teapot_elements[n] = p * RESU*RESV + ru * RESV + rv; n++;
+				teapot_elements[n] = p * RESU*RESV + ru * RESV + ( rv + 1 ); n++;
+				teapot_elements[n] = p * RESU*RESV + ( ru + 1 )*RESV + ( rv + 1 ); n++;
 				// CDA
-				teapot_elements[n] = p*RESU*RESV + ( ru + 1 )*RESV + ( rv + 1 ); n++;
-				teapot_elements[n] = p*RESU*RESV + ( ru + 1 )*RESV + rv; n++;
-				teapot_elements[n] = p*RESU*RESV + ru   *RESV + rv; n++;
+				teapot_elements[n] = p * RESU*RESV + ( ru + 1 )*RESV + ( rv + 1 ); n++;
+				teapot_elements[n] = p * RESU*RESV + ( ru + 1 )*RESV + rv; n++;
+				teapot_elements[n] = p * RESU*RESV + ru * RESV + rv; n++;
 			}
 
 	// Control points elements for debugging

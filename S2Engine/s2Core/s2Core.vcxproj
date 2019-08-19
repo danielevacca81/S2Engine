@@ -173,6 +173,7 @@
     <ClInclude Include="src\math\Plane.h" />
     <ClInclude Include="src\math\Ray.h" />
     <ClInclude Include="src\math\Rectangle.h" />
+    <ClInclude Include="src\math\Space.h" />
     <ClInclude Include="src\math\Sphere.h" />
     <ClInclude Include="src\patterns\Observer.h" />
     <ClInclude Include="src\patterns\State.h" />

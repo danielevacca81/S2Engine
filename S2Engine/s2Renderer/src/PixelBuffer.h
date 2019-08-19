@@ -29,16 +29,19 @@ public:
 	//OBJECT_DECLARE_MOVEABLE( WritePixelBuffer )
 	//OBJECT_DISABLE_COPY( WritePixelBuffer )
 
-	WritePixelBuffer( int sizeInBytes, const UsageHint &usageHint);
+	WritePixelBuffer( int sizeInBytes, const UsageHint &usageHint );
+	~WritePixelBuffer();
 	//void set( int sizeInBytes, const UsageHint &usageHint);
 
 	int  sizeInBytes() const;
 
 	void bind() const;
 	void unbind() const;
+	void* mapData()   const;
+	bool  unmapData() const;
 
-	void  sendData(void *data, int length, int offset = 0);
-	void* receiveData(int length, int offset = 0);
+	void  sendData( void *data, int length, int offset = 0 );
+	void* receiveData( int length, int offset = 0 );
 
 private:
 	BufferObjectPtr _bufferObject;
@@ -62,16 +65,17 @@ public:
 	//OBJECT_DISABLE_COPY( ReadPixelBuffer )
 
 	ReadPixelBuffer( int sizeInBytes, const UsageHint &usageHint );
-	
-	//void ;
+	~ReadPixelBuffer();
 
 	int  sizeInBytes() const;
 
 	void bind() const;
 	void unbind() const;
+	void* mapData()   const;
+	bool  unmapData() const;
 
-	void  sendData(void *data, int length, int offset = 0);
-	void* receiveData(int length, int offset = 0);
+	void  sendData( void *data, int length, int offset = 0 );
+	void* receiveData( int length, int offset = 0 );
 
 private:
 	BufferObjectPtr _bufferObject;

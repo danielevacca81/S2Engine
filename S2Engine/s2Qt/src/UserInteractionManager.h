@@ -98,7 +98,7 @@ private:
 	Preferences     _preferences;
 	MouseStatus		_ms;
 	KeyboardStatus  _kb;
-	GestureStatus  _gst;
+	GestureStatus   _gst;
 };
 
 }
