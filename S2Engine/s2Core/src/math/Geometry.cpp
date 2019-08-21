@@ -81,82 +81,209 @@ Math::Mesh torus( double innerRadius, double outerRadius, int numc, int numt )
 // ------------------------------------------------------------------------------------------------
 Math::Mesh cylinder( const Math::dvec3 &startPoint, const Math::dvec3 &endPoint, double radius, bool capStart, bool capEnd, int slices )
 {
+	if( slices < 4 )
+		return {};
+
 	const double len      = Math::length( endPoint - startPoint );
 	const Math::dvec3 dir = Math::normalize( endPoint - startPoint );
-	const double twopi    = Math::two_pi<double>();
 	const int loopIndex   = slices * 2;  // two rings (start/end)
 
-	//const Math::dplane p( dir, Math::length( startPoint ) );
-	//auto pX        = p.projectPoint( { 1.0,0.0,0.0 } );
-	//auto pY        = p.projectPoint( { 0.0,1.0,0.0 } );
-	//auto pZ        = p.projectPoint( { 0.0,0.0,1.0 } );
-	//
-	//auto candidate = [] ( const Math::dvec3 &x, const Math::dvec3 &y, const Math::dvec3 &z )
-	//{
-	//	const auto lX = Math::length( x );
-	//	const auto lY = Math::length( y );
-	//	const auto lZ = Math::length( z );
-	//	
-	//	if( lX > lY )
-	//	{
-	//		if( lX > lZ ) return x;
-	//		else          return z;
-	//	}
-	//	else
-	//	{
-	//		if( lY > lZ ) return y;
-	//		else          return z;
-	//	}
-	//}( pX, pY, pZ );
-	//
-	//auto ortho     = Math::cross( dir, candidate );
+	const std::vector<Math::dvec3> circle = []( int slices )
+	{
+		const double twopi = Math::two_pi<double>();
 
-	//const auto u0 = dir;
-	//const auto u1 = Math::normalize( candidate - Math::proj( candidate, u0 ) );
-	//const auto u2 = Math::normalize( ortho     - Math::proj( ortho, u0 )     - Math::proj( ortho, u1 ) );
+		std::vector<Math::dvec3> values;
+		for( int s=0; s < slices; ++s )
+		{
+			const double theta = twopi * ( s / (double) slices );
+			const double ct = Math::cos( theta );
+			const double st = Math::sin( theta );
+
+			// build a circle on the plane YZ
+			values.emplace_back( Math::dvec3( 0.0, ct, st ) );
+		}
+		return values;	
+	}( slices );
 
 	Math::dmat4 basis = Math::localFrame( dir );
 	basis[3] = {0.0, 0.0, 0.0, 1.0};
 
-	const Math::dmat4 rotateAroundStartPoint = basis * Math::translate( Math::dmat4( 1.0 ), startPoint );
+	const Math::dmat4 rotateAroundStartPoint = basis;
 
 	std::vector<Math::dvec3>  vertices;
 	std::vector<unsigned int> indices;
 	std::vector<Math::vec3>   normals;
 
-	// two points per iteration, one around at startPoint one around endPoint
-	for( int s=0,idx=0; s < slices; ++s, idx+=2 )
+	int idx = 0;
+	for( auto &s : circle )
 	{
-		const double theta = twopi * ( s / (double) slices);
-		const double ct = Math::cos( theta );
-		const double st = Math::sin( theta );
-
-		// build a circle on the plane YZ
-		const Math::dvec3 p = { 0.0, ct * radius, st * radius };
-		const Math::dvec3 n = Math::dvec3( 0.0, ct, st );
-
-		const Math::dvec3 pStart = rotateAroundStartPoint * Math::dvec4( p,1.0 );
+		// two points per iteration, one around at startPoint one around endPoint
+		const Math::dvec3 pStart = rotateAroundStartPoint * Math::dvec4( s*radius,1.0 );
 		const Math::dvec3 pEnd   = pStart + dir * len;
 
-		vertices.push_back( pEnd );
-		vertices.push_back( pStart );
-		normals.push_back( Math::dmat3( basis ) * n );
-		normals.push_back( Math::dmat3( basis ) * n );
+		vertices.emplace_back( startPoint+pEnd );
+		vertices.emplace_back( startPoint+pStart );
+		normals.emplace_back( Math::dmat3( basis ) * s );
+		normals.emplace_back( Math::dmat3( basis ) * s );
 		
-		// six indices per slices, i+=2
+		// six indices per slices, idx+=2
 		// 0 , 1 , 3
 		// 0 , 3 , 2		
-		indices.push_back( idx+0 );
-		indices.push_back( idx+1 );
-		indices.push_back( (idx+3) % loopIndex);
+		indices.emplace_back( idx+0 );
+		indices.emplace_back( idx+1 );
+		indices.emplace_back( (idx+3) % loopIndex);
 		
-		indices.push_back( idx+0 );
-		indices.push_back( (idx+3) % loopIndex );
-		indices.push_back( (idx+2) % loopIndex );
+		indices.emplace_back( idx+0 );
+		indices.emplace_back( (idx+3) % loopIndex );
+		indices.emplace_back( (idx+2) % loopIndex );
+
+		idx+=2;	
+	}
+
+	// add cap circle at start
+	if( capStart )
+	{
+		const int first = (int) vertices.size();
+		int k = 0;
+		for( auto &s : circle )
+		{
+			const Math::dvec3 pStart = rotateAroundStartPoint * Math::dvec4( s*radius,1.0 );
+
+			vertices.emplace_back( startPoint + pStart );
+			normals.emplace_back( -basis[0] );
+
+			if( k >= 2 )
+			{
+				indices.emplace_back( first + 0   );
+				indices.emplace_back( first + k-1 );
+				indices.emplace_back( first + k   );
+			}
+			
+			++k;
+		}
+	}
+
+	// add cap circle at end
+	if( capEnd )
+	{
+		const int first = (int) vertices.size();
+		int k = 0;
+		for( auto &s : circle )
+		{
+			const Math::dvec3 pEnd = Math::dvec3( rotateAroundStartPoint * Math::dvec4( s*radius, 1.0 ) ) + dir * len;
+			
+			vertices.emplace_back( startPoint + pEnd );
+			normals.emplace_back( basis[0] );
+
+			if( k >= 2 )
+			{
+				indices.emplace_back( first + 0   );
+				indices.emplace_back( first + k-1 );
+				indices.emplace_back( first + k   );
+			}
+			
+			++k;
+		}
 	}
 
 	return Math::Mesh ( vertices, normals,indices );
 }
+
+// ------------------------------------------------------------------------------------------------
+Math::Mesh S2CORE_API sphere( const Math::dvec3 &center, double radius, int slices )
+{
+	if( slices < 4 )
+		return {};
+
+	const int    rings = slices;
+	const double twopi = Math::two_pi<double>();
+	
+	std::vector<Math::dvec3>  vertices;
+	std::vector<Math::vec3>   normals;
+
+	const double dTheta = twopi / double( slices );
+    const double dPhi   = Math::pi<double>() / double( rings );
+    const double du     = 1.0 /   double( slices );
+    const double dv     = 1.0 /   double( rings );
+
+	for( int r = 0; r < rings+1; ++r )
+	{
+        const double phi    = Math::half_pi<double>() - double( r ) * dPhi;
+        const double cosPhi = Math::cos( phi );
+        const double sinPhi = Math::sin( phi );
+
+		for( int s = 0; s < slices+1; ++s )
+		{
+            const double theta    = double( s ) * dTheta;
+            const double cosTheta = Math::cos( theta );
+            const double sinTheta = Math::sin( theta );
+
+			const Math::dvec3 p = 
+			{
+				cosTheta * cosPhi,
+				sinPhi,
+				sinTheta * cosPhi
+			};
+
+			vertices.emplace_back( center +  p * radius );
+			normals.emplace_back( p );
+		}
+	}
+	
+	std::vector<unsigned int> indices;
+	{
+		int faces = ( slices * 2 ) * ( rings - 2 ); // two tris per slice, for all middle rings
+		faces += 2 * slices; // tri per slice for both top and bottom
+
+		const int indexCount = faces * 3;
+
+		indices.resize( indexCount );
+		unsigned int *indexPtr = &indices[0];
+
+		// top cap
+		{
+			const int nextRingStartIndex = slices + 1;
+			for( int j = 0; j < slices; ++j )
+			{
+				*indexPtr++ = nextRingStartIndex + j;
+				*indexPtr++ = 0;
+				*indexPtr++ = nextRingStartIndex + j + 1;
+			}
+		}
+
+		for( int i = 1; i < ( rings - 1 ); ++i )
+		{
+			const int ringStartIndex = i * ( slices + 1 );
+			const int nextRingStartIndex = ( i + 1 ) * ( slices + 1 );
+
+			for( int j = 0; j < slices; ++j )
+			{
+				// Split the quad into two triangles
+				*indexPtr++ = ringStartIndex + j;
+				*indexPtr++ = ringStartIndex + j + 1;
+				*indexPtr++ = nextRingStartIndex + j;
+				*indexPtr++ = nextRingStartIndex + j;
+				*indexPtr++ = ringStartIndex + j + 1;
+				*indexPtr++ = nextRingStartIndex + j + 1;
+			}
+		}
+
+		// bottom cap
+		{
+			const int ringStartIndex = ( rings - 1 ) * ( slices + 1 );
+			const int nextRingStartIndex = ( rings ) * ( slices + 1 );
+			for( int j = 0; j < slices; ++j )
+			{
+				*indexPtr++ = ringStartIndex + j + 1;
+				*indexPtr++ = nextRingStartIndex;
+				*indexPtr++ = ringStartIndex + j;
+			}
+		}
+	}
+
+	return Math::Mesh ( vertices, normals,indices );
+}
+
 
 
 

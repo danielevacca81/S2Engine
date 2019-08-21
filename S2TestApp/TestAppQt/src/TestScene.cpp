@@ -29,6 +29,19 @@
 
 using namespace s2;
 
+const std::vector<Math::dvec3> pipeCoords =
+{
+	Math::dvec3( 1,1,0 ),
+	Math::dvec3( 3,6,0 ),
+	Math::dvec3( 8,6,-4 ),
+	Math::dvec3( 8,10,-4 ),
+	Math::dvec3( 10,4,0 ),
+	Math::dvec3( 10,6,0 ),
+	Math::dvec3( 12,10,4 ),
+	Math::dvec3( 12,10,4 ),
+	Math::dvec3( 15,15,8 ),
+};
+
 // ------------------------------------------------------------------------------------------------
 TestScene::TestScene( QWidget *parent )
 : GLWidget( parent )
@@ -91,8 +104,7 @@ void TestScene::initializeGL()
 		//_meshes.push_back( torus );
 	}
 
-
-	const Math::Mesh cylinderMesh = s2::cylinder( Math::dvec3(0.0,0.0,0.0), Math::dvec3(3.0,.0,0.0), .2, true, true );
+	const Math::Mesh cylinderMesh = s2::cylinder( Math::dvec3(0.0,0.0,0.0), Math::dvec3(0.0,1.0,0.0), 1.0, true, true );
 	{
 		// convert into glmesh
 		std::vector<Math::vec3> pts;
@@ -111,8 +123,77 @@ void TestScene::initializeGL()
 		cyl->setNormals( normals );
 		cyl->setColors( colors );
 
-		_meshes.push_back( cyl );
+		//_meshes.push_back( cyl );
 	}
+
+
+	// pipe test
+	{
+		const bool spheresAtBeginEnd = false;
+		const double pipeRadius = 1.0;
+		const int detail        = 8;
+		
+		for( int i=0; i<pipeCoords.size(); ++i )
+		{
+			const bool capBegin = spheresAtBeginEnd ? false : i==0;
+			const bool capEnd   = spheresAtBeginEnd ? false : i != pipeCoords.size() - 1;
+
+			if( i + 1 < pipeCoords.size() )
+			{
+				const auto p0 = pipeCoords[i];
+				const auto p1 = pipeCoords[i + 1];
+
+				const Math::Mesh cylinderMesh = s2::cylinder( p0, p1, pipeRadius, capBegin, capEnd, detail );
+				{
+					// convert into glmesh
+					std::vector<Math::vec3> pts;
+					std::vector<Math::vec3> normals;
+					for( auto &v : cylinderMesh.vertices() )
+					{
+						pts.push_back( v.position );
+						normals.push_back( v.normal );
+					}
+
+					std::vector<Color> colors( cylinderMesh.vertices().size(), Color::yellow() );
+
+					auto cyl = s2::Renderer::PrimitiveBuffer::New();
+					cyl->setVertices( pts );
+					cyl->setIndices( cylinderMesh.indices() );
+					cyl->setNormals( normals );
+					cyl->setColors( colors );
+
+					_meshes.push_back( cyl );
+				}
+			}
+
+			if( spheresAtBeginEnd || (i != 0 && i != pipeCoords.size() - 1) )
+			{
+				const Math::Mesh sphereMesh = s2::sphere( pipeCoords[i], pipeRadius + ( pipeRadius*0.2 ), detail );
+				{
+					// convert into glmesh
+					std::vector<Math::vec3> pts;
+					std::vector<Math::vec3> normals;
+					for( auto &v : sphereMesh.vertices() )
+					{
+						pts.push_back( v.position );
+						normals.push_back( v.normal );
+					}
+
+					std::vector<Color> colors( sphereMesh.vertices().size(), Color::yellow() );
+
+					auto sphere = s2::Renderer::PrimitiveBuffer::New();
+					sphere->setVertices( pts );
+					sphere->setIndices( sphereMesh.indices() );
+					sphere->setNormals( normals );
+					sphere->setColors( colors );
+
+					_meshes.push_back( sphere );
+				}
+			}
+		}
+	
+	}
+
 
 	// SCENEGRAPH 
 	{
@@ -164,7 +245,7 @@ void TestScene::paintGL()
 	}
 
 
-	if( true )
+	if( false )
 	{
 		Renderer::DrawingState ds( GLResourcesLoader::_phong );
 		//ds.renderState.blending.enabled                = true;
@@ -184,10 +265,40 @@ void TestScene::paintGL()
 			_surface->draw( Renderer::Primitive::Triangles, m, ds );
 	}
 
+	if( true )
+	{
+		Renderer::DrawingState ds( GLResourcesLoader::_pipeShader );
+		//ds.renderState.rasterizationMode               = Renderer::RenderState::RasterizationMode::Line;
+		ds.renderState.faceCulling.enabled             = false;
+
+
+		ds.shaderProgram->uniform<Math::mat4>( "modelViewMatrix" )->set( _viewState.modelViewMatrix() );
+		ds.shaderProgram->uniform<Math::mat4>( "modelViewProjectionMatrix" )->set( _viewState.modelViewProjectionMatrix() );
+		ds.shaderProgram->uniform<Math::mat3>( "normalMatrix" )->set( _viewState.normalMatrix() );
+
+		std::vector<s2::Math::vec3> vertices( pipeCoords.begin(),pipeCoords.end() );
+		std::vector<Color> colors( vertices.size(), Color::red() );
+		
+		Renderer::PrimitiveBufferPtr m = Renderer::PrimitiveBuffer::New();
+		m->setVertices( vertices );
+		m->setColors( colors );
+
+		_surface->draw( Renderer::Primitive::LineStrip, m, ds );
+	}
+
 	if( false )
 	{
 		Renderer::DrawingState ds( GLResourcesLoader::_simpleShader );
 		ds.shaderProgram->uniform<Math::mat4>( "modelViewProjectionMatrix" )->set( _viewState.modelViewProjectionMatrix() );
+
+		std::vector<s2::Math::vec3> vertices = { {0,0,0},{1,1,0},{3,6,0},{8,6,-4} };
+		std::vector<Color> colors( vertices.size(), Color::red() );
+
+		Renderer::PrimitiveBufferPtr m = Renderer::PrimitiveBuffer::New();
+		m->setVertices( vertices );
+		m->setColors( colors );
+
+		_surface->draw( Renderer::Primitive::Points, m, ds );
 
 		// VOBJECTS QUICK DRAWING
 
@@ -200,7 +311,7 @@ void TestScene::paintGL()
 		//					 } );
 		//l.draw( _surface, ds );
 		
-		_sceneGraph.draw( _surface, ds );
+		//_sceneGraph.draw( _surface, ds );
 	}
 
 	_surface->swap( defaultFramebufferObject() );

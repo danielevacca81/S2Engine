@@ -36,5 +36,6 @@ public:
 	static s2::Renderer::ProgramPtr    _phong;
 	static s2::Renderer::ProgramPtr    _background;
 	static s2::Renderer::ProgramPtr    _simpleShader;
+	static s2::Renderer::ProgramPtr    _pipeShader;
 	//static int _composite;
 };

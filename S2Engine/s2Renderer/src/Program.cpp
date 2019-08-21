@@ -19,6 +19,7 @@
 
 #include <vector>
 #include <sstream>
+#include <iostream>
 
 using namespace s2::Renderer;
 
@@ -213,6 +214,9 @@ bool Program::attachGeometryShader( const std::string &geometrySource )
 
 		std::vector<GLchar> infoLog( maxLength );
 		glGetShaderInfoLog( _gshd, maxLength, &maxLength, &infoLog[0] );
+		std::string ss( infoLog.begin(), infoLog.end() );
+		
+		std::cout << ss << '\n';
 
 		glDeleteShader( _gshd );
 		return false;

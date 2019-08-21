@@ -8,71 +8,12 @@
 #include "math/Geometry.h"
 #include "utils/String.h"
 
-//#include "mMap/API.h"
-
 #include <iostream>
-
-
-/*********************************/
-// JSON to configure the mMap SDK
-// for a complete list of options see Native Functions/myVR in the SDK documentation
-const char* JSON_mMapInitialize = R"json(
-{
-})json";
-
-// This will create a service layer to provide open street map tiles for the 2D Map layer
-const char* JSON_Layer_OpenStreetMapService = R"json(
-{
-    "createLayer": {
-        "type": "OpenStreetMapService",
-        "execute": {
-            "configure": {
-                "default-server-type": 0,
-                "projection": "EPSG:3857",
-                "servers": [
-                    {
-                        "type": 0,
-                        "urls": [
-                            "http://osmtiles.myvr.net/osm_tiles/%l/%x/%y.png"
-                        ]
-                    }
-                ]
-            }
-        }
-    }
-})json";
-
-// This creates the 2D Map layer and then runs some configuration on it
-const char* JSON_Layer_Map2D = R"json(
-{
-    "createLayer": {
-        "type": "Map2D",
-    "id" : 50,
-        "execute": [
-            {
-                "configure": {
-                    "type": 0,
-                    "default-texture": "http://config-srk.myvr.net/mMapNative/configs-test/myvr-default.png"
-                }
-            },
-            {
-                "setPosition": {
-                    "longitude": 10.75,
-                    "latitude": 59.916667,
-                    "lod": 15,
-                    "time": 0
-                }
-            }
-        ]
-    }
-})json";
-
-/**************************************************************************************************/
-
 
 
 s2::Renderer::PrimitiveBufferPtr  GLResourcesLoader::_torus;
 s2::Renderer::PrimitiveBufferPtr  GLResourcesLoader::_cube;
+s2::Renderer::ProgramPtr          GLResourcesLoader::_pipeShader;
 s2::Renderer::ProgramPtr          GLResourcesLoader::_phong;
 s2::Renderer::ProgramPtr          GLResourcesLoader::_background;
 s2::Renderer::ProgramPtr          GLResourcesLoader::_simpleShader;
@@ -416,5 +357,191 @@ void GLResourcesLoader::initShaders()
 
 
 		std::cout << _simpleShader->info( true ) << std::endl;
+	}
+
+
+
+	// TEST PIPE SHADER
+	_pipeShader = Renderer::Program::New();
+	{		
+		const bool vsOk = _pipeShader->attachVertexShader( STRINGIFY(
+		#version 400\n
+		//uniform mat4 modelViewProjectionMatrix;
+		//uniform mat4 modelViewMatrix;
+		//uniform mat3 normalMatrix;
+
+		in  vec3 in_Vertex;
+		in  vec4 in_Color;
+		in  vec3 in_Normal;
+
+		out VS_OUT
+		{
+			vec4 color;
+		} vs_out;
+
+		void main()
+		{
+			gl_Position  = vec4( in_Vertex, 1.0 ); // passthrough worldspace coordinates 
+			vs_out.color = in_Color;
+		}
+		) );
+
+		//********************
+
+		const bool gsOk = _pipeShader->attachGeometryShader( STRINGIFY(
+			#version 400\n
+			layout( lines) in;
+			layout( triangle_strip, max_vertices = 256 ) out;
+
+			in VS_OUT
+			{
+				vec4 color;
+			} gs_in[];
+
+
+			// pass through 
+			out vec3 normalInterp;
+			out vec3 vertPos;
+			out vec4 color;
+
+			uniform mat4 modelViewProjectionMatrix;
+			uniform mat4 modelViewMatrix;
+			uniform mat3 normalMatrix;
+			uniform int slices;
+
+			const float PI     = 3.1415926535897932384626433832795;
+
+			// project p onto plane (n,0.0)
+			void computePlaneProjction( vec4 n, vec4 p, out vec4 prj )
+			{
+				prj = p - ( ( dot( n, p ) + vec4( 0.0 ) ) * n );
+			}
+
+			// build local rotation matrix to align the cylinder to the X local axis
+			void buildFrame( vec4 dir, out mat4 rot )
+			{
+				vec4 x0 = vec4( 1.0, 0.0, 0.0, 0.0 );
+				vec4 y0 = vec4( 0.0, 1.0, 0.0, 0.0 );
+				vec4 z0 = vec4( 0.0, 0.0, 1.0, 0.0 );
+
+				vec4 pX; computePlaneProjction( dir, x0, pX );
+				vec4 pY; computePlaneProjction( dir, y0, pY );
+				vec4 pZ; computePlaneProjction( dir, z0, pZ );
+
+				// compute lenght of each projection
+				float xLen = length( pX );
+				float yLen = length( pY );
+				float zLen = length( pZ );
+
+				vec4 ortho;
+				if( xLen > yLen )
+				{
+					if( xLen > zLen ) ortho = pX;
+					else              ortho = pZ;
+				}
+				else
+				{
+					if( yLen > zLen ) ortho = pY;
+					else              ortho = pZ;
+				}
+
+				rot[0] = dir;
+				rot[1] = normalize( ortho );
+				rot[2] = vec4( normalize( cross( vec3(dir), vec3(ortho) ) ), 0.0 );
+				rot[3] = vec4( 0.0, 0.0, 0.0, 1.0 );
+			}
+		
+			void main()
+			{
+				const int slices   = 32;
+				const float radius = 1.0;
+				vec4 p0            = gl_in[0].gl_Position;
+				vec4 p1            = gl_in[1].gl_Position;
+				float len          = length( p1 - p0 );
+				vec4 dir           = normalize( p1 - p0 );
+
+				mat4 frame; buildFrame( dir, frame );
+
+				const float dTheta = 2.0 * PI / float( slices );
+
+				for( int s=0; s < slices+1; ++s )
+				{
+					float theta = s * dTheta;
+					float ct    = cos( theta );
+					float st    = sin( theta );
+
+					vec4 startPoint = p0 + ( frame * vec4( 0.0, ct*radius, st*radius, 1.0 ) );
+					vec4 endPoint   = ( startPoint + dir * len );
+					vec4 pos;
+
+					gl_Position  = modelViewProjectionMatrix * endPoint;
+					pos          = modelViewMatrix * endPoint;
+					vertPos      = vec3( pos) / pos.w;
+					normalInterp = normalMatrix * mat3(frame) * vec3( 0.0, ct*radius, st*radius );					
+					color        = gs_in[1].color;
+					EmitVertex();
+
+
+					gl_Position  = modelViewProjectionMatrix * startPoint;
+					pos          = modelViewMatrix * startPoint;
+					vertPos      = vec3( pos) / pos.w;
+					normalInterp = normalMatrix * mat3(frame) * vec3( 0.0, ct*radius, st*radius );					
+					color        = gs_in[0].color;					
+					EmitVertex();
+				}
+				EndPrimitive();
+				
+				// start sphere caps...
+			}
+		) );
+
+		_pipeShader->attachFragmentShader( STRINGIFY(
+		#version 400\n
+		uniform vec4  lightPosition;
+		uniform vec4  lightAmbient;
+		uniform vec4  lightDiffuse;
+		uniform vec4  lightSpecular;
+		uniform float lightShininess;
+
+		in vec3 normalInterp;
+		in vec3 vertPos;
+		in vec4 color;
+
+		out vec4 fragColor;
+
+		void main()
+		{
+			vec3 normal      = normalize( normalInterp );
+			vec3 lightDir    = normalize( lightPosition.xyz - vertPos );
+			float lambertian = max( dot( lightDir, normal ), 0.0 );
+			float specular   = 0.0;
+
+			vec3 viewDir    = normalize( -vertPos );
+
+			vec3 halfDir    = normalize( lightDir + viewDir );
+			float specAngle = max( dot( halfDir, normal ), 0.0 );
+			specular        = pow( specAngle, lightShininess );
+
+			fragColor = color *
+				vec4( lightAmbient +
+					  lightDiffuse  * lambertian +
+					  lightSpecular * specular );
+		} 
+		) );
+
+		_pipeShader->link("PipeShader");
+
+		std::cout << _pipeShader->info( true );
+
+
+		_pipeShader->uniform<Math::vec4>( "lightPosition" )->set( Math::vec4( 0, 0, 10, 1 ) );
+		_pipeShader->uniform<Math::vec4>( "lightAmbient" )->set( Math::vec4( 0.1, 0.1, 0.1, 1 ) );
+		_pipeShader->uniform<Math::vec4>( "lightDiffuse" )->set( Math::vec4( .7, .7, .7, 1 ) );
+		_pipeShader->uniform<Math::vec4>( "lightSpecular" )->set( Math::vec4( 1, 1, 1, 1 ) );
+		_pipeShader->uniform<float>     ( "lightShininess" )->set( 125.f );
+
+		_pipeShader->uniform<Math::mat4>( "modelViewProjectionMatrix" )->set( Math::mat4( 1 ) );
+		_pipeShader->uniform<Math::mat4>( "modelViewMatrix"           )->set( Math::mat4( 1 ) );
+		_pipeShader->uniform<Math::mat3>( "normalMatrix"              )->set( Math::mat3( 1 ) );
 	}
 }

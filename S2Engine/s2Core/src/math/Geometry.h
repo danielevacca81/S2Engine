@@ -26,6 +26,8 @@ std::vector< Math::dvec2 > S2CORE_API circle( const Math::dvec2 &center, double 
 //Mesh S2CORE_API torus( double innerRadius, double outerRadius, int numc, int numt );
 Math::Mesh S2CORE_API torus( double innerRadius, double outerRadius, int sidesCount=64, int ringsCount=32 );
 Math::Mesh S2CORE_API cylinder( const Math::dvec3 &startPoint, const Math::dvec3 &endPoint, double radius, bool capStart, bool capEnd, int slices = 32 );
+Math::Mesh S2CORE_API sphere( const Math::dvec3 &center, double radius, int slices = 32 );
+
 //VMesh S2CORE_API teapot( int resU, int resV );
 
 }
