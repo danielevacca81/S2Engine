@@ -4,7 +4,7 @@
 
 #include "OpenGL.h"
 
-using namespace s2::Renderer;
+using namespace Renderer;
 
 // ------------------------------------------------------------------------------------------------
 Device &Device::get()
@@ -28,6 +28,7 @@ int Device::maxAttribPerVertex() const
 {
 	int value = 0;
 	glGetIntegerv( GL_MAX_VERTEX_ATTRIBS, &value);
+	glCheck;
 	return value;
 }
 
@@ -35,6 +36,7 @@ int Device::maxAttribPerVertex() const
 int Device::numberOfTextureUnits() const
 {
 	int value = 0;
-	glGetIntegerv( GL_MAX_TEXTURE_UNITS, &value);
+	glGetIntegerv( GL_MAX_TEXTURE_IMAGE_UNITS, &value);
+	glCheck;
 	return value;
 }

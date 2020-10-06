@@ -9,7 +9,6 @@
 
 #include <memory>
 
-namespace s2 {
 namespace Renderer {
 
 /************************************************************************************************/
@@ -100,6 +99,4 @@ private:
 };
 
 } // namespace Renderer
-
-}
 #endif

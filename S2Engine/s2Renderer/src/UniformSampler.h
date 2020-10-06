@@ -7,8 +7,6 @@
 
 #include "Uniform.h"
 
-namespace s2 {
-
 namespace Renderer {
 
 class S2RENDERER_API UniformSampler : public UniformValue<int>
@@ -24,6 +22,5 @@ public:
 	void set();
 };
 
-}
 }
 #endif

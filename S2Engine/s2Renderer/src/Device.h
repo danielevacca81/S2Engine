@@ -7,7 +7,6 @@
 
 #include <string>
 
-namespace s2{
 namespace Renderer {
 
 class S2RENDERER_API Device
@@ -28,6 +27,4 @@ private:
 };
 
 }
-}
-
 #endif

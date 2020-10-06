@@ -5,7 +5,6 @@
 
 #include "s2Renderer_API.h"
 
-namespace s2{
 namespace Renderer {
 
 /************************************************************************************************/
@@ -70,6 +69,4 @@ int sizeInBytes( const ImageDataType &dataType );
 int computeRequiredSizeInBytes( int width, int height, const ImageFormat &format, const ImageDataType &dataType, int rowAlignment );
 
 }
-}
-
 #endif

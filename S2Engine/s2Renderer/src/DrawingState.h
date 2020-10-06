@@ -9,7 +9,6 @@
 #include "Program.h"
 #include "TextureUnit.h"
 
-namespace s2 {
 namespace Renderer {
 
 struct DrawingState
@@ -23,6 +22,6 @@ struct DrawingState
 	, renderState( renderState )
 	{}
 };
-}
+
 }
 #endif

@@ -5,8 +5,10 @@
 #include "OpenGL.h" 
 #include "OpenGLWrap.h"
 
-using namespace s2;
-using namespace s2::Renderer;
+#include <algorithm>
+
+
+using namespace Renderer;
 
 // ------------------------------------------------------------------------------------------------
 static void makeGLAttachment( const FrameBuffer::AttachmentPoint &attachPoint, const Texture2DPtr &texture )
@@ -27,7 +29,7 @@ FrameBufferPtr FrameBuffer::New()
 // ------------------------------------------------------------------------------------------------
 FrameBuffer::FrameBuffer()
 : _changes( Changes::None )
-, _colorAttachments( 10 )
+, _colorAttachments( kMaxColorAttachment )
 , _colorAttachmentCount( 0 )
 {
 	create();
@@ -81,12 +83,20 @@ void FrameBuffer::reset()
 	_colorAttachments       = std::vector<ColorAttachment>(10);
 }
 
+// -------------------------------------------------------------------------------------------------
+int FrameBuffer::objectLabelIdentifier() const 
+{
+	return GL_FRAMEBUFFER;
+}
+
 // ------------------------------------------------------------------------------------------------
 bool FrameBuffer::create()
 {
 	destroy();
 
+	storeGlContext();
 	glGenFramebuffers( 1, &_objectID );
+	glCheck;
 	
 	_created = true;
 	return _created;
@@ -98,14 +108,18 @@ void FrameBuffer::destroy()
 	if( !isCreated() )
 		return;
 
-	glDeleteBuffers( 1, &_objectID );
+	checkGlContext();
+	glDeleteFramebuffers( 1, &_objectID );
+	glCheck;
 	reset();
 }
 
 // ------------------------------------------------------------------------------------------------
 void FrameBuffer::bind() const
 {
+	checkGlContext();
 	glBindFramebuffer( GL_FRAMEBUFFER, _objectID );
+	glCheck;
 
 	if( ( _changes & Changes::Color ) == Changes::Color )
 	{
@@ -154,6 +168,7 @@ void FrameBuffer::bind() const
 // ------------------------------------------------------------------------------------------------
 void FrameBuffer::unbind() const
 {
+	checkGlContext();
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 	glCheck;
 }
@@ -186,6 +201,39 @@ Texture2DPtr FrameBuffer::attachment( const AttachmentPoint &a ) const
 	return nullptr;
 }
 
+// ------------------------------------------------------------------------------------------------
+int  FrameBuffer::colorAttachmentDrawBufferIndex( const AttachmentPoint a ) const 
+{ 
+	assert( a < kMaxColorAttachment );
+
+	if( !_colorAttachments[a].texture )
+		return -1;
+
+	int retval = 0;
+	std::for_each( _colorAttachments.begin(), _colorAttachments.begin()+a, [&retval]( const auto &item ) { 
+		if( item.texture ) ++retval;
+	} );
+
+	return retval; 
+}
+
+// ------------------------------------------------------------------------------------------------
+/**
+	the frame buffer must be bound before calling readPixels
+*/
+void FrameBuffer::readPixels( const AttachmentPoint attachPoint, const ImageFormat pixelFormat,
+							  const ImageDataType pixelType, const Math::Rectangle &roi, void *pixels ) const
+{
+	//bind();
+	//glBindFramebuffer( GL_READ_FRAMEBUFFER, _objectID );
+ 
+	glReadBuffer( glWrap(attachPoint) );
+	glReadPixels( roi.left(), roi.bottom(), roi.width(), roi.height(), glWrap(pixelFormat), glWrap(pixelType), pixels );
+	glCheck;
+
+	//if( !_bound )
+	//	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+}
 
 // ------------------------------------------------------------------------------------------------
 void FrameBuffer::attach( const AttachmentPoint &attachPoint, const Texture2DPtr &texture )
@@ -252,8 +300,11 @@ void FrameBuffer::attach( const AttachmentPoint &attachPoint, const Texture2DPtr
 // ------------------------------------------------------------------------------------------------
 std::string FrameBuffer::info()        const
 {
-	std::string ret( "Unknown error" );
-	const GLenum r = glCheckFramebufferStatus( GL_FRAMEBUFFER );
+	std::string ret( "Unknown error" );
+
+	const GLenum r = glCheckFramebufferStatus( GL_FRAMEBUFFER );
+	glCheck;
+
 	switch( r )
 	{
 	case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:         ret = "Incomplete attachment";  break;

@@ -8,7 +8,6 @@
 #include "Program.h"
 #include "Sampler.h"
 
-namespace s2 {
 namespace Renderer {
 
 class S2RENDERER_API BuiltIn
@@ -30,17 +29,19 @@ public:
 	static SamplerPtr samplerNearestRepeat;
 	static SamplerPtr samplerLinearRepeat;
 
-	static void enableDebugOutput();
+	static void enableDebugOutput( /*severity, source...*/);
+	static void disableDebugOutput();
+	static bool isDebugOutputEnabled();
 
 
 private:
 	static bool _initialized; //todo: once per context
+	static bool _debugEnabled;
 
 };
 
 
 
-}
 }
 #endif // !BUILTIN_ONCE
 

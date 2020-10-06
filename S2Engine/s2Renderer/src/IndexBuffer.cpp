@@ -4,8 +4,8 @@
 
 #include "OpenGLWrap.h"
 
-using namespace s2;
-using namespace s2::Renderer;
+
+using namespace Renderer;
 
 // -------------------------------------------------------------------------------------------------
 IndexBuffer::IndexBuffer()

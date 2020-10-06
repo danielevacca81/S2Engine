@@ -7,8 +7,6 @@
 
 #include "BufferObject.h"
 
-namespace s2 {
-
 namespace Renderer {
 
 /************************************************************************************************/
@@ -55,6 +53,4 @@ private:
 };
 
 } // namespace Renderer
-
-}
 #endif

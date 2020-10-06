@@ -5,8 +5,8 @@
 #include "OpenGL.h"
 #include "OpenGLWrap.h"
 
-using namespace s2;
-using namespace s2::Renderer;
+
+using namespace Renderer;
 
 
 //-------------------------------------------------------------------------------------------------
@@ -54,9 +54,6 @@ AttributeBuffer::AttributeBuffer()
 //	std::swap( _vertexBuffer,      other._vertexBuffer       );
 //}
 
-//-------------------------------------------------------------------------------------------------
-AttributeBuffer::~AttributeBuffer()
-{}
 
 //-------------------------------------------------------------------------------------------------
 //AttributeBuffer &AttributeBuffer::operator=( AttributeBuffer &&other )
@@ -98,13 +95,38 @@ void AttributeBuffer::attach( int loc )
 	glCheck;
 
 	_vertexBuffer.bind();
-	glVertexAttribPointer( loc,
-						   _numberOfComponents,
-						   glWrap( _componentDatatype ),
-						   _normalize,
-						   _stride,               // stride in bytes
-						   BUFFER_OFFSET( _offset ) // offset in bytes
-	);
+	switch( _componentDatatype )
+	{
+	// glVertexAttribIPointer for integral types
+	case Renderer::AttributeBuffer::Byte: 
+	case Renderer::AttributeBuffer::UnsignedByte:
+	case Renderer::AttributeBuffer::Short:
+	case Renderer::AttributeBuffer::UnsignedShort:
+	case Renderer::AttributeBuffer::Int:
+	case Renderer::AttributeBuffer::UnsignedInt:
+		glVertexAttribIPointer( loc,
+							   _numberOfComponents,
+							   glWrap( _componentDatatype ),							   
+							   _stride,               // stride in bytes
+							   BUFFER_OFFSET( _offset ) // offset in bytes
+		);
+		break;
+	
+	// glVertexAttribPointer for floating point types
+	case Renderer::AttributeBuffer::Float:
+	case Renderer::AttributeBuffer::HalfFloat:
+	case Renderer::AttributeBuffer::Double: // tbd glVertexAttribLPointer
+	default:
+		glVertexAttribPointer( loc,
+							   _numberOfComponents,
+							   glWrap( _componentDatatype ),
+							   _normalize,
+							   _stride,               // stride in bytes
+							   BUFFER_OFFSET( _offset ) // offset in bytes
+		);
+		break;
+	}
+
 	glCheck;
 
 	_location = loc;

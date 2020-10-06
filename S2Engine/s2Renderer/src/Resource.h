@@ -11,7 +11,6 @@
 #include <memory>
 #include <string>
 
-namespace s2{
 namespace Renderer {
 
 class Resource;
@@ -31,7 +30,5 @@ protected:
 };
 
 }
-}
-
 #endif
 #endif

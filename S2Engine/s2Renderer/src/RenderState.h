@@ -3,10 +3,9 @@
 #ifndef RENDERSTATE_ONCE
 #define RENDERSTATE_ONCE
 
-#include "graphics/Color.h"
-#include "Math/Rectangle.h"
+#include "Core/Color.h"
+#include "Core/Rectangle.h"
 
-namespace s2 {
 namespace Renderer {
 
 /************************************************************************/
@@ -80,6 +79,22 @@ struct ScissorTest
 };
 
 /************************************************************************/
+/*                             VIEWPORT                                 */
+/************************************************************************/
+struct Viewport
+{
+	Viewport()
+	: Viewport( 0,0,0,0 )
+	{}
+
+	Viewport( int x, int y, int width, int height )
+	: rect( x, y, width, height )
+	{}
+
+	Math::Rectangle rect;
+};
+
+/************************************************************************/
 /*                              STENCILTEST                             */
 /************************************************************************/
 struct StencilTestFace
@@ -122,7 +137,7 @@ struct StencilTestFace
 	StencilOperation    depthPassStencilPassOperation;
 	StencilTestFunction function;
 	int                 referenceValue;
-	int                 mask;
+	int                 mask;	// read/comparison mask
 };
 
 
@@ -261,15 +276,38 @@ struct ColorMask
 };
 
 /************************************************************************/
+/*                              STENCILMASK                             */
+/************************************************************************/
+struct StencilMask
+{
+	StencilMask( const unsigned fornMask, const unsigned backMask )
+	: front( fornMask )
+	, back( backMask )
+	{}
+
+	unsigned front;
+	unsigned back;
+
+	bool equals( const StencilMask &other )
+	{
+		return 
+			front == other.front &&
+			back == other.back;
+	}
+};
+
+/************************************************************************/
 /*                            CLEARBUFFERS                              */
 /************************************************************************/
 enum class ClearBuffers
 {
-	ColorBuffer,
-	DepthBuffer,
-	StencilBuffer,
-	ColorAndDepthBuffer,
-	All,
+	ColorBuffer             = 1,
+	DepthBuffer             = 2,
+	StencilBuffer           = 4,
+	ColorAndDepthBuffer     = ColorBuffer | DepthBuffer,
+	ColorAndStencilBuffer   = ColorBuffer | StencilBuffer,
+	StencilAndDepthBuffer   = StencilBuffer | DepthBuffer,
+	All = ColorBuffer | DepthBuffer | StencilBuffer,
 };
 
 /************************************************************************/
@@ -289,6 +327,7 @@ struct RenderState
 	, faceCulling()
 	, programPointSize()
 	, rasterizationMode( RasterizationMode::Fill )
+	, lineWidth( 1.0f )
 	, scissorTest()
 	, stencilTest()
 	, depthTest()
@@ -296,12 +335,15 @@ struct RenderState
 	, blending()
 	, colorMask( true, true, true, true )
 	, depthMask( true )
+	, stencilMask( ~0u, ~0u )
 	{}
 
+	Viewport          viewport;
 	PrimitiveRestart  primitiveRestart;
 	FaceCulling       faceCulling;
 	ProgramPointSize  programPointSize;
 	RasterizationMode rasterizationMode;
+	float             lineWidth;
 	ScissorTest       scissorTest;
 	StencilTest       stencilTest;
 	DepthTest         depthTest;
@@ -309,8 +351,8 @@ struct RenderState
 	Blending          blending;
 	ColorMask         colorMask;
 	bool              depthMask;
+	StencilMask       stencilMask;
 };
 
-}
 }
 #endif

@@ -18,18 +18,18 @@
 #include "UniformFloatMatrix44.h"
 
 
-using namespace s2;
+
 using namespace Renderer;
 
-void UniformBool::set()    { glUniform1i( _location, _value ); }
-void UniformFloat::set()   { glUniform1f( _location, _value ); }
-void UniformInt::set()     { glUniform1i( _location, _value ); }
-void UniformSampler::set() {}
+void UniformBool::set()    { glUniform1i( _location, _value ); glCheck; }
+void UniformFloat::set()   { glUniform1f( _location, _value ); glCheck; }
+void UniformInt::set()     { glUniform1i( _location, _value ); glCheck; }
+void UniformSampler::set() { glUniform1i( _location, _value ); glCheck; }
 
-void UniformFloatVector2::set() { glUniform2fv( _location, 1, Math::value_ptr( _value ) ); }
-void UniformFloatVector3::set() { glUniform3fv( _location, 1, Math::value_ptr( _value ) ); }
-void UniformFloatVector4::set() { glUniform4fv( _location, 1, Math::value_ptr( _value ) ); }
+void UniformFloatVector2::set() { glUniform2fv( _location, 1, Math::value_ptr( _value ) ); glCheck; }
+void UniformFloatVector3::set() { glUniform3fv( _location, 1, Math::value_ptr( _value ) ); glCheck; }
+void UniformFloatVector4::set() { glUniform4fv( _location, 1, Math::value_ptr( _value ) ); glCheck; }
 
-void UniformFloatMatrix22::set() { glUniformMatrix2fv( _location, 1, false, Math::value_ptr( _value ) ); }
-void UniformFloatMatrix33::set() { glUniformMatrix3fv( _location, 1, false, Math::value_ptr( _value ) ); }
-void UniformFloatMatrix44::set() { glUniformMatrix4fv( _location, 1, false, Math::value_ptr( _value ) ); }
+void UniformFloatMatrix22::set() { glUniformMatrix2fv( _location, 1, false, Math::value_ptr( _value ) ); glCheck; }
+void UniformFloatMatrix33::set() { glUniformMatrix3fv( _location, 1, false, Math::value_ptr( _value ) ); glCheck; }
+void UniformFloatMatrix44::set() { glUniformMatrix4fv( _location, 1, false, Math::value_ptr( _value ) ); glCheck; }

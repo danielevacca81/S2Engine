@@ -2,4 +2,4 @@
 //
 #include "TextureFormat.h"
 
-using namespace s2::Renderer;
+using namespace Renderer;

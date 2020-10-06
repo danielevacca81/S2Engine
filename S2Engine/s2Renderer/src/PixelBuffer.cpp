@@ -2,7 +2,7 @@
 //
 #include "PixelBuffer.h"
 
-using namespace s2::Renderer;
+using namespace Renderer;
 
 
 /************************************************************************************************/

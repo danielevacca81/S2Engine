@@ -11,8 +11,8 @@
 #include <map>
 #include <string>
 #include <memory>
+#include <vector>
 
-namespace s2 {
 namespace Renderer {
 
 /************************************************************************************************/
@@ -66,16 +66,33 @@ public:
 		auto it = _uniforms.find( name );
 
 		if( it == _uniforms.end() )
-			return 0;
+			return unusedUniform<T>();
 
 		return dynamic_cast<UniformValue<T> *>( it->second );
 	}
 
 
+
+
 private:
 	void reset() override;
 	void findUniforms();
-	Uniform *createUniform( const std::string &name, unsigned int loc, unsigned int type );
+	static Uniform *createUniform( const std::string &name, unsigned int loc, unsigned int type );
+	static void prepareUnusedUniforms();
+	int  objectLabelIdentifier() const override;
+
+	template< typename T >
+	inline UniformValue<T> *unusedUniform() const
+	{
+		for( auto &u : _unusedUniforms )
+		{
+			auto unused = dynamic_cast<UniformValue<T> *>( u );
+			if( unused )
+				return unused;
+		}
+		
+		return nullptr;
+	}
 
 private:
 	unsigned int _vshd;
@@ -86,8 +103,8 @@ private:
 
 	std::map< std::string, unsigned int > _attributes;
 	std::map< std::string, Uniform*>       _uniforms;
+	static std::vector< Uniform *>         _unusedUniforms; // workaround to prevent crashes when setting missing uniforms :(
 };
 
-}
 }
 #endif

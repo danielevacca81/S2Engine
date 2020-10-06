@@ -9,7 +9,7 @@
 
 #include "BuiltIn.h" //samplers
 
-using namespace s2::Renderer;
+using namespace Renderer;
 
 // -------------------------------------------------------------------------------------------------
 Texture2DPtr Texture2D::New( const TextureDescription &desc, void *data )
@@ -72,7 +72,9 @@ TextureDescription Texture2D::description() const { return _description; }
 bool Texture2D::create()
 {
 	destroy();
+	storeGlContext();
 	glGenTextures( 1, &_objectID );
+	glCheck;
 
 	if( _description.isRectagle() )
 	{
@@ -97,14 +99,16 @@ void Texture2D::destroy()
 	if( !isCreated() )
 		return;
 
+	checkGlContext();
 	glDeleteTextures( 1, &_objectID );
+	glCheck;
 	reset();
 }
 
 // -------------------------------------------------------------------------------------------------
-void Texture2D::bind()   const { glBindTexture( GL_TEXTURE_2D, _objectID ); }
-void Texture2D::unbind() const { glBindTexture( GL_TEXTURE_2D, 0 ); }
-void Texture2D::unbindAll()    { glBindTexture( GL_TEXTURE_2D, 0 ); }
+void Texture2D::bind()   const { checkGlContext(); glBindTexture( GL_TEXTURE_2D, _objectID ); glCheck; }
+void Texture2D::unbind() const { checkGlContext(); glBindTexture( GL_TEXTURE_2D, 0 ); glCheck; }
+void Texture2D::unbindAll()    { glBindTexture( GL_TEXTURE_2D, 0 ); glCheck; }
 
 // -------------------------------------------------------------------------------------------------
 void Texture2D::setDefaultSampler()
@@ -112,24 +116,38 @@ void Texture2D::setDefaultSampler()
 	const SamplerPtr sampler = BuiltIn::samplerLinearClamp;
 
 	/*todo : handle gl texture rectangle in case of description.isRectangle*/
+	checkGlContext();
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, glWrap( sampler->minificationFilter() ) );
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, glWrap( sampler->magnificationFilter() ) );
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,     glWrap( sampler->wrapS() ) );
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,     glWrap( sampler->wrapT() ) );
+	glCheck;
 }
 
 // -------------------------------------------------------------------------------------------------
 void Texture2D::generateMipmaps()
 {
 	if( _description.isGenerateMipmapsEnabled() )
+	{
+		checkGlContext();
 		glGenerateMipmap( GL_TEXTURE_2D ); // dv: to be tested 
+		glCheck;
+	}
+}
+
+// -------------------------------------------------------------------------------------------------
+int  Texture2D::objectLabelIdentifier() const 
+{
+	return GL_TEXTURE;
 }
 
 // -------------------------------------------------------------------------------------------------
 void Texture2D::setData( void* pixels /*, int rowAlignment = 4 */ )
 {
+	checkGlContext();
 	glActiveTexture( GL_TEXTURE0 ); //bind to last?
 	bind();
+	checkGlContext();
 	glTexImage2D( GL_TEXTURE_2D,
 			      0,
 			      glWrap( _description.textureFormat() ),
@@ -139,9 +157,16 @@ void Texture2D::setData( void* pixels /*, int rowAlignment = 4 */ )
 			      glWrapTextureFormatToPixelFormat( _description.textureFormat() ),
 			      glWrapTextureFormatToPixelType( _description.textureFormat() ),
 			      pixels );
+	glCheck;
 	unbind();
 }
 
+// -------------------------------------------------------------------------------------------------
+void Texture2D::resize( const int width, const int height )
+{
+	_description = TextureDescription( width, height, _description.textureFormat(), _description.isGenerateMipmapsEnabled() );
+	setData( nullptr );
+}
 
 // -------------------------------------------------------------------------------------------------
 void Texture2D::update(int xOffset, int yOffset, 
@@ -151,6 +176,7 @@ void Texture2D::update(int xOffset, int yOffset,
 				 void* pixels/*, int rowAlignment = 4 */)
 {
 	bind();
+	checkGlContext();
 	glTexSubImage2D( GL_TEXTURE_2D,
 					 0,
 					 xOffset,
@@ -160,6 +186,7 @@ void Texture2D::update(int xOffset, int yOffset,
 					 glWrap( imgFormat ),
 					 glWrap( imgDataType ),
 					 pixels );
+	glCheck;
 	unbind();
 }
 
@@ -172,6 +199,7 @@ void Texture2D::update(int xOffset, int yOffset,
 {
 	bind();
 	gpuBuffer.bind();
+	checkGlContext();
 	glTexSubImage2D( GL_TEXTURE_2D,
 					 0,
 					 xOffset,
@@ -181,11 +209,12 @@ void Texture2D::update(int xOffset, int yOffset,
 					 glWrap( imgFormat ),
 					 glWrap( imgDataType ),
 					 nullptr );
+	glCheck;
 	unbind();
 }
 
 // -------------------------------------------------------------------------------------------------
-s2::ImageBufferPtr<unsigned char> Texture2D::readData() const
+ImageBuffer<uint8_t> Texture2D::readData() const
 {
  //public override ReadPixelBuffer CopyToBuffer(
 	// ImageFormat format,
@@ -226,12 +255,13 @@ s2::ImageBufferPtr<unsigned char> Texture2D::readData() const
 	ReadPixelBuffer pixelBuffer = ReadPixelBuffer( sizeInBytes, ReadPixelBuffer::UsageHint::Dynamic );
 	pixelBuffer.bind();
 	
+	checkGlContext();
 	glGetTexImage( GL_TEXTURE_2D, 0, glWrap( format ), glWrap( dataType ), BUFFER_OFFSET(0) );
 	glCheck;
 	//unbind();
 	//glCheck;
 
-	s2::ImageBufferPtr<unsigned char> img = s2::ImageBuffer<unsigned char>::New( _description.width(), _description.height(), 4, (unsigned char*)pixelBuffer.mapData() );
+	ImageBuffer<uint8_t> img( _description.width(), _description.height(), 4, (uint8_t*)pixelBuffer.mapData() );
 	pixelBuffer.unmapData();
 	pixelBuffer.unbind();
 	unbind();

@@ -2,7 +2,6 @@
 //
 #include "ImageFormat.h"
 
-namespace s2 {
 namespace Renderer {
 
 // -------------------------------------------------------------------------------------------------
@@ -80,5 +79,4 @@ int computeRequiredSizeInBytes( int width, int height, const ImageFormat &format
 	return rowSize * height;
 }
 
-}
 }

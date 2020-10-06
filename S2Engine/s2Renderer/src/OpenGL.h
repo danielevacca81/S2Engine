@@ -11,10 +11,9 @@
 #include <GL/glu.h>
 
 
-namespace s2 {
 namespace Renderer{
 
-#ifndef NDEBUG
+#ifdef _DEBUG
 	#define glCheck			glCheckError(__FILE__, __LINE__)
 	#define glValidate		glGetError() == 0
 #else
@@ -25,6 +24,4 @@ namespace Renderer{
 void                     S2RENDERER_API glCheckError(const char* file, unsigned line);
 
 }
-}
-
 #endif

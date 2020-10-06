@@ -9,7 +9,6 @@
 
 #include <memory>
 
-namespace s2{
 namespace Renderer{
 
 /************************************************************************************************/
@@ -83,6 +82,5 @@ private:
 	float               _maximumAnistropy;
 };
 
-}}
-
+}
 #endif // !TEXTURE_SAMPLER_ONCE

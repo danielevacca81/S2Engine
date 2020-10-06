@@ -5,7 +5,6 @@
 
 #include "s2Renderer_API.h"
 
-namespace s2 {
 namespace Renderer {
 
 /************************************************************************************************/
@@ -73,7 +72,7 @@ class S2RENDERER_API TextureDescription
 {
 public:
 	//TextureDescription();
-	TextureDescription( int height, int width, const TextureFormat &format, bool generateMipmaps = false );
+	TextureDescription( int width, int height, const TextureFormat &format, bool generateMipmaps = false );
 	~TextureDescription();
 
 	int width() const;
@@ -100,7 +99,4 @@ private:
 
 
 }
-}
-
-
 #endif

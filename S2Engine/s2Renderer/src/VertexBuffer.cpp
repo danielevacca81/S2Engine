@@ -5,11 +5,7 @@
 #include "OpenGL.h"
 
 
-using namespace s2::Renderer;
-
-// -------------------------------------------------------------------------------------------------
-//VertexBuffer::VertexBuffer()
-//{}
+using namespace Renderer;
 
 // -------------------------------------------------------------------------------------------------
 VertexBuffer::VertexBuffer( int sizeInBytes, const BufferObject::UsageHint &usageHint )
@@ -18,8 +14,12 @@ VertexBuffer::VertexBuffer( int sizeInBytes, const BufferObject::UsageHint &usag
 }
 
 // -------------------------------------------------------------------------------------------------
-VertexBuffer::~VertexBuffer()
-{}
+VertexBuffer::VertexBuffer( void *data, int sizeInBytes, const BufferObject::UsageHint &usageHint )
+{
+	set( sizeInBytes, usageHint );
+	sendData( data, sizeInBytes, 0 );
+}
+
 
 // -------------------------------------------------------------------------------------------------
 //VertexBuffer::VertexBuffer( VertexBuffer &&other )

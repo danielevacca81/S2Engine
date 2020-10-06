@@ -2,7 +2,7 @@
 //
 #include "TextureDescription.h"
 
-using namespace s2::Renderer;
+using namespace Renderer;
 
 /************************************************************************************************/
 /*                                      TextureDescription                                      */

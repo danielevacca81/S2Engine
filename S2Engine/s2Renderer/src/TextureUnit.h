@@ -10,7 +10,6 @@
 
 #include <vector>
 
-namespace s2 {
 namespace Renderer {
 
 // ------------------------------------------------------------------------------------------------
@@ -68,7 +67,4 @@ private:
 };
 
 }
-
-}
-
 #endif // !TEXTUREUNIT_ONCE

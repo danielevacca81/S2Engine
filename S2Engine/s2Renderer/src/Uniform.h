@@ -5,11 +5,9 @@
 
 #include "s2Renderer_API.h"
 
-#include "Math/Math.h"
+#include "Core/Math.h"
 
 #include <string>
-
-namespace s2 {
 
 namespace Renderer {
 
@@ -49,7 +47,7 @@ private:
 class S2RENDERER_API Uniform
 {
 public:
-	virtual ~Uniform()	{}
+	virtual ~Uniform() = default;
 
 	int         location()    const { return _location; }
 	std::string name()        const { return _name;     }
@@ -85,13 +83,16 @@ public:
 	inline void set( const T &val )         { _value = val;  }
 
 protected:
+	UniformValue()
+	: UniformValue( -1, "" ) // If location is equal to -1, the data passed in will be silently ignored and the specified uniform variable will not be changed
+	{}
+	
 	UniformValue( int location, const std::string  &name )
 	: Uniform( location,name )
 	, _value()
 	{}
 
-	virtual ~UniformValue()
-	{}
+	virtual ~UniformValue() = default;
 
 protected:
 	T            _value;
@@ -99,10 +100,6 @@ protected:
 // ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------
-
-}
-
-
 
 }
 #endif

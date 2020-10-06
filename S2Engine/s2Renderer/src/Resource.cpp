@@ -8,7 +8,7 @@
 
 #include <iostream>
 
-using namespace s2;
+
 using namespace Renderer;
 
 static int gResourceID = 0;

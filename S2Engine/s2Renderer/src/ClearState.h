@@ -3,9 +3,15 @@
 #ifndef CLEARSTATE_ONCE
 #define CLEARSTATE_ONCE
 
-#include "graphics/Color.h"
+#include "FrameBuffer.h"
+#include "RenderState.h"
 
-namespace s2 {
+#include "Core/Color.h"
+
+#include <vector>
+#include <utility>
+#include <any>
+
 namespace Renderer {
 
 struct ClearState
@@ -14,8 +20,7 @@ struct ClearState
 	: scissorTest()
 	, colorMask(true,true,true,true)
 	, depthMask(true)
-	, frontStencilMask(~0)
-	, backStencilMask(~0)
+	, stencilMask(~0u, ~0u)
 	, buffers(ClearBuffers::ColorAndDepthBuffer)
 	, color( Color::black() )
 	, depth( 1.f )
@@ -25,14 +30,21 @@ struct ClearState
 	ScissorTest  scissorTest;
 	ColorMask    colorMask;
 	bool         depthMask;
-	int          frontStencilMask;
-	int          backStencilMask;
+	StencilMask  stencilMask;
 	ClearBuffers buffers;
-	Color        color;
+	Color        color;	// it will be ignored if colorSeparate.size() ! = 0
 	float        depth;
 	int          stencil;
+
+
+	struct ClearColorSeparate
+	{
+		int			drawBufferIdx;
+		std::any	color;  // it can be Color or Math::ivec4;
+	};
+
+	std::vector< ClearColorSeparate > colorSeparate;
 };
 
-}
 }
 #endif

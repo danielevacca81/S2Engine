@@ -5,7 +5,7 @@
 #include "OpenGL.h"
 #include "Device.h"
 
-using namespace s2::Renderer;
+using namespace Renderer;
 
 // ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------
@@ -82,6 +82,7 @@ void TextureUnit::bind()
 		validate();
 
 		glActiveTexture( _textureUnit );
+		glCheck;
 
 		if( ( _changes & Changes::TextureChanged ) == Changes::TextureChanged )
 		{

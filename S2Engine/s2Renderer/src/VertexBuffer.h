@@ -7,7 +7,6 @@
 
 #include "BufferObject.h"
 
-namespace s2 {
 namespace Renderer {
 
 /************************************************************************************************/
@@ -19,9 +18,9 @@ public:
 	//OBJECT_DECLARE_MOVEABLE( VertexBuffer )
 	//OBJECT_DISABLE_COPY( VertexBuffer )
 
-	//VertexBuffer();
+	VertexBuffer() {}
 	VertexBuffer( int sizeInBytes, const BufferObject::UsageHint &usageHint );
-	~VertexBuffer();
+	VertexBuffer( void *data, int sizeInBytes, const BufferObject::UsageHint &usageHint );
 
 	void set( int sizeInBytes, const BufferObject::UsageHint &usageHint );
 
@@ -44,6 +43,5 @@ private:
 
 
 } // namespace Renderer
-} // namespace s2
 
 #endif

@@ -6,6 +6,7 @@
 
 #include <sstream>
 #include <iostream>
+#include <cstring>
 
 static std::vector<std::string> _extensions;
 
@@ -18,8 +19,8 @@ static bool supportMemoryQuery()
 	if( first )
 	{
 		//bool support = false;
-		for( size_t i=0; i < s2::Renderer::extensions().size(); ++i )
-			if( s2::Renderer::extensions()[i] == std::string( "GL_NVX_gpu_memory_info" ) )
+		for( size_t i=0; i < Renderer::extensions().size(); ++i )
+			if( Renderer::extensions()[i] == std::string( "GL_NVX_gpu_memory_info" ) )
 			{
 				support = true;
 				break;
@@ -34,16 +35,16 @@ static bool supportMemoryQuery()
 // ------------------------------------------------------------------------------------------------
 
 
-namespace s2 {
+namespace Renderer {
 
 // ------------------------------------------------------------------------------------------------
-std::vector<std::string> Renderer::extensions()
+std::vector<std::string> extensions()
 {
 	return _extensions;
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Renderer::initExtensions()
+bool initExtensions()
 {
 	if( glewInit() != GLEW_OK )
 		return false;
@@ -52,6 +53,7 @@ bool Renderer::initExtensions()
 	std::string extStr;
 	{
 		const GLubyte* extStart = (const GLubyte*) glGetString( GL_EXTENSIONS );
+		glCheck;
 		if( extStart == 0 )
 			extStart = ( const GLubyte* )"";
 
@@ -85,13 +87,14 @@ bool Renderer::initExtensions()
 }
 
 // ------------------------------------------------------------------------------------------------
-std::string Renderer::contextInfo()
+std::string contextInfo()
 {
 	std::stringstream ss;
 
 	std::string vendor( (char *) glGetString( GL_VENDOR ) );
 	std::string ver( (char *) glGetString( GL_VERSION ) );
 	std::string rend( (char *) glGetString( GL_RENDERER ) );
+	glCheck;
 
 	ss << "Graphic Adapter   : " << vendor << std::endl;
 	ss << "OpenGL Renderer   : " << rend << std::endl;
@@ -107,34 +110,40 @@ std::string Renderer::contextInfo()
 
 // ------------------------------------------------------------------------------------------------
 // returns total dedicated memory in MB
-int Renderer::getDedicatedTotalMemory()
+int getDedicatedTotalMemory()
 {
 	GLint dedicatedMemKB = 0;
 
 	if( supportMemoryQuery() )
 		glGetIntegerv( GL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX, &dedicatedMemKB );
+
+	glCheck;
 	return dedicatedMemKB >> 10;
 }
 
 
 // ------------------------------------------------------------------------------------------------
 // returns available free memory in MB
-int Renderer::getFreeMemory()
+int getFreeMemory()
 {
 	GLint freeMemKB = 0;
 	if( supportMemoryQuery() )
 		glGetIntegerv( GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &freeMemKB );
+
+	glCheck;
 	return freeMemKB >> 10;
 }
 
 // ------------------------------------------------------------------------------------------------
 // returns total available memory in MB
-int Renderer::getTotalMemory()
+int getTotalMemory()
 {
 	GLint totalMemKB = 0;
 
 	if( supportMemoryQuery() )
 		glGetIntegerv( GL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX, &totalMemKB );
+
+	glCheck;
 	return totalMemKB >> 10;
 }
 

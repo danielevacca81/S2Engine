@@ -5,7 +5,7 @@
 #include "OpenGL.h"
 #include "OpenGLWrap.h"
 
-using namespace s2::Renderer;
+using namespace Renderer;
 
 // ------------------------------------------------------------------------------------------------
 SamplerPtr Sampler::New(const MinificationFilter &minFilter, const MagnificationFilter &magFilter, const Wrap &wrapS, const Wrap &wrapT, float maxAnisotropy)
@@ -93,11 +93,13 @@ void Sampler::reset()
 bool Sampler::create()
 {
 	destroy();
+	storeGlContext();
 	glGenSamplers( 1, &_objectID );
 	glSamplerParameteri( _objectID, GL_TEXTURE_MIN_FILTER, glWrap( _minificationFilter ) );
 	glSamplerParameteri( _objectID, GL_TEXTURE_MAG_FILTER, glWrap( _magnificationFilter ) );
 	glSamplerParameteri( _objectID, GL_TEXTURE_WRAP_S,     glWrap( _wrapS ) );
 	glSamplerParameteri( _objectID, GL_TEXTURE_WRAP_T,     glWrap( _wrapT ) );
+	glCheck;
 
 	_created = true;
 	return _created;
@@ -111,20 +113,23 @@ void Sampler::destroy()
 
 	// need a valid context to be performed correctly.
 	// remove static allocation and prefer late initialization
+	checkGlContext();
 	glDeleteSamplers( 1, &_objectID );
+	glCheck;
 	reset();
 }
 
 // ------------------------------------------------------------------------------------------------
 void Sampler::bind()           const {}
-void Sampler::bind( int unit ) const { glBindSampler( unit, _objectID ); }
+void Sampler::bind( int unit ) const { checkGlContext(); glBindSampler( unit, _objectID ); glCheck; }
 
 // ------------------------------------------------------------------------------------------------
 void Sampler::unbind()           const {}
-void Sampler::unbind( int unit ) const { glBindSampler( unit, 0 ); }
+void Sampler::unbind( int unit ) const { checkGlContext(); glBindSampler( unit, 0 ); glCheck; }
 
 // ------------------------------------------------------------------------------------------------
 void Sampler::unbindAll( int unit )
 {
 	glBindSampler( unit, 0 );
+	glCheck;
 }

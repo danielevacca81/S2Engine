@@ -5,7 +5,7 @@
 #include "OpenGL.h"
 #include "OpenGLWrap.h"
 
-using namespace s2::Renderer;
+using namespace Renderer;
 
 // -------------------------------------------------------------------------------------------------
 BufferObjectPtr BufferObject::New( int size, const Type &type, const UsageHint &usageHint )
@@ -82,6 +82,7 @@ bool BufferObject::create()
 {
 	destroy();
 
+	storeGlContext();
 	glGenBuffers( 1, &_objectID );
 	glCheck;
 	// Allocating here with GL.BufferData, then writing with GL.BufferSubData
@@ -107,6 +108,7 @@ void BufferObject::destroy()
 	if( !isCreated() )
 		return;
 
+	checkGlContext();
 	glDeleteBuffers( 1, &_objectID );
 	glCheck;
 	reset();
@@ -115,6 +117,7 @@ void BufferObject::destroy()
 // -------------------------------------------------------------------------------------------------
 void BufferObject::bind() const
 {
+	checkGlContext();
 	glBindBuffer( glWrap( _type ), _objectID );
 	glCheck;
 }
@@ -122,6 +125,7 @@ void BufferObject::bind() const
 // -------------------------------------------------------------------------------------------------
 void BufferObject::unbind() const
 {
+	checkGlContext();
 	glBindBuffer( glWrap( _type ), 0 );
 	glCheck;
 }
@@ -132,6 +136,7 @@ void BufferObject::sendData( void *data, int length, int offset )
 	// @TODO: check arguments validity
 
 	//glBindVertexArray( 0 );
+	checkGlContext();
 	glBindBuffer( glWrap( _type ), _objectID );
 	glBufferSubData( glWrap( _type ), offset, length, data );
 	glCheck;
@@ -145,6 +150,7 @@ void * BufferObject::receiveData( int length, int offset )
 	unsigned char *data = new unsigned char[length];
 
 	//glBindVertexArray( 0 );
+	checkGlContext();
 	glBindBuffer( glWrap( _type ), _objectID );
 	glGetBufferSubData( glWrap( _type ), offset, length, data );
 	glCheck;
@@ -155,13 +161,19 @@ void * BufferObject::receiveData( int length, int offset )
 void * BufferObject::mapData( const MapMode &mode )
 {
 	// Note that glMapBuffer() causes a synchronizing issue
+	checkGlContext();
 	glBindBuffer( glWrap( _type ), _objectID );
-	return glMapBuffer( glWrap( _type ), glWrap( mode ) );
+	auto retval = glMapBuffer( glWrap( _type ), glWrap( mode ) );
+	glCheck;
+	return retval;
 }
 
 // -------------------------------------------------------------------------------------------------
 bool BufferObject::unmapData()
 {
-	return (bool) glUnmapBuffer( glWrap( _type ) );
+	checkGlContext();
+	auto retval = glUnmapBuffer( glWrap( _type ) );
+	glCheck;
+	return (bool) retval;
 }
 

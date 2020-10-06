@@ -1,28 +1,63 @@
 @echo off
-cls
+SET SHELL_DIR=%~dp0
+SET MODULE_NAME=s2Renderer
+SET BASEDIR_SDK=%SHELL_DIR%..\..\SDK
+SET BASEDIR_MODULE_SOURCES=%SHELL_DIR%
 
-set DESTFOLDER="..\..\SDK\s2Renderer"
+echo MODULE_NAME: %MODULE_NAME%
+echo BASEDIR_SDK: %BASEDIR_SDK%
+echo BASEDIR_MODULE_SOURCES: %BASEDIR_MODULE_SOURCES%
 
-rmdir /s /q %DESTFOLDER%
-mkdir %DESTFOLDER%
+IF NOT EXIST %BASEDIR_SDK% (
+mkdir %BASEDIR_SDK% || (echo %BASEDIR_SDK% failed! && PAUSE && exit)
+)
 
-mkdir %DESTFOLDER%\bin\x64\Debug
-mkdir %DESTFOLDER%\bin\x64\Release
+IF EXIST %BASEDIR_SDK%\%MODULE_NAME% (
+rmdir /s /q %BASEDIR_SDK%\%MODULE_NAME% || ( goto :ERR )
+)
 
-mkdir %DESTFOLDER%\include
-mkdir %DESTFOLDER%\include\renderer
+REM wait for really directory deleting from HD
+rem timeout 1 > NUL
+IF NOT EXIST %BASEDIR_SDK%\%MODULE_NAME% (
+mkdir %BASEDIR_SDK%\%MODULE_NAME% || (echo %BASEDIR_SDK%\%MODULE_NAME% failed! && PAUSE && exit)
+) ELSE (
+echo The directory %BASEDIR_SDK%\%MODULE_NAME% exist!
+rem && PAUSE && exit
+)
 
-copy /Y .\src\s2OpenGL_API.h  %DESTFOLDER%\include\
-copy /Y .\src\*.h             %DESTFOLDER%\include\renderer\
+cd %BASEDIR_SDK%\%MODULE_NAME%
 
-copy /Y .\bin\x64\Debug\s2Renderer.dll   %DESTFOLDER%\bin\x64\Debug
-copy /Y .\bin\x64\Debug\s2Renderer.lib   %DESTFOLDER%\bin\x64\Debug
-copy /Y .\bin\x64\Debug\s2Renderer.pdb   %DESTFOLDER%\bin\x64\Debug
+IF NOT EXIST .\bin\Win32\Debug (
+mkdir .\bin\Win32\Debug || (echo mkdir .\bin\Win32\Debug failed! && PAUSE && exit)
+)
+IF NOT EXIST .\bin\Win32\Release (
+mkdir .\bin\Win32\Release || (echo mkdir .\bin\Win32\Release failed! && PAUSE && exit)
+)
+IF NOT EXIST .\bin\x64\Debug (
+mkdir .\bin\x64\Debug || (echo mkdir .\bin\x64\Debug failed! && PAUSE && exit)
+)
+IF NOT EXIST .\bin\x64\Release (
+mkdir .\bin\x64\Release || (echo mkdir .\bin\x64\Release failed! && PAUSE && exit)
+)
 
-copy /Y .\bin\x64\Release\s2Renderer.dll %DESTFOLDER%\bin\x64\Release
-copy /Y .\bin\x64\Release\s2Renderer.lib %DESTFOLDER%\bin\x64\Release
-copy /Y .\bin\x64\Release\s2Renderer.pdb %DESTFOLDER%\bin\x64\Release
-													
-echo Done!
+copy /Y %BASEDIR_MODULE_SOURCES%\src\*.h .\
 
-:EOF
+copy /Y %BASEDIR_MODULE_SOURCES%\bin\Win32\Debug\*.lib .\bin\Win32\Debug
+copy /Y %BASEDIR_MODULE_SOURCES%\bin\Win32\Debug\*.dll .\bin\Win32\Debug
+copy /Y %BASEDIR_MODULE_SOURCES%\bin\Win32\Debug\*.pdb .\bin\Win32\Debug
+								
+copy /Y %BASEDIR_MODULE_SOURCES%\bin\Win32\Release\*.lib .\bin\Win32\Release
+copy /Y %BASEDIR_MODULE_SOURCES%\bin\Win32\Release\*.dll .\bin\Win32\Release
+copy /Y %BASEDIR_MODULE_SOURCES%\bin\Win32\Release\*.pdb .\bin\Win32\Release
+								
+copy /Y %BASEDIR_MODULE_SOURCES%\bin\x64\Debug\*.lib .\bin\x64\Debug
+copy /Y %BASEDIR_MODULE_SOURCES%\bin\x64\Debug\*.dll .\bin\x64\Debug
+copy /Y %BASEDIR_MODULE_SOURCES%\bin\x64\Debug\*.pdb .\bin\x64\Debug
+								
+copy /Y %BASEDIR_MODULE_SOURCES%\bin\x64\Release\*.lib .\bin\x64\Release
+copy /Y %BASEDIR_MODULE_SOURCES%\bin\x64\Release\*.dll .\bin\x64\Release
+copy /Y %BASEDIR_MODULE_SOURCES%\bin\x64\Release\*.pdb .\bin\x64\Release
+
+cd ..\..
+
+echo [%MODULE_NAME%] Done!

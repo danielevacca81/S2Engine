@@ -6,7 +6,6 @@
 #include "s2Renderer_API.h"
 
 
-namespace s2 {
 namespace Renderer {
 
 enum class S2RENDERER_API TextureFormat
@@ -65,7 +64,4 @@ enum class S2RENDERER_API TextureFormat
 
 
 }
-}
-
-
 #endif // !TEXTUREFORMAT_ONCE

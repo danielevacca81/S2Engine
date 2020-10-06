@@ -2,25 +2,28 @@
 // 
 #include "VertexArray.h"
 
-#include "Math/Math.h"
+#include "Core/Math.h"
 
 #include "Device.h"
 #include "OpenGL.h"
 #include "OpenGLWrap.h"
 
-using namespace s2::Renderer;
+#include <iostream>
+
+using namespace Renderer;
 
 static int maxVertexAttrib = 16;
 
 // -------------------------------------------------------------------------------------------------
-VertexArrayPtr VertexArray::New()
+VertexArrayPtr VertexArray::New( const BufferObject::UsageHint &hint )
 {
-	return std::make_shared<VertexArray>();
+	return std::make_shared<VertexArray>(hint);
 }
 
 
 // -------------------------------------------------------------------------------------------------
-VertexArray::VertexArray()
+VertexArray::VertexArray( const BufferObject::UsageHint &hint )
+: _usageHint( hint )
 {
 	create();
 }
@@ -60,7 +63,7 @@ void VertexArray::reset()
 {
 	OpenGLObject::reset();
 	_attributes.clear();
-	_indexBuffer = IndexBuffer( 0, IndexBuffer::IndexDataType::UnsignedInt, BufferObject::UsageHint::StaticDraw );
+	_indexBuffer = IndexBuffer( 0, IndexBuffer::IndexDataType::UnsignedInt, _usageHint );
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -71,6 +74,7 @@ bool VertexArray::create()
 	_attributes.resize ( maxVertexAttrib );
 	_attributes.reserve( maxVertexAttrib );
 
+	storeGlContext();
 	glGenVertexArrays( 1, &_objectID );
 	glCheck;
 	
@@ -91,6 +95,7 @@ bool VertexArray::create()
 // -------------------------------------------------------------------------------------------------
 void VertexArray::destroy()
 {
+	checkGlContext();
 	glDeleteVertexArrays( 1, &_objectID );
 	glCheck;
 	reset();
@@ -101,8 +106,13 @@ void VertexArray::bind() const
 {
 	if( !isCreated() )
 		return;
+	
+	assert( ( "VAO name not valid", _objectID != 0) );
 
+	checkGlContext();
 	glBindVertexArray( _objectID );
+	if( glGetError() != 0 )
+		std::cout << "Invalid VAO name" << '\n';
 	glCheck;
 
 	if( _indexBuffer.isValid() )
@@ -117,6 +127,7 @@ void VertexArray::bind() const
 // -------------------------------------------------------------------------------------------------
 void VertexArray::unbind() const
 {
+	checkGlContext();
 	glBindVertexArray( 0 );
 	glCheck;
 }

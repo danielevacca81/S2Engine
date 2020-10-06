@@ -3,12 +3,11 @@
 #ifndef RENDERINGHELPER_ONCE
 #define RENDERINGHELPER_ONCE
 
-#include "Primitive.h"
-#include "VertexArray.h"
 #include "PrimitiveBuffer.h"
+#include "PrimitiveType.h"
+#include "VertexArray.h"
 
 
-namespace s2 {
 namespace Renderer {
 
 // stateless rendering helper class. issues draw calls. for internal use
@@ -20,12 +19,11 @@ public:
 
 	// @todo: conditional rendering and queries
 
-	static void draw( const Primitive &primitive, const VertexArrayPtr &va );
-	static void draw( const Primitive &primitive, const PrimitiveBufferPtr &m );
+	static void draw( const PrimitiveType &primitive, const VertexArrayPtr &va );
+	static void draw( const PrimitiveType &primitive, const PrimitiveBufferPtr &mesh );
+	//static void draw( const PrimitiveType &primitive, const Primitive &mesh ); //@todo_dv: draw batched primitives
 };
 
 
 }
-}
-
 #endif

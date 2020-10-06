@@ -11,12 +11,11 @@
 #include "IndexBuffer.h"
 #include "RenderState.h"
 #include "RenderBuffer.h"
-#include "Primitive.h"
+#include "PrimitiveType.h"
 
 #define BUFFER_OFFSET(i) ((void*)(i))
 
 
-namespace s2 {
 namespace Renderer {
 
 /************************************************************************************************/
@@ -78,9 +77,7 @@ unsigned int glWrap( const RenderState::RasterizationMode       &mode );
 /************************************************************************************************/
 /*                                            Primitive                                         */
 /************************************************************************************************/
-unsigned int glWrap( const Primitive &primitive );
+unsigned int glWrap( const PrimitiveType &primitive );
 
 }
-}
-
 #endif

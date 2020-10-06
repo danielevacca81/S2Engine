@@ -5,11 +5,11 @@
 #include "OpenGL.h"
 #include "OpenGLWrap.h"
 
-#include "Math/Rectangle.h"
+#include "Core/Rectangle.h"
 
 
-using namespace s2;
-using namespace s2::Renderer;
+
+using namespace Renderer;
 
 #define SHADOWING 0
 //#define OPENGL_DEPRECATED
@@ -22,30 +22,49 @@ static void enable( GLenum cap, bool enabled )
 }
 
 // ------------------------------------------------------------------------------------------------
-StateManager::StateManager()
-{}
-
-// ------------------------------------------------------------------------------------------------
-StateManager::~StateManager()
-{}
-
-// ------------------------------------------------------------------------------------------------
 void StateManager::setClearState( const ClearState &cs )
 {
 	applyFramebuffer();
+	glCheck;
 
 	applyScissorTest( cs.scissorTest );
 	applyColorMask(   cs.colorMask    );
 	applyDepthMask(   cs.depthMask    );
-	// TODO: StencilMaskSeparate
+	applyStencilMask( cs.stencilMask );
 
-#if SHADOWING
-	if( _clearColor != cs.color )
-#endif
+	int buffers = int(cs.buffers );
+
+	if( cs.colorSeparate.empty() )
 	{
-		glClearColor( cs.color.r(), cs.color.g(), cs.color.b(), cs.color.a() );
+#if SHADOWING
+		if( _clearColor != cs.color )
+#endif
+		{
+			glClearColor( cs.color.r(), cs.color.g(), cs.color.b(), cs.color.a() );
+			glCheck;
+			_clearColor = cs.color ;
+		}
+	}
+	else if( buffers & int(ClearBuffers::ColorBuffer) )
+	{
+		buffers = buffers & ~int(ClearBuffers::ColorBuffer);
+
+		for( const auto &ac: cs.colorSeparate )
+		{
+			if( ac.color.type() == typeid( Math::ivec4 ) )
+			{
+				auto color = std::any_cast<Math::ivec4>( ac.color );
+				glClearBufferiv( GL_COLOR, ac.drawBufferIdx, &(color.r) );
+
+			}
+			else if( ac.color.type() == typeid( Color ) )
+			{
+				auto color = std::any_cast<Color>( ac.color );
+				glClearBufferfv( GL_COLOR, ac.drawBufferIdx, color );
+			}
+		}
+
 		glCheck;
-		_clearColor = cs.color ;
 	}
 
 #if SHADOWING
@@ -66,7 +85,8 @@ void StateManager::setClearState( const ClearState &cs )
 		_clearStencil = cs.stencil;
 	}
 
-	glClear( glWrap(cs.buffers) );
+	if( buffers )
+		glClear( glWrap( ClearBuffers(buffers) ) );
 	glCheck;
 }
 
@@ -78,7 +98,7 @@ void StateManager::setDrawState( const DrawingState &ds )
 	applyShaderProgram( ds.shaderProgram );
 	ds.textureUnits.set();
 
-	//applyViewState( vs );
+	//applyView( vs );
 
 	// add: apply texture units
 	applyFramebuffer();
@@ -91,6 +111,7 @@ void StateManager::applyRenderState( const RenderState &rs )
 	applyFaceCulling( rs.faceCulling );
 	applyProgramPointSize( rs.programPointSize );
 	applyRasterizationMode( rs.rasterizationMode );
+	applyLineWidth( rs.lineWidth );
 	applyScissorTest( rs.scissorTest );
 	applyStencilTest( rs.stencilTest );
 	applyDepthTest( rs.depthTest );
@@ -98,6 +119,8 @@ void StateManager::applyRenderState( const RenderState &rs )
 	applyBlending( rs.blending );
 	applyColorMask( rs.colorMask );
 	applyDepthMask( rs.depthMask );
+	applyStencilMask( rs.stencilMask );
+	applyViewport( rs.viewport );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -183,6 +206,19 @@ void StateManager::applyRasterizationMode( const RenderState::RasterizationMode 
 }
 
 // ------------------------------------------------------------------------------------------------
+void StateManager::applyLineWidth( const float lineWidth )
+{
+#if SHADOWING
+	if( _renderState.lineWidth != lineWidth )
+#endif
+	{
+		glLineWidth(lineWidth);
+		glCheck;
+		_renderState.lineWidth = lineWidth;
+	}
+}
+
+// ------------------------------------------------------------------------------------------------
 void StateManager::applyScissorTest( const ScissorTest &scissorTest )
 {
 	Math::Rectangle rectangle = scissorTest.rect;
@@ -212,7 +248,10 @@ void StateManager::applyScissorTest( const ScissorTest &scissorTest )
 		_renderState.scissorTest.enabled = scissorTest.enabled;
 	}
 
-	if( scissorTest.enabled )
+	if( scissorTest.enabled 
+	&& !rectangle.isEmpty() 
+	&& rectangle.width()  > 0 
+	&& rectangle.height() > 0)
 	{
 #if SHADOWING
 		if( !_renderState.scissorTest.rect.equals(scissorTest.rect) )
@@ -419,6 +458,28 @@ void StateManager::applyDepthMask(bool depthMask)
 }
 
 // ------------------------------------------------------------------------------------------------
+void StateManager::applyStencilMask( const StencilMask &stencilMask )
+{
+#if SHADOWING
+	if( _renderState.stencilMask.front != stencilMask.front )
+#endif
+	{
+		glStencilMaskSeparate( GL_FRONT, stencilMask.front );
+		glCheck;
+		_renderState.stencilMask.front = stencilMask.front;
+	}
+
+#if SHADOWING
+	if( _renderState.stencilMask.back != stencilMask.back )
+#endif
+	{
+		glStencilMaskSeparate( GL_BACK, stencilMask.back );
+		glCheck;
+		_renderState.stencilMask.back = stencilMask.back;
+	}
+}
+
+// ------------------------------------------------------------------------------------------------
 void StateManager::applyShaderProgram( const ProgramPtr &program )
 {
 	if( !program || !program->isCreated() )
@@ -436,7 +497,7 @@ void StateManager::applyShaderProgram( const ProgramPtr &program )
 }
 
 // ------------------------------------------------------------------------------------------------
-//void StateManager::applyViewState( const ViewState &vs )
+//void StateManager::applyView( const View &vs )
 //{
 //	//setViewport( vs.viewport );
 //#if SHADOWING
@@ -470,35 +531,39 @@ void StateManager::applyFramebuffer()
 }
 
 // ------------------------------------------------------------------------------------------------
-void StateManager::setViewport( const Math::Rectangle &r )
+void StateManager::setViewport( const Viewport &vp )
 {
-	if( r.width() < 0 || r.height() < 0 )
+	if( vp.rect.width() < 0 || vp.rect.height() < 0 )
 	{
 #if 0
 		throw new ArgumentOutOfRangeException("Viewport", "The viewport width and height must be greater than or equal to zero.");
 #endif
+		return;
 	}
-#if SHADOWING
-	if( !_viewState.viewport().equals(r) )
-#endif
-	{
-		glViewport( r.left(), r.bottom(), r.width(), r.height() );
-		_viewport = r;
-		glCheck;
-	}
+	_fullViewport = vp;
+}
+
+// ------------------------------------------------------------------------------------------------
+void StateManager::applyViewport( const Viewport &vp )
+{
+	const Viewport currentViewport = vp.rect.isEmpty() ? _fullViewport : vp;
+
+	glViewport( currentViewport.rect.left(), currentViewport.rect.bottom(), currentViewport.rect.width(), currentViewport.rect.height() );
+	glCheck;
+	_renderState.viewport = currentViewport;
 }
 
 // ------------------------------------------------------------------------------------------------
 //Math::Rectangle StateManager::viewport() const { return _viewport; }
 
 // ------------------------------------------------------------------------------------------------
-//void StateManager::draw( Primitive primitive, const VertexArray &va, const ViewState &vs, const DrawingState &ds )
+//void StateManager::draw( Primitive primitive, const VertexArray &va, const View &vs, const DrawingState &ds )
 //{
 //	//VerifyDraw(drawState, sceneState);
 //	//ApplyBeforeDraw(drawState, sceneState);
 //	applyRenderState( ds.renderState );
 //	applyShaderProgram( ds.shaderProgram );
-//	applyViewState( vs );
+//	applyView( vs );
 //
 //	va.bind();
 //	
@@ -522,20 +587,20 @@ void StateManager::setViewport( const Math::Rectangle &r )
 //}
 
 // ------------------------------------------------------------------------------------------------
-//void StateManager::draw( Primitive primitive, const PrimitiveBuffer &m, const ViewState &vs, const DrawingState &ds )
+//void StateManager::draw( Primitive primitive, const PrimitiveBuffer &m, const View &vs, const DrawingState &ds )
 //{
 //	draw( primitive, m._va, vs, ds );
 //}
 
 
 // ------------------------------------------------------------------------------------------------
-//void StateManager::draw( Primitive primitive, const VertexBuffer &vb, const ViewState &vs, const DrawingState &ds )
+//void StateManager::draw( Primitive primitive, const VertexBuffer &vb, const View &vs, const DrawingState &ds )
 //{
 //	//VerifyDraw(drawState, sceneState);
 //	//ApplyBeforeDraw(drawState, sceneState);
 //	applyRenderState( ds.renderState );
 //	applyShaderProgram( ds.shaderProgram );
-//	applyViewState( vs );
+//	applyView( vs );
 //		
 //	glEnableClientState( GL_VERTEX_ARRAY );
 //	glEnableClientState( GL_NORMAL_ARRAY );

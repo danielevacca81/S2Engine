@@ -8,7 +8,6 @@
 #include <string>
 #include <vector>
 
-namespace s2 {
 namespace Renderer {
 
 std::vector<std::string> S2RENDERER_API extensions();
@@ -18,7 +17,6 @@ int                      S2RENDERER_API getFreeMemory();
 int                      S2RENDERER_API getTotalMemory();
 int                      S2RENDERER_API getDedicatedTotalMemory();
 
-}}
-
+}
 #endif // !RENDERER_EXTENSIONS_H
 

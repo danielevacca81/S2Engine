@@ -13,7 +13,6 @@
 #include <map>
 #include <memory>
 
-namespace s2 {
 namespace Renderer {
 
 class Context;
@@ -56,5 +55,5 @@ private:
 };
 
 
-}}
+}
 #endif

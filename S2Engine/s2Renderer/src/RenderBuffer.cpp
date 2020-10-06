@@ -5,7 +5,7 @@
 #include "OpenGL.h"
 #include "OpenGLWrap.h"
 
-using namespace s2::Renderer;
+using namespace Renderer;
 
 // ------------------------------------------------------------------------------------------------
 RenderBufferPtr RenderBuffer::New( const Format &format, int width, int height, int samples )
@@ -51,6 +51,7 @@ RenderBuffer::~RenderBuffer()
 // ------------------------------------------------------------------------------------------------
 void RenderBuffer::bind() const
 {
+	checkGlContext();
 	glBindRenderbuffer( GL_RENDERBUFFER, _objectID );
 	glCheck;
 }
@@ -58,6 +59,7 @@ void RenderBuffer::bind() const
 // ------------------------------------------------------------------------------------------------
 void RenderBuffer::unbind() const
 {
+	checkGlContext();
 	glBindRenderbuffer( GL_RENDERBUFFER, 0 );
 	glCheck;
 }
@@ -78,12 +80,14 @@ bool RenderBuffer::create()
 {
 	destroy();
 
+	storeGlContext();
 	glGenRenderbuffers( 1, &_objectID );
 	bind();
 
 	if( _samples == 0 )  glRenderbufferStorage( GL_RENDERBUFFER, glWrap(_format), _width, _height );	
 	else                 glRenderbufferStorageMultisample( GL_RENDERBUFFER, _samples, glWrap(_format), _width, _height );
 
+	glCheck;
 	unbind();
 
 	_created = true;
@@ -96,7 +100,10 @@ void RenderBuffer::destroy()
 	if( !isCreated() )
 		return;
 	
+	checkGlContext();
 	glDeleteRenderbuffers( 1, &_objectID );
+	glCheck;
+
 	reset();
 }
 

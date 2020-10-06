@@ -4,7 +4,6 @@
 
 #include "OpenGL.h"
 
-namespace s2 {
 namespace Renderer {
 
 /************************************************************************************************/
@@ -113,47 +112,47 @@ unsigned int glWrap(const TextureFormat &format)
 {
 	switch( format )
 	{
-	case TextureFormat::RedGreenBlue8:  return GL_RGB8;
-	case TextureFormat::RedGreenBlue16: return GL_RGB16;
-	case TextureFormat::RedGreenBlueAlpha8: return GL_RGBA8;
-	case TextureFormat::RedGreenBlue10A2: return GL_RGB10_A2;
+	case TextureFormat::RedGreenBlue8:       return GL_RGB8;
+	case TextureFormat::RedGreenBlue16:      return GL_RGB16;
+	case TextureFormat::RedGreenBlueAlpha8:  return GL_RGBA8;
+	case TextureFormat::RedGreenBlue10A2:    return GL_RGB10_A2;
 	case TextureFormat::RedGreenBlueAlpha16: return GL_RGBA16;
 
 	case TextureFormat::Depth16: return GL_DEPTH_COMPONENT16;
 	case TextureFormat::Depth24: return GL_DEPTH_COMPONENT24;
 
-	case TextureFormat::Red8: return GL_R8;
-	case TextureFormat::Red16: return GL_R16;
-	case TextureFormat::RedGreen8: return GL_RG8;
-	case TextureFormat::RedGreen16: return GL_RG16;
-	case TextureFormat::Red16f: return GL_R16F;
-	case TextureFormat::Red32f: return GL_R32F;
+	case TextureFormat::Red8:        return GL_R8;
+	case TextureFormat::Red16:       return GL_R16;
+	case TextureFormat::RedGreen8:   return GL_RG8;
+	case TextureFormat::RedGreen16:  return GL_RG16;
+	case TextureFormat::Red16f:      return GL_R16F;
+	case TextureFormat::Red32f:      return GL_R32F;
 	case TextureFormat::RedGreen16f: return GL_RG16F;
 	case TextureFormat::RedGreen32f: return GL_RG32F;
 
-	case TextureFormat::Red8i: return GL_R8I;
-	case TextureFormat::Red8ui: return GL_R8UI;
-	case TextureFormat::Red16i: return GL_R16I;
-	case TextureFormat::Red16ui: return GL_R16UI;
-	case TextureFormat::Red32i: return GL_R32I;
-	case TextureFormat::Red32ui: return GL_R32UI;
-	case TextureFormat::RedGreen8i: return GL_RG8I;
-	case TextureFormat::RedGreen8ui: return GL_RG8UI;
-	case TextureFormat::RedGreen16i: return GL_RG16I;
-	case TextureFormat::RedGreen16ui: return GL_RG16UI;
-	case TextureFormat::RedGreen32i: return GL_RG32I;
-	case TextureFormat::RedGreen32ui: return GL_RG32UI;
-	case TextureFormat::RedGreenBlueAlpha32f: return GL_RGBA32F;
-	case TextureFormat::RedGreenBlue32f: return GL_RGB32F;
-	case TextureFormat::RedGreenBlueAlpha16f: return GL_RGBA16F;
-	case TextureFormat::RedGreenBlue16f: return GL_RGB16F;
-	case TextureFormat::Depth24Stencil8: return GL_DEPTH24_STENCIL8;
+	case TextureFormat::Red8i:                 return GL_R8I;
+	case TextureFormat::Red8ui:                return GL_R8UI;
+	case TextureFormat::Red16i:                return GL_R16I;
+	case TextureFormat::Red16ui:               return GL_R16UI;
+	case TextureFormat::Red32i:                return GL_R32I;
+	case TextureFormat::Red32ui:               return GL_R32UI;
+	case TextureFormat::RedGreen8i:            return GL_RG8I;
+	case TextureFormat::RedGreen8ui:           return GL_RG8UI;
+	case TextureFormat::RedGreen16i:           return GL_RG16I;
+	case TextureFormat::RedGreen16ui:          return GL_RG16UI;
+	case TextureFormat::RedGreen32i:           return GL_RG32I;
+	case TextureFormat::RedGreen32ui:          return GL_RG32UI;
+	case TextureFormat::RedGreenBlueAlpha32f:  return GL_RGBA32F;
+	case TextureFormat::RedGreenBlue32f:       return GL_RGB32F;
+	case TextureFormat::RedGreenBlueAlpha16f:  return GL_RGBA16F;
+	case TextureFormat::RedGreenBlue16f:       return GL_RGB16F;
+	case TextureFormat::Depth24Stencil8:       return GL_DEPTH24_STENCIL8;
 	case TextureFormat::Red11fGreen11fBlue10f: return GL_R11F_G11F_B10F;
-	case TextureFormat::RedGreenBlue9E5: return GL_RGB9_E5;
-	case TextureFormat::SRedGreenBlue8: return GL_SRGB8;
-	case TextureFormat::SRedGreenBlue8Alpha8: return GL_SRGB8_ALPHA8;
-	case TextureFormat::Depth32f: return GL_DEPTH_COMPONENT32F;
-	case TextureFormat::Depth32fStencil8: return GL_DEPTH32F_STENCIL8;
+	case TextureFormat::RedGreenBlue9E5:       return GL_RGB9_E5;
+	case TextureFormat::SRedGreenBlue8:        return GL_SRGB8;
+	case TextureFormat::SRedGreenBlue8Alpha8:  return GL_SRGB8_ALPHA8;
+	case TextureFormat::Depth32f:              return GL_DEPTH_COMPONENT32F;
+	case TextureFormat::Depth32fStencil8:      return GL_DEPTH32F_STENCIL8;
 
 	case TextureFormat::RedGreenBlueAlpha32ui: return GL_RGBA32UI;
 	case TextureFormat::RedGreenBlue32ui:      return GL_RGB32UI;
@@ -179,21 +178,21 @@ unsigned int glWrapTextureFormatToPixelType( const TextureFormat &f )
 {
 	switch( f )
 	{
-	case TextureFormat::RedGreenBlue8:  return GL_UNSIGNED_BYTE;
-	case TextureFormat::RedGreenBlue16: return GL_UNSIGNED_SHORT;
-	case TextureFormat::RedGreenBlueAlpha8: return GL_UNSIGNED_BYTE;
-	case TextureFormat::RedGreenBlue10A2: return GL_UNSIGNED_INT_10_10_10_2;
+	case TextureFormat::RedGreenBlue8:       return GL_UNSIGNED_BYTE;
+	case TextureFormat::RedGreenBlue16:      return GL_UNSIGNED_SHORT;
+	case TextureFormat::RedGreenBlueAlpha8:  return GL_UNSIGNED_BYTE;
+	case TextureFormat::RedGreenBlue10A2:    return GL_UNSIGNED_INT_10_10_10_2;
 	case TextureFormat::RedGreenBlueAlpha16: return GL_UNSIGNED_SHORT;
-	case TextureFormat::Depth16: return GL_HALF_FLOAT;
-	case TextureFormat::Depth24: return GL_FLOAT;
-	case TextureFormat::Red8: return GL_UNSIGNED_BYTE;
-	case TextureFormat::Red16: return GL_UNSIGNED_SHORT;
-	case TextureFormat::RedGreen8: return GL_UNSIGNED_BYTE;
-	case TextureFormat::RedGreen16: return GL_UNSIGNED_SHORT;
-	case TextureFormat::Red16f: return GL_HALF_FLOAT;
-	case TextureFormat::Red32f: return GL_FLOAT;
-	case TextureFormat::RedGreen16f: return GL_HALF_FLOAT;
-	case TextureFormat::RedGreen32f: return GL_FLOAT;
+	case TextureFormat::Depth16:             return GL_HALF_FLOAT;
+	case TextureFormat::Depth24:             return GL_FLOAT;
+	case TextureFormat::Red8:                return GL_UNSIGNED_BYTE;
+	case TextureFormat::Red16:               return GL_UNSIGNED_SHORT;
+	case TextureFormat::RedGreen8:           return GL_UNSIGNED_BYTE;
+	case TextureFormat::RedGreen16:          return GL_UNSIGNED_SHORT;
+	case TextureFormat::Red16f:              return GL_HALF_FLOAT;
+	case TextureFormat::Red32f:              return GL_FLOAT;
+	case TextureFormat::RedGreen16f:         return GL_HALF_FLOAT;
+	case TextureFormat::RedGreen32f:         return GL_FLOAT;
 
 	case TextureFormat::Red8i:   return GL_BYTE;
 	case TextureFormat::Red8ui:  return GL_UNSIGNED_BYTE;
@@ -209,17 +208,17 @@ unsigned int glWrapTextureFormatToPixelType( const TextureFormat &f )
 	case TextureFormat::RedGreen32i:  return GL_INT;
 	case TextureFormat::RedGreen32ui: return GL_UNSIGNED_INT;
 
-	case TextureFormat::RedGreenBlueAlpha32f: return GL_FLOAT;
-	case TextureFormat::RedGreenBlue32f: return GL_FLOAT;
-	case TextureFormat::RedGreenBlueAlpha16f: return GL_HALF_FLOAT;
-	case TextureFormat::RedGreenBlue16f: return GL_HALF_FLOAT;
-	case TextureFormat::Depth24Stencil8: return GL_UNSIGNED_INT_24_8;
+	case TextureFormat::RedGreenBlueAlpha32f:  return GL_FLOAT;
+	case TextureFormat::RedGreenBlue32f:       return GL_FLOAT;
+	case TextureFormat::RedGreenBlueAlpha16f:  return GL_HALF_FLOAT;
+	case TextureFormat::RedGreenBlue16f:       return GL_HALF_FLOAT;
+	case TextureFormat::Depth24Stencil8:       return GL_UNSIGNED_INT_24_8;
 	case TextureFormat::Red11fGreen11fBlue10f: return GL_FLOAT;
-	case TextureFormat::RedGreenBlue9E5: return GL_FLOAT;
-	case TextureFormat::SRedGreenBlue8: return GL_BYTE;
-	case TextureFormat::SRedGreenBlue8Alpha8: return GL_BYTE;
-	case TextureFormat::Depth32f: return GL_FLOAT;
-	case TextureFormat::Depth32fStencil8: return GL_FLOAT;
+	case TextureFormat::RedGreenBlue9E5:       return GL_FLOAT;
+	case TextureFormat::SRedGreenBlue8:        return GL_BYTE;
+	case TextureFormat::SRedGreenBlue8Alpha8:  return GL_BYTE;
+	case TextureFormat::Depth32f:              return GL_FLOAT;
+	case TextureFormat::Depth32fStencil8:      return GL_FLOAT;
 
 	case TextureFormat::RedGreenBlueAlpha32ui: return GL_UNSIGNED_INT;
 	case TextureFormat::RedGreenBlue32ui:      return GL_UNSIGNED_INT;
@@ -674,11 +673,13 @@ unsigned int glWrap( const ClearBuffers &buffers )
 {
 	switch( buffers )
 	{
-	case ClearBuffers::ColorBuffer:         return GL_COLOR_BUFFER_BIT;
-	case ClearBuffers::DepthBuffer:         return GL_DEPTH_BUFFER_BIT;
-	case ClearBuffers::StencilBuffer:       return GL_STENCIL_BUFFER_BIT;
-	case ClearBuffers::ColorAndDepthBuffer: return GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT;
-	case ClearBuffers::All:                 return GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
+	case ClearBuffers::ColorBuffer:           return GL_COLOR_BUFFER_BIT;
+	case ClearBuffers::DepthBuffer:           return GL_DEPTH_BUFFER_BIT;
+	case ClearBuffers::StencilBuffer:         return GL_STENCIL_BUFFER_BIT;
+	case ClearBuffers::ColorAndDepthBuffer:   return GL_COLOR_BUFFER_BIT   | GL_DEPTH_BUFFER_BIT;
+	case ClearBuffers::ColorAndStencilBuffer: return GL_COLOR_BUFFER_BIT   | GL_STENCIL_BUFFER_BIT;
+	case ClearBuffers::StencilAndDepthBuffer: return GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT;
+	case ClearBuffers::All:                   return GL_COLOR_BUFFER_BIT   | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
 	}
 	assert( ( "Unknown ClearBuffers", 0 ) );
 	return -1;
@@ -700,28 +701,27 @@ unsigned int glWrap( const RenderState::RasterizationMode &mode )
 #pragma endregion
 
 /************************************************************************************************/
-/*                                        Primitive                                         */
+/*                                      PrimitiveType                                           */
 /************************************************************************************************/
-#pragma region Primitive
-unsigned int glWrap( const Primitive &primitive )
+#pragma region PrimitiveType
+unsigned int glWrap( const PrimitiveType &primitive )
 {
 	switch( primitive )
 	{
-	case Primitive::Points:        return GL_POINTS;
-	case Primitive::Lines:         return GL_LINES;
-	case Primitive::LineStrip:     return GL_LINE_STRIP;
-	case Primitive::LineLoop:      return GL_LINE_LOOP;
-	case Primitive::Triangles:     return GL_TRIANGLES;
-	case Primitive::TriangleStrip: return GL_TRIANGLE_STRIP;
-	case Primitive::TriangleFan:   return GL_TRIANGLE_FAN;
-	case Primitive::Quads:         return GL_QUADS;
-	case Primitive::QuadStrip:     return GL_QUAD_STRIP;
+	case PrimitiveType::Points:        return GL_POINTS;
+	case PrimitiveType::Lines:         return GL_LINES;
+	case PrimitiveType::LineStrip:     return GL_LINE_STRIP;
+	case PrimitiveType::LineLoop:      return GL_LINE_LOOP;
+	case PrimitiveType::Triangles:     return GL_TRIANGLES;
+	case PrimitiveType::TriangleStrip: return GL_TRIANGLE_STRIP;
+	case PrimitiveType::TriangleFan:   return GL_TRIANGLE_FAN;
+	case PrimitiveType::Quads:         return GL_QUADS;
+	case PrimitiveType::QuadStrip:     return GL_QUAD_STRIP;
 	}
-	assert( ( "Unknown Primitive", 0 ) );
+	assert( ( "Unknown PrimitiveType", 0 ) );
 	return -1;
 }
 
 #pragma endregion
 
-}
 }

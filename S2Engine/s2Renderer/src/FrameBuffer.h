@@ -9,11 +9,13 @@
 
 #include "Texture.h"
 
+#include "Core/Rectangle.h"
+
 #include <string>
 #include <vector>
 #include <memory>
+#include <cstdint>
 
-namespace s2 {
 namespace Renderer {
 
 /************************************************************************************************/
@@ -62,15 +64,22 @@ public:
 	
 	void attach( const AttachmentPoint &attachPoint, const Texture2DPtr &texture );
 
-	int colorAttachmentCount() const;
+	int  colorAttachmentCount() const;
 	bool hasDepthAttachment() const;
 	bool hasDepthStencilAttachment() const;
 
 	Texture2DPtr attachment( const AttachmentPoint &a ) const;
+	int			 colorAttachmentDrawBufferIndex( const AttachmentPoint a ) const;	
+
+	void readPixels( const AttachmentPoint attachPoint, const ImageFormat pixelFormat, const Math::Rectangle &roi, float   *pixels ) const  { readPixels( attachPoint, pixelFormat, ImageDataType::Float, roi, pixels ); }        // This is a convenience function
+	void readPixels( const AttachmentPoint attachPoint, const ImageFormat pixelFormat, const Math::Rectangle &roi, uint8_t *pixels ) const  { readPixels( attachPoint, pixelFormat, ImageDataType::UnsignedByte, roi, pixels ); } // This is a convenience function
+	void readPixels( const AttachmentPoint attachPoint, const ImageFormat pixelFormat, 
+					 const ImageDataType pixelType, const Math::Rectangle &roi, void *pixels ) const;
 
 	std::string info()        const;
 private:
 	void reset() override;
+	int  objectLabelIdentifier() const override;
 
 private:
 	enum Changes
@@ -92,6 +101,8 @@ private:
 	};
 
 private:
+	static constexpr int kMaxColorAttachment = ColorAttachment9+1;
+
 	int          _colorAttachmentCount;
 	Texture2DPtr _depthAttachment;
 	Texture2DPtr _depthStencilAttachment;
@@ -100,5 +111,5 @@ private:
 	mutable Changes                      _changes;
 };
 
-}}
+}
 #endif

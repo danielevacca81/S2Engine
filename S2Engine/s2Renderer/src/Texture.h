@@ -11,11 +11,10 @@
 
 #include "OpenGLObject.h"
 
-#include "graphics/ImageBuffer.h"
+#include "Core/ImageBuffer.h"
 
 #include <memory>
 
-namespace s2 {
 namespace Renderer {
 
 /************************************************************************************************/
@@ -47,6 +46,8 @@ public:
 
 	void setData( void* pixels /*, int rowAlignment = 4 */ );
 
+	void resize( const int width, const int height );
+
 	void update( int xOffset, int yOffset, 
 				 int width, int height, 
 				 const ImageFormat &imgFormat,
@@ -59,7 +60,7 @@ public:
 				 const ImageDataType &imgDataType,
 				 const ReadPixelBuffer &gpuBuffer/*, int rowAlignment = 4 */);
 	
-	ImageBufferPtr<unsigned char> readData() const;
+	ImageBuffer<uint8_t> readData() const;
 
 	/* todo: 
 	 void clear();
@@ -78,7 +79,7 @@ private:
 	void validateAlignment( int );
 	void setDefaultSampler();
 	void generateMipmaps();
-
+    int  objectLabelIdentifier() const override;
 
 private:
 	TextureFormat      _format;
@@ -86,7 +87,4 @@ private:
 };
 
 }
-}
-
-
 #endif

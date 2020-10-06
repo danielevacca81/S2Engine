@@ -7,7 +7,6 @@
 
 #include "s2Renderer_API.h"
 
-namespace s2 {
 namespace Renderer {
 
 /************************************************************************************************/
@@ -34,7 +33,6 @@ public:
 	//OBJECT_DISABLE_COPY( AttributeBuffer )
 
 	AttributeBuffer();
-	~AttributeBuffer();
 
 	void set(
 		const VertexBuffer      &buffer,
@@ -50,11 +48,11 @@ public:
 	ComponentDatatype componentDatatype()  const { return _componentDatatype; }
 	bool              isValid()            const { return _valid; }
 	int               numberOfComponents() const { return _numberOfComponents; }
-	int               offset()             const { return _offset; }
+	int               offset()             const { return int(_offset); }
 	bool              normalize()          const { return _normalize; }
 	//int               sizeInBytes()        const { return _size;              }
-	int               strideInBytes()      const { return _stride; }
-	int               numberOfVertices()   const { return _vertexBuffer.sizeInBytes() / _stride; }
+	int               strideInBytes()      const { return int(_stride); }
+	int               numberOfVertices()   const { return int(_vertexBuffer.sizeInBytes() / _stride); }
 
 private:
 	VertexBuffer      _vertexBuffer;
@@ -69,5 +67,4 @@ private:
 };
 
 } // namespace Renderer
-}
 #endif

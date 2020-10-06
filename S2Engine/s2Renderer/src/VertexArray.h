@@ -12,7 +12,6 @@
 
 #include <vector>
 
-namespace s2 {
 namespace Renderer {
 
 
@@ -25,13 +24,10 @@ typedef std::shared_ptr<VertexArray>   VertexArrayPtr;
 class S2RENDERER_API VertexArray : public OpenGLObject
 {
 public:
-	//OBJECT_DECLARE_MOVEABLE( VertexArray )
-	//OBJECT_DISABLE_COPY( VertexArray )
-
 	// CANNOT BE SHARED BETWEEN CONTEXTS
-	static VertexArrayPtr New();
+	static VertexArrayPtr New( const BufferObject::UsageHint &hint );
 public:
-	VertexArray();
+	VertexArray( const BufferObject::UsageHint &hint );
 	~VertexArray();
 
 	void bind()    const override;
@@ -45,6 +41,8 @@ public:
 	AttributeBuffer const &attribute(int i) const;
 	IndexBuffer     const &indexBuffer() const;
 
+	BufferObject::UsageHint usageHint() const { return _usageHint; }
+
 	bool isIndexed() const;
 	int  maxArrayIndex() const;
 
@@ -52,6 +50,7 @@ private:
 	void reset() override;
 
 private:
+	BufferObject::UsageHint              _usageHint;
 	mutable std::vector<AttributeBuffer> _attributes;
 	mutable IndexBuffer                  _indexBuffer; //optional
 
@@ -59,5 +58,4 @@ private:
 };
 
 } // namespace Renderer
-}
 #endif

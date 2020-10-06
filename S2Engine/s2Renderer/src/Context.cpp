@@ -5,7 +5,6 @@
 #include "OpenGL.h"
 #include "Extensions.h"
 
-
 #include <string>
 #include <iostream>
 #include <cassert>
@@ -13,11 +12,12 @@
 #if defined(WIN32) || defined(WIN64) || defined(_WIN32) || defined(_WIN64)
 #include <windows.h>
 #else
+#include <GL/glx.h>
 #endif
 
 
-using namespace s2;
-using namespace s2::Renderer;
+
+using namespace Renderer;
 
 std::map<void*, std::weak_ptr<Context> > Context::_contextList;
 
@@ -105,7 +105,10 @@ ContextPtr Context::Current()
 		// make an entry
 		ContextPtr c = std::make_shared<Context>();
 		c->_hRC      = hRC;
-		c->_hDC      = wglGetCurrentDC();
+#if defined(WIN32) || defined(WIN64) || defined(_WIN32) || defined(_WIN64)
+		c->_hDC = wglGetCurrentDC();
+#else
+#endif
 		c->_external = true;
 		
 		c->makeCurrent();

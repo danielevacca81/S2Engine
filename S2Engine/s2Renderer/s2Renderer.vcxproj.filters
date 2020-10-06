@@ -4,9 +4,6 @@
     <Filter Include="src">
       <UniqueIdentifier>{f3f50ac4-28a4-4ad4-872b-439b8b04e867}</UniqueIdentifier>
     </Filter>
-    <Filter Include="res">
-      <UniqueIdentifier>{b38ba922-f0e5-49f8-a1ec-1ae231483b95}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\states">
       <UniqueIdentifier>{25c11b07-b058-450f-9b8b-066071201703}</UniqueIdentifier>
     </Filter>
@@ -30,6 +27,12 @@
     </Filter>
     <Filter Include="src\opengl objects\uniforms">
       <UniqueIdentifier>{48434ad6-a884-41d1-8fb8-7cbbc9f7e63e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vobjects">
+      <UniqueIdentifier>{b38ba922-f0e5-49f8-a1ec-1ae231483b95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\opengl objects\attributes">
+      <UniqueIdentifier>{1e7c7456-ee2d-43bc-90ae-208a71074bc1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -123,16 +126,10 @@
     <ClInclude Include="src\Extensions.h">
       <Filter>src\opengl wrap</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\ExtLibs\glew-2.1.0\include\GL\glew.h">
-      <Filter>src\opengl wrap</Filter>
-    </ClInclude>
     <ClInclude Include="src\Context.h">
       <Filter>src\components</Filter>
     </ClInclude>
     <ClInclude Include="src\Device.h">
-      <Filter>src\components</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Primitive.h">
       <Filter>src\components</Filter>
     </ClInclude>
     <ClInclude Include="src\Surface.h">
@@ -156,9 +153,6 @@
     <ClInclude Include="src\Program.h">
       <Filter>src\opengl objects</Filter>
     </ClInclude>
-    <ClInclude Include="src\BufferObject.h">
-      <Filter>src\opengl objects</Filter>
-    </ClInclude>
     <ClInclude Include="src\FrameBuffer.h">
       <Filter>src\opengl objects</Filter>
     </ClInclude>
@@ -177,14 +171,65 @@
     <ClInclude Include="src\Sampler.h">
       <Filter>src\opengl objects</Filter>
     </ClInclude>
-    <ClInclude Include="src\Locations.h">
-      <Filter>src\components</Filter>
-    </ClInclude>
-    <ClInclude Include="src\PrimitiveBuffer.h">
-      <Filter>src\opengl objects</Filter>
-    </ClInclude>
     <ClInclude Include="src\s2Renderer_API.h">
       <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ExtLibs\glew-2.1.0\include\GL\glew.h">
+      <Filter>src\opengl wrap</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VCircle.h">
+      <Filter>vobjects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VPolygon.h">
+      <Filter>vobjects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VRectangle.h">
+      <Filter>vobjects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VSplineStrip.h">
+      <Filter>vobjects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VObjectManagerHelper.h">
+      <Filter>vobjects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\BatchedPrimitives.h">
+      <Filter>src\opengl objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VGroup.h">
+      <Filter>vobjects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VMesh.h">
+      <Filter>vobjects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VObjectManager.h">
+      <Filter>vobjects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VObjectState.h">
+      <Filter>vobjects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VObjectStyle.h">
+      <Filter>vobjects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VPoint.h">
+      <Filter>vobjects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VPolyLine.h">
+      <Filter>vobjects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Picker.h">
+      <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\BufferObject.h">
+      <Filter>src\opengl objects\buffer objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\PrimitiveType.h">
+      <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VertexAttributeLocation.h">
+      <Filter>src\opengl objects\attributes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\PrimitiveBuffer.h">
+      <Filter>src\components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -211,9 +256,6 @@
     </ClCompile>
     <ClCompile Include="src\TextureUnit.cpp">
       <Filter>src\opengl objects\textures</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ExtLibs\glew-2.1.0\src\glew.c">
-      <Filter>src\opengl wrap</Filter>
     </ClCompile>
     <ClCompile Include="src\OpenGLWrap.cpp">
       <Filter>src\opengl wrap</Filter>
@@ -251,9 +293,6 @@
     <ClCompile Include="src\Program.cpp">
       <Filter>src\opengl objects</Filter>
     </ClCompile>
-    <ClCompile Include="src\BufferObject.cpp">
-      <Filter>src\opengl objects</Filter>
-    </ClCompile>
     <ClCompile Include="src\FrameBuffer.cpp">
       <Filter>src\opengl objects</Filter>
     </ClCompile>
@@ -269,11 +308,60 @@
     <ClCompile Include="src\Sampler.cpp">
       <Filter>src\opengl objects</Filter>
     </ClCompile>
-    <ClCompile Include="src\PrimitiveBuffer.cpp">
+    <ClCompile Include="..\..\ExtLibs\glew-2.1.0\src\glew.c">
+      <Filter>src\opengl wrap</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VCircle.cpp">
+      <Filter>vobjects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VPolygon.cpp">
+      <Filter>vobjects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VRectangle.cpp">
+      <Filter>vobjects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VSplineStrip.cpp">
+      <Filter>vobjects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VObjectManagerHelper.cpp">
+      <Filter>vobjects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BatchedPrimitives.cpp">
       <Filter>src\opengl objects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VGroup.cpp">
+      <Filter>vobjects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VMesh.cpp">
+      <Filter>vobjects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VObjectManager.cpp">
+      <Filter>vobjects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VObjectStyle.cpp">
+      <Filter>vobjects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VPoint.cpp">
+      <Filter>vobjects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VPolyLine.cpp">
+      <Filter>vobjects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\OpenGLObject.cpp">
+      <Filter>src\opengl objects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Picker.cpp">
+      <Filter>src\components</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BufferObject.cpp">
+      <Filter>src\opengl objects\buffer objects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PrimitiveBuffer.cpp">
+      <Filter>src\components</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="MakeSDK.bat" />
+    <None Include="MakeSDK.sh" />
   </ItemGroup>
 </Project>

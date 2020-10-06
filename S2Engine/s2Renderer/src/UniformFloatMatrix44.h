@@ -7,8 +7,6 @@
 
 #include "Uniform.h"
 
-namespace s2 {
-
 namespace Renderer {
 
 class S2RENDERER_API UniformFloatMatrix44: public UniformValue<Math::mat4>
@@ -24,6 +22,5 @@ public:
 	void set();
 };
 
-}
 }
 #endif

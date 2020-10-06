@@ -4,22 +4,23 @@
 
 #include "OpenGL.h"
 #include "OpenGLWrap.h"
+#include "VertexAttributeLocation.h"
 
-using namespace s2::Renderer;
+
+using namespace Renderer;
 
 // TODO
 // Conditional rendering
 // Tesselation
 
 //-------------------------------------------------------------------------------------------------
-void RenderingHelper::draw( const Primitive &primitive, const PrimitiveBufferPtr &m )
+void RenderingHelper::draw( const PrimitiveType &type, const PrimitiveBufferPtr &p )
 {
-	draw( primitive, m->_va );
+	draw( type, p->_vao );
 }
 
-
 //-------------------------------------------------------------------------------------------------
-void RenderingHelper::draw( const Primitive &primitive, const VertexArrayPtr &va )
+void RenderingHelper::draw( const PrimitiveType &primitive, const VertexArrayPtr &va )
 {
 	va->bind();
 	

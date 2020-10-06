@@ -2,12 +2,17 @@
 //
 #include "OpenGL.h"
 
+#include "BuiltIn.h"
+
 #include <iostream>
 #include <sstream>
 
 //----------------------------------------------------------------------------------------------
-void s2::Renderer::glCheckError( const char* file, unsigned line )
+void Renderer::glCheckError( const char* file, unsigned line )
 {
+	if( BuiltIn::isDebugOutputEnabled() )
+		return;
+
 	GLenum err = glGetError();
 	if( err != GL_NO_ERROR )
 	{
