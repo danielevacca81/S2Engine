@@ -1,0 +1,82 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{f8c50685-e744-4f48-b35c-441cc1292845}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Color.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FileSystem.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\base64.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Crc32.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MD5.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ColorGradient.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ColorMap.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\Color.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\DateTime.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FileSystem.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Json.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Log.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LRUCache.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Pixmap.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Pixmap.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SafeQueue.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Strings.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core_API.h" />
+    <ClInclude Include="src\base64.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Crc32.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MD5.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ColorGradient.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ColorMap.h">
+      <Filter>src</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Export.bat" />
+  </ItemGroup>
+</Project>
