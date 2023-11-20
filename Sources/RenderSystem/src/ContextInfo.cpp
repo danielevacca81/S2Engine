@@ -6,7 +6,7 @@
 #include "OpenGLCheck.h"
 
 #include <iostream>
-#include <bitset>
+#include <iomanip>
 #include <sstream>
 
 using namespace RenderSystem;
@@ -31,13 +31,6 @@ void ContextInfo::init()
 	_vendor   = std::string( (char*) glGetString( GL_VENDOR ) );
 	_version  = std::string( (char*) glGetString( GL_VERSION ) );
 	_renderer = std::string( (char*) glGetString( GL_RENDERER ) );
-}
-
-// ------------------------------------------------------------------------------------------------
-const std::set<std::string>& ContextInfo::extensions() const
-{
-	if( !_extensions.empty() )
-		return _extensions;
 
 	int n = 0;
 	glGetIntegerv( GL_NUM_EXTENSIONS, &n );
@@ -49,13 +42,10 @@ const std::set<std::string>& ContextInfo::extensions() const
 		glCheck;
 		_extensions.insert( std::string( ext ) );
 	}
-
-	return _extensions;
 }
 
-
-
 // ------------------------------------------------------------------------------------------------
+const std::set<std::string>& ContextInfo::extensions() const { return _extensions;}
 bool ContextInfo::isContextProfileCore()              const { return _openGLContextProfile & GL_CONTEXT_CORE_PROFILE_BIT; }
 bool ContextInfo::isContextProfileCompatibility()     const { return _openGLContextProfile & GL_CONTEXT_COMPATIBILITY_PROFILE_BIT; }
 bool ContextInfo::isContextProfileForwardCompatible() const { return _openGLContextFlags & GL_CONTEXT_FLAG_FORWARD_COMPATIBLE_BIT; }
@@ -73,7 +63,7 @@ std::string ContextInfo::toString() const
 		<< "   OpenGL Version         : " << _version << '\n'
 		<< "   OpenGL Shading Language: " << _shaderVersion<< '\n'
 		<< "   Context Profile        : " << ( isContextProfileCompatibility() ? "Compatibility" : "Core" ) << '\n'
-		<< "   Context Flags          : " << std::bitset<32>( _openGLContextFlags )
+		<< "   Context Flags          : " << "0x"<< std::setfill( '0' ) << std::setw( 8 ) << std::right << std::hex << _openGLContextFlags << std::dec << '\n'
 		<< "   Extensions             : " << _extensions.size() << '\n'
 		;
 	return ss.str();

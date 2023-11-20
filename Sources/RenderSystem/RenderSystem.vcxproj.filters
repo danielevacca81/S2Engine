@@ -105,9 +105,6 @@
     <ClInclude Include="src\FrameBuffer.h">
       <Filter>src\opengl</Filter>
     </ClInclude>
-    <ClInclude Include="src\Texture.h">
-      <Filter>src\opengl</Filter>
-    </ClInclude>
     <ClInclude Include="src\RenderBuffer.h">
       <Filter>src\opengl</Filter>
     </ClInclude>
@@ -175,6 +172,12 @@
     <ClInclude Include="src\ContextInfo.h">
       <Filter>src\context</Filter>
     </ClInclude>
+    <ClInclude Include="src\Texture.h">
+      <Filter>src\opengl\textures</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ViewState.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\AttributeBuffer.cpp">
@@ -208,9 +211,6 @@
       <Filter>src\opengl</Filter>
     </ClCompile>
     <ClCompile Include="src\FrameBuffer.cpp">
-      <Filter>src\opengl</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Texture.cpp">
       <Filter>src\opengl</Filter>
     </ClCompile>
     <ClCompile Include="src\RenderBuffer.cpp">
@@ -260,6 +260,9 @@
     </ClCompile>
     <ClCompile Include="src\ContextInfo.cpp">
       <Filter>src\context</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Texture.cpp">
+      <Filter>src\opengl\textures</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

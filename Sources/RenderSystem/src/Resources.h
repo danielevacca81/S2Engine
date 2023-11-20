@@ -23,6 +23,9 @@ public:
 	{
 		ProgramPtr FullscreenQuad;
 		ProgramPtr Simple;
+		//ProgramPtr Debug;
+		//ProgramPtr Phong
+		// ...
 	};
 
 	struct Samplers

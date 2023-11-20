@@ -61,8 +61,10 @@ public:
 	bool              clearPickBuffer();
 	Picker::Value     pickValueAt( int32_t x, int32_t y );
 
-
-	void swap( uint32_t targetFBO, const FrameBuffer::AttachmentPoint &att = FrameBuffer::ColorAttachment0 );
+	void swap( uint32_t targetFBO, const FrameBuffer::AttachmentPoint &att ) const;
+	
+	// convenience method. same as swap( Context::current()->dafaultFBO(), FrameBuffer::ColorAttachment0 );
+	void blit() const;
 	
 	// todo: grab image instead of swap?
 	Pixmap<uint8_t> grabImage() const;

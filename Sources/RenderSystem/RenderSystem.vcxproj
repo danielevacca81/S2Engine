@@ -149,6 +149,7 @@
     <ClInclude Include="src\VertexArray.h" />
     <ClInclude Include="src\VertexBuffer.h" />
     <ClInclude Include="src\PrimitiveBatch.h" />
+    <ClInclude Include="src\ViewState.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\AttributeBuffer.cpp" />

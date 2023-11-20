@@ -18,7 +18,6 @@
 namespace RenderSystem {
 
 class PrimitiveBuffer;
-class Context;
 typedef std::shared_ptr<PrimitiveBuffer>   PrimitiveBufferPtr;
 
 // ------------------------------------------------------------------------------------------------
@@ -27,7 +26,7 @@ typedef std::shared_ptr<PrimitiveBuffer>   PrimitiveBufferPtr;
 //   (1) colors
 //   (2) normals
 //   (3) texture coords
-class RENDERSYSTEM_API PrimitiveBuffer
+class RENDERSYSTEM_API PrimitiveBuffer // rename: GeometryBuffer?
 {
 public:
 	// CANNOT BE SHARED BETWEEN CONTEXTS
@@ -50,7 +49,6 @@ public:
 	void setFloatVector3Attribute( const std::vector<Math::fvec3>  &attrib   );
 	void setFloatVector4Attribute( const std::vector<Math::fvec4>  &attrib   );
 
-	//PrimitiveType           primitiveType;
 	//WindingOrder            frontFaceWindingOrder;
 
 private:

@@ -41,10 +41,8 @@ public:
 	bool                         isAttached()      const { return _surface != nullptr; }
 
 private:
-	friend Surface;
-
 	void      reset();
-	void      attachToSurface( Surface *surface, const FrameBuffer::AttachmentPoint pickAttachmentPoint );
+	void      attachToSurface( Surface *surface, const FrameBuffer::AttachmentPoint &pickAttachmentPoint );
 	void      detachFromSurface();
 
 	bool	  clearPickBuffer();
@@ -54,6 +52,8 @@ private:
 	Surface*					    _surface;
 	FrameBuffer::AttachmentPoint	_attachmentPoint;
 	Texture2DPtr	                _pickTexture; 
+
+	friend class Surface;
 };
 
 }

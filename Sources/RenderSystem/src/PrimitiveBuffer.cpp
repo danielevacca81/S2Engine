@@ -2,7 +2,6 @@
 //
 #include "PrimitiveBuffer.h"
 
-#include "PrimitiveType.h"
 #include "VertexAttributeLocation.h"
 
 
@@ -24,8 +23,6 @@ PrimitiveBufferPtr PrimitiveBuffer::New( const BufferObject::UsageHint &hint )
 //   (3) texture coords
 // ------------------------------------------------------------------------------------------------
 PrimitiveBuffer::PrimitiveBuffer( const BufferObject::UsageHint &hint )
-//: primitiveType( PrimitiveType::Points )
-//, frontFaceWindingOrder( WindingOrder::Counterclockwise )
 {
 	_vao = VertexArray::New( hint );
 }

@@ -70,21 +70,21 @@ struct ScissorTest
 	Math::irect rect {0,0,0,0};
 };
 
-/************************************************************************/
-/*                             VIEWPORT                                 */
-/************************************************************************/
-struct Viewport
-{
-	Viewport()
-	: Viewport( 0,0,0,0 )
-	{}
-
-	Viewport( int x, int y, int width, int height )
-	: rect( x, y, width, height )
-	{}
-
-	Math::irect rect { 0,0,0,0 };
-};
+///************************************************************************/
+///*                             VIEWPORT                                 */
+///************************************************************************/
+//struct Viewport
+//{
+//	Viewport()
+//	: Viewport( 0,0,0,0 )
+//	{}
+//
+//	Viewport( int x, int y, int width, int height )
+//	: rect( x, y, width, height )
+//	{}
+//
+//	Math::irect rect { 0,0,0,0 };
+//};
 
 /************************************************************************/
 /*                              STENCILTEST                             */
@@ -303,7 +303,6 @@ struct RenderState
 		Fill,
 	};
 
-	Viewport          viewport {0,0,0,0};
 	PrimitiveRestart  primitiveRestart;
 	FaceCulling       faceCulling;
 	ProgramPointSize  programPointSize;

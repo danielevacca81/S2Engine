@@ -29,8 +29,7 @@ void Picker::reset()
 }
 
 // ------------------------------------------------------------------------------------------------
-void Picker::attachToSurface( Surface *surface, 
-							  const FrameBuffer::AttachmentPoint pickAttachmentPoint )
+void Picker::attachToSurface( Surface *surface, const FrameBuffer::AttachmentPoint &pickAttachmentPoint )
 {	
 	if( surface == _surface && ( !_surface || pickAttachmentPoint == _attachmentPoint ) )
 		return;
@@ -98,6 +97,3 @@ Picker::Value Picker::getValueAt( int x, int y ) const
 
 	return retval;
 }
-
-
-

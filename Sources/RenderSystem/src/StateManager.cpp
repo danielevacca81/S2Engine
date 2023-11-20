@@ -49,9 +49,6 @@ void StateManager::setClearState( const ClearState &cs )
 {
 	_shadowingCurrentlyEnabled = !( gShadowingAlwaysDisabled || _disableClearStateShadowingOneShot || !cs.shadowingEnabled );
 
-	//applyFramebuffer();
-	//glCheck;
-
 	applyScissorTest( cs.scissorTest );
 	applyColorMask(   cs.colorMask    );
 	applyDepthMask(   cs.depthMask    );
@@ -108,14 +105,12 @@ void StateManager::setDrawState( const DrawState &ds )
 	_shadowingCurrentlyEnabled = !( gShadowingAlwaysDisabled || _disableDrawStateShadowingOneShot || !ds.shadowingEnabled );
 
 	// apply before draw:
+	applyViewState( ds.viewState );
 	applyRenderState( ds.renderState );
 	applyShaderProgram( ds.shaderProgram );
 	ds.textureUnits.set();
 
-	//applyView( vs );
-
 	// add: apply texture units
-	//applyFramebuffer();
 
 #if defined( CHECK_SHADOWING ) 
 	debugState( true, false );
@@ -139,8 +134,7 @@ inline void StateManager::applyRenderState( const RenderState &rs )
 	applyBlending         ( rs.blending );
 	applyColorMask        ( rs.colorMask );
 	applyDepthMask        ( rs.depthMask );
-	applyStencilMask      ( rs.stencilMask );
-	applyViewport         ( rs.viewport );
+	applyStencilMask      ( rs.stencilMask );	
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -539,116 +533,16 @@ inline void StateManager::applyClearColorSeparate( const ClearColorSeparate& cle
 }
 
 // ------------------------------------------------------------------------------------------------
-/*
-void StateManager::setViewport( const Viewport &vp )
+inline void StateManager::applyViewState( const ViewState &vs )
 {
-	if( vp.rect.width() < 0 || vp.rect.height() < 0 )
-	{
-#if 0
-		throw new ArgumentOutOfRangeException("Viewport", "The viewport width and height must be greater than or equal to zero.");
-#endif
-		return;
-	}
-	_fullViewport = vp;
-}
-*/
-
-// ------------------------------------------------------------------------------------------------
-inline void StateManager::applyViewport( const Viewport &vp )
-{
-	if( !vp.rect.equals( _renderState.viewport.rect ) ||
+	if( !vs.viewport.equals( _viewState.viewport ) ||
 		!_shadowingCurrentlyEnabled )
 	{
-		glViewport( vp.rect.left(), vp.rect.bottom(), vp.rect.width(), vp.rect.height() );
+		glViewport( vs.viewport.left(), vs.viewport.bottom(), vs.viewport.width(), vs.viewport.height() );
 		glCheck;
-		_renderState.viewport = vp;
+		_viewState.viewport = vs.viewport;
 	}
 }
-
-// ------------------------------------------------------------------------------------------------
-//Math::Rectangle StateManager::viewport() const { return _viewport; }
-
-// ------------------------------------------------------------------------------------------------
-//void StateManager::draw( Primitive primitive, const VertexArray &va, const View &vs, const DrawState &ds )
-//{
-//	//VerifyDraw(drawState, sceneState);
-//	//ApplyBeforeDraw(drawState, sceneState);
-//	applyRenderState( ds.renderState );
-//	applyShaderProgram( ds.shaderProgram );
-//	applyView( vs );
-//
-//	va.bind();
-//	
-//	if( va.isIndexed() )
-//	{
-//		glDrawElements( glWrap(primitive), 
-//			            0, 
-//						glWrap(va.indexBuffer()->dataType()), 
-//						BUFFER_OFFSET(0) );
-//		
-//		//glDrawRangeElements( glWrap(primitive),
-//		//	0, va.MaximumArrayIndex(), va.indices()->count(),
-//		//	TypeConverterGL3x.To(indexBuffer.Datatype), new IntPtr());
-//	}
-//	else
-//	{
-//		glDrawArrays( glWrap(primitive), 0, va.maxArrayIndex() + 1);
-//	}
-//
-//	glCheck;
-//}
-
-// ------------------------------------------------------------------------------------------------
-//void StateManager::draw( Primitive primitive, const PrimitiveBuffer &m, const View &vs, const DrawState &ds )
-//{
-//	draw( primitive, m._va, vs, ds );
-//}
-
-
-// ------------------------------------------------------------------------------------------------
-//void StateManager::draw( Primitive primitive, const VertexBuffer &vb, const View &vs, const DrawState &ds )
-//{
-//	//VerifyDraw(drawState, sceneState);
-//	//ApplyBeforeDraw(drawState, sceneState);
-//	applyRenderState( ds.renderState );
-//	applyShaderProgram( ds.shaderProgram );
-//	applyView( vs );
-//		
-//	glEnableClientState( GL_VERTEX_ARRAY );
-//	glEnableClientState( GL_NORMAL_ARRAY );
-//	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-//	glEnableClientState( GL_COLOR_ARRAY );
-//
-//	glVertexPointer  ( 3, GL_DOUBLE, sizeof(Vertex), &vb.vertices()[0].position );
-//	glColorPointer   ( 4, GL_FLOAT,  sizeof(Vertex), &vb.vertices()[0].color    );
-//	glNormalPointer  (    GL_FLOAT,  sizeof(Vertex), &vb.vertices()[0].normal   );
-//	glTexCoordPointer( 2, GL_FLOAT,  sizeof(Vertex), &vb.vertices()[0].texCoord );
-//
-//	//if( vb.hasIndexBuffer() )
-//		//glDrawRangeElements( glWrap(primitive), 0
-//	//else
-//		glDrawArrays( glWrap(primitive), 0, vb.size() );
-//	
-//	glDisableClientState( GL_VERTEX_ARRAY );
-//	glDisableClientState( GL_NORMAL_ARRAY );
-//	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
-//	glDisableClientState( GL_COLOR_ARRAY );
-//
-//	//VertexArrayGL3x vertexArray = (VertexArrayGL3x)drawState.VertexArray;
-//	//IndexBufferGL3x indexBuffer = vertexArray.IndexBuffer as IndexBufferGL3x;
-//
-//	//if( indexBuffer != null )
-//	//{
-//	//	GL.DrawRangeElements(TypeConverterGL3x.To(primitiveType),
-//	//		0, vertexArray.MaximumArrayIndex(), indexBuffer.Count,
-//	//		TypeConverterGL3x.To(indexBuffer.Datatype), new IntPtr());
-//	//}
-//	//else
-//	//{
-//	//	GL.DrawArrays(TypeConverterGL3x.To(primitiveType), 0,
-//	//		vertexArray.MaximumArrayIndex() + 1);
-//	//}
-//}
 
 // ------------------------------------------------------------------------------------------------
 void StateManager::debugState( const bool drawStateCheck , const bool clearStateCheck ) const
@@ -747,10 +641,10 @@ void StateManager::debugState( const bool drawStateCheck , const bool clearState
 
 
 		glGetIntegerv( GL_VIEWPORT, val );
-		assert( val[0] == _renderState.viewport.rect.left()   );
-		assert( val[1] == _renderState.viewport.rect.bottom() );
-		assert( val[2] == _renderState.viewport.rect.width()  );
-		assert( val[3] == _renderState.viewport.rect.height() );
+		assert( val[0] == _viewState.viewport.left()   );
+		assert( val[1] == _viewState.viewport.bottom() );
+		assert( val[2] == _viewState.viewport.width()  );
+		assert( val[3] == _viewState.viewport.height() );
 	}
 	if( drawStateCheck || clearStateCheck )
 	{

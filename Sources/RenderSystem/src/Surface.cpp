@@ -180,8 +180,8 @@ static inline DrawState sanitizeDrawState( const DrawState& ds, Surface const* s
 	DrawState out( ds );
 
 	// sanitize Viewport
-	if( out.renderState.viewport.rect.isEmpty() )
-		out.renderState.viewport = Viewport( 0, 0, s->width(), s->height() );
+	if( out.viewState.viewport.isEmpty() )
+		out.viewState.viewport = Math::irect ( 0, 0, s->width(), s->height() );
 
 	// ...
 
@@ -194,14 +194,14 @@ void Surface::draw( const PrimitiveType &primitiveType, const PrimitiveBufferPtr
 void Surface::draw( const PrimitiveBatch& batch, const DrawState& ds )                                             const { RenderEngine::draw( _fbo, batch, sanitizeDrawState( ds, this ) );}
 
 // ------------------------------------------------------------------------------------------------
-void Surface::swap( uint32_t targetFBO, const FrameBuffer::AttachmentPoint &att )
+void Surface::swap( uint32_t targetFBO, const FrameBuffer::AttachmentPoint &att ) const
 {
 	DrawState ds( Resources::DefaultShaders.FullscreenQuad );
 	ds.textureUnits[ 0 ].setTexture( _fbo->attachment( att ) );
 	ds.textureUnits[ 0 ].setSampler( Resources::DefaultSamplers.LinearClamp );
 	ds.renderState.depthTest.enabled   = false;
 	ds.renderState.faceCulling.enabled = false;
-	ds.renderState.viewport = Viewport( 0,0, _width, _height );
+	ds.viewState.viewport = Math::irect( 0,0, _width, _height );
 
 	PrimitiveBufferPtr      quad = PrimitiveBuffer::New(); 
 	std::vector<Math::vec3> vertices  = { {-1,1,0},{-1,-1,0},{1,1,0},{1,-1,0} }; 
@@ -213,34 +213,19 @@ void Surface::swap( uint32_t targetFBO, const FrameBuffer::AttachmentPoint &att 
 	RenderEngine::draw( targetFBO, PrimitiveType::TriangleStrip, quad, ds );
 }
 
+// convenience method. same as swap( Context::current()->dafaultFBO(), FrameBuffer::ColorAttachment0 );
+// ------------------------------------------------------------------------------------------------
+void Surface::blit() const
+{
+	//
+	swap( RenderEngine::defaultFrameBufferObject(), FrameBuffer::ColorAttachment0 );
+}
+
 // ------------------------------------------------------------------------------------------------
 Pixmap<uint8_t> Surface::grabImage() const
 {
 	// @todo: ok for multisample buffers?
-	
-	//auto img = _fbo->attachment( FrameBuffer::ColorAttachment0 )->readData();
-	const int rowAlignment       = 4;
-	const ImageFormat format     = ImageFormat::RedGreenBlueAlpha;
-	const ImageDataType dataType = ImageDataType::UnsignedByte;
-	const int sizeInBytes        = computeRequiredSizeInBytes( _width, _height, format, dataType, rowAlignment );
-
-	_fbo->bind();
-	//glPixelStorei( GL_PACK_ALIGNMENT, rowAlignment );
-	
-	ReadPixelBuffer pixelBuffer = ReadPixelBuffer( sizeInBytes, ReadPixelBuffer::UsageHint::Static );
-	pixelBuffer.bind();
-	
-	glReadPixels( 0,0, _width, _height, glWrap( format ), glWrap( dataType ), BUFFER_OFFSET(0) ); // todo: remove direct calls to OpenGL from the surface class. Use of OpenGL is delegated to lower level classes (ex: Context)
-	glCheck;																					   
-	//unbind();
-	//glCheck;
-
-	Pixmap<uint8_t> img( _width, _height, 4, (uint8_t*)pixelBuffer.mapData() );
-	pixelBuffer.unmapData();
-	pixelBuffer.unbind();
-	_fbo->unbind();
-
-	return img;
+	return RenderEngine::readPixels( _fbo, _width, _height );
 }
 
 // ------------------------------------------------------------------------------------------------

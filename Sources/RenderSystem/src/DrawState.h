@@ -6,26 +6,19 @@
 #include "RenderSystem_API.h"
 
 #include "RenderState.h"
+#include "ViewState.h"
 #include "Program.h"
 #include "Resources.h"
 #include "TextureUnit.h"
 
 namespace RenderSystem {
 
-// struct ViewState
-//{
-//  viewport;
-//  modelMatrix;
-//  viewMatrix;
-//  projectionMatrix;
-//}
-
 struct DrawState
 {
-	bool         shadowingEnabled { true };
+	bool         shadowingEnabled { true }; // @todo:remove. hide shadowing to the user forcing to true
 
 	RenderState  renderState;
-	// ViewState viewState; ??
+	ViewState    viewState;
 	ProgramPtr   shaderProgram;
 	TextureUnits textureUnits;
 

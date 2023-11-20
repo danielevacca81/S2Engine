@@ -26,4 +26,4 @@ enum class WindingOrder
 
 
 }
-#endif // !PRIMITIVE_ONCE
+#endif // !PRIMITIVETYPE_ONCE

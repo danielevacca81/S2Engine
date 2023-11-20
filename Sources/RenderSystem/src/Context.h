@@ -32,12 +32,17 @@ public:
 	bool operator==( const Context& o ) const { return _nativeHandle == o._nativeHandle; }
 	bool operator!=( const Context& o ) const { return _nativeHandle != o._nativeHandle; }
 
-private:
-	Context();
-	~Context();
+	virtual void beginRendering();
+	virtual void endRendering() ;
 
-	void makeCurrent() {}
-	void doneCurrent() {}
+	virtual void makeCurrent() { /*todo*/}
+	virtual void doneCurrent() { /*todo*/}
+
+	//virtual int32_t defaultFrameBufferObject() const { return _defaultFBO; }
+
+protected:
+	Context();
+	virtual ~Context();
 
 protected:
 	//std::string  _name;

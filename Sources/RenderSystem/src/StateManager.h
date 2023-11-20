@@ -48,7 +48,7 @@ private:
 	void applyDepthMask         ( const DepthMask& depthMask );
 	void applyStencilMask       ( const StencilMask &stencilMask );
 	void applyShaderProgram     ( const ProgramPtr  &program );
-	void applyViewport          ( const Viewport &viewport );
+	void applyViewState         ( const ViewState &vs);
 	void applyClearColorSeparate( const ClearColorSeparate &clearColorSeparate );
 
 private:
@@ -61,6 +61,7 @@ private:
 	int          _clearStencil;
 				 
 	RenderState  _renderState;
+	ViewState    _viewState;
 	ProgramPtr   _currentShaderProgram;
 };
 

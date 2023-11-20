@@ -13,7 +13,7 @@
 namespace RenderSystem {
 
 // ------------------------------------------------------------------------------------------------
-class RENDERSYSTEM_API TextureUnit
+class RENDERSYSTEM_API TextureUnit //TextureSampler?
 {
 public:
 	explicit TextureUnit( int index = -1);

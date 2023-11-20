@@ -31,8 +31,8 @@ Context *Context::current()
 	uint32_t handle = glXGetCurrentContext();
 #endif
 
-
 	//  @todo: mutex?
+	//		   also: avoid find in getCurrent and just return current context pointer
 	Context* c = nullptr;
 	auto found = gRegistry.find(handle);
 	if( found == gRegistry.end() )
@@ -95,6 +95,13 @@ Context::~Context()
 
 // ------------------------------------------------------------------------------------------------
 Surface* Context::createSurface( const std::initializer_list<Surface::AttachmentDescription> &init ) { return new Surface( init ); }
+
+// ------------------------------------------------------------------------------------------------
+void Context::beginRendering() { _stateManager.disableShadowingOneShot(); }
+void Context::endRendering()   { glFlush(); }
+
+
+
 
 
 #if 0

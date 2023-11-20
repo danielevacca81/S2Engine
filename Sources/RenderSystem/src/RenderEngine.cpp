@@ -31,7 +31,11 @@ static inline void draw( const PrimitiveType& primitive, const VertexArrayPtr& v
 	}
 }
 
-
+// ------------------------------------------------------------------------------------------------
+uint32_t RenderEngine::defaultFrameBufferObject()
+{
+	return Context::current()->_defaultFBO;
+}
 
 // ------------------------------------------------------------------------------------------------
 void RenderEngine::clear( const FrameBufferPtr &fbo, const ClearState& cs )
@@ -119,4 +123,34 @@ void RenderEngine::draw( uint32_t targetFBO, const PrimitiveType& primitiveType,
 
 	Context::current()->_stateManager.setDrawState( ds );
 	::draw( primitiveType, primitive->_vao );
+}
+
+// ------------------------------------------------------------------------------------------------
+Pixmap<uint8_t> RenderEngine::readPixels( const FrameBufferPtr& fbo, uint32_t width, uint32_t height )
+{
+	if( !fbo )
+		return;
+
+	if( width == 0 || height == 0 )
+		return;
+
+	const int rowAlignment       = 4;
+	const ImageFormat format     = ImageFormat::RedGreenBlueAlpha;
+	const ImageDataType dataType = ImageDataType::UnsignedByte;
+	const int sizeInBytes        = computeRequiredSizeInBytes( width, height, format, dataType, rowAlignment );
+
+	fbo->bind();
+
+	ReadPixelBuffer pixelBuffer = ReadPixelBuffer( sizeInBytes, ReadPixelBuffer::UsageHint::Static );
+	pixelBuffer.bind();
+
+	glReadPixels( 0, 0, width, height, glWrap( format ), glWrap( dataType ), BUFFER_OFFSET( 0 ) ); // todo: remove direct calls to OpenGL from the surface class. Use of OpenGL is delegated to lower level classes (ex: Context)
+	glCheck;
+
+	Pixmap<uint8_t> img( width, height, 4, (uint8_t*) pixelBuffer.mapData() );
+	pixelBuffer.unmapData();
+	pixelBuffer.unbind();
+	fbo->unbind();
+	
+	return img;
 }
