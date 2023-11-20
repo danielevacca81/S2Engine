@@ -3,14 +3,14 @@
 #ifndef VOBJECTSTATE_ONCE
 #define VOBJECTSTATE_ONCE
 
-#include "s2Scene_API.h"
+#include "s2SceneGraph_API.h"
 
 #include <bitset>
 
 namespace s2 {
-namespace Scene {
+namespace SceneGraph {
 
-class S2SCENE_API VObjectState
+class S2SCENEGRAPH_API VObjectState
 {
 public:
 	enum StateChange { Selected=0, Hilighted, Visible };

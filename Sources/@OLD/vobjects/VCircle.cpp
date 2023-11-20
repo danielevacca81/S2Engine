@@ -10,8 +10,8 @@
 
 #include <iostream>
 
-
-using namespace Renderer;
+using namespace s2;
+using namespace s2::Renderer;
 
 // ------------------------------------------------------------------------------------------------
 VCircle::VCircle()

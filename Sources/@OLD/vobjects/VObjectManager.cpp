@@ -8,8 +8,8 @@
 
 #include <iostream>
 
-
-using namespace Scene;
+using namespace s2;
+using namespace s2::SceneGraph;
 
 // ------------------------------------------------------------------------------------------------
 VObjectManager::VObjectManager()
@@ -522,13 +522,15 @@ void VObjectManager::draw( const Renderer::SurfacePtr &surface, const Renderer::
 
 	const_cast<VObjectManager*>(this)->updateBuffers(); // @todo: use helper class for rendering
 
+	for( auto &m : _meshesBuffers )
+		surface->draw( m->primitiveType, m, drawState  );
 
 	Renderer::DrawingState ds( drawState );
 	ds.renderState.primitiveRestart.enabled = true;
 	//ds.renderState.primitiveRestart.index   = 0xffff;
 	
-	surface->draw( Renderer::PrimitiveType::LineStrip, _polylinesBuffer,  ds  );
-	surface->draw( Renderer::PrimitiveType::Points,    _pointsBuffer,     ds  );
+	surface->draw( Renderer::Primitive::LineStrip, _polylinesBuffer,  ds  );
+	surface->draw( Renderer::Primitive::Points,    _pointsBuffer,     ds  );
 
 #if 0
 	glPushAttrib( GL_ALL_ATTRIB_BITS );

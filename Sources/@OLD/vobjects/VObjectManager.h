@@ -3,26 +3,27 @@
 #ifndef VOBJECTMANAGER_ONCE
 #define VOBJECTMANAGER_ONCE
 
-#include "s2Scene_API.h"
+#include "s2SceneGraph_API.h"
 
 #include "VObject.h"
 #include "SelectionSet.h"
 
-#include "Core/Observer.h"
-#include "Core/Math.h"
-#include "Core/Box.h"
+#include "patterns/Observer.h"
+#include "math/Math.h"
+#include "math/Box.h"
 
-#include "s2Renderer/Surface.h"
-#include "s2Renderer/PrimitiveBuffer.h"
+#include "renderer/Surface.h"
+#include "renderer/PrimitiveBuffer.h"
 
 #include <map>
 #include <unordered_map>
 #include <vector>
 #include <list>
 
-namespace Scene {
+namespace s2 {
+namespace SceneGraph {
 
-class S2SCENE_API VObjectManager : public Observer, std::enable_shared_from_this<VObjectManager>
+class S2SCENEGRAPH_API VObjectManager : public Observer, std::enable_shared_from_this<VObjectManager>
 {
 public: 
 	typedef std::list< VObjectPtr >              VObjectList;
@@ -109,5 +110,5 @@ private:
 	//friend class VObject;
 };
 
-}
+}}
 #endif

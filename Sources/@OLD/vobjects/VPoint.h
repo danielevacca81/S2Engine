@@ -3,21 +3,22 @@
 #ifndef VPOINT_ONCE
 #define VPOINT_ONCE
 
-#include "s2Scene_API.h"
+#include "s2SceneGraph_API.h"
 
 #include "VObject.h"
 
-#include "Core/Math.h"
+#include "math/Math.h"
 
 
-namespace Scene {
+namespace s2 {
+namespace SceneGraph {
 
 // ********************************************************
 class VPoint;
 typedef std::shared_ptr<VPoint> VPointPtr;
 // ********************************************************
 
-class S2SCENE_API VPoint: public VObject
+class S2SCENEGRAPH_API VPoint: public VObject
 {
 public:
 	static VPointPtr New() { return std::make_shared<VPoint>(); }
@@ -33,7 +34,9 @@ public:
 	void draw( const Renderer::SurfacePtr &surface, const Renderer::DrawingState &ds ) const override;
 	bool intersects( const Math::box3 &b ) const override;
 
-	std::vector<Math::dvec3> vertices() const override;
+	std::vector<Math::dvec3> points() const override;
+	VObjectPtr               clone() const override { return { }; } 
+	void                     set( const VObjectPtr &o ) override {}
 
 protected:
 	VObjectBuffer toBuffer() const override;
@@ -43,5 +46,5 @@ private:
 };
 
 
-}
+}}
 #endif

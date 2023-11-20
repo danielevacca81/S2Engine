@@ -3,13 +3,14 @@
 #ifndef VOBJECTSTYLE_ONCE
 #define VOBJECTSTYLE_ONCE
 
-#include "s2Scene_API.h"
+#include "s2SceneGraph_API.h"
 
-#include "Core/Color.h"
+#include "graphics/Color.h"
 
-namespace Scene {
+namespace s2 {
+namespace SceneGraph {
 
-class S2SCENE_API VObjectStyle
+class S2SCENEGRAPH_API VObjectStyle
 {
 public:
 	enum DrawStyle { WireFrame, Points, Fill, Outline };
@@ -52,5 +53,5 @@ protected:
 };
 
 
-}
+}}
 #endif

@@ -3,21 +3,22 @@
 #ifndef VPOLYLINE_ONCE
 #define VPOLYLINE_ONCE
 
-#include "s2Scene_API.h"
+#include "s2SceneGraph_API.h"
 
 #include "VObject.h"
 
-#include "Core/Math.h"
+#include "Math/Math.h"
 
 
-namespace Scene {
+namespace s2 {
+namespace SceneGraph {
 
 // ********************************************************
 class VPolyLine;
 typedef std::shared_ptr<VPolyLine> VPolyLinePtr;
 // ********************************************************
 
-class S2SCENE_API VPolyLine : public VObject
+class S2SCENEGRAPH_API VPolyLine : public VObject
 {
 public:
 	static VPolyLinePtr New() { return std::make_shared<VPolyLine>(); }
@@ -35,7 +36,9 @@ public:
 	void draw( const Renderer::SurfacePtr &surface, const Renderer::DrawingState &ds ) const override;
 	bool intersects( const Math::box3 &b ) const override;
 
-	std::vector<Math::dvec3> vertices() const override;
+	std::vector<Math::dvec3> points() const override;
+	VObjectPtr               clone() const override { return { }; } 
+	void                     set( const VObjectPtr &o ) override {}
 
 protected:
 	VObjectBuffer toBuffer() const override;
@@ -44,5 +47,5 @@ private:
 	std::vector<Math::dvec3> _points;
 };
 
-}
+}}
 #endif

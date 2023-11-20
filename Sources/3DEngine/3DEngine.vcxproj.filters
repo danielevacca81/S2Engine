@@ -1,0 +1,212 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>h;hpp;cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="src\view">
+      <UniqueIdentifier>{b6ae2351-7bc7-4881-a29e-e05fc535e837}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Export.bat" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\Axis.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CartesianAxes.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ColorMap.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ObjectClickable.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ObjectHighlightable.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ObjectInteraction.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ObjectSelectable.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ObjectStandard.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SceneEvent.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SceneManager.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SceneObject.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SelectableGroup.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SelectionSet.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3DEngine_API.h" />
+    <ClInclude Include="src\View.h">
+      <Filter>src\view</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Viewer.h">
+      <Filter>src\view</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ViewerController.h">
+      <Filter>src\view</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ViewerController2DFillByBox.h">
+      <Filter>src\view</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ViewerController2DFitToBox.h">
+      <Filter>src\view</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ViewerController2DGoTo.h">
+      <Filter>src\view</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ViewerController2DOrbit.h">
+      <Filter>src\view</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ViewerController2DPan.h">
+      <Filter>src\view</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ViewerController3DAdaptToBox.h">
+      <Filter>src\view</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ViewerController3DGoTo.h">
+      <Filter>src\view</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ViewerController3DOrbit.h">
+      <Filter>src\view</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ViewerController3DOrbitAnimation.h">
+      <Filter>src\view</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ViewerController3DPan.h">
+      <Filter>src\view</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ViewOrthographic.h">
+      <Filter>src\view</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ViewPerspective.h">
+      <Filter>src\view</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TrackBall.h">
+      <Filter>src\view</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Camera.h">
+      <Filter>src\view</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Projection.h">
+      <Filter>src\view</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Frustum.h">
+      <Filter>src\view</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Axis.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CartesianAxes.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ColorMap.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ObjectClickable.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ObjectHighlightable.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ObjectInteraction.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ObjectSelectable.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ObjectStandard.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SceneEvent.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SceneManager.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SceneObject.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SelectableGroup.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SelectionSet.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\View.cpp">
+      <Filter>src\view</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Viewer.cpp">
+      <Filter>src\view</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ViewerController.cpp">
+      <Filter>src\view</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ViewerController2DFillByBox.cpp">
+      <Filter>src\view</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ViewerController2DFitToBox.cpp">
+      <Filter>src\view</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ViewerController2DGoTo.cpp">
+      <Filter>src\view</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ViewerController2DOrbit.cpp">
+      <Filter>src\view</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ViewerController2DPan.cpp">
+      <Filter>src\view</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ViewerController3DAdaptToBox.cpp">
+      <Filter>src\view</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ViewerController3DGoTo.cpp">
+      <Filter>src\view</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ViewerController3DOrbit.cpp">
+      <Filter>src\view</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ViewerController3DOrbitAnimation.cpp">
+      <Filter>src\view</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ViewerController3DPan.cpp">
+      <Filter>src\view</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ViewOrthographic.cpp">
+      <Filter>src\view</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ViewPerspective.cpp">
+      <Filter>src\view</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TrackBall.cpp">
+      <Filter>src\view</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Camera.cpp">
+      <Filter>src\view</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Projection.cpp">
+      <Filter>src\view</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Frustum.cpp">
+      <Filter>src\view</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

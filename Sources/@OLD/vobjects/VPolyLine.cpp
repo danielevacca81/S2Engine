@@ -2,14 +2,14 @@
 //
 #include "VPolyLine.h"
 
-#include "s2Renderer/Surface.h"
+#include "renderer/Surface.h"
 
-#include "Core/Intersection.h"
+#include "math/Intersection.h"
 
 #include <iostream>
 
-
-using namespace Scene;
+using namespace s2;
+using namespace s2::SceneGraph;
 
 // ------------------------------------------------------------------------------------------------
 VPolyLine::VPolyLine()
@@ -22,10 +22,13 @@ VPolyLine::VPolyLine( const Math::dvec3 &p0, const Math::dvec3 &p1 )
 
 // ------------------------------------------------------------------------------------------------
 VPolyLine::VPolyLine( const std::vector<Math::dvec3> &points )
-: _points( points )
 {
 	for( auto &p : points )
+	{
+		_points.push_back( p );
+
 		_boundingBox.extend( p );
+	}
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -46,8 +49,7 @@ void VPolyLine::draw( const Renderer::SurfacePtr &surface, const Renderer::Drawi
 	auto obj = toBuffer();
 	buf->setVertices( { obj.vertices.begin(),obj.vertices.end() } );
 
-	surface->draw( Renderer::PrimitiveType::LineStrip, buf, ds );
-	//surface->draw( Renderer::PrimitiveType::Points, buf, ds );
+	surface->draw( Renderer::Primitive::LineStrip, buf, ds );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -89,7 +91,7 @@ bool VPolyLine::intersects( const Math::box3 &b ) const
 }
 
 // ------------------------------------------------------------------------------------------------
-std::vector<Math::dvec3> VPolyLine::vertices() const
+std::vector<Math::dvec3> VPolyLine::points() const
 {
 	return _points;
 }

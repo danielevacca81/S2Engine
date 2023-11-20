@@ -2,12 +2,12 @@
 //
 #include "VPoint.h"
 
-#include "s2Renderer/Surface.h"
+#include "renderer/Surface.h"
 
 #include <iostream>
 
-
-using namespace Scene;
+using namespace s2;
+using namespace s2::SceneGraph;
 
 // ------------------------------------------------------------------------------------------------
 VPoint::VPoint()
@@ -40,7 +40,7 @@ void VPoint::draw( const Renderer::SurfacePtr &surface, const Renderer::DrawingS
 	auto obj = toBuffer();
 	buf->setVertices( { obj.vertices.begin(),obj.vertices.end() } );
 
-	surface->draw( Renderer::PrimitiveType::Points, buf, ds );
+	surface->draw( Renderer::Primitive::Points, buf, ds );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -65,7 +65,7 @@ bool VPoint::intersects( const Math::box3 &b ) const
 }
 
 // ------------------------------------------------------------------------------------------------
-std::vector<Math::dvec3> VPoint::vertices() const
+std::vector<Math::dvec3> VPoint::points() const
 {
 	return { _coords };
 }

@@ -3,60 +3,75 @@
 #ifndef VMESH_ONCE
 #define VMESH_ONCE
 
-#include "s2Scene_API.h"
+#include "s2SceneGraph_API.h"
 
 #include "VObject.h"
 
-//#include "OpenGL/Texture.h"
-#include "Core/Math.h"
-#include "MeshKernel/Mesh.h"
+#include "OpenGL/Texture.h"
+#include "Math/Math.h"
 
 
-namespace Scene {
+namespace s2 {
+namespace SceneGraph {
 
-// ********************************************************
-class VMesh;
-typedef std::shared_ptr<VMesh> VMeshPtr;
-// ********************************************************
 
-class S2SCENE_API VMesh : public VObject
+class S2CORE_API VMesh : public VObject
 {
 public:
-	static VMeshPtr New() { return std::make_shared<VMesh>(); }
-	static VMeshPtr New(  const MeshKernel::Mesh &m ) { return std::make_shared<VMesh>( m ); }
+	struct Face
+	{
+		unsigned int v0;
+		unsigned int v1;
+		unsigned int v2;
+		Math::vec3   normal;
+		Face( unsigned int _v0, unsigned int _v1, unsigned int _v2 ) : v0(_v0), v1(_v1), v2(_v2) {}
+	};
+
+	struct Vertex
+	{
+		Math::dvec3  position;
+		Math::vec3   normal;
+		Math::vec2   uv;
+		Math::u8vec3 color;
+	};
+
+private:
+	std::vector<Face>         _faces;
+	std::vector<Vertex>       _vtx;
+	
+	std::vector<Math::dvec3>  _vertices;
+	std::vector<Math::u8vec3> _colors;
+	std::vector<unsigned int> _indices;
+	std::vector<Math::vec2>   _uvCoords;
+
+	OpenGL::TexturePtr        _texture;
+
+	void updateBoundingBox();
 
 public:
 	VMesh();
-	//VMesh( const std::vector<Math::dvec3> &vertices, const std::vector<unsigned int> &indices );	
-	VMesh( const MeshKernel::Mesh &m );	
-	~VMesh() {}
+	VMesh( const std::vector<Math::dvec3> &vertices, const std::vector<unsigned int> &indices );
 
-	ObjectType type() const { return Mesh; }
+	~VMesh();
 
-	void draw( const Renderer::SurfacePtr &surface, const Renderer::DrawingState &ds ) const override;
-	bool intersects( const Math::box3 &b ) const override;
+	void setTexture( const OpenGL::TexturePtr &t, const std::vector<Math::vec2> &uvCoords = std::vector<Math::vec2>() );
+	void setVertexColors( const std::vector<Math::u8vec3> &colors );
+	void computeNormals();
 
-	std::vector<Math::dvec3>  vertices() const override;
+	std::vector<Math::dvec3> snapPoints() const;
+	Math::dvec3              center() const;
 
-	MeshKernel::Mesh &mesh() { return _mesh; }
+	void draw( OpenGL::Renderer *r ) const;
+	void drawForSelection( OpenGL::Renderer *r ) const;
+	bool intersects( const Math::box3 &b ) const;
 
-protected:
-	VObjectBuffer toBuffer() const override;
-
-private:
-	MeshKernel::Mesh _mesh;
-	//std::vector<Face>         _faces;
-	//std::vector<Vertex>       _vtx;
-	//
-	//std::vector<Math::dvec3>  _vertices;
-	//std::vector<Math::vec3>   _normals;
-	//std::vector<Color>        _colors;
-	//std::vector<uint32_t>     _indices;
-	//std::vector<Math::vec2>   _uvCoords;
-
-	//Renderer::TexturePtr        _texture;
+	std::vector<Math::dvec3>  getPoints() const;
+	std::vector<Math::u8vec3> getColors() const;
+	VObject* clone() const;
+	
+	ObjectType type() const   { return Mesh;}
 };
 
 
-}
+}}
 #endif

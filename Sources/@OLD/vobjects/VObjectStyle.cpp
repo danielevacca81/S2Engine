@@ -2,8 +2,8 @@
 // 
 #include "VObjectStyle.h"
 
-
-using namespace Scene;
+using namespace s2;
+using namespace s2::SceneGraph;
 
 // ------------------------------------------------------------------------------------------------
 VObjectStyle::VObjectStyle()

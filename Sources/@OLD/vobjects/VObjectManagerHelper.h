@@ -9,7 +9,7 @@
 #include <vector>
 
 namespace s2 {
-namespace Scene {
+namespace SceneGraph {
 
 
 

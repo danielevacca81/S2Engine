@@ -9,8 +9,8 @@
 
 #include "Geometry/Intersection.h"
 
-
-using namespace Renderer;
+using namespace s2;
+using namespace s2::Renderer;
 
 // ------------------------------------------------------------------------------------------------
 VPolygon::VPolygon()
