@@ -30,11 +30,13 @@
 
 namespace s2 {
 
+// @todo: multiple window application
 class Window;
 
 class APPLICATION_API Application
 {
 public:
+
 	Application( const std::string &name );
 	virtual ~Application();
 	

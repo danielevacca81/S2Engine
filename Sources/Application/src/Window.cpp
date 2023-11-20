@@ -26,12 +26,12 @@ Window::Window( const std::string& name, int width, int height, const WindowPara
     auto handle = new glfw::Window( width, height, name.c_str() );
     {
         //handle.charEvent           .setCallback( [w] () { w.onCharEvent           (); } );
-        handle->closeEvent.setCallback( [=] ( glfw::Window& ) { makeCurrent(); onCloseEvent(); } );
+        handle->closeEvent           .setCallback( [=] ( glfw::Window& ) { makeCurrent(); onCloseEvent(); } );
         //handle.cursorEnterEvent    .setCallback( [=] () { w.onCursorEnterEvent    (); } );
         //handle.cursorPosEvent      .setCallback( [=] () { w.onCursorPosEvent      (); } );
         //handle.dropEvent           .setCallback( [=] () { w.onDropEvent           (); } );
         //handle.focusEvent          .setCallback( [=] () { w.onFocusEvent          (); } );
-        //handle.framebufferSizeEvent.setCallback( [=] () { w.onFramebufferSizeEvent(); } );
+        handle->framebufferSizeEvent .setCallback( [=] ( glfw::Window&, int width, int height ) { makeCurrent(); onFramebufferSizeEvent( width, height ); } );
         //handle.iconifyEvent        .setCallback( [=] () { w.onIconifyEvent        (); } );
         //handle.keyEvent            .setCallback( [=] () { w.onKeyEvent            (); } );
         //handle.mouseButtonEvent    .setCallback( [=] () { w.onMouseButtonEvent    (); } );
@@ -57,15 +57,40 @@ Window::Window( const std::string& name, int width, int height, const WindowPara
 }
 
 // ------------------------------------------------------------------------------------------------
-void Window::makeCurrent()
-{
-    glfw::makeContextCurrent( *static_cast<glfw::Window*>(_handle) );
-}
-
-
-// ------------------------------------------------------------------------------------------------
 Window::~Window()
 {
     delete static_cast<glfw::Window*>( _handle );
     _handle = nullptr;
+}
+
+// ------------------------------------------------------------------------------------------------
+void Window::makeCurrent()
+{
+    // if _handle is not current
+    glfw::makeContextCurrent( *static_cast<glfw::Window*>(_handle) );
+}
+
+// ------------------------------------------------------------------------------------------------
+void Window::paint()
+{
+    makeCurrent();
+
+    _context->beginRendering();
+    {
+        onPaintEvent();
+    }
+    _context->endRendering();
+}
+
+
+// ------------------------------------------------------------------------------------------------
+uint32_t Window::width() const
+{
+    return std::get<0>( static_cast<glfw::Window*>( _handle )->getSize() );
+}
+
+// ------------------------------------------------------------------------------------------------
+uint32_t Window::height() const
+{
+    return std::get<1>( static_cast<glfw::Window*>( _handle )->getSize() );
 }

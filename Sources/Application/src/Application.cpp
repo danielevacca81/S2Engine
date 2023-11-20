@@ -37,13 +37,22 @@ int Application::run( Window *w )
 
     w->makeCurrent();
     w->onInitializeEvent();
+
+    // set initial size
+    w->onFramebufferSizeEvent( width, height );
     w->onSizeEvent( width, height );
+    
     while( !glfwWindow->shouldClose() )
     {
         glfw::pollEvents();
         
-        w->makeCurrent();
-        w->onPaintEvent();
+        // is minimized??
+        if( w->width() == 0 && w->height() == 0 )
+            continue;
+        // update timers
+        // update logic/physics
+
+        w->paint();
 
 
         glfwWindow->swapBuffers();
