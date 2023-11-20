@@ -63,8 +63,8 @@ struct WindowParameters
     bool srgbCapable  = false;
     bool doubleBuffer = true;
 
-    int contextVersionMajor                       = 1;
-    int contextVersionMinor                       = 0;
+    int contextVersionMajor                       = 3;
+    int contextVersionMinor                       = 3;
     ContextRobustness contextRobustness           = ContextRobustness::NoRobustness;
     ContextReleaseBehavior contextReleaseBehavior = ContextReleaseBehavior::Any;
     bool openglForwardCompat                      = false;
