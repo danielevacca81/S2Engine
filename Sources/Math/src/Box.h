@@ -5,12 +5,35 @@
 
 #include "Math.h"
 
+
 namespace glm {
 namespace detail {
 
 template<typename T, precision P>
 class tbox3
 {
+public:
+	// -----------------------------------------------------------------------------------------------
+	static tbox3<T, P> createAABB( const tbox3<T, P>& b )                         { return createAABB( b._minPoint, b._maxPoint ); }
+	static tbox3<T, P> createAABB( const tvec3<T, P>& p0, const tvec3<T, P>& p1 )
+	{
+		tbox3<T, P> ret;
+
+		ret._minPoint = p0;
+		ret._maxPoint = p0;
+
+		for( int i = 0; i < 3; ++i )
+		{
+			if( p0[i] < ret._minPoint[i] ) ret._minPoint[i] = p0[i];
+			if( p1[i] < ret._minPoint[i] ) ret._minPoint[i] = p1[i];
+
+			if( p0[i] > ret._maxPoint[i] ) ret._maxPoint[i] = p0[i];
+			if( p1[i] > ret._maxPoint[i] ) ret._maxPoint[i] = p1[i];
+		}
+
+		return ret;
+	}
+
 public:
 	// -----------------------------------------------------------------------------------------------
 	tbox3() = default;
@@ -83,168 +106,51 @@ public:
 	}
 
 	// -----------------------------------------------------------------------------------------------
-	void transform( const tmat4x4<T>& m )
-	{
-		if( isNull() )
-			return;
-
-		tvec4<T> minP( _minPoint, 1 ); minP = m * minP;
-		tvec4<T> maxP( _maxPoint, 1 ); maxP = m * maxP;
-
-		_minPoint = tvec3<T,P>( minP );
-		_maxPoint = tvec3<T,P>( maxP );
-	}
-
-	// -----------------------------------------------------------------------------------------------
-	tbox3<T, P> transformed( const tmat4x4<T>& m ) const
-	{
-		if( isNull() )
-			return *this;
-
-		tvec4<T> minP( _minPoint, 1.0 ); minP = m * minP;
-		tvec4<T> maxP( _maxPoint, 1.0 ); maxP = m * maxP;
-
-		return tbox3<T, P>( tvec3<T,P>( minP ), tvec3<T,P>( maxP ) );
-	}
-
-	// -----------------------------------------------------------------------------------------------
-	void translate( const tvec3<T,P>& t )
+	tbox3<T, P> translate( const tvec3<T,P>& t )
 	{
 		if( isNull() )
 			return;
 
 		_minPoint += t;	_maxPoint += t;
+		return *this;
 	}
 
 	// -----------------------------------------------------------------------------------------------
-	tbox3<T, P> translated( const tvec3<T,P>& t ) const
+	// rotate each corner around box's center
+	tbox3<T, P> rotate( const tmat3x3<T,P>& orientation/*, const dvec3 &pivot*/ )
 	{
-		if( isNull() )
-			return *this;
-
-		return tbox3<T>( _minPoint + t, _maxPoint + t );
-	}
-
-	// -----------------------------------------------------------------------------------------------
-	tbox3<T, P> rotated( double angle, double nx, double ny, double nz ) const
-	{
-		if( isNull() )
-			return *this;
-
-		const tmat4x4<T> r = glm::rotate( tmat4x4<T,P>( 1 ), angle, tvec3<T,P>( nx, ny, nz ) );
-
-		tvec4<T> p1( _minPoint, 1 );
-		tvec4<T> p2( _maxPoint, 1 );
-
-		p1 = r * p1; p2 = r * p2;
-
-		return tbox3<T>( tvec3<T,P>( p1 ), tvec3<T,P>( p2 ) );
-	}
-
-	// -----------------------------------------------------------------------------------------------
-	void rotate( double angle, double nx, double ny, double nz )
-	{
-		if( isNull() )
-			return;
-
-		tmat4x4<T> r = glm::rotate( tmat4x4<T,P>( 1.0 ), angle, tvec3<T,P>( nx, ny, nz ) );
-
-		tvec4<T> p1( _minPoint, 1.0 );
-		tvec4<T> p2( _maxPoint, 1.0 );
-
-		p1 = r * p1; p2 = r * p2;
-
-		_minPoint = tvec3<T,P>( p1 );
-		_maxPoint = tvec3<T,P>( p2 );
-	}
-
-	// -----------------------------------------------------------------------------------------------
-	tbox3<T, P> scaled( T s ) const
-	{
-		if( isNull() )
-			return *this;
-
-		const tvec3<T,P> ss( s );
-		const tvec3<T,P> c( center() );
-		const tvec3<T,P> p0( ( _minPoint - c ) * s );
-		const tvec3<T,P> p1( ( _maxPoint - c ) * s );
-
-		return tbox3<T,P>( p0 + c, p1 + c );
-	}
-
-	// -----------------------------------------------------------------------------------------------
-	void scale( double s )
-	{
-		if( isNull() )
-			return;
-
-		const tvec3<T,P> c( center() );
-		const tvec3<T,P> p0( ( _minPoint - c ) * s );
-		const tvec3<T,P> p1( ( _maxPoint - c ) * s );
-
-		_minPoint = p0 + c;
-		_maxPoint = p1 + c;
-	}
-
-	// -----------------------------------------------------------------------------------------------
-	void scale( double xs, double ys, double zs )
-	{
-		if( isNull() )
-			return;
-
-		const tvec3<T,P> s( xs, ys, zs );
-		const tvec3<T,P> c( center() );
-		const tvec3<T,P> p0( ( _minPoint - c ) * s );
-		const tvec3<T,P> p1( ( _maxPoint - c ) * s );
-
-		_minPoint = p0 + c;
-		_maxPoint = p1 + c;
-	}
-
-	// -----------------------------------------------------------------------------------------------
-	void scaleToFit( const tbox3<T, P>& target )
-	{
-		if( isNull() )
-			return;
-
-		const double w = sizes().x;
-		const double h = sizes().y;
-		const double tw = target.sizes().x;
-		const double th = target.sizes().y;
-
-		const double ar = w / h;
-		const double tAr = tw / th;
-
-		// scale this box according to the aspect ratio
-		if( tAr > ar ) scale( th / h );
-		else           scale( tw / w );
-	}
-
-
-	// -----------------------------------------------------------------------------------------------
-	static tbox3<T, P> createAABB( const tbox3<T, P>& b )
-	{
-		return createAABB( b._minPoint, b._maxPoint );
-	}
-
-	// -----------------------------------------------------------------------------------------------
-	static tbox3<T, P> createAABB( const tvec3<T,P>& p0, const tvec3<T,P>& p1 )
-	{
-		tbox3<T, P> ret;
-
-		ret._minPoint = p0;
-		ret._maxPoint = p0;
-
-		for( int i = 0; i < 3; ++i )
+		auto pivot = center();
+		tvec3<T,P>  corners[6] =
 		{
-			if( p0[i] < ret._minPoint[i] ) ret._minPoint[i] = p0[i];
-			if( p1[i] < ret._minPoint[i] ) ret._minPoint[i] = p1[i];
+			{corner( 0 ) - pivot},
+			{corner( 1 ) - pivot},
+			{corner( 2 ) - pivot},
+			{corner( 3 ) - pivot},
+			{corner( 4 ) - pivot},
+			{corner( 5 ) - pivot},
+			{corner( 6 ) - pivot},
+			{corner( 7 ) - pivot},
+		};
 
-			if( p0[i] > ret._maxPoint[i] ) ret._maxPoint[i] = p0[i];
-			if( p1[i] > ret._maxPoint[i] ) ret._maxPoint[i] = p1[i];
+		for( auto& c : corners )
+			c = pivot + ( orientation * c );
+
+		tvec3<T,P> newMin = corners[0];
+		tvec3<T,P> newMax = corners[0];
+		for( auto& c : corners )
+		{
+			if( c.x < newMin.x ) newMin.x = c.x;
+			if( c.y < newMin.y ) newMin.y = c.y;
+			if( c.z < newMin.z ) newMin.z = c.z;
+
+			if( c.x > newMax.x ) newMax.x = c.x;
+			if( c.y > newMax.y ) newMax.y = c.y;
+			if( c.z > newMax.z ) newMax.z = c.z;
 		}
 
-		return ret;
+		_minPoint = newMin;
+		_maxPoint = newMax;
+		return *this;
 	}
 
 	// -----------------------------------------------------------------------------------------------
@@ -252,27 +158,6 @@ public:
 	{
 		_maxPoint = _minPoint + sizes;
 	}
-
-	//// -----------------------------------------------------------------------------------------------
-	//box3 &scale( const dvec3 &t )
-	//{
-	//	return *this;
-	//}
-
-	//// -----------------------------------------------------------------------------------------------
-	//box3 &rotate( double angle, const dvec3 &axis )
-	//{
-	//	mat4 r  = glm::rotate( mat4(1.0), angle, axis );
-	//	
-	//	dvec4 p1(_minPoint,1.0);
-	//	dvec4 p2(_maxPoint,1.0);
-
-	//	p1 = r*p1; p2 = r*p2;
-	//	
-	//	_minPoint = dvec3(p1);
-	//	_maxPoint = dvec3(p2);
-	//	return *this;
-	//}
 
 	// -----------------------------------------------------------------------------------------------
 	bool contains( const tbox3<T, P>& box ) const
@@ -303,7 +188,6 @@ public:
 	// -----------------------------------------------------------------------------------------------
 	bool contains( const tvec2<T>& point ) const
 	{
-		if( isNull() )              return false;
 		if( isNull() )              return false;
 		if( _minPoint.x > point.x ) return false;
 		if( _minPoint.y > point.y ) return false;
@@ -399,7 +283,7 @@ public:
 
 		const tvec3<T,P> diag = _maxPoint - _minPoint;
 		const int i = diag.x > diag.y ? 0 : 1;
-		return          ( diag[i] > diag.z ) ? i : 2;
+		return ( diag[i] > diag.z ) ? i : 2;
 	}
 
 	// -----------------------------------------------------------------------------------------------
@@ -410,7 +294,7 @@ public:
 
 		const tvec3<T,P> diag = _maxPoint - _minPoint;
 		const int i = diag.x < diag.y ? 0 : 1;
-		return          ( diag[i] < diag.z ) ? i : 2;
+		return ( diag[i] < diag.z ) ? i : 2;
 	}
 
 	// -----------------------------------------------------------------------------------------------
@@ -437,7 +321,7 @@ private:
 };
 }
 
-typedef detail::tbox3<float, defaultp>  fbox3;
+typedef detail::tbox3<float,  defaultp> fbox3;
 typedef detail::tbox3<double, defaultp> dbox3;
 
 

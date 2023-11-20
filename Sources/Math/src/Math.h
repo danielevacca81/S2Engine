@@ -41,15 +41,33 @@ namespace Math = glm;
 //}
 
 namespace glm {
+	
+	// -----------------------------------------------------------------------------------------------
+	template < typename genType >
+	GLM_FUNC_QUALIFIER genType
+	normalizeAngleRad( const genType& rad )
+	{
+		auto angle = rad;
+		while( angle > pi<genType>() ) angle -= pi<genType>() * genType(2);
+		while( angle <= -pi<genType>() ) angle += pi<genType>() * genType(2);
+		return angle;
+	}
+
+	// -----------------------------------------------------------------------------------------------
+	template < typename genType >
+	GLM_FUNC_QUALIFIER genType
+	normalizeAngleDeg( const genType& deg )
+	{
+		return degrees( normalizeAngleRad( radians( deg ) ) );
+	}
+
 	// -----------------------------------------------------------------------------------------------
 	template < typename T, precision P >
 	GLM_FUNC_QUALIFIER typename tvec2<T, P>::value_type
 	angleBetween( const tvec2<T, P>& d, const tvec2<T, P>& u )
 	{
 		typename tvec2<T, P>::value_type angle = atan2( u.y, u.x ) - atan2( d.y, d.x );
-		while( angle > pi<double>() ) angle -= pi<double>() * 2.0;
-		while( angle <= -pi<double>() ) angle += pi<double>() * 2.0;
-		return angle;
+		return normalizeAngleRad( angle );
 	}
 
 	// -----------------------------------------------------------------------------------------------
@@ -58,9 +76,7 @@ namespace glm {
 	angleBetween( const tvec3<T, P>& d, const tvec3<T, P>& u )
 	{
 		typename tvec3<T, P>::value_type angle = atan2( u.y, u.x ) - atan2( d.y, d.x );
-		while( angle > pi<double>() ) angle -= pi<double>() * 2.0;
-		while( angle <= -pi<double>() ) angle += pi<double>() * 2.0;
-		return angle;
+		return normalizeAngleRad( angle );
 	}
 
 	// -----------------------------------------------------------------------------------------------
