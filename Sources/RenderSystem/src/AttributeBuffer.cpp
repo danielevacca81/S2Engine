@@ -109,7 +109,7 @@ void AttributeBuffer::attach( int loc )
 							   _numberOfComponents,
 							   glWrap( _componentDatatype ),							   
 							   _stride,               // stride in bytes
-							   BUFFER_OFFSET( _offset ) // offset in bytes
+							   DATA_PTR( _offset ) // offset in bytes
 		);
 		break;
 	
@@ -123,7 +123,7 @@ void AttributeBuffer::attach( int loc )
 							   glWrap( _componentDatatype ),
 							   _normalize,
 							   _stride,               // stride in bytes
-							   BUFFER_OFFSET( _offset ) // offset in bytes
+							   DATA_PTR( _offset ) // offset in bytes
 		);
 		break;
 	}

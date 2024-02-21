@@ -13,7 +13,7 @@
 #include "RenderBuffer.h"
 #include "PrimitiveType.h"
 
-#define BUFFER_OFFSET(i) ((void*)(i))
+#define DATA_PTR(i) ((void*)(i))
 
 
 namespace RenderSystem {

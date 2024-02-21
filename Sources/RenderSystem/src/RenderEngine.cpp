@@ -21,7 +21,7 @@ static inline void draw( const PrimitiveType& primitive, const VertexArrayPtr& v
 							 va->maxArrayIndex(),
 							 va->indexBuffer().count(),
 							 glWrap( va->indexBuffer().dataType() ),
-							 BUFFER_OFFSET( 0 ) );
+							 DATA_PTR( 0 ) );
 		glCheck;
 	}
 	else
@@ -144,7 +144,8 @@ Pixmap<uint8_t> RenderEngine::readPixels( const FrameBufferPtr& fbo, uint32_t wi
 	ReadPixelBuffer pixelBuffer = ReadPixelBuffer( sizeInBytes, ReadPixelBuffer::UsageHint::Static );
 	pixelBuffer.bind();
 
-	glReadPixels( 0, 0, width, height, glWrap( format ), glWrap( dataType ), BUFFER_OFFSET( 0 ) ); // todo: remove direct calls to OpenGL from the surface class. Use of OpenGL is delegated to lower level classes (ex: Context)
+	glReadBuffer( FrameBuffer::ColorAttachment0 );
+	glReadPixels( 0, 0, width, height, glWrap( format ), glWrap( dataType ), DATA_PTR( 0 ) ); // todo: remove direct calls to OpenGL from the surface class. Use of OpenGL is delegated to lower level classes (ex: Context)
 	glCheck;
 
 	Pixmap<uint8_t> img( width, height, 4, (uint8_t*) pixelBuffer.mapData() );

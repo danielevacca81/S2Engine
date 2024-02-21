@@ -255,7 +255,7 @@ Pixmap<uint8_t> Texture2D::readData() const
 	pixelBuffer.bind();
 	
 	
-	glGetTexImage( GL_TEXTURE_2D, 0, glWrap( format ), glWrap( dataType ), BUFFER_OFFSET(0) );
+	glGetTexImage( GL_TEXTURE_2D, 0, glWrap( format ), glWrap( dataType ), DATA_PTR(0) );
 	glCheck;
 	//unbind();
 	//glCheck;

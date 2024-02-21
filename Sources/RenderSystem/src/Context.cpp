@@ -471,7 +471,7 @@ inline void Context::draw( const PrimitiveType &primitive, const VertexArrayPtr 
 							 va->maxArrayIndex(),
 							 va->indexBuffer().count(),
 			                 glWrap( va->indexBuffer().dataType() ),
-							 BUFFER_OFFSET(0) );
+							 DATA_PTR(0) );
 		glCheck;
 	}
 	else
