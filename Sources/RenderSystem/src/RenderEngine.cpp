@@ -129,10 +129,10 @@ void RenderEngine::draw( uint32_t targetFBO, const PrimitiveType& primitiveType,
 Pixmap<uint8_t> RenderEngine::readPixels( const FrameBufferPtr& fbo, uint32_t width, uint32_t height )
 {
 	if( !fbo )
-		return;
+		return {};
 
 	if( width == 0 || height == 0 )
-		return;
+		return {};
 
 	const int rowAlignment       = 4;
 	const ImageFormat format     = ImageFormat::RedGreenBlueAlpha;

@@ -13,11 +13,21 @@ namespace RenderSystem {
 class RENDERSYSTEM_API Device
 {
 public:
-	static int   maxAttribPerVertex();
-	static int   numberOfTextureUnits();
-	static int   maxColorAttachmentPoints();
-	static float maxLinesWidth();
-	static float minLinesWidth();
+	enum class Vendor
+	{
+		Intel,
+		AMD,
+		Nvidia,
+		Unknown,
+	};
+
+public:
+	static Vendor vendor();
+	static int    maxAttribPerVertex();
+	static int    numberOfTextureUnits();
+	static int    maxColorAttachmentPoints();
+	static float  maxLinesWidth();
+	static float  minLinesWidth();
 
 public:
 	Device() = delete;

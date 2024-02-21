@@ -5,6 +5,7 @@
 #include "OpenGL.h"
 #include "OpenGLCheck.h"
 #include "Surface.h"
+#include "Device.h"
 
 #if defined(WIN32) || defined(WIN64) || defined(_WIN32) || defined(_WIN64)
 #include <Windows.h>
@@ -98,7 +99,11 @@ Surface* Context::createSurface( const std::initializer_list<Surface::Attachment
 
 // ------------------------------------------------------------------------------------------------
 void Context::beginRendering() { _stateManager.disableShadowingOneShot(); }
-void Context::endRendering()   { glFlush(); }
+void Context::endRendering()   
+{ 
+	if( Device::vendor() != Device::Vendor::Nvidia )
+		glFinish(); 
+}
 
 
 

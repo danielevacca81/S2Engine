@@ -6,11 +6,39 @@
 #include "OpenGLCheck.h"
 
 #include <sstream>
+#include <optional>
+#include <algorithm>
 
 // comment this to have static a MaxVertexAttrib value
 //#define QUERY_GL_MAX_VERTEX_ATTRIBS
 
 using namespace RenderSystem;
+
+// ------------------------------------------------------------------------------------------------
+Device::Vendor Device::vendor()
+{
+	static std::optional<Vendor> v;
+	if( !v.has_value() )
+	{
+		const auto glVendorStringLowercase = [] ()
+		{
+			auto s = std::string( (char*) glGetString( GL_VENDOR ) );
+			std::transform( s.begin(), s.end(), s.begin(), ::tolower );
+			return s;
+		};
+
+		const auto vendorString = glVendorStringLowercase();
+
+		if     ( vendorString.find( "intel" )  != vendorString.npos ) v = Vendor::Intel;
+		else if( vendorString.find( "amd" )    != vendorString.npos ) v = Vendor::AMD;
+		else if( vendorString.find( "nvidia" ) != vendorString.npos ) v = Vendor::Nvidia;
+		else
+			v = Vendor::Unknown;
+
+	}
+	return *v;
+}
+
 
 // ------------------------------------------------------------------------------------------------
 int Device::maxAttribPerVertex()
