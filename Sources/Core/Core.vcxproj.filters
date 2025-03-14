@@ -4,34 +4,37 @@
     <Filter Include="src">
       <UniqueIdentifier>{f8c50685-e744-4f48-b35c-441cc1292845}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\graphics">
+      <UniqueIdentifier>{9e06687c-ac64-4d31-b579-60e4892f1329}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\encoding">
+      <UniqueIdentifier>{8e252a12-b2d6-4e14-873d-72c039abbb74}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Color.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="src\FileSystem.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\base64.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Crc32.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\MD5.cpp">
-      <Filter>src</Filter>
+    <ClCompile Include="src\Color.cpp">
+      <Filter>src\graphics</Filter>
     </ClCompile>
     <ClCompile Include="src\ColorGradient.cpp">
-      <Filter>src</Filter>
+      <Filter>src\graphics</Filter>
     </ClCompile>
     <ClCompile Include="src\ColorMap.cpp">
-      <Filter>src</Filter>
+      <Filter>src\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\base64.cpp">
+      <Filter>src\encoding</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Crc32.cpp">
+      <Filter>src\encoding</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MD5.cpp">
+      <Filter>src\encoding</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Color.h">
-      <Filter>src</Filter>
-    </ClInclude>
     <ClInclude Include="src\DateTime.h">
       <Filter>src</Filter>
     </ClInclude>
@@ -47,12 +50,6 @@
     <ClInclude Include="src\LRUCache.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="src\Pixmap.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Pixmap.hpp">
-      <Filter>src</Filter>
-    </ClInclude>
     <ClInclude Include="src\SafeQueue.h">
       <Filter>src</Filter>
     </ClInclude>
@@ -60,20 +57,29 @@
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\Core_API.h" />
-    <ClInclude Include="src\base64.h">
-      <Filter>src</Filter>
+    <ClInclude Include="src\ColorMap.h">
+      <Filter>src\graphics</Filter>
     </ClInclude>
-    <ClInclude Include="src\Crc32.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\MD5.h">
-      <Filter>src</Filter>
+    <ClInclude Include="src\Color.h">
+      <Filter>src\graphics</Filter>
     </ClInclude>
     <ClInclude Include="src\ColorGradient.h">
-      <Filter>src</Filter>
+      <Filter>src\graphics</Filter>
     </ClInclude>
-    <ClInclude Include="src\ColorMap.h">
-      <Filter>src</Filter>
+    <ClInclude Include="src\Pixmap.hpp">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Pixmap.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\base64.h">
+      <Filter>src\encoding</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Crc32.h">
+      <Filter>src\encoding</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MD5.h">
+      <Filter>src\encoding</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

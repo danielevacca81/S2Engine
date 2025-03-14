@@ -1,7 +1,7 @@
 // ColorGradient.h
 //
-#ifndef CORE_GRADIENT_ONCE
-#define CORE_GRADIENT_ONCE
+#ifndef CORE_GRADIENT_H
+#define CORE_GRADIENT_H
 
 #include "Core_API.h"
 
@@ -36,5 +36,5 @@ protected:
 	std::map<float,Color> _keyColors;
 };
 
-#endif // !CORE_GRADIENT_ONCE
+#endif // !CORE_GRADIENT_H
 

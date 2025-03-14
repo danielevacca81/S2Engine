@@ -1,7 +1,7 @@
 // Space.h
 //
-#ifndef SPACE_ONCE
-#define SPACE_ONCE
+#ifndef SPACE_H
+#define SPACE_H
 
 #include "Math.h"
 
@@ -49,4 +49,4 @@ namespace glm
 
 }
 
-#endif // !SPACE_ONCE
+#endif // !SPACE_H

@@ -1,7 +1,7 @@
 // Box.h
 //
-#ifndef MATH_BOX_ONCE
-#define MATH_BOX_ONCE
+#ifndef MATH_BOX_H
+#define MATH_BOX_H
 
 #include "Math.h"
 
@@ -109,7 +109,7 @@ public:
 	tbox3<T, P> translate( const tvec3<T,P>& t )
 	{
 		if( isNull() )
-			return;
+			return *this;
 
 		_minPoint += t;	_maxPoint += t;
 		return *this;
@@ -120,12 +120,12 @@ public:
 	tbox3<T, P> rotate( const tmat3x3<T,P>& orientation/*, const dvec3 &pivot*/ )
 	{
 		auto pivot = center();
-		tvec3<T,P>  corners[6] =
+		tvec3<T, P> corners[8] =
 		{
 			{corner( 0 ) - pivot},
 			{corner( 1 ) - pivot},
 			{corner( 2 ) - pivot},
-			{corner( 3 ) - pivot},
+			{corner( 3 ) - pivot},			
 			{corner( 4 ) - pivot},
 			{corner( 5 ) - pivot},
 			{corner( 6 ) - pivot},
@@ -313,6 +313,13 @@ public:
 			_minPoint.x + ( i % 2 ) * sizeX(),
 			_minPoint.y + ( ( i / 2 ) % 2 ) * sizeY(),
 			_minPoint.z + ( i > 3 ) * sizeZ() );
+	}
+
+	// -----------------------------------------------------------------------------------------------
+	bool equals( const tbox3<T,P> &b, double tolerance = 1e-8 ) const
+	{
+		return all( epsilonEqual( _minPoint, b._minPoint, tolerance ) ) &&
+			all( epsilonEqual( _maxPoint, b._maxPoint, tolerance ) );
 	}
 
 private:

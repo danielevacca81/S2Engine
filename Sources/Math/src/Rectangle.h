@@ -1,7 +1,7 @@
 // Rectangle.h
 // 
-#ifndef RECTANGLE_ONCE
-#define RECTANGLE_ONCE
+#ifndef RECTANGLE_H
+#define RECTANGLE_H
 
 #include "Math.h"
 
@@ -124,9 +124,9 @@ private:
 };
 }
 
-typedef detail::trect<float, defaultp>  frect;
+typedef detail::trect<float,  defaultp>  frect;
 typedef detail::trect<double, defaultp>  drect;
-typedef detail::trect<int, defaultp>  irect;
+typedef detail::trect<int,    defaultp>  irect;
 
 }
 

@@ -14,9 +14,6 @@ namespace glm {
 bool MATH_API lineIntersection(const dvec2& a1,const dvec2& a2,const dvec2& b1,const dvec2& b2, dvec2* out=nullptr );
 bool MATH_API lineBoxIntersection(const dvec3& p0,const dvec3& p1,const dbox3& b );
 
-/// Cross product for 2D vectors
-double MATH_API cross( const dvec2& a, const dvec2& b );
-
 /// Check if two points p1, p1 are on the same side of line a-b (in 2D)
 bool MATH_API pointsOnSameSideOfLine(const dvec2& p1,const dvec2& p2,const dvec2& a,const dvec2& b);
 

@@ -2,10 +2,11 @@
 //
 #include "Window.h"
 
+#include "Renderer/RenderingContext.h"
+
 #include "glfwpp/glfwpp.h"
 #include "glfwpp/window.h"
 
-#include "RenderSystem/Context.h"
 
 #include <iostream>
 
@@ -16,10 +17,10 @@ Window::Window( const std::string& name, int width, int height, const WindowPara
 {
     const glfw::WindowHints hints 
     {
-	    .clientApi = glfw::ClientApi::OpenGl,
+	    .clientApi           = glfw::ClientApi::OpenGl,
 	    .contextVersionMajor = params.contextVersionMajor,
 	    .contextVersionMinor = params.contextVersionMinor,
-        .openglProfile = glfw::OpenGlProfile::Compat,
+        .openglProfile       = glfw::OpenGlProfile::Compat,
     };
     hints.apply();
 
@@ -41,25 +42,26 @@ Window::Window( const std::string& name, int width, int height, const WindowPara
         handle->sizeEvent            .setCallback( [=] ( glfw::Window&, int width, int height ) { makeCurrent(); onSizeEvent(width,height); } );
     }
     
-    // no current context before this call:
-    glfw::makeContextCurrent( *handle );
+    _handle = static_cast<void*>( handle);
 
-    // store current context into contextRegistry
-    _context = RenderSystem::Context::current();
+    // no current context before this call:
+    makeCurrent();
     {
         auto& ctx = glfw::getCurrentContext();
-        std::cout << "Current GLFW Context: " << std::hex << handle << '\n';
-    
-        //std::cout << "Current S2 Context: " << std::hex << _context->nativeHandle() << '\n';
+        std::cout << "Current GLFW Context: " << std::hex << ctx << '\n';
     }
 
-    _handle = static_cast<void*>( handle);
+    _renderingContext = new Renderer::RenderingContext;
 }
 
 // ------------------------------------------------------------------------------------------------
 Window::~Window()
 {
+    makeCurrent();
+    
+    delete _renderingContext;
     delete static_cast<glfw::Window*>( _handle );
+    
     _handle = nullptr;
 }
 
@@ -75,11 +77,11 @@ void Window::paint()
 {
     makeCurrent();
 
-    _context->beginRendering();
+    _renderingContext->beginRendering();
     {
         onPaintEvent();
     }
-    _context->endRendering();
+    _renderingContext->endRendering();
 }
 
 

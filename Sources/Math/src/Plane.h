@@ -1,7 +1,7 @@
 ﻿// Plane.h
 //
-#ifndef PLANE_ONCE
-#define PLANE_ONCE
+#ifndef PLANE_H
+#define PLANE_H
 
 // Plane equation:
 //

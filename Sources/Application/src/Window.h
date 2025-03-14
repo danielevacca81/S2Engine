@@ -10,8 +10,8 @@
 #include <string>
 #include <vector>
 
-namespace RenderSystem {
-class Context;
+namespace Renderer {
+class RenderingContext;
 }
 
 namespace s2 {
@@ -25,6 +25,12 @@ public:
 
 	uint32_t width() const;
 	uint32_t height() const;
+
+	// @todo:
+	// isMinimized
+	// isFullScreen
+	// isMaximized
+	// ...
 
 
 	virtual void onCharEvent(unsigned int)                     {}
@@ -54,7 +60,7 @@ protected:
 	void paint();
 
 protected:
-	RenderSystem::Context* _context = nullptr;
+	Renderer::RenderingContext* _renderingContext { nullptr };
 
 private:
 	void* _handle = nullptr;

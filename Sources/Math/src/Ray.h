@@ -1,7 +1,7 @@
 // Ray.h
 //
-#ifndef RAY_ONCE
-#define RAY_ONCE
+#ifndef RAY_H
+#define RAY_H
 
 // A point on ray is P = O + Dt
 

@@ -1,0 +1,139 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="src\view">
+      <UniqueIdentifier>{9aae7f19-8f13-463a-bca9-0139887f813a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\view\Camera.h">
+      <Filter>src\view</Filter>
+    </ClInclude>
+    <ClInclude Include="src\view\Frustum.h">
+      <Filter>src\view</Filter>
+    </ClInclude>
+    <ClInclude Include="src\view\RenderPipeline_API.h">
+      <Filter>src\view</Filter>
+    </ClInclude>
+    <ClInclude Include="src\view\TrackBall.h">
+      <Filter>src\view</Filter>
+    </ClInclude>
+    <ClInclude Include="src\view\View.h">
+      <Filter>src\view</Filter>
+    </ClInclude>
+    <ClInclude Include="src\view\Viewer.h">
+      <Filter>src\view</Filter>
+    </ClInclude>
+    <ClInclude Include="src\view\ViewerController.h">
+      <Filter>src\view</Filter>
+    </ClInclude>
+    <ClInclude Include="src\view\ViewerController2DFillByBox.h">
+      <Filter>src\view</Filter>
+    </ClInclude>
+    <ClInclude Include="src\view\ViewerController2DFitToBox.h">
+      <Filter>src\view</Filter>
+    </ClInclude>
+    <ClInclude Include="src\view\ViewerController2DGoTo.h">
+      <Filter>src\view</Filter>
+    </ClInclude>
+    <ClInclude Include="src\view\ViewerController2DOrbit.h">
+      <Filter>src\view</Filter>
+    </ClInclude>
+    <ClInclude Include="src\view\ViewerController2DPan.h">
+      <Filter>src\view</Filter>
+    </ClInclude>
+    <ClInclude Include="src\view\ViewerController3DAdaptToBox.h">
+      <Filter>src\view</Filter>
+    </ClInclude>
+    <ClInclude Include="src\view\ViewerController3DGoTo.h">
+      <Filter>src\view</Filter>
+    </ClInclude>
+    <ClInclude Include="src\view\ViewerController3DOrbit.h">
+      <Filter>src\view</Filter>
+    </ClInclude>
+    <ClInclude Include="src\view\ViewerController3DOrbitAnimation.h">
+      <Filter>src\view</Filter>
+    </ClInclude>
+    <ClInclude Include="src\view\ViewerController3DPan.h">
+      <Filter>src\view</Filter>
+    </ClInclude>
+    <ClInclude Include="src\view\ViewOrthographic.h">
+      <Filter>src\view</Filter>
+    </ClInclude>
+    <ClInclude Include="src\view\ViewPerspective.h">
+      <Filter>src\view</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scene.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scene_API.h">
+      <Filter>src</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\view\Camera.cpp">
+      <Filter>src\view</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\Frustum.cpp">
+      <Filter>src\view</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\TrackBall.cpp">
+      <Filter>src\view</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\View.cpp">
+      <Filter>src\view</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\Viewer.cpp">
+      <Filter>src\view</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\ViewerController.cpp">
+      <Filter>src\view</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\ViewerController2DFillByBox.cpp">
+      <Filter>src\view</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\ViewerController2DFitToBox.cpp">
+      <Filter>src\view</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\ViewerController2DGoTo.cpp">
+      <Filter>src\view</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\ViewerController2DOrbit.cpp">
+      <Filter>src\view</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\ViewerController2DPan.cpp">
+      <Filter>src\view</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\ViewerController3DAdaptToBox.cpp">
+      <Filter>src\view</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\ViewerController3DGoTo.cpp">
+      <Filter>src\view</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\ViewerController3DOrbit.cpp">
+      <Filter>src\view</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\ViewerController3DOrbitAnimation.cpp">
+      <Filter>src\view</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\ViewerController3DPan.cpp">
+      <Filter>src\view</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\ViewOrthographic.cpp">
+      <Filter>src\view</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\ViewPerspective.cpp">
+      <Filter>src\view</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Scene.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Export.bat" />
+  </ItemGroup>
+</Project>

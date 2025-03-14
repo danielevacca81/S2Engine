@@ -1,7 +1,7 @@
 // ColorMap.h
 //
-#ifndef CORE_COLORMAP_ONCE
-#define CORE_COLORMAP_ONCE
+#ifndef CORE_COLORMAP_H
+#define CORE_COLORMAP_H
 
 #include "Core_API.h"
 

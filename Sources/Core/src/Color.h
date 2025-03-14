@@ -5,6 +5,8 @@
 
 #include "Core_API.h"
 
+#include <cstdint>
+
 class CORE_API Color
 {
 
@@ -24,8 +26,16 @@ public:
 	};
 
 public:
+	static Color fromHex( uint32_t hexValue );
+	static Color fromHex64( uint64_t hexValue64 );
+	static Color fromHSV( const HSV& hsv );
+	static Color fromHSL( const HSL& hsl );
+	static Color fromBytes( uint8_t R, uint8_t G, uint8_t B, uint8_t A = 255 );
+
+public:
 	Color() = default;
-	explicit Color( float R, float G, float B, float A = 1.f );
+	explicit Color( float R, float G, float B, float A );
+	explicit Color( float R, float G, float B );
 		
 	// ------------------------------------------------------------------------------------------------
 	float r() const;
@@ -52,11 +62,6 @@ public:
 	// ------------------------------------------------------------------------------------------------
 	Color blend( const Color &c1, float u = .5f ) const;
 	Color bestMatch() const;
-
-	// ------------------------------------------------------------------------------------------------
-	static Color fromHSV( const HSV &hsv );
-	static Color fromHSL( const HSL &hsl );
-	static Color fromBytes( unsigned char R, unsigned char G, unsigned char B, unsigned char A = 255 );
 
 	// ------------------------------------------------------------------------------------------------
 	// Colors by name
