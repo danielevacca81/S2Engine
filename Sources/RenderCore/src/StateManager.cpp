@@ -233,26 +233,8 @@ inline void StateManager::applyScissorTest( const ScissorTest &scissorTest )
 {
 	Math::irect rectangle = scissorTest.rect;
 
-	if( rectangle.width() < 0 )
-	{
-#if 0
-		throw new ArgumentOutOfRangeException(
-			"renderState.ScissorTest.Rectangle.Width must be greater than or equal to zero.", 
-			"renderState");
-#endif
-	}
-
-	if( rectangle.height() < 0 )
-	{
-#if 0
-		throw new ArgumentOutOfRangeException(
-			"renderState.ScissorTest.Rectangle.Height must be greater than or equal to zero.",
-			"renderState");
-#endif
-	}
-
-	bool enabled =	scissorTest.enabled && 
-					!rectangle.isEmpty() && rectangle.width()>0 && rectangle.height()>0;
+	const bool enabled = scissorTest.enabled && 
+			   		     !rectangle.isEmpty() && rectangle.width()>0 && rectangle.height()>0;
 
 	if(  _renderState.scissorTest.enabled != enabled ||
 		!_shadowingCurrentlyEnabled )

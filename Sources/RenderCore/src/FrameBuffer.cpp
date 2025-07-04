@@ -12,7 +12,7 @@
 using namespace RenderCore;
 
 // ------------------------------------------------------------------------------------------------
-static void makeGLAttachment( const FrameBuffer::AttachmentPoint &attachPoint, const Texture2DPtr &texture )
+static inline void makeGLAttachment( const FrameBuffer::AttachmentPoint &attachPoint, const Texture2DPtr &texture )
 {
 	if( texture && texture->isCreated() ) glFramebufferTexture( GL_FRAMEBUFFER, glWrap( attachPoint ), texture->id(), 0 );
 	else                                  glFramebufferTexture( GL_FRAMEBUFFER, glWrap( attachPoint ), 0, 0 );
@@ -29,8 +29,7 @@ FrameBufferPtr FrameBuffer::New()
 
 // ------------------------------------------------------------------------------------------------
 FrameBuffer::FrameBuffer()
-: //_context( ContextRegistry::currentContextWeakPtr() )
-	_changes( Changes::None )
+: _changes( Changes::None )
 , _colorAttachments( kMaxColorAttachment )
 , _colorAttachmentCount( 0 )
 {
@@ -38,40 +37,10 @@ FrameBuffer::FrameBuffer()
 }
 
 // ------------------------------------------------------------------------------------------------
-//FrameBuffer::FrameBuffer( FrameBuffer &&other )
-//: FrameBuffer()
-//{
-//	std::swap( _colorAttachmentCount,   other._colorAttachmentCount );
-//	std::swap( _colorAttachments,       other._colorAttachments );
-//	std::swap( _depthAttachment,        other._depthAttachment );
-//	std::swap( _depthStencilAttachment, other._depthStencilAttachment);
-//
-//
-//	std::swap( _created,   other._created);
-//	std::swap( _objectID,  other._objectID);
-//}
-
-// ------------------------------------------------------------------------------------------------
 FrameBuffer::~FrameBuffer()
 {
 	destroy();
 }
-
-// ------------------------------------------------------------------------------------------------
-//FrameBuffer& FrameBuffer::operator=( FrameBuffer &&other )
-//{
-//	reset();
-//
-//	std::swap( _colorAttachmentCount,   other._colorAttachmentCount );
-//	std::swap( _colorAttachments,       other._colorAttachments );
-//	std::swap( _depthAttachment,        other._depthAttachment );
-//	std::swap( _depthStencilAttachment, other._depthStencilAttachment);
-//
-//
-//	std::swap( _created,   other._created);
-//	std::swap( _objectID,  other._objectID);
-//	return *this;
-//}
 
 // -------------------------------------------------------------------------------------------------
 void FrameBuffer::reset()
@@ -286,7 +255,6 @@ void FrameBuffer::attach( const AttachmentPoint &attachPoint, const Texture2DPtr
 			if( texture && !texture->description().isDepthStencilRenderable() )
 			{
 				assert( ("Texture must be depth renderable but the Description.DepthRenderable property is false",0) );
-				//throw new ArgumentException("Texture must be depth renderable but the Description.DepthRenderable property is false.");
 			}
 
 			_depthStencilAttachment = texture;

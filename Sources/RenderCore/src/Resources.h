@@ -38,7 +38,8 @@ public:
 
 	static Samplers DefaultSamplers;
 	static Shaders  DefaultShaders;
-	//static PrimitiveBufferPtr FullscreenQuad; //@todo?
+	//static PrimitiveBufferPtr FullscreenQuad; //@todo
+	//static Texture2D WhiteTexture; //@todo
 
 
 private:

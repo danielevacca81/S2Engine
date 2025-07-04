@@ -108,3 +108,16 @@ float Device::minLinesWidth()
 
 	return minWidth;
 }
+
+
+// ------------------------------------------------------------------------------------------------
+int Device::maxTextureSize()
+{
+	static int value = 0;
+	if( value == 0 )
+	{
+		glGetIntegerv( GL_MAX_TEXTURE_SIZE, &value );
+		glCheck;
+	}
+	return value;
+}

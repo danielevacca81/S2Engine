@@ -51,6 +51,10 @@ private:
 // ------------------------------------------------------------------------------------------------
 class RENDERCORE_API TextureUnits
 {
+
+	// @todo:
+	// enum texture units names like AMBIENT_TEXTURE_UNIT, DIFFUSE_TEXTURE_UNIT, SPECULAR_TEXTURE_UNIT, etc.?
+
 public:
 	TextureUnits();
 

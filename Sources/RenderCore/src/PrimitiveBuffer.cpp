@@ -9,10 +9,8 @@ using namespace RenderCore;
 
 
 // ------------------------------------------------------------------------------------------------
-PrimitiveBufferPtr PrimitiveBuffer::New( const BufferObject::UsageHint &hint )
-{
-	return std::make_shared<PrimitiveBuffer>( hint );
-}
+PrimitiveBufferPtr PrimitiveBuffer::New( const BufferObject::UsageHint &hint )                                        { return std::make_shared<PrimitiveBuffer>( hint ); }
+PrimitiveBufferPtr PrimitiveBuffer::New( const std::vector<Math::vec3>& points, const BufferObject::UsageHint &hint ) { return std::make_shared<PrimitiveBuffer>( points,hint ); }
 
 
 // ------------------------------------------------------------------------------------------------
@@ -25,6 +23,13 @@ PrimitiveBufferPtr PrimitiveBuffer::New( const BufferObject::UsageHint &hint )
 PrimitiveBuffer::PrimitiveBuffer( const BufferObject::UsageHint &hint )
 {
 	_vao = VertexArray::New( hint );
+}
+
+// ------------------------------------------------------------------------------------------------
+PrimitiveBuffer::PrimitiveBuffer( const std::vector<Math::vec3>& points, const BufferObject::UsageHint& hint )
+{
+	_vao = VertexArray::New( hint );
+	setVertices( points );
 }
 
 // ------------------------------------------------------------------------------------------------

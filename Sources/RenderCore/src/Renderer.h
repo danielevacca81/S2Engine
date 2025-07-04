@@ -10,11 +10,12 @@
 #include "ClearState.h"
 #include "DrawState.h"
 #include "FrameBuffer.h"
+#include "RenderTarget.h"
 
 namespace RenderCore {
 
 // ------------------------------------------------------------------------------------------------
-class Renderer /// find better name?
+class RENDERCORE_API Renderer /// find better name? RenderingEngine? DrawEngine?
 {
 public:
 	static void            clear( const FrameBufferPtr &fbo, const ClearState& cs );

@@ -31,9 +31,11 @@ class RENDERCORE_API PrimitiveBuffer // rename: GeometryBuffer?
 public:
 	// CANNOT BE SHARED BETWEEN CONTEXTS
 	static PrimitiveBufferPtr New( const BufferObject::UsageHint &hint = BufferObject::UsageHint::StaticDraw );
+	static PrimitiveBufferPtr New( const std::vector<Math::vec3>& points, const BufferObject::UsageHint &hint = BufferObject::UsageHint::StaticDraw );
 
 public:
 	PrimitiveBuffer( const BufferObject::UsageHint &hint = BufferObject::UsageHint::StaticDraw );
+	PrimitiveBuffer( const std::vector<Math::vec3> &points, const BufferObject::UsageHint &hint = BufferObject::UsageHint::StaticDraw );
 
 	void setVertices             ( const std::vector<Math::vec3>   &points   );
 	void setVertices             ( const std::vector<Math::vec2>   &points2D );
@@ -56,6 +58,7 @@ private:
 	VertexArrayPtr _vao;
 
 	friend class Renderer;
+	//friend class Context;
 };
 
 }

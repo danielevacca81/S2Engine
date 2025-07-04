@@ -5,9 +5,6 @@
 
 #include "RenderCore_API.h"
 
-#include <string>
-#include <set>
-
 namespace RenderCore {
 
 class RENDERCORE_API Device
@@ -23,6 +20,7 @@ public:
 
 public:
 	static Vendor vendor();
+	static int    maxTextureSize();
 	static int    maxAttribPerVertex();
 	static int    numberOfTextureUnits();
 	static int    maxColorAttachmentPoints();

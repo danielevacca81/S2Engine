@@ -3,7 +3,6 @@
 #ifndef CLEARSTATE_H
 #define CLEARSTATE_H
 
-//#include "FrameBuffer.h"
 #include "RenderState.h"
 
 #include "Core/Color.h"
@@ -42,7 +41,7 @@ struct ClearState
 	ClearBuffers        buffers { ClearBuffers::ColorAndDepthBuffer };
 	Color               color = Color::gray();	// it will be ignored if colorSeparate.enabled == true
 	float               depth {1.f};
-	int                 stencil{0};
+	int32_t             stencil{0};
 	ClearColorSeparate  colorSeparate;
 };
 
