@@ -7,8 +7,12 @@
 
 #include "ContextInfo.h"
 #include "StateManager.h"
+#include "FrameBuffer.h"
+#include "PrimitiveType.h"
+#include "VertexArray.h"
 
 namespace RenderCore {
+struct DrawState;
 
 class RENDERCORE_API Context
 {
@@ -31,6 +35,12 @@ public:
 	//virtual void doneCurrent() { /*todo*/}
 
 	virtual int32_t defaultFrameBufferObject() const { return _defaultFBO; }
+
+
+	virtual void            clear( const FrameBufferPtr& fbo, const ClearState& cs );
+	virtual void            draw( const FrameBufferPtr& fbo, const PrimitiveType& primitiveType, const VertexArrayPtr& va, const DrawState& ds);
+	virtual Pixmap<uint8_t> readPixels( const FrameBufferPtr& fbo, uint32_t width, uint32_t height );
+
 
 protected:
 	Context();

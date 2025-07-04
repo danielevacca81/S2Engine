@@ -19,7 +19,7 @@ namespace RenderCore {
 /* There shall be only one state manager per context.
    Useful to have a Context::map to handle context switches?
 */
-class RENDERCORE_API StateManager
+class StateManager
 {
 public:
 	StateManager();

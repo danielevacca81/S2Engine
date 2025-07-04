@@ -1,11 +1,11 @@
-// SurfacePicker.cpp
+// Picker.cpp
 //
-#include "SurfacePicker.h"
+#include "Picker.h"
 
 #include "TextureDescription.h"
 #include "Texture.h"
 #include "ClearState.h"
-#include "Surface.h"
+#include "RenderTarget.h"
 
 #include <cassert>
 
@@ -15,59 +15,52 @@ using namespace RenderCore;
 const Math::ivec4 gClearColor( PickerConstants::kClearValue );
 
 // ------------------------------------------------------------------------------------------------
-SurfacePicker::SurfacePicker()
-:  _surface( nullptr )
-,  _attachmentPoint(FrameBuffer::AttachmentPoint::ColorAttachment1 )
+void Picker::reset()
 {
-}
-
-// ------------------------------------------------------------------------------------------------
-void SurfacePicker::reset()
-{
-	detachFromSurface();
+	detach();
 	_pickTexture = nullptr;
 }
 
 // ------------------------------------------------------------------------------------------------
-void SurfacePicker::attachToSurface( Surface *surface, const FrameBuffer::AttachmentPoint &pickAttachmentPoint )
+void Picker::attachTo( RenderTarget *target, const FrameBuffer::AttachmentPoint &pickAttachmentPoint )
 {	
-	if( surface == _surface && ( !_surface || pickAttachmentPoint == _attachmentPoint ) )
+	if( target == _target && ( !_target || pickAttachmentPoint == _attachmentPoint ) )
 		return;
 
-	detachFromSurface();
+	detach();
 
-	_surface = surface;
+	_target = target;
 	_attachmentPoint = pickAttachmentPoint;
 
-	if( !_surface )
+	if( !_target )
 		return;
 
 	if( !_pickTexture )
-		_pickTexture = Texture2D::New( TextureDescription( _surface->width(), _surface->height(),TextureFormat::Red32i ) );
+		_pickTexture = Texture2D::New( TextureDescription( _target->width(), _target->height(),TextureFormat::Red32i ) );
 
-	_surface->attach( _attachmentPoint, _pickTexture );
+	_target->attach( _attachmentPoint, _pickTexture );
 }
 
 // ------------------------------------------------------------------------------------------------
-void SurfacePicker::detachFromSurface()
+void Picker::detach()
 {	
-	if( !_surface )
+	if( !_target )
 		return;
 
-	_surface->removeAttachment( _attachmentPoint );
-	_surface = nullptr;
+	_target->removeAttachment( _attachmentPoint );
+	_target = nullptr;
 }
 
 // ------------------------------------------------------------------------------------------------
 /**
 	the picker must be attached to a surface (PickerConstants::attachToSurface) for this call to succeed
 */
-bool SurfacePicker::clearPickBuffer()
+bool Picker::clear()
 {
-	if( !_surface ) 
+	if( !_target )
 		return false;
 
-	const auto idx = _surface->colorAttachmentDrawBufferIndex( _attachmentPoint );
+	const auto idx = _target->colorAttachmentDrawBufferIndex( _attachmentPoint );
 	if( idx == -1 )
 		return false;
 
@@ -76,7 +69,7 @@ bool SurfacePicker::clearPickBuffer()
 	cs.colorSeparate.enabled = true;
 	cs.colorSeparate.color[idx] = gClearColor;
 
-	_surface->clear( cs );
+	_target->clear( cs );
 	return true;
 }
 
@@ -84,16 +77,16 @@ bool SurfacePicker::clearPickBuffer()
 /**
 	the picker must be attached to a surface (PickerConstants::attachToSurface) for this call to succeed
 */
-PickerConstants::Value SurfacePicker::getValueAt( int x, int y ) const
+PickerConstants::Value Picker::pickValueAt( int32_t x, int32_t y ) const
 {
 	// alternativa, usa:  class RENDERCORE_API ReadPixelBuffer (?)
 
-	assert( _surface );
-	if( !_surface || x < 0 || x >= _surface->width() || y < 0 ||  y >= _surface->height() )
-		return PickerConstants::kClearValue;
+	assert( _target );
+	if( !_target || x < 0 || x >= _target->width() || y < 0 ||  y >= _target->height() )
+		return PickerConstants::kClearValue; // out of bounds
 
-	PickerConstants::Value retval;
-    _surface->readPixels( _attachmentPoint, ImageFormat::RedInteger, ImageDataType::Int, Math::irect(x,y,1,1), &retval );
+	PickerConstants::Value pickedPixel;
+	_target->readPixels( _attachmentPoint, ImageFormat::RedInteger, ImageDataType::Int, Math::irect(x,y,1,1), &pickedPixel );
 
-	return retval;
+	return pickedPixel;
 }

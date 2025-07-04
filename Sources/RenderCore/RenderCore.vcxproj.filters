@@ -19,9 +19,6 @@
     <Filter Include="src\opengl\attributes">
       <UniqueIdentifier>{1e7c7456-ee2d-43bc-90ae-208a71074bc1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\context">
-      <UniqueIdentifier>{211ded58-60b6-462f-a338-6a273b38740e}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\AttributeBuffer.h">
@@ -121,9 +118,6 @@
       <Filter>src\opengl\attributes</Filter>
     </ClInclude>
     <ClInclude Include="src\RenderCore_API.h" />
-    <ClInclude Include="src\Context.h">
-      <Filter>src\context</Filter>
-    </ClInclude>
     <ClInclude Include="src\OpenGL.h">
       <Filter>src\opengl</Filter>
     </ClInclude>
@@ -139,7 +133,7 @@
     <ClInclude Include="src\DrawState.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="src\SurfacePicker.h">
+    <ClInclude Include="src\Picker.h">
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\PrimitiveBatch.h">
@@ -160,7 +154,7 @@
     <ClInclude Include="src\StateManager.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="src\Surface.h">
+    <ClInclude Include="src\RenderTarget.h">
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\Device.h">
@@ -169,9 +163,6 @@
     <ClInclude Include="src\Resources.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="src\ContextInfo.h">
-      <Filter>src\context</Filter>
-    </ClInclude>
     <ClInclude Include="src\Texture.h">
       <Filter>src\opengl\textures</Filter>
     </ClInclude>
@@ -179,6 +170,15 @@
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\PickerConstants.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ContextInfo.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Context.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SwapChain.h">
       <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
@@ -228,16 +228,13 @@
     <ClCompile Include="src\BufferObject.cpp">
       <Filter>src\opengl\buffer objects</Filter>
     </ClCompile>
-    <ClCompile Include="src\Context.cpp">
-      <Filter>src\context</Filter>
-    </ClCompile>
     <ClCompile Include="src\OpenGLCheck.cpp">
       <Filter>src\opengl</Filter>
     </ClCompile>
     <ClCompile Include="src\OpenGLWrap.cpp">
       <Filter>src\opengl</Filter>
     </ClCompile>
-    <ClCompile Include="src\SurfacePicker.cpp">
+    <ClCompile Include="src\Picker.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\PrimitiveBatch.cpp">
@@ -252,7 +249,7 @@
     <ClCompile Include="src\StateManager.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\Surface.cpp">
+    <ClCompile Include="src\RenderTarget.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\Device.cpp">
@@ -261,11 +258,17 @@
     <ClCompile Include="src\Resources.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\ContextInfo.cpp">
-      <Filter>src\context</Filter>
-    </ClCompile>
     <ClCompile Include="src\Texture.cpp">
       <Filter>src\opengl\textures</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Context.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ContextInfo.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SwapChain.cpp">
+      <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

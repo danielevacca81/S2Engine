@@ -113,8 +113,9 @@
     <ClInclude Include="src\IndexBuffer.h" />
     <ClInclude Include="src\PrimitiveBuffer.h" />
     <ClInclude Include="src\PickerConstants.h" />
+    <ClInclude Include="src\SwapChain.h" />
     <ClInclude Include="src\VertexAttributeLocation.h" />
-    <ClInclude Include="src\SurfacePicker.h" />
+    <ClInclude Include="src\Picker.h" />
     <ClInclude Include="src\OpenGLCheck.h" />
     <ClInclude Include="src\OpenGLObject.h" />
     <ClInclude Include="src\OpenGLWrap.h" />
@@ -126,7 +127,7 @@
     <ClInclude Include="src\RenderCore_API.h" />
     <ClInclude Include="src\Sampler.h" />
     <ClInclude Include="src\StateManager.h" />
-    <ClInclude Include="src\Surface.h" />
+    <ClInclude Include="src\RenderTarget.h" />
     <ClInclude Include="src\Texture.h" />
     <ClInclude Include="src\TextureDescription.h" />
     <ClInclude Include="src\TextureUnit.h" />
@@ -164,7 +165,7 @@
     <ClCompile Include="src\ImageFormat.cpp" />
     <ClCompile Include="src\IndexBuffer.cpp" />
     <ClCompile Include="src\OpenGLObject.cpp" />
-    <ClCompile Include="src\SurfacePicker.cpp" />
+    <ClCompile Include="src\Picker.cpp" />
     <ClCompile Include="src\OpenGLCheck.cpp" />
     <ClCompile Include="src\OpenGLWrap.cpp" />
     <ClCompile Include="src\PixelBuffer.cpp" />
@@ -173,7 +174,8 @@
     <ClCompile Include="src\RenderBuffer.cpp" />
     <ClCompile Include="src\Sampler.cpp" />
     <ClCompile Include="src\StateManager.cpp" />
-    <ClCompile Include="src\Surface.cpp" />
+    <ClCompile Include="src\RenderTarget.cpp" />
+    <ClCompile Include="src\SwapChain.cpp" />
     <ClCompile Include="src\Texture.cpp" />
     <ClCompile Include="src\TextureDescription.cpp" />
     <ClCompile Include="src\TextureUnit.cpp" />
