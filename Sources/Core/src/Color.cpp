@@ -221,24 +221,20 @@ Color Color::bestMatch() const
 {
 	HSL hsl = toHSL();
 
-	Color out;
-	if( hsl.saturation >= .3f )
-	{
-		// choose opposite hue with max saturation and lightness
-		hsl.hue = std::fmod( hsl.hue + 180.f, 360.f );
-		hsl.saturation = 1.f;
-		hsl.lightness = .5f;
-
-		out = Color::fromHSL( hsl );
-	}
-	else
+	if( hsl.saturation < .3f )
 	{
 		// for low saturation use black or white
-		if( hsl.lightness >= .5f ) out = black();
-		else                       out = white();
+		if( hsl.lightness >= .5f )
+			return black();
+		return white();
 	}
 
-	return out;
+	// for high saturation use opposite hue with max saturation and lightness
+	hsl.hue = std::fmod( hsl.hue + 180.f, 360.f );
+	hsl.saturation = 1.f;
+	hsl.lightness = .5f;
+
+	return Color::fromHSL( hsl );
 }
 
 // ------------------------------------------------------------------------------------------------
