@@ -13,7 +13,7 @@
 *  * class Window detiene una lista di Renderer::Renderer
 *    * each Renderer::Renderer has 
 *        .StateManager
-*        .Surface
+*        .RenderTarget
 *        .Context
 *    * Window::addRenderer()
 * 
@@ -21,7 +21,7 @@
 *  
 *  Contexts manager?
 * 
-*  * class Surface unaware of context
+*  * class RenderTarget unaware of context
 * 
 * 
 

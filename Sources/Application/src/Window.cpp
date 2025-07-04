@@ -2,7 +2,9 @@
 //
 #include "Window.h"
 
-#include "Renderer/RenderingContext.h"
+#include "RenderCore/Context.h"
+#include "RenderCore/SwapChain.h"
+#include "RenderCore/RenderTarget.h"
 
 #include "glfwpp/glfwpp.h"
 #include "glfwpp/window.h"
@@ -51,17 +53,18 @@ Window::Window( const std::string& name, int width, int height, const WindowPara
         std::cout << "Current GLFW Context: " << std::hex << ctx << '\n';
     }
 
-    _renderingContext = new Renderer::RenderingContext;
+    _renderingContext = RenderCore::Context::current();
+    _renderTarget     = std::make_unique<RenderCore::RenderTarget>();
 }
 
 // ------------------------------------------------------------------------------------------------
 Window::~Window()
 {
     makeCurrent();
-    
-    delete _renderingContext;
-    delete static_cast<glfw::Window*>( _handle );
-    
+	_renderTarget.reset();
+	delete _renderingContext;
+
+    delete static_cast<glfw::Window*>( _handle );   
     _handle = nullptr;
 }
 
@@ -82,8 +85,15 @@ void Window::paint()
         onPaintEvent();
     }
     _renderingContext->endRendering();
+
+	RenderCore::SwapChain::swapToScreen( *_renderTarget);
 }
 
+// ------------------------------------------------------------------------------------------------
+void Window::onFramebufferSizeEvent( int width, int height )
+{
+    _renderTarget->resize( width, height );
+}
 
 // ------------------------------------------------------------------------------------------------
 uint32_t Window::width() const

@@ -9,9 +9,11 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 
-namespace Renderer {
-class RenderingContext;
+namespace RenderCore {
+class Context;
+class RenderTarget;
 }
 
 namespace s2 {
@@ -39,7 +41,7 @@ public:
 	virtual void onCursorPosEvent( double,double)              {}
 	virtual void onDropEvent(const std::vector<const char*> &) {}
 	virtual void onFocusEvent(bool)                            {}
-	virtual void onFramebufferSizeEvent( int w, int h)         {} // <-
+	virtual void onFramebufferSizeEvent( int w, int h );          // <-
 	virtual void onIconifyEvent(bool)                          {}
 	virtual void onInitializeEvent()                           {}
 	virtual void onKeyEvent(/***/)                             {}
@@ -60,7 +62,8 @@ protected:
 	void paint();
 
 protected:
-	Renderer::RenderingContext* _renderingContext { nullptr };
+	RenderCore::Context* _renderingContext {nullptr};
+	std::unique_ptr<RenderCore::RenderTarget> _renderTarget;
 
 private:
 	void* _handle = nullptr;
