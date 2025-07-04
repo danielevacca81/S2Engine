@@ -36,8 +36,7 @@ mkdir %BASE_BIN_DIR_DEST%\x64\%CONFIG_NAME% || (echo mkdir %BASE_BIN_DIR_DEST%\x
 
 cd %BASE_INCL_DIR_DEST%\%MODULE_NAME%
 copy /Y   %BASEDIR_MODULE_SOURCES%\src\Renderer_API.h .
-copy /Y   %BASEDIR_MODULE_SOURCES%\src\Painter2D.h .
-copy /Y   %BASEDIR_MODULE_SOURCES%\src\RenderingContext.h .
+copy /Y   %BASEDIR_MODULE_SOURCES%\src\Resource.h .
 
 
 cd %BASE_BIN_DIR_DEST%

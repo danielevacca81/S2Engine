@@ -20,10 +20,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Brush.h" />
-    <ClInclude Include="src\Painter2D.h" />
-    <ClInclude Include="src\RenderingContext.h" />
+    <ClInclude Include="src\Geometry.h" />
+    <ClInclude Include="src\Painter2D.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="src\Renderer_API.h" />
     <ClInclude Include="src\Resource.h" />
+    <ClInclude Include="src\Shader.h" />
     <ClInclude Include="src\Texture.h" />
   </ItemGroup>
   <ItemGroup>
@@ -31,12 +35,16 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Brush.cpp" />
-    <ClCompile Include="src\Painter2D.cpp" />
+    <ClCompile Include="src\Geometry.cpp" />
+    <ClCompile Include="src\Painter2D.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="src\Renderer2D_hazel.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="src\RenderingContext.cpp" />
+    <ClCompile Include="src\Shader.cpp" />
     <ClCompile Include="src\Texture.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

@@ -13,7 +13,7 @@
 #include <vector>
 #include <string>
 
-namespace RenderCore { class Surface; }
+namespace RenderCore { class RenderTarget; }
 
 namespace Renderer {
 
@@ -50,7 +50,7 @@ public:
 
 
 private:
-	RenderCore::Surface* _renderSurface { nullptr };
+	RenderCore::RenderTarget* _renderSurface { nullptr };
 };
 
 }

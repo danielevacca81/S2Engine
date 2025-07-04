@@ -7,9 +7,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\RenderingContext.h">
-      <Filter>src</Filter>
-    </ClInclude>
     <ClInclude Include="src\Renderer_API.h">
       <Filter>src</Filter>
     </ClInclude>
@@ -25,14 +22,17 @@
     <ClInclude Include="src\Resource.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="src\Shader.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Geometry.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Export.bat" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\RenderingContext.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="src\Brush.cpp">
       <Filter>src</Filter>
     </ClCompile>
@@ -43,6 +43,12 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\Texture.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Shader.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Geometry.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>

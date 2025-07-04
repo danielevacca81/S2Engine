@@ -3,7 +3,7 @@
 #include "Painter2D.h"
 
 #include "RenderCore/DrawState.h"
-#include "RenderCore/Surface.h"
+#include "RenderCore/RenderTarget.h"
 
 
 using namespace Renderer;
@@ -18,7 +18,7 @@ using namespace Renderer;
 
 // -------------------------------------------------------------------------------------------------
 Painter2D::Painter2D()
-	: _renderSurface ( new RenderCore::Surface )
+	: _renderSurface ( new RenderCore::RenderTarget )
 {}
 
 // -------------------------------------------------------------------------------------------------
