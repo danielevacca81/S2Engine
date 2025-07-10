@@ -274,11 +274,16 @@ bool Program::link( const std::string &name /* = std::string("") */ )
 		GLint maxLength = 0;
 		glGetProgramiv( _objectID, GL_INFO_LOG_LENGTH, &maxLength );
 
-		std::vector<GLchar> infoLog( maxLength );
-		glGetProgramInfoLog( _objectID, maxLength, &maxLength, &infoLog[0] );
-		glCheck;
+		if( maxLength > 0 )
+		{
+			std::vector<GLchar> infoLog( maxLength );
+			glGetProgramInfoLog( _objectID, maxLength, &maxLength, &infoLog[0] );
+			glCheck;
 
-		std::cout << std::string( infoLog.begin(), infoLog.end() ) << '\n';
+			std::cout << std::string( infoLog.begin(), infoLog.end() ) << '\n';
+		}
+		else
+			std::cout << "Program linking failed, but no info log available.\n";
 	}
 	else
 		setLabel( _name );

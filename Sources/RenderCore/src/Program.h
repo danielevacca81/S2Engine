@@ -49,27 +49,26 @@ public:
 	void unbind()  const override;
 	void applyUniforms() const;
 
-	//Uniform *uniform( const std::string &name );
+	//template< typename T >
+	//inline UniformValue<T> *uniform( const std::string &name ) const
+	//{
+	//	auto it = _uniforms.find( name );
 
+	//	if( it == _uniforms.end() )
+	//		return unusedUniform<T>();
 
-	// operator [] 
-	//Uniform& Program::operator[](const std::string& uniformName) throw(std::out_of_range) {
-    //    return _uniforms.at(uniformName);
-    //}
-	//
-	//const Uniform& Program::operator[](const std::string& uniformName) const throw(std::out_of_range) {
-    //    return _uniforms.at(uniformName);
-    //}
+	//	return dynamic_cast<UniformValue<T> *>( it->second );
+	//}
 
 	template< typename T >
-	inline UniformValue<T> *uniform( const std::string &name ) const
+	inline UniformValue<T>& uniform( const std::string& name ) 
 	{
 		auto it = _uniforms.find( name );
 
 		if( it == _uniforms.end() )
-			return unusedUniform<T>();
+			return *unusedUniform<T>();
 
-		return dynamic_cast<UniformValue<T> *>( it->second );
+		return static_cast<UniformValue<T> &>( *it->second );
 	}
 
 
