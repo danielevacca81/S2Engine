@@ -43,6 +43,9 @@ copy /Y   %BASEDIR_MODULE_SOURCES%\src\Plane.h .
 copy /Y   %BASEDIR_MODULE_SOURCES%\src\Ray.h .
 copy /Y   %BASEDIR_MODULE_SOURCES%\src\Rectangle.h .
 copy /Y   %BASEDIR_MODULE_SOURCES%\src\Space.h .
+copy /Y   %BASEDIR_MODULE_SOURCES%\src\View.h .
+copy /Y   %BASEDIR_MODULE_SOURCES%\src\ViewPerspective.h .
+copy /Y   %BASEDIR_MODULE_SOURCES%\src\ViewOrthographic.h .
 
 cd %BASE_BIN_DIR_DEST%
 copy /Y %BASEDIR_MODULE_SOURCES%\bin\x64\%CONFIG_NAME%\*.lib .\x64\%CONFIG_NAME%

@@ -28,9 +28,33 @@
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\Math_API.h" />
+    <ClInclude Include="src\ViewOrthographic.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ViewPerspective.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Frustum.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\View.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Intersection.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ViewOrthographic.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ViewPerspective.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Frustum.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\View.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
