@@ -7,7 +7,7 @@
 #include "OpenGLCheck.h"
 
 #include "Sampler.h"
-#include "Resources.h" //samplers
+#include "RenderCore.h" //samplers
 
 using namespace RenderCore;
 
@@ -112,7 +112,7 @@ void Texture2D::unbindAll()    { glBindTexture( GL_TEXTURE_2D, 0 ); glCheck; }
 // -------------------------------------------------------------------------------------------------
 void Texture2D::setDefaultSampler()
 {
-	const SamplerPtr sampler = Resources::DefaultSamplers.LinearClamp;
+	const SamplerPtr sampler = DefaultSamplers.LinearClamp;
 	assert( sampler );
 
 	/*todo : handle gl texture rectangle in case of description.isRectangle*/

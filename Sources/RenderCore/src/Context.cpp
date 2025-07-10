@@ -9,14 +9,13 @@
 #include "VertexArray.h"
 #include "DrawState.h"
 
-#if defined(WIN32) || defined(WIN64) || defined(_WIN32) || defined(_WIN64)
-#include <Windows.h>
-#ifdef DrawState 
-#undef DrawState
-#endif
+#if defined(_WIN32) || defined(_WIN64)
+#include <windows.h>
+#undef DrawState // undefine DrawState macro from windows.h
 #else
-#include <GL/glx.h>
 #endif
+
+
 
 #include <map>
 #include <iostream>
@@ -67,7 +66,7 @@ Context *Context::current()
 	{
 		c = new Context;
 		gRegistry.emplace( std::make_pair( handle, c ) );
-		Resources::init();
+		RenderCore::init();
 	}
 	else
 	{
@@ -80,7 +79,7 @@ Context *Context::current()
 // ------------------------------------------------------------------------------------------------
 Context::Context()
 {
-#if defined(WIN32) || defined(WIN64) || defined(_WIN32) || defined(_WIN64)
+#if defined(_WIN32) || defined(_WIN64)
 	_nativeHandle = (uint64_t) wglGetCurrentContext();
 #else
 	_nativeHandle = glXGetCurrentContext();
@@ -114,7 +113,7 @@ Context::~Context()
 	if( gRegistry.empty() )
 	{
 		std::cout << "Destroying Resources" << '\n';
-		Resources::destroy();
+		RenderCore::destroy();
 	}
 	else
 	{

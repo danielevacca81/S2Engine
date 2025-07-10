@@ -8,8 +8,12 @@
 #include "RenderState.h"
 #include "ViewState.h"
 #include "Program.h"
-#include "Resources.h"
+#include "RenderCore.h"
 #include "TextureUnit.h"
+
+#if defined (_WIN32) || defined(_WIN64)
+#undef DrawState // undefine DrawState macro from windows.h
+#endif
 
 namespace RenderCore {
 
@@ -23,7 +27,7 @@ struct DrawState
 	TextureUnits textureUnits;
 
 
-	DrawState( const ProgramPtr &shader = Resources::DefaultShaders.Simple, const RenderState &renderState = {} )
+	DrawState( const ProgramPtr &shader = DefaultShaders.Simple, const RenderState &renderState = {} )
 	: shadowingEnabled( true )
 	, shaderProgram( shader )
 	, renderState( renderState )

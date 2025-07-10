@@ -59,7 +59,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>Core.lib;opengl32.lib;glu32.lib;user32.lib;gdi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>Core.lib;opengl32.lib;user32.lib;gdi32.lib;</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\s2Engine\bin\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <FullProgramDatabaseFile>true</FullProgramDatabaseFile>
     </Link>
@@ -86,7 +86,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>Core.lib;opengl32.lib;glu32.lib;user32.lib;gdi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>Core.lib;opengl32.lib;user32.lib;gdi32.lib;</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\s2Engine\bin\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
@@ -103,7 +103,7 @@
     <ClInclude Include="src\ContextInfo.h" />
     <ClInclude Include="src\OpenGL.h" />
     <ClInclude Include="src\Renderer.h" />
-    <ClInclude Include="src\Resources.h" />
+    <ClInclude Include="src\RenderCore.h" />
     <ClInclude Include="src\ClearState.h" />
     <ClInclude Include="src\Context.h" />
     <ClInclude Include="src\Device.h" />
@@ -158,7 +158,7 @@
     <ClCompile Include="src\BufferObject.cpp" />
     <ClCompile Include="src\ContextInfo.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
-    <ClCompile Include="src\Resources.cpp" />
+    <ClCompile Include="src\RenderCore.cpp" />
     <ClCompile Include="src\Context.cpp" />
     <ClCompile Include="src\Device.cpp" />
     <ClCompile Include="src\FrameBuffer.cpp" />

@@ -15,11 +15,11 @@ void SwapChain::swapToScreen( const RenderTarget& renderTarget )
 	fullscreenQuad->setVertices( { {-1,1,0},{-1,-1,0},{1,1,0},{1,-1,0} } );
 	fullscreenQuad->setTextureCoords( { {0,1},{0,0},{1,1},{1,0} } );
 
-	DrawState fullscreenQuadDrawState = DrawState( Resources::DefaultShaders.FullscreenQuad );
+	DrawState fullscreenQuadDrawState = DrawState( DefaultShaders.FullscreenQuad );
 	fullscreenQuadDrawState.renderState.depthTest.enabled   = false;
 	fullscreenQuadDrawState.renderState.faceCulling.enabled = false;
 	fullscreenQuadDrawState.viewState.viewport              = Math::irect( 0, 0, renderTarget.width(), renderTarget.height() );		
-	fullscreenQuadDrawState.textureUnits[0].setSampler( Resources::DefaultSamplers.LinearClamp );
+	fullscreenQuadDrawState.textureUnits[0].setSampler( DefaultSamplers.LinearClamp );
 	fullscreenQuadDrawState.textureUnits[0].setTexture( renderTarget.attachment( FrameBuffer::ColorAttachment0 ) );
 
 

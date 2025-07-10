@@ -4,13 +4,6 @@
 
 #include "OpenGL.h"
 
-//#if defined(WIN32) || defined(WIN64) || defined(_WIN32) || defined(_WIN64)
-////#include <Windows.h>
-////#include <gl/GLU.h>
-//#else
-//#endif
-
-
 #include <iostream>
 
 static bool gDebugOutputEnabled { false };
@@ -79,25 +72,43 @@ void disableOpenGLDebugOutput()
 // ------------------------------------------------------------------------------------------------
 bool isOpenGLDebugOutputEnabled() { return gDebugOutputEnabled; }
 
-//----------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 void checkOpenGLError( const char* file, unsigned int line )
 {
-	// https://registry.khronos.org/OpenGL-Refpages/gl4/html/glGetError.xhtml
-	// 
-	// Thus, glGetError should always be called in a loop, 
-	// until it returns GL_NO_ERROR, if all error flags are to be reset.
-	GLenum error = glGetError();
-	if( error != GL_NO_ERROR )
+	static constexpr int kMaxErrors { 100 };
+	// Note that when OpenGL runs distributedly like frequently found on X11 systems,
+	// other user error codes can still be generated as long as they have different error codes.
+	// Calling glGetError then only resets one of the error code flags instead of all of them.
+	// Because of this, it is recommended to call glGetError inside a loop.
+	// https://learnopengl.com/In-Practice/Debugging
+	GLenum errorCode;
+	int i = 0;
+	while( ( errorCode = glGetError() ) != GL_NO_ERROR )
 	{
-		auto msg = (char*) gluErrorString( error );
-		std::cout << std::dec 
-			<< R"(/!\ OpenGL ERROR [)" << (uint32_t) error
-			<< "] in " << std::string( file )
-			<< "@" << line 
-			<< ( msg ? " : "+std::string( msg ) : "" )
-			<< '\n';
+		if( i++ >= kMaxErrors )
+		{
+			std::cout << "/!\\ OpenGL ERROR: Too many errors, stopping check.\n";
+			return;
+		}
 
-		//error = glGetError();
+		std::string errorStr;
+		switch( errorCode )
+		{
+		case GL_INVALID_ENUM:                  errorStr = "INVALID_ENUM"; break;
+		case GL_INVALID_VALUE:                 errorStr = "INVALID_VALUE"; break;
+		case GL_INVALID_OPERATION:             errorStr = "INVALID_OPERATION"; break;
+		case GL_STACK_OVERFLOW:                errorStr = "STACK_OVERFLOW"; break;
+		case GL_STACK_UNDERFLOW:               errorStr = "STACK_UNDERFLOW"; break;
+		case GL_OUT_OF_MEMORY:                 errorStr = "OUT_OF_MEMORY"; break;
+		case GL_INVALID_FRAMEBUFFER_OPERATION: errorStr = "INVALID_FRAMEBUFFER_OPERATION"; break;
+		}
+		std::cout << std::dec
+			<< "/!\\ OpenGL ERROR [" 
+			<< (uint32_t) errorCode
+			<< "] in " << std::string( file )
+			<< "@" << line
+			<< " " << errorStr
+			<< '\n';		
 	}
 }
 
