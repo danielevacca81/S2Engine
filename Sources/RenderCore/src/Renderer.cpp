@@ -32,10 +32,10 @@ static inline void draw( const PrimitiveType& primitive, const VertexArrayPtr& v
 }
 
 // ------------------------------------------------------------------------------------------------
-uint32_t Renderer::defaultFrameBufferObject()
-{
-	return Context::current()->_defaultFBO;
-}
+//uint32_t Renderer::defaultFrameBufferObject()
+//{
+//	return Context::current()->_defaultFBO;
+//}
 
 // ------------------------------------------------------------------------------------------------
 void Renderer::clear( const FrameBufferPtr &fbo, const ClearState& cs )
@@ -154,4 +154,55 @@ Pixmap<uint8_t> Renderer::readPixels( const FrameBufferPtr& fbo, uint32_t width,
 	fbo->unbind();
 	
 	return img;
+}
+
+// ------------------------------------------------------------------------------------------------
+void Renderer::blit( const FrameBufferPtr& srcFBO, const FrameBufferPtr& dstFBO, const Math::irect& srcRect, const Math::irect& dstRect )
+{
+	if( !srcFBO )
+		return; // assert( srcFBO );
+	
+	const uint32_t srcFBOId = srcFBO->id();
+	const uint32_t dstFBOId = dstFBO ? dstFBO->id() : 0; // 0 means default FBO
+	const auto destRect     = dstRect.isEmpty() ? srcRect : dstRect; // if dstRect is empty, use srcRect
+
+#if 0	// ( opengl > 4.5)
+	glBlitNamedFramebuffer( srcFBOId, dstFBOId,
+							srcRect.left(), srcRect.bottom(), srcRect.right(), srcRect.top(), 
+							dstRect.left(), dstRect.bottom(), dstRect.right(), dstRect.top(),
+							GL_COLOR_BUFFER_BIT, GL_NEAREST );
+#else
+	glBindFramebuffer( GL_READ_FRAMEBUFFER, srcFBOId );
+	glBindFramebuffer( GL_DRAW_FRAMEBUFFER, dstFBOId );
+	glBlitFramebuffer( srcRect.left(), srcRect.bottom(), srcRect.right(), srcRect.top(),
+					   destRect.left(), destRect.bottom(), destRect.right(), destRect.top(),
+					   GL_COLOR_BUFFER_BIT, GL_NEAREST );
+
+	glBindFramebuffer( GL_FRAMEBUFFER, 0 ); // unbind any FBO
+#endif
+
+
+	glCheck;
+}
+
+// ------------------------------------------------------------------------------------------------
+void Renderer::drawFullscreenQuad( const Texture2DPtr& srcTexture )
+{
+	if( !srcTexture )
+		return;
+
+	DrawState fullscreenQuadDrawState;
+	{
+		fullscreenQuadDrawState.shader                          = DefaultShaders.FullscreenQuad;
+		fullscreenQuadDrawState.renderState.depthTest.enabled   = false;
+		fullscreenQuadDrawState.renderState.faceCulling.enabled = false;
+		fullscreenQuadDrawState.viewState.viewport              = Math::irect( 0, 0, srcTexture->description().width(), srcTexture->description().height() );
+		fullscreenQuadDrawState.textureUnits[0].set( srcTexture, DefaultSamplers.LinearClamp );
+	}
+
+	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+	glCheck;
+	
+	Context::current()->_stateManager.setDrawState( fullscreenQuadDrawState );
+	glDrawArrays( GL_TRIANGLE_STRIP, 0, 4 );
 }

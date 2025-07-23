@@ -5,23 +5,18 @@
 #include "RenderTarget.h"
 #include "Renderer.h"
 
+#include <chrono>
+#include <iostream>
+
 using namespace RenderCore;
 
 
 // ------------------------------------------------------------------------------------------------
 void SwapChain::swapToScreen( const RenderTarget& renderTarget )
 {
-	PrimitiveBufferPtr fullscreenQuad = PrimitiveBuffer::New();
-	fullscreenQuad->setVertices( { {-1,1,0},{-1,-1,0},{1,1,0},{1,-1,0} } );
-	fullscreenQuad->setTextureCoords( { {0,1},{0,0},{1,1},{1,0} } );
-
-	DrawState fullscreenQuadDrawState = DrawState( DefaultShaders.FullscreenQuad );
-	fullscreenQuadDrawState.renderState.depthTest.enabled   = false;
-	fullscreenQuadDrawState.renderState.faceCulling.enabled = false;
-	fullscreenQuadDrawState.viewState.viewport              = Math::irect( 0, 0, renderTarget.width(), renderTarget.height() );		
-	fullscreenQuadDrawState.textureUnits[0].setSampler( DefaultSamplers.LinearClamp );
-	fullscreenQuadDrawState.textureUnits[0].setTexture( renderTarget.attachment( FrameBuffer::ColorAttachment0 ) );
-
-
-	Renderer::draw( Renderer::defaultFrameBufferObject(), PrimitiveType::TriangleStrip, fullscreenQuad, fullscreenQuadDrawState );
+	// Renderer::blit is slightly faster than Renderer::drawFullscreenQuad
+	Renderer::blit( renderTarget.fbo(),
+					nullptr,                                                         // default FBO, which is the screen
+					Math::irect( 0, 0, renderTarget.width(), renderTarget.height() ) // whole size
+	);
 }

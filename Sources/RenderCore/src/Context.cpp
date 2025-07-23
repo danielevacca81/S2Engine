@@ -87,8 +87,6 @@ Context::Context()
 	if( !glewInit() == GLEW_OK )
 		throw std::runtime_error( "GLEW initialization failed!" );
 
-	glGetIntegerv( GL_FRAMEBUFFER_BINDING, &_defaultFBO );
-
 	_info.init();
 
 	std::cout
@@ -180,7 +178,7 @@ Pixmap<uint8_t> Context::readPixels( const FrameBufferPtr& fbo, uint32_t width, 
 	pixelBuffer.bind();
 
 	glReadBuffer( FrameBuffer::ColorAttachment0 );
-	glReadPixels( 0, 0, width, height, glWrap( format ), glWrap( dataType ), DATA_PTR( 0 ) ); // todo: remove direct calls to OpenGL
+	glReadPixels( 0, 0, width, height, glWrap( format ), glWrap( dataType ), DATA_PTR( 0 ) );
 	glCheck;
 
 	Pixmap<uint8_t> img( width, height, 4, (uint8_t*) pixelBuffer.mapData() );

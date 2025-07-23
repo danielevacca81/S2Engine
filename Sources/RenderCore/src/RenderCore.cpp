@@ -29,17 +29,21 @@ static inline bool initShaders()
 	DefaultShaders.FullscreenQuad = Program::New();
 	{
 		ok &= DefaultShaders.FullscreenQuad->attachVertexShader( STRINGIFY( #version 330\n
-		layout( location = 0 ) in vec3 in_Vertex;
-		layout( location = 3 ) in vec2 in_TexCoord;
+
+        const vec3 in_Vertex[4] = vec3[4]( 
+                       vec3( -1.0,  1.0, 0.0 ), 
+				       vec3( -1.0, -1.0, 0.0 ),
+				       vec3(  1.0,  1.0, 0.0 ),
+					   vec3(  1.0, -1.0, 0.0 ) );
 
 		out vec2 texCoord;
 
 		void main()
 		{
-			gl_Position = vec4( in_Vertex, 1.0 );
-			texCoord = in_TexCoord;
-		}
-		) );
+			vec4 pos4   = vec4( in_Vertex[gl_VertexID], 1.0 );
+			gl_Position = pos4;
+			texCoord    = vec2( ( pos4.x + 1.0 ) / 2.0, ( pos4.y + 1.0 ) / 2.0 );
+		}) );
 
 		ok &= DefaultShaders.FullscreenQuad->attachFragmentShader( STRINGIFY( #version 330\n
 
@@ -51,8 +55,7 @@ static inline bool initShaders()
 		void main()
 		{
 			color = texture( text, texCoord );
-		}
-		) );
+		}) );
 
 		ok &= DefaultShaders.FullscreenQuad->link( "DefaultShaders.FullscreenQuad" );
 	}
