@@ -18,7 +18,9 @@ class RENDERCORE_API TextureUnit //TextureSampler?
 public:
 	explicit TextureUnit( int index = -1);
 
-	void setTexture( const Texture2DPtr &texture );
+
+	void set( const Texture2DPtr& texture, const SamplerPtr& sampler ); // <<< set both texture and sampler
+	void setTexture( const Texture2DPtr &texture ); 
 	void setSampler( const SamplerPtr &sampler );
 
 	Texture2DPtr texture() const;

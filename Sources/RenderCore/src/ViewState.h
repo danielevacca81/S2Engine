@@ -6,11 +6,13 @@
 #include "RenderCore_API.h"
 
 #include "Math/Rectangle.h"
+#include "Math/View.h"
 
 namespace RenderCore  {
 
 struct ViewState
 {
+	Math::View  view;
 	Math::irect viewport { 0,0,0,0 };
 };
 

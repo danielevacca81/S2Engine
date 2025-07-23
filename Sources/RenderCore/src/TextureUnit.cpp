@@ -45,6 +45,14 @@ Texture2DPtr TextureUnit::texture() const { return _texture; }
 SamplerPtr   TextureUnit::sampler() const { return _sampler; }
 
 // ------------------------------------------------------------------------------------------------
+void TextureUnit::set( const Texture2DPtr& texture, const SamplerPtr& sampler )
+{
+	setTexture( texture );
+	setSampler( sampler );
+}
+
+
+// ------------------------------------------------------------------------------------------------
 void TextureUnit::setTexture( const Texture2DPtr &texture )
 {
 	if( texture == _texture )
