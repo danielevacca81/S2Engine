@@ -8,26 +8,6 @@
 #include <string>
 
 
-/**
-*  WIP: spostare opengl_extensions in Application.dll
-*  * class Window detiene una lista di Renderer::Renderer
-*    * each Renderer::Renderer has 
-*        .StateManager
-*        .RenderTarget
-*        .Context
-*    * Window::addRenderer()
-* 
-*  * class Application detiene contextRegistry?
-*  
-*  Contexts manager?
-* 
-*  * class RenderTarget unaware of context
-* 
-* 
-
-
-*/
-
 namespace s2 {
 
 // @todo: multiple window application

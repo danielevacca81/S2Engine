@@ -5,6 +5,7 @@
 
 #include "Application_API.h"
 
+#include "InputState.h"
 #include "WindowParameters.h"
 
 #include <string>
@@ -34,28 +35,36 @@ public:
 	// isMaximized
 	// ...
 
+	virtual void onMouseMoveEvent( const MouseState& ms ) {} //rename argument to MouseEvent?
+	virtual void onMouseDoubleClickEvent( const MouseState& ms ) {}
+	virtual void onMouseButtonEvent( const MouseState& ms ) {}
+	virtual void onMouseScrollEvent( const MouseState& ms ) {}
+	virtual void onCloseEvent() {}
 
-	virtual void onCharEvent(unsigned int)                     {}
-	virtual void onCloseEvent()                                {}
-	virtual void onCursorEnterEvent(bool)                      {}
-	virtual void onCursorPosEvent( double,double)              {}
-	virtual void onDropEvent(const std::vector<const char*> &) {}
-	virtual void onFocusEvent(bool)                            {}
-	virtual void onFramebufferSizeEvent( int w, int h );          // <-
-	virtual void onIconifyEvent(bool)                          {}
-	virtual void onInitializeEvent()                           {}
-	virtual void onKeyEvent(/***/)                             {}
-	virtual void onMouseButtonEvent(/***/)                     {}
-	virtual void onPaintEvent()                                {}
-	virtual void onPosEvent( int, int)                         {}
-	virtual void onRefreshEvent()                              {}
-	virtual void onScrollEvent( double, double)                {}
-	
 	// ***
 	// Do not pass the window size to glViewport or other pixel - based OpenGL calls.
 	// The window size is in screen coordinates, not pixels. Use the framebuffer size, which is in pixels, for pixel - based calls.	
 	// On some machines screen coordinates and pixels are the same, but on others they will not be.
 	virtual void onSizeEvent( int, int)                        {}
+	virtual void onFramebufferSizeEvent( int w, int h );          // <-
+	virtual void onPaintEvent()                                {}
+	virtual void onInitializeEvent()                           {}
+
+
+protected:
+#if 0
+	virtual void onCharEvent(unsigned int)                     {}
+	virtual void onCursorEnterEvent(bool)                      {}
+	virtual void onCursorPosEvent( double, double );
+	virtual void onDropEvent(const std::vector<const char*> &) {}
+	virtual void onFocusEvent(bool)                            {}
+	virtual void onIconifyEvent(bool)                          {}
+	virtual void onKeyEvent(/***/)                             {}
+	virtual void onMouseButtonEvent(/***/)                     {}
+	virtual void onPosEvent( int, int)                         {}
+	virtual void onRefreshEvent()                              {}
+	virtual void onScrollEvent( double, double)                {}
+#endif	
 
 protected:
 	void makeCurrent();
@@ -67,6 +76,7 @@ protected:
 
 private:
 	void* _handle = nullptr;
+	InputState _inputState;
 
 	friend class Application;
 };

@@ -38,6 +38,9 @@ cd %BASE_INCL_DIR_DEST%\%MODULE_NAME%
 copy /Y   %BASEDIR_MODULE_SOURCES%\src\Application.h .
 copy /Y   %BASEDIR_MODULE_SOURCES%\src\Application_API.h .
 copy /Y   %BASEDIR_MODULE_SOURCES%\src\CommandLineParser.h .
+copy /Y   %BASEDIR_MODULE_SOURCES%\src\InputState.h .
+copy /Y   %BASEDIR_MODULE_SOURCES%\src\KeyboardState.h .
+copy /Y   %BASEDIR_MODULE_SOURCES%\src\MouseState.h .
 copy /Y   %BASEDIR_MODULE_SOURCES%\src\Window.h .
 copy /Y   %BASEDIR_MODULE_SOURCES%\src\WindowParameters.h .
 

@@ -16,6 +16,15 @@
     <ClCompile Include="src\Window.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\KeyboardState.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MouseState.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\InputState.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\CommandLineParser.h">
@@ -29,6 +38,15 @@
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\WindowParameters.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\KeyboardState.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MouseState.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\InputState.h">
       <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>

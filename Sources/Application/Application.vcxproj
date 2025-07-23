@@ -21,12 +21,18 @@
   <ItemGroup>
     <ClCompile Include="src\Application.cpp" />
     <ClCompile Include="src\CommandLineParser.cpp" />
+    <ClCompile Include="src\InputState.cpp" />
+    <ClCompile Include="src\KeyboardState.cpp" />
+    <ClCompile Include="src\MouseState.cpp" />
     <ClCompile Include="src\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\Application_API.h" />
     <ClInclude Include="src\CommandLineParser.h" />
+    <ClInclude Include="src\InputState.h" />
+    <ClInclude Include="src\KeyboardState.h" />
+    <ClInclude Include="src\MouseState.h" />
     <ClInclude Include="src\Window.h" />
     <ClInclude Include="src\WindowParameters.h" />
   </ItemGroup>
