@@ -215,7 +215,8 @@ struct Blending
 	std::array<bool, kMaxRenderTargets> enabled { {false} }; 	// blendig can be enabled/disabled individually for each render target (multiple render targets can be written by a fragment shader).
 	 												            // Currently other blend parameters cannot be specified individually and are shared among all render target writes.
 	 												            // Other notes:
-	 												            // The maximum number of draw buffers supported is implementation dependent and can be queried by calling glGet with the argument GL_MAX_DRAW_BUFFERS. The value must be at least 8
+	 												            // The maximum number of draw buffers supported is implementation dependent and can be queried by calling glGet with the argument GL_MAX_DRAW_BUFFERS.
+																// The value must be at least 8
 	 												            // The ability to specify different blend parameters for different buffers relies on the OpenGL ARB_draw_buffers_blend extension
 	 												            // and it is not one of the requirements which the s2Renderer library is based on.
 	 												            // See https://www.khronos.org/opengl/wiki/Blending for further dettails
@@ -312,7 +313,7 @@ struct RenderState
 	StencilTest       stencilTest;
 	DepthTest         depthTest;
 	DepthRange        depthRange;
-	Blending          blending;
+	Blending          blending; // vectorize? one for each render target?
 	ColorMask         colorMask {true, true, true, true};
 	DepthMask         depthMask;
 	StencilMask       stencilMask { ~0u,~0u };

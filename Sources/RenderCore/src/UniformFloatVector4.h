@@ -22,5 +22,21 @@ public:
 	void set();
 };
 
+class RENDERCORE_API UniformDoubleVector4 : public UniformValue<Math::dvec4>
+{
+public:
+	UniformDoubleVector4( int location, const std::string& name )
+		: UniformValue<Math::dvec4>( location, name )
+	{
+	}
+
+	virtual ~UniformDoubleVector4()
+	{
+	}
+
+	void set();
+};
+
+
 }
 #endif

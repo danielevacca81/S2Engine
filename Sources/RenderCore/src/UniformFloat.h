@@ -22,5 +22,22 @@ public:
 	void set();
 };
 
+
+class RENDERCORE_API UniformDouble : public UniformValue<double>
+{
+public:
+	UniformDouble( int location, const std::string& name )
+		: UniformValue<double>( location, name )
+	{
+	}
+
+	virtual ~UniformDouble()
+	{
+	}
+
+	void set();
+};
+
+
 }
 #endif

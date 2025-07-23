@@ -29,6 +29,7 @@ public:
 	//OBJECT_DECLARE_MOVEABLE( Program )
 	//OBJECT_DISABLE_COPY( Program )
 
+public:
 	Program();
 	~Program();
 
@@ -39,7 +40,7 @@ public:
 
 	bool link( const std::string &name = std::string( "" ) );
 
-	bool isLinked()    const;
+	bool        isLinked()    const;
 	std::string info( bool verbose = false ) const;
 	std::string name() const;
 
@@ -49,50 +50,40 @@ public:
 	void unbind()  const override;
 	void applyUniforms() const;
 
-	//template< typename T >
-	//inline UniformValue<T> *uniform( const std::string &name ) const
-	//{
-	//	auto it = _uniforms.find( name );
-
-	//	if( it == _uniforms.end() )
-	//		return unusedUniform<T>();
-
-	//	return dynamic_cast<UniformValue<T> *>( it->second );
-	//}
-
+	// shortcut for setting uniforms value by name.
+	// it will search for uniform by name and set its value.
+	// warning: if uniform is not found, it will do nothing.
+	// @todo: throw exception or assert if uniform not found?
 	template< typename T >
-	inline UniformValue<T>& uniform( const std::string& name ) 
+	inline void setUniformValue( const std::string& uniformName, const T&value )
+	{
+		auto it = _uniforms.find( uniformName );
+		if( it == _uniforms.end() )
+			return;
+
+		if( auto u = dynamic_cast<UniformValue<T>*>( it->second ) )
+			u->set( value );
+	}
+
+	// used to get uniform by name
+	// warning: returns nullptr if not found. check before using it!
+	template< typename T >
+	inline UniformValue<T>* uniform( const std::string& name )
 	{
 		auto it = _uniforms.find( name );
 
 		if( it == _uniforms.end() )
-			return *unusedUniform<T>();
+			return nullptr;
 
-		return static_cast<UniformValue<T> &>( *it->second );
+		return dynamic_cast<UniformValue<T> *>( it->second );
 	}
-
-
-
 
 private:
-	void reset() override;
-	void findUniforms();
 	static Uniform *createUniform( const std::string &name, unsigned int loc, unsigned int type );
-	static void prepareUnusedUniforms();
+	
+	void findUniforms();
 	int  objectLabelIdentifier() const override;
-
-	template< typename T >
-	inline UniformValue<T> *unusedUniform() const
-	{
-		for( auto &u : _unusedUniforms )
-		{
-			auto unused = dynamic_cast<UniformValue<T> *>( u );
-			if( unused )
-				return unused;
-		}
-		
-		return nullptr;
-	}
+	void reset() override;
 
 private:
 	unsigned int _vshd;
@@ -103,7 +94,6 @@ private:
 
 	std::map< std::string, unsigned int >  _attributes;
 	std::map< std::string, Uniform*>       _uniforms;
-	static std::vector< Uniform *>         _unusedUniforms; // workaround to prevent crashes when setting missing uniforms :(
 };
 
 }

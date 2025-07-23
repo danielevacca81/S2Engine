@@ -104,10 +104,18 @@ void StateManager::setDrawState( const DrawState &ds )
 {
 	_shadowingCurrentlyEnabled = !( gShadowingAlwaysDisabled || _disableDrawStateShadowingOneShot || !ds.shadowingEnabled );
 
-	// apply before draw:
+	// @todo: automatically set uniforms from viewstate.view?
+	//   like viewport, modelview, modelViewProjection, projection, cameraPosition, etc.
+	//   so that the user can fill only the viewState and the shader will be automatically set.
+	//
+	// note: not every shader has these uniforms and their names may vary, so it is not done automatically yet.
+	// 
+	// ds.shader->setUniformValue<Math::mat4>( "modelViewProjectionMatrix", ds.viewState.view.modelViewProjectionMatrix() );
+	// ds.shader->setUniformValue<Math::mat3>( "normalMatrix", ds.viewState.view.normalMatrix() );
+
 	applyViewState( ds.viewState );
 	applyRenderState( ds.renderState );
-	applyShaderProgram( ds.shaderProgram );
+	applyShaderProgram( ds.shader );
 	ds.textureUnits.set();
 
 	// add: apply texture units

@@ -15,11 +15,27 @@ public:
 	UniformFloatMatrix22( int location, const std::string  &name )
 		: UniformValue<Math::mat2>( location, name )
 	{
-		_value = Math::mat2( 1.0 );
+		_value = Math::mat2( 1.f );
 	}
 
 	virtual ~UniformFloatMatrix22()
 	{}
+
+	void set();
+};
+
+class RENDERCORE_API UniformDoubleMatrix22 : public UniformValue<Math::dmat2>
+{
+public:
+	UniformDoubleMatrix22( int location, const std::string& name )
+		: UniformValue<Math::dmat2>( location, name )
+	{
+		_value = Math::dmat2( 1.0 );
+	}
+
+	virtual ~UniformDoubleMatrix22()
+	{
+	}
 
 	void set();
 };

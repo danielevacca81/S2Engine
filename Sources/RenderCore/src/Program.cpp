@@ -24,8 +24,6 @@
 
 using namespace RenderCore;
 
-std::vector<Uniform*> Program::_unusedUniforms;
-
 // ------------------------------------------------------------------------------------------------
 ProgramPtr Program::New()
 {
@@ -39,7 +37,6 @@ Program::Program()
 , _gshd( 0 )
 , _fshd( 0 )
 {
-	prepareUnusedUniforms();
 	create();
 }
 
@@ -379,12 +376,16 @@ Uniform *Program::createUniform( const std::string &name, unsigned int loc, unsi
 {
 	switch( type )
 	{
-		/*TODO: double types*/
-
 	case GL_FLOAT:           return new UniformFloat( loc, name );
 	case GL_FLOAT_VEC2:	     return new UniformFloatVector2( loc, name );
 	case GL_FLOAT_VEC3:      return new UniformFloatVector3( loc, name );
 	case GL_FLOAT_VEC4:      return new UniformFloatVector4( loc, name );
+
+	// OpenGL 4.0 or above
+	case GL_DOUBLE:           return new UniformDouble( loc, name );
+	case GL_DOUBLE_VEC2:	  return new UniformDoubleVector2( loc, name );
+	case GL_DOUBLE_VEC3:      return new UniformDoubleVector3( loc, name );
+	case GL_DOUBLE_VEC4:      return new UniformDoubleVector4( loc, name );
 
 	case GL_INT:             return new UniformInt( loc, name );
 	case GL_INT_VEC2:        assert( false ); break; //return new UniformIntVector2GL3x(name, location, this);
@@ -401,16 +402,26 @@ Uniform *Program::createUniform( const std::string &name, unsigned int loc, unsi
 	case GL_BOOL_VEC3:       assert( false ); break; //return new UniformBoolGL3x(name, location, this);
 	case GL_BOOL_VEC4:       assert( false ); break; //return new UniformBoolGL3x(name, location, this);
 
+
 	case GL_FLOAT_MAT2:      return new UniformFloatMatrix22( loc, name );
 	case GL_FLOAT_MAT3:      return new UniformFloatMatrix33( loc, name );
 	case GL_FLOAT_MAT4:      return new UniformFloatMatrix44( loc, name );
 
+	// OpenGL 4.0 or above
+	case GL_DOUBLE_MAT2:      return new UniformDoubleMatrix22( loc, name );
+	case GL_DOUBLE_MAT3:      return new UniformDoubleMatrix33( loc, name );
+	case GL_DOUBLE_MAT4:      return new UniformDoubleMatrix44( loc, name );
+
 	case GL_SAMPLER_2D:
 	case GL_INT_SAMPLER_2D:
 	case GL_SAMPLER_CUBE:    return new UniformSampler( loc, name );
+	
+	default:
+		assert( false && "Uniform type not supported" );
+		return nullptr;
 	}
 
-	return 0;
+	return nullptr;
 	// A new Uniform derived class needs to be added to support this uniform type.
 	//throw new NotSupportedException("An implementation for uniform type " + type.ToString() + " does not exist.");
 }
@@ -574,29 +585,6 @@ std::string Program::info( bool verbose ) const
 
 	glCheck;
 	return msg.str();
-}
-
-// ------------------------------------------------------------------------------------------------
-void Program::prepareUnusedUniforms()
-{
-	if( !_unusedUniforms.empty() )
-		return;
-
-	_unusedUniforms.emplace_back( createUniform( "UnusedFLOAT", -1, GL_FLOAT ) );
-	_unusedUniforms.emplace_back( createUniform( "UnusedFLOAT_VEC2", -1, GL_FLOAT_VEC2 ) );
-	_unusedUniforms.emplace_back( createUniform( "UnusedFLOAT_VEC3", -1, GL_FLOAT_VEC3 ) );
-	_unusedUniforms.emplace_back( createUniform( "UnusedFLOAT_VEC4", -1, GL_FLOAT_VEC4 ) );
-
-	_unusedUniforms.emplace_back( createUniform( "UnusedINT",  -1, GL_INT ) );
-	_unusedUniforms.emplace_back( createUniform( "UnusedBOOL", -1, GL_BOOL ) );
-
-	_unusedUniforms.emplace_back( createUniform( "UnusedFLOAT_MAT2", -1, GL_FLOAT_MAT2 ) );
-	_unusedUniforms.emplace_back( createUniform( "UnusedFLOAT_MAT3", -1, GL_FLOAT_MAT3 ) );
-	_unusedUniforms.emplace_back( createUniform( "UnusedFLOAT_MAT4", -1, GL_FLOAT_MAT4 ) );
-	
-	
-	_unusedUniforms.emplace_back( createUniform( "UnusedSAMPLER",      -1, GL_SAMPLER_2D ) );
-	_unusedUniforms.emplace_back( createUniform( "UnusedSAMPLER_CUBE", -1, GL_SAMPLER_CUBE ) );
 }
 
 // -------------------------------------------------------------------------------------------------

@@ -53,8 +53,6 @@ public:
 
 
 protected:
-	friend class Program;
-
 	virtual void set() = 0;
 	
 	Uniform( int location, const std::string  &name )
@@ -71,6 +69,7 @@ protected:
 							// * https://stackoverflow.com/questions/10857602/do-uniform-values-remain-in-glsl-shader-if-unbound
 	                        // * https://www.khronos.org/registry/OpenGL/specs/gl/glspec33.core.pdf (section 2.11.4)
 	                        // They retain their values once loaded, and their values are restored whenever a program object is used
+	friend class Program;
 };
 // ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------
@@ -80,6 +79,7 @@ protected:
 // ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------
+// maybe variant would be better here?
 template<typename T>
 class UniformValue : public Uniform
 {

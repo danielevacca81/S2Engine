@@ -3,6 +3,8 @@
 #ifndef DRAWSTATE_H
 #define DRAWSTATE_H
 
+#define WIN32_LEAN_AND_MEAN //#undef DrawState // undefine DrawState macro from windows.h
+
 #include "RenderCore_API.h"
 
 #include "RenderState.h"
@@ -11,9 +13,6 @@
 #include "RenderCore.h"
 #include "TextureUnit.h"
 
-#if defined (_WIN32) || defined(_WIN64)
-#undef DrawState // undefine DrawState macro from windows.h
-#endif
 
 namespace RenderCore {
 
@@ -23,13 +22,13 @@ struct DrawState
 
 	RenderState  renderState;
 	ViewState    viewState;
-	ProgramPtr   shaderProgram;
+	ProgramPtr   shader;
 	TextureUnits textureUnits;
 
 
-	DrawState( const ProgramPtr &shader = DefaultShaders.Simple, const RenderState &renderState = {} )
+	DrawState( const ProgramPtr &s = DefaultShaders.Simple, const RenderState &renderState = {} )
 	: shadowingEnabled( true )
-	, shaderProgram( shader )
+	, shader( s )
 	, renderState( renderState )
 	{}
 };

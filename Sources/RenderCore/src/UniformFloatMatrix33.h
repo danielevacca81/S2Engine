@@ -15,7 +15,7 @@ public:
 	UniformFloatMatrix33( int location, const std::string  &name )
 		: UniformValue<Math::mat3>( location, name )
 	{
-		_value = Math::mat3( 1.0 );
+		_value = Math::mat3( 1.f );
 	}
 
 	virtual ~UniformFloatMatrix33()
@@ -23,6 +23,24 @@ public:
 
 	void set();
 };
+
+
+class RENDERCORE_API UniformDoubleMatrix33 : public UniformValue<Math::dmat3>
+{
+public:
+	UniformDoubleMatrix33( int location, const std::string& name )
+		: UniformValue<Math::dmat3>( location, name )
+	{
+		_value = Math::dmat3( 1.0 );
+	}
+
+	virtual ~UniformDoubleMatrix33()
+	{
+	}
+
+	void set();
+};
+
 
 }
 #endif
