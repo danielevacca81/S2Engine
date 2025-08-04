@@ -31,12 +31,18 @@ public:
 	}
 
 	// ------------------------------------------------------------------------------------------------
-	bool equals( const trect& other ) const
+	bool operator==( const trect& other ) const
 	{
 		return _left == other._left &&
 			_bottom == other._bottom &&
 			_width == other._width &&
 			_height == other._height;
+	}
+
+	// ------------------------------------------------------------------------------------------------
+	bool operator!=( const trect& other ) const
+	{
+		return !(*this == other);
 	}
 
 	// ------------------------------------------------------------------------------------------------

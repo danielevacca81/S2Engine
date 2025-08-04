@@ -20,7 +20,7 @@
 namespace glm {
 namespace detail {
 
-template < typename T, precision P>
+template <typename T, precision P>
 class tplane
 {
 public:

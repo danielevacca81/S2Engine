@@ -89,7 +89,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\Box.h" />
-    <ClInclude Include="src\Frustum.h" />
     <ClInclude Include="src\Intersection.h" />
     <ClInclude Include="src\Math.h" />
     <ClInclude Include="src\Plane.h" />
@@ -97,16 +96,11 @@
     <ClInclude Include="src\Rectangle.h" />
     <ClInclude Include="src\Math_API.h" />
     <ClInclude Include="src\Space.h" />
-    <ClInclude Include="src\View.h" />
-    <ClInclude Include="src\ViewOrthographic.h" />
-    <ClInclude Include="src\ViewPerspective.h" />
+    <ClInclude Include="src\ProjectionTransform.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Frustum.cpp" />
     <ClCompile Include="src\Intersection.cpp" />
-    <ClCompile Include="src\View.cpp" />
-    <ClCompile Include="src\ViewOrthographic.cpp" />
-    <ClCompile Include="src\ViewPerspective.cpp" />
+    <ClCompile Include="src\ProjectionTransform.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Export.bat" />
