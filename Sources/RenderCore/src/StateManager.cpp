@@ -252,7 +252,7 @@ inline void StateManager::applyScissorTest( const ScissorTest &scissorTest )
 		_renderState.scissorTest.enabled = enabled;
 	}
 
-	if( enabled && !_renderState.scissorTest.rect.equals(scissorTest.rect) ||
+	if( enabled && _renderState.scissorTest.rect != scissorTest.rect ||
 		!_shadowingCurrentlyEnabled )
 	{
 		glScissor( rectangle.left(), rectangle.bottom(), rectangle.width(), rectangle.height() );
@@ -525,13 +525,15 @@ inline void StateManager::applyClearColorSeparate( const ClearColorSeparate& cle
 // ------------------------------------------------------------------------------------------------
 inline void StateManager::applyViewState( const ViewState &vs )
 {
-	if( !vs.viewport.equals( _viewState.viewport ) ||
+	if( vs.viewport != _viewState.viewport ||
 		!_shadowingCurrentlyEnabled )
 	{
 		glViewport( vs.viewport.left(), vs.viewport.bottom(), vs.viewport.width(), vs.viewport.height() );
 		glCheck;
 		_viewState.viewport = vs.viewport;
 	}
+
+	// @todo: apply view matrices from vs to the shader program as uniforms
 }
 
 // ------------------------------------------------------------------------------------------------

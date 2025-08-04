@@ -5,15 +5,58 @@
 
 #include "RenderCore_API.h"
 
+#include "Math/Math.h"
 #include "Math/Rectangle.h"
-#include "Math/View.h"
 
 namespace RenderCore  {
 
-struct ViewState
+class RENDERCORE_API ViewState
 {
-	Math::View  view;
-	Math::irect viewport { 0,0,0,0 };
+public:
+	Math::dmat4 modelMatrix;
+	Math::dmat4 viewMatrix;
+	Math::dmat4 projectionMatrix;
+
+	Math::irect viewport;
+
+	// shortcuts to frequently used matrices
+	inline Math::dmat3 normalMatrix()              const { return Math::inverseTranspose( modelViewMatrix() ); }
+	inline Math::dmat4 modelViewMatrix()           const { return viewMatrix * modelMatrix; }
+	inline Math::dmat4 modelViewProjectionMatrix() const { return projectionMatrix * viewMatrix * modelMatrix; }
+	
+	// rendering relative to eye
+	inline Math::dvec4 cameraEye() const 
+	{
+		const Math::dmat4 mv = modelViewMatrix();
+		const Math::dvec4 modelViewTransl = mv[3];
+		const Math::dmat4 modelViewMatrix( mv[0], mv[1], mv[2], Math::dvec4( 0, 0, 0, 1 ) );
+
+		return Math::inverse( modelViewMatrix ) * modelViewTransl;
+	}
+
+	inline Math::dmat4 modelViewMatrixRelativeToEye() const
+	{
+		const Math::dmat4 mv = modelViewMatrix();
+		const Math::dvec4 modelViewTransl = mv[3];
+
+		return Math::dmat4( mv[0], mv[1], mv[2], Math::dvec4( 0, 0, 0, 1 ) );
+	}
+
+	inline Math::dmat4 modelViewMatrixProjectionRelatveToEye() const { return projectionMatrix * modelViewMatrixRelativeToEye(); }
+
+	inline bool operator==( const ViewState& other ) const
+	{
+		return modelMatrix == other.modelMatrix &&
+			   viewMatrix == other.viewMatrix &&
+			   projectionMatrix == other.projectionMatrix &&
+			   viewport == other.viewport;
+	}
+
+	inline bool operator!=( const ViewState& other ) const
+	{
+		return !(*this == other);
+	}
+
 };
 
 }
