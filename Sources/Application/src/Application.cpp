@@ -39,8 +39,9 @@ int Application::run( Window *w )
     w->onInitializeEvent();
 
     // set initial size
-    w->onFramebufferSizeEvent( width, height );
-    w->onSizeEvent( width, height );
+    w->setFrameBufferSize( width, height );
+	w->setSize( width, height );
+	w->onResizeEvent( width, height );
     
     while( !glfwWindow->shouldClose() )
     {

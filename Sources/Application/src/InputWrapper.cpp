@@ -1,12 +1,10 @@
-// InputState.cpp
+// InputWrapper.cpp
 //
-#include "InputState.h"
+#include "InputWrapper.h"
 
 #include <chrono>
 
-using namespace s2;
-
-static constexpr auto kDoubleClickTime = std::chrono::milliseconds( 200 ); // 200 ms for double click
+using namespace s2::Input;
 
 // helper to visit multiple types in a variant
 template<class... T>
@@ -14,18 +12,18 @@ struct MouseEventVisitorHelper : T... { using T::operator()...; };
 
 
 // ------------------------------------------------------------------------------------------------
-void InputState::updateMouseState( const Input::MouseEvent &event )
+void InputWrapper::updateMouseState( const MouseEvent &event )
 {
-	auto onMouseMove = [this]( const Input::MouseMoveEvent &e )
+	auto onMouseMove = [this]( const MouseMoveEvent &e )
 	{
 		_mouseState.onMove( e.x, e.y );
 	};
 
-	auto onMouseButton = [this]( const Input::MouseButtonEvent &e )
+	auto onMouseButton = [this]( const MouseButtonEvent &e )
 	{
-		if( e.eventType == Input::MouseButtonEvent::Press )
+		if( e.eventType == MouseButtonEvent::Press )
 			_mouseState.onPress(  e.button, e.modifiers );
-		else if( e.eventType == Input::MouseButtonEvent::Release )
+		else if( e.eventType == MouseButtonEvent::Release )
 		{
 			static auto before = std::chrono::system_clock::now();
 			const auto now     = std::chrono::system_clock::now();
@@ -33,7 +31,8 @@ void InputState::updateMouseState( const Input::MouseEvent &event )
 			static uint32_t lastButtonClicked = 0; // last pressed button
 
 			// check for double click
-			if( e.button == lastButtonClicked && diff < kDoubleClickTime )
+			if( e.button == lastButtonClicked &&
+				diff < std::chrono::milliseconds( Input::Settings::kDoubleClickTime_ms ) )
 			{
 				// if the same button was pressed within the double click time, register it as a double click
 				_mouseState.onDoubleClick( e.button, e.modifiers ); // handle double click
@@ -46,10 +45,9 @@ void InputState::updateMouseState( const Input::MouseEvent &event )
 			}		
 			before = now; // reset the timer
 		}
-		//else if( e.eventType == Input::MouseButtonEvent::DoubleClick )  _mouseState.onDoubleClick( e.button, e.modifiers );
 	};
 
-	auto onMouseWheel = [this]( const Input::MouseWheelEvent &e )
+	auto onMouseWheel = [this]( const MouseWheelEvent &e )
 	{
 		_mouseState.onWheel( e.deltax, e.deltay, 0/*, e.modifiers*/ );
 	};
@@ -61,8 +59,8 @@ void InputState::updateMouseState( const Input::MouseEvent &event )
 	// use visitor pattern to handle different mouse events instead of using if-else chains
 	std::visit( MouseEventVisitorHelper 
 				{
-					[&] ( const Input::MouseMoveEvent   &e ) { onMouseMove( e ); },
-					[&] ( const Input::MouseButtonEvent &e ) { onMouseButton( e ); },
-					[&] ( const Input::MouseWheelEvent  &e ) { onMouseWheel( e ); },
+					[&] ( const MouseMoveEvent   &e ) { onMouseMove( e ); },
+					[&] ( const MouseButtonEvent &e ) { onMouseButton( e ); },
+					[&] ( const MouseWheelEvent  &e ) { onMouseWheel( e ); },
 				}, event );
 }

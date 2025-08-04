@@ -2,30 +2,29 @@
 //
 #include "MouseState.h"
 
-#include <chrono>
-
+#include "Input.h"
 
 #if _DEBUG
 #include <iostream>
 #include <bitset>
 #endif
 
-using namespace s2;
+using namespace s2::Input;
 
-// ------------------------------------------------------------------------------------------------
-void MouseState::dumpStatus( const std::string &s ) const
-{
-	std::cout
-		<< s << '\n'
-		<< "   PressedButtons: 0b" << std::bitset<16>(_pressedButtons) << '\n'
-		<< "   DoubleClick:    0b" << std::bitset<16>( _doubleClickButton ) << '\n'
-		<< "   KeyModifier:   "    << _keyModifier << '\n'
-		<< "   ClickPos:     ("    << _clickPos.x << ", " << _clickPos.y << ")" << '\n'
-		<< "   CurrPos:      ("    << _currPos.x << ", "<< _currPos.y << ")" << '\n'
-		<< "   Dragging:      "    << ( _dragging ? "true" : "false" ) << '\n'
-		<< "   Wheel:         "    << _wheel << '\n'
-		<< std::endl;
-}
+//// ------------------------------------------------------------------------------------------------
+//void MouseState::dumpStatus( const std::string &s ) const
+//{
+//	std::cout
+//		<< s << '\n'
+//		<< "   PressedButtons: 0b" << std::bitset<16>(_pressedButtons) << '\n'
+//		<< "   DoubleClick:    0b" << std::bitset<16>( _doubleClickButton ) << '\n'
+//		<< "   KeyModifier:   "    << _keyModifier << '\n'
+//		<< "   ClickPos:     ("    << _clickPos.x << ", " << _clickPos.y << ")" << '\n'
+//		<< "   CurrPos:      ("    << _currPos.x << ", "<< _currPos.y << ")" << '\n'
+//		<< "   Dragging:      "    << ( _dragging ? "true" : "false" ) << '\n'
+//		<< "   Wheel:         "    << _wheel << '\n'
+//		<< std::endl;
+//}
 
 
 
@@ -68,7 +67,7 @@ void MouseState::onMove( double x, double y )
 	// if we were not dragging before, check if we should start dragging
 	_dragging        = _dragging ? _dragging : 
 		_pressedButtons != ButtonNone &&
-		Math::length( _clickPos - _currPos ) > kDragThreshold_px;
+		Math::length( _clickPos - _currPos ) > Input::Settings::kDragThreshold_px;
 
 	//dumpStatus( "MouseState::onMove: " );
 }

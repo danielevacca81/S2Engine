@@ -7,16 +7,17 @@
 
 #include "Math/Math.h"
 
-#include <string>
-
 namespace s2 {
+
+namespace Input
+{
 
 class APPLICATION_API MouseState
 {
 public:
 	enum Button
 	{
-		ButtonNone   = 0x0000, // No button or key pressed.
+		ButtonNone   = 0x0000, // No button pressed.
 		ButtonOne    = 0x0001,
 		ButtonTwo    = 0x0002,
 		ButtonThree  = 0x0003,
@@ -49,10 +50,13 @@ public:
 	Button       doubleClickButton() const { return Button( _doubleClickButton ); }
 	Button       buttonsDown()       const { return Button( _pressedButtons ); }
 	Modifier     modifiers()         const { return Modifier( _keyModifier ); }
+	bool         isButtonDown( Button button ) const { return ( _pressedButtons & button ) != ButtonNone; }
+	bool         isButtonUp( Button button ) const { return ( _pressedButtons & button ) == ButtonNone; }
+	bool 	     isModifierDown( Modifier modifier ) const { return ( _keyModifier & modifier ) != ModifierNone; }
 
-#ifdef _DEBUG
-	void dumpStatus( const std::string &str) const;
-#endif
+//#ifdef _DEBUG
+//	void dumpStatus( const std::string &str) const;
+//#endif
 
 private:
 	void onPress      ( /*double x, double y, */uint32_t button, uint32_t Modifier );
@@ -63,8 +67,6 @@ private:
 
 
 private:
-	static constexpr uint32_t kDragThreshold_px { 2 }; // @todo: make it configurable
-
 	Math::vec2  _currPos;
 	Math::vec2  _clickPos { -1.f,-1.f };
 
@@ -74,8 +76,10 @@ private:
 	uint32_t _pressedButtons    { ButtonNone };
 	uint32_t _keyModifier       { ModifierNone };
 
-	friend class InputState;
+	friend class InputWrapper; // allow InputWrapper to access private members
 };
+
+}
 
 }
 

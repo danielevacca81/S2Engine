@@ -2,6 +2,8 @@
 //
 #include "Window.h"
 
+#include "InputWrapper.h"
+
 #include "RenderCore/Context.h"
 #include "RenderCore/SwapChain.h"
 #include "RenderCore/RenderTarget.h"
@@ -25,59 +27,76 @@ Window::Window( const std::string& name, int width, int height, const WindowPara
         .openglProfile       = glfw::OpenGlProfile::Compat,
     }.apply();
 
+
+    _inputWrapper = new Input::InputWrapper;
+
+
     auto handle = new glfw::Window( width, height, name.c_str() );
     {
-        //handle.charEvent           .setCallback( [=] () 
-        //  { w.onCharEvent           (); } )
-        //  ;
         handle->closeEvent.setCallback( [=] ( glfw::Window& )
-            { makeCurrent(); onCloseEvent(); } )
-            ;
-        //handle.cursorEnterEvent    .setCallback( [=] () 
-        //  { w.onCursorEnterEvent    (); } )
-        //  ;
+        {
+            makeCurrent(); 
+            onCloseEvent(); 
+        } );
+
         handle->cursorPosEvent.setCallback( [=] ( glfw::Window&, double x, double y )
         { 
-            _inputState.updateMouseState( Input::MouseMoveEvent{ x, y } ); 
-			onMouseMoveEvent( _inputState.mouseState() ); // invoke custmo mouse move event handler
+            _inputWrapper->updateMouseState( Input::MouseMoveEvent{ x, this->height() - y - 1 } ); 
+			onMouseMoveEvent( _inputWrapper->mouseState() ); // invoke custmo mouse move event handler
         } );
 
         handle->mouseButtonEvent.setCallback( [=] ( glfw::Window&, glfw::MouseButton b, glfw::MouseButtonState s, glfw::ModifierKeyBit k  )
         {
-			_inputState.updateMouseState(
-				Input::MouseButtonEvent
+            _inputWrapper->updateMouseState(
+                Input::MouseButtonEvent
 				{
 					.eventType = s == glfw::MouseButtonState::Press ? Input::MouseButtonEvent::Press : Input::MouseButtonEvent::Release,
 					.button    = uint32_t( 1 ) << static_cast<uint32_t>( b ), // convert glfw::MouseButton to uint32_t
 					.modifiers = static_cast<uint32_t>( k )  // convert glfw::ModifierKeyBit to uint32_t
 				} );
 
-            if( _inputState.mouseState().doubleClickButton() != MouseState::ButtonNone )
-				onMouseDoubleClickEvent( _inputState.mouseState() ); // invoke custom mouse double click event handler
+            if( _inputWrapper->mouseState().doubleClickButton() != Input::MouseState::ButtonNone )
+				onMouseDoubleClickEvent( _inputWrapper->mouseState() ); // invoke custom mouse double click event handler
             else
             {
 				// if it is not a double click, invoke mouse button event handler
-				onMouseButtonEvent( _inputState.mouseState() ); // invoke custom mouse button event handler
+				onMouseButtonEvent( _inputWrapper->mouseState() ); // invoke custom mouse button event handler
             }
         } );
 
         handle->scrollEvent.setCallback( [=] ( glfw::Window&, double x, double y )
         {
-            _inputState.updateMouseState( Input::MouseWheelEvent { x,y } );
-			onMouseScrollEvent( _inputState.mouseState() ); // invoke custom mouse scroll event handler
+            _inputWrapper->updateMouseState( Input::MouseWheelEvent { x,y } );
+			onMouseScrollEvent( _inputWrapper->mouseState() ); // invoke custom mouse scroll event handler
         } );
         
         
         
         
+        //handle.charEvent           .setCallback( [=] () 
+        //  { w.onCharEvent           (); } )
+        //  ;
+        //handle.cursorEnterEvent    .setCallback( [=] () 
+        //  { w.onCursorEnterEvent    (); } )
+        //  ;
         //handle.dropEvent           .setCallback( [=] () { w.onDropEvent           (); } );
         //handle.focusEvent          .setCallback( [=] () { w.onFocusEvent          (); } );
-        handle->framebufferSizeEvent .setCallback( [=] ( glfw::Window&, int width, int height ) { makeCurrent(); onFramebufferSizeEvent( width, height ); } );
+        handle->framebufferSizeEvent .setCallback( [=] ( glfw::Window&, int width, int height )
+        {
+            makeCurrent();
+			setFrameBufferSize( width, height ); // set the framebuffer size        
+			onResizeEvent( width, height ); // invoke custom resize event handler
+        } );
         //handle.iconifyEvent        .setCallback( [=] () { w.onIconifyEvent        (); } );
         //handle.keyEvent            .setCallback( [=] () { w.onKeyEvent            (); } );
         handle->posEvent             .setCallback( [=] ( glfw::Window&, int width, int height ) { makeCurrent();  } );
         //handle.refreshEvent        .setCallback( [=] () { w.onRefreshEvent        (); } );
-        handle->sizeEvent            .setCallback( [=] ( glfw::Window&, int width, int height ) { makeCurrent(); onSizeEvent(width,height); } );
+        handle->sizeEvent            .setCallback( [=] ( glfw::Window&, int width, int height )
+        {
+            makeCurrent();
+            setSize(width,height);
+			onResizeEvent( width, height ); // invoke custom resize event handler
+        } );
     }
     
     _handle = static_cast<void*>( handle);
@@ -99,6 +118,7 @@ Window::~Window()
     makeCurrent();
 	_renderTarget.reset();
 	delete _renderingContext;
+    delete _inputWrapper;
 
     delete static_cast<glfw::Window*>( _handle );   
     _handle = nullptr;
@@ -138,7 +158,12 @@ uint32_t Window::height() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void Window::onFramebufferSizeEvent( int width, int height )
+void Window::setFrameBufferSize( int width, int height )
 {
     _renderTarget->resize( width, height );
+}
+
+// ------------------------------------------------------------------------------------------------
+void Window::setSize( int width, int height )
+{
 }
