@@ -21,6 +21,8 @@ namespace s2 {
 
 namespace Input { class InputWrapper; }
 
+class Application;
+
 class APPLICATION_API Window
 {
 
@@ -63,8 +65,9 @@ protected:
 	std::unique_ptr<RenderCore::RenderTarget> _renderTarget;
 
 private:
-	void* _handle       = nullptr;
+	void*                _handle       = nullptr;
 	Input::InputWrapper* _inputWrapper = nullptr;
+	Application*         _appInstance  = nullptr;
 
 	friend class Application;
 };
