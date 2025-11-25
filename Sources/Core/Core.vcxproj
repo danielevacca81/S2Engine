@@ -36,6 +36,7 @@
     <ClInclude Include="src\Pixmap.hpp" />
     <ClInclude Include="src\SafeQueue.h" />
     <ClInclude Include="src\Strings.h" />
+    <ClInclude Include="src\TimePoint.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Export.bat" />

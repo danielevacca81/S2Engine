@@ -45,6 +45,7 @@ copy /Y   %BASEDIR_MODULE_SOURCES%\src\LRUCache.h .
 copy /Y   %BASEDIR_MODULE_SOURCES%\src\Pixmap.h* .
 copy /Y   %BASEDIR_MODULE_SOURCES%\src\SafeQueue.h .
 copy /Y   %BASEDIR_MODULE_SOURCES%\src\Strings.h .
+copy /Y   %BASEDIR_MODULE_SOURCES%\src\TimePoint.h .
 
 cd %BASE_BIN_DIR_DEST%
 copy /Y %BASEDIR_MODULE_SOURCES%\bin\x64\%CONFIG_NAME%\*.lib .\x64\%CONFIG_NAME%
