@@ -86,7 +86,7 @@ void MouseState::onDoubleClick( /*double x, double y,*/ uint32_t button, uint32_
 void MouseState::onWheel( double deltax, double deltay, uint32_t modifiers )
 {
 	_keyModifier       = modifiers;
-	_wheel            += deltay; // @todo: use deltax if needed
+	_wheel             = deltay; // @todo: use deltax if needed
 	_doubleClickButton = ButtonNone; // reset double click state
 
 	//_wheel = [] (double delta)
