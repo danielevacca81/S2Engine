@@ -43,7 +43,7 @@ workspace "s2Engine" -- aka solution
 	--startproject "Core"
 	
 
--- PROJECT DIGX
+-- PROJECT s2Engine
 project "s2Engine"
 	location "../Build"
 	kind "SharedLib"
@@ -51,7 +51,9 @@ project "s2Engine"
 	cppdialect "C++20"
 	
 	sourcedir = "../Sources/s2Engine"
+	extlibsdir = "../ExtLibs"
 	
+	--defines {"GLEW_STATIC"}
 	 
     -- IDE Grouping @todo
 	--vpaths { ["Core"] = {"Core/**.h","Core/**.hpp","Core/**.cpp"} }
@@ -63,30 +65,27 @@ project "s2Engine"
 		"%{sourcedir}/**.c",
 		"%{sourcedir}/**.hpp",
 		"%{sourcedir}/**.cpp",
+		--"%{extlibsdir}/glew-2.3.1/src/glew.c",
 	}
 	
 	-- additional include directories
 	includedirs
 	{ 
 		"%{sourcedir}/",
-		"../ExtLibs/glm-1.0.1",
---		"../ExtLibs/nlohmann-json-3.11.3/single_include",
---		"../ExtLibs/sigslot-1.2.1/include"
---		"../ExtLibs/glew-2.1.0"
+		-- "%{extlibsdir}/glm-1.0.1",
+		"%{extlibsdir}/glfwpp/include",
 	}
+	
+	libdirs{}
 	
 	targetdir ( "../Build/bin/%{cfg.system}/%{cfg.buildcfg}" ) -- i.e. bin/windows/release
 	objdir    ( "../Build/tmp/%{cfg.system}/%{cfg.buildcfg}" )
-	libdirs{}
-	--addSDKlibs()
-	   
-    --pkgBinDir = "pkg/bin/%{cfg.system}/%{cfg.buildcfg}"
-    --pkgIncDir = "pkg/include"
- 
+	
 	-- specifc for windows
 	filter "system:windows"
 	  --staticruntime "On"
-	  systemversion "latest"	  
+	  systemversion "latest"
+	  --links { "glew32.lib" }
 	  defines { "S2ENGINE_EXPORTS" }
 	  
 	filter "configurations:Debug"
