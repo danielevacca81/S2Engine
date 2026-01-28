@@ -7,27 +7,29 @@
 #define NOMINMAX
 #endif
 
-#include "glm.hpp"
+#include "glm/glm.hpp"
 
-#include "gtc/quaternion.hpp"
-#include "gtc/random.hpp"
+#include "glm/gtc/quaternion.hpp"
+#include "glm/gtc/random.hpp"
 
-#include "gtc/matrix_transform.hpp"
-#include "gtc/matrix_access.hpp"
-#include "gtc/matrix_inverse.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/matrix_access.hpp"
+#include "glm/gtc/matrix_inverse.hpp"
 
-#include "gtc/type_ptr.hpp"
-#include "gtc/type_precision.hpp"
-#include "gtc/epsilon.hpp"
+#include "glm/gtc/type_ptr.hpp"
+#include "glm/gtc/type_precision.hpp"
+#include "glm/gtc/epsilon.hpp"
+
+
+
 
 #ifndef GLM_ENABLE_EXPERIMENTAL
 #define GLM_ENABLE_EXPERIMENTAL
 #endif // GLM_ENABLE_EXPERIMENTAL
 
-#include "gtx/spline.hpp"
-#include "gtx/matrix_decompose.hpp"
-#include "gtx/easing.hpp"
-
+#include "glm/gtx/spline.hpp"
+#include "glm/gtx/matrix_decompose.hpp"
+#include "glm/gtx/easing.hpp"
 //#include "glm/gtx/color_space.hpp"
 //#include "glm/gtx/closest_point.hpp"
 //#include "glm/gtx/gradient_paint.hpp"
@@ -38,17 +40,15 @@ namespace Math = glm;
 
 /* do not include any glm custom class/function into s2 or s2::Math namespace*/
 
-//}
-
 namespace glm {
 	
 	// -----------------------------------------------------------------------------------------------
 	template < typename genType >
 	GLM_FUNC_QUALIFIER genType
-	normalizeAngleRad( const genType& rad )
+	normalizeAngle_rad( const genType& rad )
 	{
 		auto angle = rad;
-		while( angle > pi<genType>() ) angle -= pi<genType>() * genType(2);
+		while( angle >   pi<genType>() ) angle -= pi<genType>() * genType(2);
 		while( angle <= -pi<genType>() ) angle += pi<genType>() * genType(2);
 		return angle;
 	}
@@ -56,7 +56,7 @@ namespace glm {
 	// -----------------------------------------------------------------------------------------------
 	template < typename genType >
 	GLM_FUNC_QUALIFIER genType
-	normalizeAngleDeg( const genType& deg )
+	normalizeAngle_deg( const genType& deg )
 	{
 		return degrees( normalizeAngleRad( radians( deg ) ) );
 	}
@@ -64,19 +64,19 @@ namespace glm {
 	// -----------------------------------------------------------------------------------------------
 	template < typename T, precision P >
 	GLM_FUNC_QUALIFIER typename tvec2<T, P>::value_type
-	angleBetween( const tvec2<T, P>& d, const tvec2<T, P>& u )
+	angleBetween_rad( const tvec2<T, P>& d, const tvec2<T, P>& u )
 	{
 		typename tvec2<T, P>::value_type angle = atan2( u.y, u.x ) - atan2( d.y, d.x );
-		return normalizeAngleRad( angle );
+		return normalizeAngle_rad( angle );
 	}
 
 	// -----------------------------------------------------------------------------------------------
 	template < typename T, precision P >
 	GLM_FUNC_QUALIFIER typename tvec3<T, P>::value_type
-	angleBetween( const tvec3<T, P>& d, const tvec3<T, P>& u )
+	angleBetween_rad( const tvec3<T, P>& d, const tvec3<T, P>& u )
 	{
 		typename tvec3<T, P>::value_type angle = atan2( u.y, u.x ) - atan2( d.y, d.x );
-		return normalizeAngleRad( angle );
+		return normalizeAngle_rad( angle );
 	}
 
 	// -----------------------------------------------------------------------------------------------
@@ -100,13 +100,13 @@ namespace glm {
 	}
 
 	// ------------------------------------------------------------------------------------------------
-	inline bool isPowerOfTwo( unsigned int x )
+	inline bool isPowerOfTwo( uint32_t x )
 	{
-		return ( ( x & ( x - 1 ) ) == 0 );
+		return ( x & ( x - 1 ) ) == 0;
 	}
 
 	// ------------------------------------------------------------------------------------------------
-	inline unsigned int nextPowOfTwo( unsigned int x )
+	inline uint32_t nextPowOfTwo( uint32_t x )
 	{
 		x--;
 		x |= x >> 1;  // handle  2 bit numbers

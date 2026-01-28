@@ -30,11 +30,58 @@ documentation and/or software.
 
 */
 
-/* interface header */
-#include "MD5.h"
-
 /* system implementation headers */
-#include <cstdio>
+#include <cstdint>
+#include <string>
+
+
+// a small class for calculating MD5 hashes of strings or byte arrays
+// it is not meant to be fast or secure
+//
+// usage: 1) feed it blocks of uchars with update()
+//      2) finalize()
+//      3) get hexdigest() string
+//      or
+//      MD5(std::string).hexdigest()
+//
+// assumes that char is 8 bit and int is 32 bit
+
+class MD5Computer
+{
+public:
+	MD5Computer();
+	MD5Computer( const std::string& text );
+	void update( const unsigned char* buf, uint32_t length );
+	void update( const char* buf, uint32_t length );
+	MD5Computer& finalize();
+	std::string hexdigest() const;
+	friend std::ostream& operator<<( std::ostream&, const MD5Computer& md5 );
+
+private:
+	void init();
+	enum { blocksize = 64 }; // VC6 won't eat a const static int here
+
+	void transform( const uint8_t block[blocksize] );
+	static void decode( uint32_t output[], const uint8_t input[], uint32_t len );
+	static void encode( uint8_t output[], const uint32_t input[], uint32_t len );
+
+	bool finalized;
+	uint8_t buffer[blocksize]; // bytes that didn't fit in last 64 byte chunk
+	uint32_t count[2];   // 64bit counter for number of bits (lo, hi)
+	uint32_t state[4];   // digest so far
+	uint8_t digest[16]; // the result
+
+	// low level logic operations
+	static inline uint32_t F( uint32_t x, uint32_t y, uint32_t z );
+	static inline uint32_t G( uint32_t x, uint32_t y, uint32_t z );
+	static inline uint32_t H( uint32_t x, uint32_t y, uint32_t z );
+	static inline uint32_t I( uint32_t x, uint32_t y, uint32_t z );
+	static inline uint32_t rotate_left( uint32_t x, int n );
+	static inline void FF( uint32_t& a, uint32_t b, uint32_t c, uint32_t d, uint32_t x, uint32_t s, uint32_t ac );
+	static inline void GG( uint32_t& a, uint32_t b, uint32_t c, uint32_t d, uint32_t x, uint32_t s, uint32_t ac );
+	static inline void HH( uint32_t& a, uint32_t b, uint32_t c, uint32_t d, uint32_t x, uint32_t s, uint32_t ac );
+	static inline void II( uint32_t& a, uint32_t b, uint32_t c, uint32_t d, uint32_t x, uint32_t s, uint32_t ac );
+};
 
 #ifdef _MSC_VER
 #pragma warning(disable:4996)
@@ -61,49 +108,49 @@ documentation and/or software.
 
 ///////////////////////////////////////////////
 // F, G, H and I are basic MD5 functions.
-inline uint32_t MD5::F( uint32_t x, uint32_t y, uint32_t z ) {
+inline uint32_t MD5Computer::F( uint32_t x, uint32_t y, uint32_t z ) {
 	return x&y | ~x&z;
 }
 
-inline uint32_t MD5::G( uint32_t x, uint32_t y, uint32_t z ) {
+inline uint32_t MD5Computer::G( uint32_t x, uint32_t y, uint32_t z ) {
 	return x&z | y&~z;
 }
 
-inline uint32_t MD5::H( uint32_t x, uint32_t y, uint32_t z ) {
+inline uint32_t MD5Computer::H( uint32_t x, uint32_t y, uint32_t z ) {
 	return x^y^z;
 }
 
-inline uint32_t MD5::I( uint32_t x, uint32_t y, uint32_t z ) {
+inline uint32_t MD5Computer::I( uint32_t x, uint32_t y, uint32_t z ) {
 	return y ^ ( x | ~z );
 }
 
 // rotate_left rotates x left n bits.
-inline uint32_t MD5::rotate_left( uint32_t x, int n ) {
+inline uint32_t MD5Computer::rotate_left( uint32_t x, int n ) {
 	return ( x << n ) | ( x >> ( 32 - n ) );
 }
 
 // FF, GG, HH, and II transformations for rounds 1, 2, 3, and 4.
 // Rotation is separate from addition to prevent recomputation.
-inline void MD5::FF( uint32_t &a, uint32_t b, uint32_t c, uint32_t d, uint32_t x, uint32_t s, uint32_t ac ) {
+inline void MD5Computer::FF( uint32_t &a, uint32_t b, uint32_t c, uint32_t d, uint32_t x, uint32_t s, uint32_t ac ) {
 	a = rotate_left( a + F( b, c, d ) + x + ac, s ) + b;
 }
 
-inline void MD5::GG( uint32_t &a, uint32_t b, uint32_t c, uint32_t d, uint32_t x, uint32_t s, uint32_t ac ) {
+inline void MD5Computer::GG( uint32_t &a, uint32_t b, uint32_t c, uint32_t d, uint32_t x, uint32_t s, uint32_t ac ) {
 	a = rotate_left( a + G( b, c, d ) + x + ac, s ) + b;
 }
 
-inline void MD5::HH( uint32_t &a, uint32_t b, uint32_t c, uint32_t d, uint32_t x, uint32_t s, uint32_t ac ) {
+inline void MD5Computer::HH( uint32_t &a, uint32_t b, uint32_t c, uint32_t d, uint32_t x, uint32_t s, uint32_t ac ) {
 	a = rotate_left( a + H( b, c, d ) + x + ac, s ) + b;
 }
 
-inline void MD5::II( uint32_t &a, uint32_t b, uint32_t c, uint32_t d, uint32_t x, uint32_t s, uint32_t ac ) {
+inline void MD5Computer::II( uint32_t &a, uint32_t b, uint32_t c, uint32_t d, uint32_t x, uint32_t s, uint32_t ac ) {
 	a = rotate_left( a + I( b, c, d ) + x + ac, s ) + b;
 }
 
 //////////////////////////////////////////////
 
 // default ctor, just initailize
-MD5::MD5()
+MD5Computer::MD5Computer()
 {
 	init();
 }
@@ -111,16 +158,16 @@ MD5::MD5()
 //////////////////////////////////////////////
 
 // nifty shortcut ctor, compute MD5 for string and finalize it right away
-MD5::MD5( const std::string &text )
+MD5Computer::MD5Computer( const std::string &text )
 {
 	init();
-	update( text.c_str(), text.length() );
+	update( text.c_str(), uint32_t( text.length() ) );
 	finalize();
 }
 
 //////////////////////////////
 
-void MD5::init()
+void MD5Computer::init()
 {
 	finalized = false;
 
@@ -137,7 +184,7 @@ void MD5::init()
 //////////////////////////////
 
 // decodes input (unsigned char) into output (uint32_t). Assumes len is a multiple of 4.
-void MD5::decode( uint32_t output[], const uint8_t input[], uint32_t len )
+void MD5Computer::decode( uint32_t output[], const uint8_t input[], uint32_t len )
 {
 	for( unsigned int i = 0, j = 0; j < len; i++, j += 4 )
 		output[i] = ( (uint32_t) input[j] ) | ( ( (uint32_t) input[j + 1] ) << 8 ) |
@@ -148,7 +195,7 @@ void MD5::decode( uint32_t output[], const uint8_t input[], uint32_t len )
 
 // encodes input (uint32_t) into output (unsigned char). Assumes len is
 // a multiple of 4.
-void MD5::encode( uint8_t output[], const uint32_t input[], uint32_t len )
+void MD5Computer::encode( uint8_t output[], const uint32_t input[], uint32_t len )
 {
 	for( uint32_t i = 0, j = 0; j < len; i++, j += 4 ) {
 		output[j] = input[i] & 0xff;
@@ -161,7 +208,7 @@ void MD5::encode( uint8_t output[], const uint32_t input[], uint32_t len )
 //////////////////////////////
 
 // apply MD5 algo on a block
-void MD5::transform( const uint8_t block[blocksize] )
+void MD5Computer::transform( const uint8_t block[blocksize] )
 {
 	uint32_t a = state[0], b = state[1], c = state[2], d = state[3], x[16];
 	decode( x, block, blocksize );
@@ -251,7 +298,7 @@ void MD5::transform( const uint8_t block[blocksize] )
 
 // MD5 block update operation. Continues an MD5 message-digest
 // operation, processing another message block
-void MD5::update( const unsigned char *input, uint32_t length )
+void MD5Computer::update( const unsigned char *input, uint32_t length )
 {
 	// compute number of bytes mod 64
 	uint32_t index = count[0] / 8 % blocksize;
@@ -289,7 +336,7 @@ void MD5::update( const unsigned char *input, uint32_t length )
 //////////////////////////////
 
 // for convenience provide a verson with signed char
-void MD5::update( const char *input, uint32_t length )
+void MD5Computer::update( const char *input, uint32_t length )
 {
 	update( (const unsigned char*) input, length );
 }
@@ -298,7 +345,7 @@ void MD5::update( const char *input, uint32_t length )
 
 // MD5 finalization. Ends an MD5 message-digest operation, writing the
 // the message digest and zeroizing the context.
-MD5& MD5::finalize()
+MD5Computer& MD5Computer::finalize()
 {
 	static unsigned char padding[64] = {
 		0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -335,7 +382,7 @@ MD5& MD5::finalize()
 //////////////////////////////
 
 // return hex representation of digest as string
-std::string MD5::hexdigest() const
+std::string MD5Computer::hexdigest() const
 {
 	if( !finalized )
 		return "";
@@ -347,20 +394,14 @@ std::string MD5::hexdigest() const
 
 	return std::string( buf );
 }
-
 //////////////////////////////
 
-std::ostream& operator<<( std::ostream& out, const MD5 &md5 )
+
+// ------------------------------------------------------------------------------------------------
+#include "MD5.h"
+
+std::string MD5::compute( const std::string &str )
 {
-	out << md5.hexdigest().c_str();
-	return out;
-}
-
-//////////////////////////////
-
-std::string md5( const std::string str )
-{
-	MD5 _md5 = MD5( str );
-
-	return _md5.hexdigest();
+	auto md5 = MD5Computer( str );
+	return md5.hexdigest();
 }

@@ -39,17 +39,14 @@ static const std::string base64_chars =
 "0123456789+/";
 
 
+// ------------------------------------------------------------------------------------------------
 static inline bool is_base64( unsigned char c ) {
 	return ( isalnum( c ) || ( c == '+' ) || ( c == '/' ) );
 }
 
-std::string encode( const std::string &s )
+// ------------------------------------------------------------------------------------------------
+static inline std::string encode( unsigned char const* bytes_to_encode, size_t in_len )
 {
-	return encode( reinterpret_cast<const unsigned char*>( s.c_str() ), s.length() );
-}
-
-
-std::string encode( unsigned char const* bytes_to_encode, unsigned int in_len ) {
 	std::string ret;
 	int i = 0;
 	int j = 0;
@@ -84,15 +81,20 @@ std::string encode( unsigned char const* bytes_to_encode, unsigned int in_len ) 
 
 		while( ( i++ < 3 ) )
 			ret += '=';
-
 	}
 
 	return ret;
-
 }
 
+// ------------------------------------------------------------------------------------------------
+std::string encode( const std::string &s )
+{
+	return encode( reinterpret_cast<const unsigned char*>( s.c_str() ), s.length() );
+}
+
+// ------------------------------------------------------------------------------------------------
 std::string decode( std::string const& encoded_string ) {
-	int in_len = encoded_string.size();
+	size_t in_len = encoded_string.size();
 	int i = 0;
 	int j = 0;
 	int in_ = 0;
@@ -103,7 +105,7 @@ std::string decode( std::string const& encoded_string ) {
 		char_array_4[i++] = encoded_string[in_]; in_++;
 		if( i == 4 ) {
 			for( i = 0; i < 4; i++ )
-				char_array_4[i] = base64_chars.find( char_array_4[i] );
+				char_array_4[i] = (unsigned char) base64_chars.find( char_array_4[i] );
 
 			char_array_3[0] = ( char_array_4[0] << 2 ) + ( ( char_array_4[1] & 0x30 ) >> 4 );
 			char_array_3[1] = ( ( char_array_4[1] & 0xf ) << 4 ) + ( ( char_array_4[2] & 0x3c ) >> 2 );
@@ -117,7 +119,7 @@ std::string decode( std::string const& encoded_string ) {
 
 	if( i ) {
 		for( j = 0; j < i; j++ )
-			char_array_4[j] = base64_chars.find( char_array_4[j] );
+			char_array_4[j] = (unsigned char) base64_chars.find( char_array_4[j] );
 
 		char_array_3[0] = ( char_array_4[0] << 2 ) + ( ( char_array_4[1] & 0x30 ) >> 4 );
 		char_array_3[1] = ( ( char_array_4[1] & 0xf ) << 4 ) + ( ( char_array_4[2] & 0x3c ) >> 2 );

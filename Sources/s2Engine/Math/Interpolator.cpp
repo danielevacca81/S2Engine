@@ -2,6 +2,7 @@
 //
 #include "Interpolator.h"
 
+#if 0
 namespace glm {
 
 template<typename T>
@@ -46,3 +47,5 @@ double Interpolator<T>::ease( const double t ) const
 }
 
 }
+
+#endif

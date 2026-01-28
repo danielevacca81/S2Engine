@@ -147,10 +147,11 @@ bool View::isPerspective()  const
 // -------------------------------------------------------------------------------------
 bool View::equals( const View &otherView ) const
 {
-	return ( _viewport.equals   ( otherView._viewport )       &&
-			 _projectionMatrix == otherView._projectionMatrix &&
-			 _viewMatrix       == otherView._viewMatrix       &&
-			 _modelMatrix      == otherView._modelMatrix );
+	return _viewport         == otherView._viewport
+		&& _projectionMatrix == otherView._projectionMatrix
+		&& _viewMatrix       == otherView._viewMatrix
+		&& _modelMatrix      == otherView._modelMatrix
+		;
 }
 
 // -------------------------------------------------------------------------------------

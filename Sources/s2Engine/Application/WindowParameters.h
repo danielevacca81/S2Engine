@@ -3,7 +3,7 @@
 #ifndef APPLICATION_WINDOWPARAMETERS_H
 #define APPLICATION_WINDOWPARAMETERS_H
 
-#include "Application_API.h"
+#include "s2Engine_API.h"
 
 namespace s2 {
 
@@ -45,26 +45,26 @@ struct WindowParameters
 
 
     // WindowFormat ?
-    int redBits        = 8;
-    int greenBits      = 8;
-    int blueBits       = 8;
-    int alphaBits      = 8;
-    int depthBits      = 24;
-    int stencilBits    = 8;
-    int accumRedBits   = 0;
-    int accumGreenBits = 0;
-    int accumBlueBits  = 0;
-    int accumAlphaBits = 0;
+    uint8_t redBits        = 8;
+    uint8_t greenBits      = 8;
+    uint8_t blueBits       = 8;
+    uint8_t alphaBits      = 8;
+    uint8_t depthBits      = 24;
+    uint8_t stencilBits    = 8;
+    uint8_t accumRedBits   = 0;
+    uint8_t accumGreenBits = 0;
+    uint8_t accumBlueBits  = 0;
+    uint8_t accumAlphaBits = 0;
 
-    int auxBuffers    = 0;
-    int samples       = 0;
-    int refreshRate   = -1;
+    uint8_t auxBuffers = 0;
+    uint8_t samples    = 0;
+    int8_t refreshRate = -1;
     bool stereo       = false;
     bool srgbCapable  = false;
     bool doubleBuffer = true;
 
-    int contextVersionMajor                       = 3;
-    int contextVersionMinor                       = 3;
+    uint8_t contextVersionMajor                   = 3;
+    uint8_t contextVersionMinor                   = 3;
     ContextRobustness contextRobustness           = ContextRobustness::NoRobustness;
     ContextReleaseBehavior contextReleaseBehavior = ContextReleaseBehavior::Any;
     bool openglForwardCompat                      = false;

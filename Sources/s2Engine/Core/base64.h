@@ -11,9 +11,8 @@
 
 namespace Base64 {
 
-std::string S2ENGINE_API encode( const std::string & );
-std::string S2ENGINE_API encode( unsigned char const*, unsigned int len );
-std::string S2ENGINE_API decode( std::string const& s );
+std::string S2ENGINE_API encode( const std::string &s );
+std::string S2ENGINE_API decode( const std::string &s );
 
 }
 
