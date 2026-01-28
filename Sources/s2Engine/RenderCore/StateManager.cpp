@@ -374,7 +374,7 @@ inline void StateManager::applyBlending( const Blending &blending )
 		if( _renderState.blending.enabled[i] != blending.enabled[i] ||
 			!_shadowingCurrentlyEnabled )
 		{
-			enable( GL_BLEND, blending.enabled[i], i );
+			enable( GL_BLEND, blending.enabled[i], int( i ) );
 			glCheck;
 			_renderState.blending.enabled[i] = blending.enabled[i];
 		}
@@ -510,13 +510,13 @@ inline void StateManager::applyClearColorSeparate( const ClearColorSeparate& cle
 		const auto &c= clearColorSeparate.color[i];
 		if( std::holds_alternative<Color>( c ) )
 		{
-			glClearBufferfv( GL_COLOR, i, std::get<Color>( c ).rgba() );
+			glClearBufferfv( GL_COLOR, int( i ), std::get<Color>( c ).rgba() );
 			glCheck;
 		}
 		else if( std::holds_alternative<Math::ivec4>( c ) )
 		{
 			const auto &color = std::get<Math::ivec4>( c );
-			glClearBufferiv( GL_COLOR, i, &( color.r ) );
+			glClearBufferiv( GL_COLOR, int( i ), &( color.r ) );
 			glCheck;
 		}
 	}

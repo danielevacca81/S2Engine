@@ -28,7 +28,7 @@ void PrimitiveBatch::add( const Batch& b )
 		if( i == _primitiveRestartIndex )
 			continue;
 
-		_batch.indices.push_back( i + _batch.vertices.size() );
+		_batch.indices.push_back( i + uint32_t( _batch.vertices.size() ) );
 	}
 
 	_batch.vertices.insert     ( _batch.vertices.end(),      b.vertices.begin(),      b.vertices.end() );

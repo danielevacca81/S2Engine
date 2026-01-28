@@ -113,7 +113,7 @@ void VertexArray::bind() const
 		_indexBuffer.bind();
 
 	for( size_t i = 0; i< _attributes.size(); ++i )
-		_attributes[i].attach( i );
+		_attributes[i].attach( int( i ) );
 
 	glCheck;
 }

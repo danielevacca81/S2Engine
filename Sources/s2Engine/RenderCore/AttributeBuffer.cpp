@@ -108,7 +108,7 @@ void AttributeBuffer::attach( int loc )
 		glVertexAttribIPointer( loc,
 							   _numberOfComponents,
 							   glWrap( _componentDatatype ),							   
-							   _stride,               // stride in bytes
+							   GLsizei(_stride),   // stride in bytes
 							   DATA_PTR( _offset ) // offset in bytes
 		);
 		break;
@@ -122,7 +122,7 @@ void AttributeBuffer::attach( int loc )
 							   _numberOfComponents,
 							   glWrap( _componentDatatype ),
 							   _normalize,
-							   _stride,               // stride in bytes
+							   GLsizei(_stride),   // stride in bytes
 							   DATA_PTR( _offset ) // offset in bytes
 		);
 		break;
@@ -138,5 +138,7 @@ void AttributeBuffer::detach()
 {
 	if( _location > 0 )
 		glDisableVertexAttribArray( _location );
+	
+	_location = 0;
 	glCheck;
 }

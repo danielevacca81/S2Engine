@@ -1,11 +1,13 @@
-// Extensions.cpp
+// Memory.cpp
 //
-#include "Extensions.h"
+#include "Memory.h"
 
 #include "OpenGL.h"
+#include "OpenGLCheck.h"
 
 // ------------------------------------------------------------------------------------------------
-static bool supportMemoryQuery()
+// ------------------------------------------------------------------------------------------------
+static inline bool supportMemoryQuery()
 {
 	return glewIsSupported( "GL_NVX_gpu_memory_info" );
 }
@@ -13,7 +15,7 @@ static bool supportMemoryQuery()
 // ------------------------------------------------------------------------------------------------
 
 
-namespace RenderSystem {
+namespace RenderCore {
 
 // ------------------------------------------------------------------------------------------------
 // returns total dedicated memory in MB

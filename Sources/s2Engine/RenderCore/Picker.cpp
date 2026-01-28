@@ -82,7 +82,7 @@ PickerConstants::Value Picker::pickValueAt( int32_t x, int32_t y ) const
 	// alternativa, usa:  class S2ENGINE_API ReadPixelBuffer (?)
 
 	assert( _target );
-	if( !_target || x < 0 || x >= _target->width() || y < 0 ||  y >= _target->height() )
+	if( !_target || x < 0 || x >= int32_t( _target->width() ) || y < 0 ||  y >= int32_t( _target->height() ) )
 		return PickerConstants::kClearValue; // out of bounds
 
 	PickerConstants::Value pickedPixel;
