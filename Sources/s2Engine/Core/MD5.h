@@ -5,9 +5,13 @@
 
 #include <string>
 
-namespace MD5{
+namespace s2 {
 
-std::string S2ENGINE_API compute( const std::string &str );
+namespace MD5 {
+
+std::string S2ENGINE_API compute( const std::string& str );
+
+}
 
 }
 

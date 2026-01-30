@@ -4,165 +4,485 @@
 #define CORE_STRINGS_H
 
 #include <string>
+#include <string_view>
 #include <vector>
 #include <algorithm>
-#include <codecvt>
+#include <optional>
+#include <locale>
+#include <ranges>
+#include <cwctype>
+
+#if defined(_WIN32) || defined(_WIN64)
+#include <windows.h>
+#endif
 
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
 
-#if (defined(_WIN32) || defined(_WIN64))
-#pragma warning (disable: 4996)
-#endif
-
+namespace s2 {
 namespace String
 {
 
 // ------------------------------------------------------------------------------------------------
+template<typename CharT>
+struct string_view_type;
+
+template<>
+struct string_view_type<char> { using type = std::string_view; };
+
+template<>
+struct string_view_type<wchar_t> { using type = std::wstring_view; };
+
+template<typename CharT>
+using string_view_t = typename string_view_type<CharT>::type;
+
+// ================================================================================================
+// TOKENIZATION & SPLITTING
+// ================================================================================================
+
+// ------------------------------------------------------------------------------------------------
 template <typename T>
-inline std::vector<T> tokenize( const T &str, const T &startSeparator = T( " " ), const T &endSeparator = T( " " ) )
+inline std::vector<T> tokenize( const T& str, const T& startSep = T( " " ), const T& endSep = T( " " ) )
 {
 	std::vector<T> out;
-
 	std::size_t curr = 0;
-	do
-	{
-		std::size_t tkStart = str.find( startSeparator, curr );
-		std::size_t tkEnd = str.find( endSeparator, tkStart );
 
+	while( curr < str.length() )
+	{
+		// Find the start separator
+		std::size_t tkStart = str.find( startSep, curr );
+		if( tkStart == T::npos )
+			break;
+
+		// Skip the start separator
+		tkStart += startSep.length();
+
+		// Find the end separator
+		std::size_t tkEnd = str.find( endSep, tkStart );
+		if( tkEnd == T::npos )
+			tkEnd = str.length();
+
+		// Extract the token if valid
 		if( tkEnd > tkStart )
 			out.push_back( str.substr( tkStart, tkEnd - tkStart ) );
 
-		curr = tkEnd;
-	} while( curr != T::npos );
+		curr = tkEnd + endSep.length();
+	}
 
 	return out;
 }
 
 // ------------------------------------------------------------------------------------------------
 template <typename T>
-inline std::vector<T> split( const T &str, const T &delimiters )
+inline std::vector<T> split( const T& str, const T& delimiters, bool keepEmpty = false )
 {
 	std::vector<T> out;
-
 	std::size_t start = 0;
-	std::size_t pos   = str.find_first_of( delimiters, start );
+	std::size_t pos = str.find_first_of( delimiters, start );
 
 	while( pos != T::npos )
 	{
-		if( pos != start )
+		if( pos != start || keepEmpty )
 			out.push_back( str.substr( start, pos - start ) );
 
 		start = pos + 1;
-		pos=str.find_first_of( delimiters, start );
+		pos = str.find_first_of( delimiters, start );
 	}
 
-	if( start < str.length() )
+	if( start < str.length() || keepEmpty )
 		out.push_back( str.substr( start ) );
 
 	return out;
 }
 
 // ------------------------------------------------------------------------------------------------
-inline bool startsWith( const std::string &str, const std::string &key )
+// String view split overloads for both char and wchar_t
+inline auto split( std::string_view str, char delimiter )
 {
-	const std::string left = str.substr( 0, key.size() );
+	return str
+		| std::views::split( delimiter )
+		| std::views::transform( [] ( auto&& rng ) {
+		return std::string_view( &*rng.begin(), std::ranges::distance( rng ) );
+	} );
+}
 
-	return left == key;
+inline auto split( std::wstring_view str, wchar_t delimiter )
+{
+	return str
+		| std::views::split( delimiter )
+		| std::views::transform( [] ( auto&& rng ) {
+		return std::wstring_view( &*rng.begin(), std::ranges::distance( rng ) );
+	} );
+}
+
+// ================================================================================================
+// STRING CHECKS
+// ================================================================================================
+
+// ------------------------------------------------------------------------------------------------
+template<typename CharT>
+inline bool startsWith( std::basic_string_view<CharT> str, std::basic_string_view<CharT> key )
+{
+	return str.starts_with( key );
 }
 
 // ------------------------------------------------------------------------------------------------
-inline bool endsWith( const std::string &str, const std::string &key )
+template<typename CharT>
+inline bool endsWith( std::basic_string_view<CharT> str, std::basic_string_view<CharT> key )
 {
-	if( str.size() < key.size() )
+	return str.ends_with( key );
+}
+
+// ------------------------------------------------------------------------------------------------
+template<typename CharT>
+inline bool contains( std::basic_string_view<CharT> str, std::basic_string_view<CharT> key )
+{
+	return str.find( key ) != std::basic_string_view<CharT>::npos;
+}
+
+// ================================================================================================
+// STRING EXTRACTION
+// ================================================================================================
+
+// ------------------------------------------------------------------------------------------------
+template<typename CharT>
+inline std::optional<std::basic_string<CharT>> after( std::basic_string_view<CharT> str,
+													  std::basic_string_view<CharT> delimiter )
+{
+	const size_t pos = str.find( delimiter );
+
+	if( pos == std::basic_string_view<CharT>::npos )
+		return std::nullopt;
+
+	const size_t start = pos + delimiter.length();
+	return std::basic_string<CharT>( str.substr( start ) );
+}
+
+// ------------------------------------------------------------------------------------------------
+template<typename CharT>
+inline std::optional<std::basic_string<CharT>> before( std::basic_string_view<CharT> str,
+													   std::basic_string_view<CharT> delimiter )
+{
+	const size_t pos = str.find( delimiter );
+
+	if( pos == std::basic_string_view<CharT>::npos )
+		return std::nullopt;
+
+	return std::basic_string<CharT>( str.substr( 0, pos ) );
+}
+
+// ------------------------------------------------------------------------------------------------
+template<typename CharT>
+inline std::optional<std::basic_string<CharT>> between( std::basic_string_view<CharT> str,
+														std::basic_string_view<CharT> start,
+														std::basic_string_view<CharT> end )
+{
+	const size_t startPos = str.find( start );
+	if( startPos == std::basic_string_view<CharT>::npos )
+		return std::nullopt;
+
+	const size_t contentStart = startPos + start.length();
+	const size_t endPos = str.find( end, contentStart );
+
+	if( endPos == std::basic_string_view<CharT>::npos )
+		return std::nullopt;
+
+	return std::basic_string<CharT>( str.substr( contentStart, endPos - contentStart ) );
+}
+
+// ================================================================================================
+// WIDE/MULTIBYTE CONVERSIONS
+// ================================================================================================
+
+// ------------------------------------------------------------------------------------------------
+// MODERNIZED: wstring -> string conversion without deprecated codecvt
+// Uses WideCharToMultiByte on Windows, mbsrtowcs on Linux
+inline std::string toStdString( const std::wstring& wstr )
+{
+	if( wstr.empty() )
+		return {};
+
+#if defined(_WIN32) || defined(_WIN64)
+	// Windows: use native API
+	int size = WideCharToMultiByte( CP_UTF8, 0, wstr.c_str(), -1, nullptr, 0, nullptr, nullptr );
+	if( size <= 0 ) return {};
+
+	std::string result( size - 1, '\0' );
+	WideCharToMultiByte( CP_UTF8, 0, wstr.c_str(), -1, result.data(), size, nullptr, nullptr );
+	return result;
+#else
+	// Linux/Unix: use wcsrtombs
+	std::mbstate_t state = std::mbstate_t();
+	const wchar_t* src = wstr.c_str();
+
+	size_t len = std::wcsrtombs( nullptr, &src, 0, &state );
+	if( len == static_cast<size_t>( -1 ) )
+		return {};
+
+	std::string result( len, '\0' );
+	std::wcsrtombs( result.data(), &src, len, &state );
+	return result;
+#endif
+}
+
+// ------------------------------------------------------------------------------------------------
+inline std::wstring toStdWString( const std::string& str )
+{
+	if( str.empty() )
+		return {};
+
+#if defined(_WIN32) || defined(_WIN64)
+	// Windows: use native API
+	int size = MultiByteToWideChar( CP_UTF8, 0, str.c_str(), -1, nullptr, 0 );
+	if( size <= 0 ) return {};
+
+	std::wstring result( size - 1, L'\0' );
+	MultiByteToWideChar( CP_UTF8, 0, str.c_str(), -1, result.data(), size );
+	return result;
+#else
+	// Linux/Unix: use mbsrtowcs
+	std::mbstate_t state = std::mbstate_t();
+	const char* src = str.c_str();
+
+	size_t len = std::mbsrtowcs( nullptr, &src, 0, &state );
+	if( len == static_cast<size_t>( -1 ) )
+		return {};
+
+	std::wstring result( len, L'\0' );
+	std::mbsrtowcs( result.data(), &src, len, &state );
+	return result;
+#endif
+}
+
+// ================================================================================================
+// CASE CONVERSIONS
+// ================================================================================================
+
+// ------------------------------------------------------------------------------------------------
+template <typename T>
+inline T toUpper( const T& str )
+{
+	T out( str );
+
+	if constexpr( std::is_same_v<T, std::string> )
+	{
+		std::transform( out.begin(), out.end(), out.begin(),
+						[] ( unsigned char c ) { return ::toupper( c ); } );
+	}
+	else if constexpr( std::is_same_v<T, std::wstring> )
+	{
+		std::transform( out.begin(), out.end(), out.begin(),
+						[] ( wchar_t c ) { return ::towupper( c ); } );
+	}
+
+	return out;
+}
+
+// ------------------------------------------------------------------------------------------------
+template <typename T>
+inline T toLower( const T& str )
+{
+	T out( str );
+
+	if constexpr( std::is_same_v<T, std::string> )
+	{
+		std::transform( out.begin(), out.end(), out.begin(),
+						[] ( unsigned char c ) { return ::tolower( c ); } );
+	}
+	else if constexpr( std::is_same_v<T, std::wstring> )
+	{
+		std::transform( out.begin(), out.end(), out.begin(),
+						[] ( wchar_t c ) { return ::towlower( c ); } );
+	}
+
+	return out;
+}
+
+// ------------------------------------------------------------------------------------------------
+template<typename CharT>
+inline std::basic_string<CharT> toUpperUnicode( const std::basic_string<CharT>& str,
+												const std::locale& loc = std::locale( "" ) )
+{
+	std::basic_string<CharT> out( str );
+	std::transform( out.begin(), out.end(), out.begin(),
+					[&loc] ( CharT c ) { return std::toupper( c, loc ); } );
+	return out;
+}
+
+// ------------------------------------------------------------------------------------------------
+template<typename CharT>
+inline std::basic_string<CharT> toLowerUnicode( const std::basic_string<CharT>& str,
+												const std::locale& loc = std::locale( "" ) )
+{
+	std::basic_string<CharT> out( str );
+	std::transform( out.begin(), out.end(), out.begin(),
+					[&loc] ( CharT c ) { return std::tolower( c, loc ); } );
+	return out;
+}
+
+// ================================================================================================
+// TRIMMING & WHITESPACE
+// ================================================================================================
+
+// ------------------------------------------------------------------------------------------------
+template<typename CharT>
+inline std::basic_string<CharT> trimLeft( std::basic_string_view<CharT> str )
+{
+	auto start = std::find_if_not( str.begin(), str.end(),
+								   [] ( CharT c ) {
+		if constexpr( std::is_same_v<CharT, char> )
+			return std::isspace( static_cast<unsigned char>( c ) );
+		else
+			return ::iswspace( c );
+	} );
+	return std::basic_string<CharT>( start, str.end() );
+}
+
+// ------------------------------------------------------------------------------------------------
+template<typename CharT>
+inline std::basic_string<CharT> trimRight( std::basic_string_view<CharT> str )
+{
+	auto end = std::find_if_not( str.rbegin(), str.rend(),
+								 [] ( CharT c ) {
+		if constexpr( std::is_same_v<CharT, char> )
+			return std::isspace( static_cast<unsigned char>( c ) );
+		else
+			return ::iswspace( c );
+	} );
+	return std::basic_string<CharT>( str.begin(), end.base() );
+}
+
+// ------------------------------------------------------------------------------------------------
+template<typename CharT>
+inline std::basic_string<CharT> trim( std::basic_string_view<CharT> str )
+{
+	return trimLeft<CharT>( trimRight<CharT>( str ) );
+}
+
+// ================================================================================================
+// STRING MANIPULATION
+// ================================================================================================
+
+// ------------------------------------------------------------------------------------------------
+template<typename CharT>
+inline std::basic_string<CharT> replaceAll( std::basic_string<CharT> str,
+											std::basic_string_view<CharT> from,
+											std::basic_string_view<CharT> to )
+{
+	if( from.empty() )
+		return str;
+
+	size_t pos = 0;
+	while( ( pos = str.find( from, pos ) ) != std::basic_string<CharT>::npos )
+	{
+		str.replace( pos, from.length(), to );
+		pos += to.length();
+	}
+	return str;
+}
+
+// ================================================================================================
+// VALIDATION
+// ================================================================================================
+
+// ------------------------------------------------------------------------------------------------
+template<typename CharT>
+inline bool isNumeric( std::basic_string_view<CharT> str )
+{
+	if( str.empty() )
 		return false;
 
-	const std::string right = str.substr( str.size() - key.size(), key.size() );
-
-	return right == key;
-}
-
-// ------------------------------------------------------------------------------------------------
-inline std::string after( const std::string &str, const std::string &delimiter )
-{
-	const size_t pos = str.find_first_of( delimiter ) + 1;
-
-	std::string ret = str.substr( pos, std::string::npos );
-
-	return ret;
-}
-
-//Windows uses a 16-bit wchar_t, while Linux 32-bit
-template <int N> struct get_codecvt_utf8_wchar_impl;
-template <> struct get_codecvt_utf8_wchar_impl<16>
-{
-	using type = std::codecvt_utf8_utf16<wchar_t>;
-};
-template <> struct get_codecvt_utf8_wchar_impl<32>
-{
-	using type = std::codecvt_utf8<wchar_t>;
-};
-
-// ------------------------------------------------------------------------------------------------
-inline std::string toStdString( const std::wstring &str )
-{
-	if( str.empty() )
-		return std::string( "" );
-
-	using cvt_utf8_wchar = get_codecvt_utf8_wchar_impl<sizeof( wchar_t ) * 8>::type;
-	std::string s;
-	std::wstring_convert<cvt_utf8_wchar> converter;
-	try
+	// Automatic character type detection
+	CharT minusChar, plusChar, dotChar;
+	if constexpr( std::is_same_v<CharT, char> )
 	{
-		s = converter.to_bytes( str );
+		minusChar = '-';
+		plusChar = '+';
+		dotChar = '.';
 	}
-	catch( std::range_error e )
+	else
 	{
-		s.clear();
+		minusChar = L'-';
+		plusChar = L'+';
+		dotChar = L'.';
 	}
-	return s;
+
+	auto it = str.begin();
+	if( *it == minusChar || *it == plusChar )
+		++it;
+
+	bool hasDigit = false;
+	bool hasDot = false;
+
+	for( ; it != str.end(); ++it )
+	{
+		bool isDigit;
+		if constexpr( std::is_same_v<CharT, char> )
+			isDigit = std::isdigit( static_cast<unsigned char>( *it ) );
+		else
+			isDigit = std::iswdigit( *it );
+
+		if( isDigit )
+			hasDigit = true;
+		else if( *it == dotChar && !hasDot )
+			hasDot = true;
+		else
+			return false;
+	}
+
+	return hasDigit;
+}
+
+// ================================================================================================
+// JOIN
+// ================================================================================================
+
+// ------------------------------------------------------------------------------------------------
+// Overload for std::string with string_view delimiter
+template <std::ranges::range Range>
+	requires std::convertible_to<std::ranges::range_value_t<Range>, std::string>
+inline std::string join( const Range& strings, std::string_view delimiter )
+{
+	if( std::ranges::empty( strings ) )
+		return {};
+
+	std::string result;
+	bool first = true;
+
+	for( const auto& str : strings )
+	{
+		if( !first )
+			result += delimiter;
+		result += str;
+		first = false;
+	}
+
+	return result;
 }
 
 // ------------------------------------------------------------------------------------------------
-inline std::wstring toStdWString( const std::string &str )
+// Overload for std::wstring with wstring_view delimiter
+template <std::ranges::range Range>
+	requires std::convertible_to<std::ranges::range_value_t<Range>, std::wstring>
+inline std::wstring join( const Range& strings, std::wstring_view delimiter )
 {
-	if( str.empty() )
-		return std::wstring( L"" );
+	if( std::ranges::empty( strings ) )
+		return {};
 
-	using cvt_utf8_wchar = get_codecvt_utf8_wchar_impl<sizeof( wchar_t ) * 8>::type;
-	std::wstring s;
-	std::wstring_convert<cvt_utf8_wchar> converter;
-	try
+	std::wstring result;
+	bool first = true;
+
+	for( const auto& str : strings )
 	{
-		s = converter.from_bytes( str );
+		if( !first )
+			result += delimiter;
+		result += str;
+		first = false;
 	}
-	catch( std::range_error e )
-	{
-		s = L"";
-	}
-	return s;
-}
 
-// ------------------------------------------------------------------------------------------------
-template <typename T>
-inline T toUpper( const T &str )
-{
-	T out( str );
-
-	std::transform( out.begin(), out.end(), out.begin(), ::toupper );
-	return out;
-}
-
-// ------------------------------------------------------------------------------------------------
-template <typename T>
-inline T toLower( const T &str )
-{
-	T out( str );
-
-	std::transform( out.begin(), out.end(), out.begin(), ::tolower );
-	return out;
+	return result;
 }
 
 }
-
-#endif
+}
+#endif // !CORE_STRINGS_H

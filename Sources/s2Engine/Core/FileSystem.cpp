@@ -2,17 +2,19 @@
 //
 #include "FileSystem.h"
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(_WIN64)
 #include "Shlobj.h"
 #else
-#include <string>
 #include <sys/types.h>
 #include <unistd.h>
 #include <limits.h>
 #endif
 
+#include <string>
 #include <regex>
+#include <cassert>
 
+namespace s2 {
 namespace FileSystem {
 
 // ------------------------------------------------------------------------------------------------
@@ -28,92 +30,90 @@ int64_t FileInfo::size() const
 
 
 // ------------------------------------------------------------------------------------------------
-Path makepath( const std::wstring &path )
+Path makepath( const std::wstring& path ) noexcept
 {
 	return Path( path );
 }
 
 // ------------------------------------------------------------------------------------------------
-Path currentPath()
+Path currentPath() noexcept
 {
 	std::error_code ec;
 	return std::filesystem::current_path( ec );
 }
 
 // ------------------------------------------------------------------------------------------------
-FileInfo fileInfo( const Path &path )
+FileInfo fileInfo( const Path& path )
 {
 	std::error_code ec;
 
 	FileInfo info;
 	{
-		info.path         = path.wstring();
+		info.path = path.wstring();
 		info.absolutePath = std::filesystem::absolute( path, ec ).wstring();
-		info.parentPath   = makepath( info.absolutePath ).parent_path().wstring();
-		info.rootName     = std::filesystem::absolute( path, ec ).root_name().wstring();
-		info.filename     = path.filename().wstring();
-		info.name         = path.stem().wstring();
-		info.extension    = path.extension().wstring();
-		info.isDirectory  = std::filesystem::is_directory( path, ec );
-		info.isEmpty      = std::filesystem::is_empty( path, ec );
+		info.parentPath = makepath( info.absolutePath ).parent_path().wstring();
+		info.rootName = std::filesystem::absolute( path, ec ).root_name().wstring();
+		info.filename = path.filename().wstring();
+		info.name = path.stem().wstring();
+		info.extension = path.extension().wstring();
+		info.isDirectory = std::filesystem::is_directory( path, ec );
+		info.isEmpty = std::filesystem::is_empty( path, ec );
 	}
 	return info;
 }
 
 // ------------------------------------------------------------------------------------------------
-std::wstring separator()
+std::wstring separator() noexcept
 {
-    return { Path::preferred_separator };
+	return { Path::preferred_separator };
 }
 
 // ------------------------------------------------------------------------------------------------
-Path makeAbsolutePath( const Path& path )
+Path makeAbsolutePath( const Path& path ) noexcept
 {
 	std::error_code ec;
 	return std::filesystem::absolute( path, ec );
 }
 
 // ------------------------------------------------------------------------------------------------
-bool isSymbolicLink( const Path& path )
+bool isSymbolicLink( const Path& path ) noexcept
 {
 	std::error_code ec;
 	auto ret = std::filesystem::is_symlink( path, ec );
-	/* Workaround to avoid that in case of FAT/FAT32/exFAT, an error (87) is set by is_symlink() call */
-#ifdef _WIN32
-	if( ec.value() != 87 )
-		return false;
+	/* Workaround to avoid that in case of FAT/FAT32/exFAT, an error (87 == ERROR_INVALID_PARAMETER) is set by is_symlink() call */
+#if defined(_WIN32) || defined(_WIN64)
+	if( ec.value() == ERROR_INVALID_PARAMETER )
+		return false;  // FAT filesystem doesn't support symlinks
 #endif
 	return ret;
 }
 
 // ------------------------------------------------------------------------------------------------
-bool isDirectory( const Path & path )
+bool isDirectory( const Path& path ) noexcept
 {
 	std::error_code ec;
 	return std::filesystem::is_directory( path, ec );
 }
 
 // ------------------------------------------------------------------------------------------------
-bool isEmpty( const Path &path )
+bool isEmpty( const Path& path ) noexcept
 {
 	std::error_code ec;
 	return std::filesystem::is_empty( path, ec );
 }
 
-
-
 // ------------------------------------------------------------------------------------------------
-FileInfoList dirContents( const Path &dirPath, bool recursive, const ContentsType &contentsType, const FileFilterType &filterType, const std::wstring &filter )
+FileInfoList dirContents( const Path& dirPath, bool recursive, const ContentsType& contentsType, const FileFilterType& filterType, const std::wstring& filter )
 {
 	if( !isDirectory( dirPath ) )
 		return {};
 
 	FileInfoList contents; // return value
 
-	auto addItem = [&] ( const std::filesystem::directory_entry &dirEntry ) 
+	auto addItem = [&] ( const std::filesystem::directory_entry& dirEntry )
 	{
 		std::error_code ec;
-		
+
 		bool toAdd = false;
 
 		if( contentsType == ContentsType::DirsAndFiles )
@@ -183,11 +183,11 @@ FileInfoList dirContents( const Path &dirPath, bool recursive, const ContentsTyp
 }
 
 // ------------------------------------------------------------------------------------------------
-FileInfoList dirContents( const Path &dirPath, bool recursive, const std::list<std::wstring> &filters )
+FileInfoList dirContents( const Path& dirPath, bool recursive, const std::list<std::wstring>& filters )
 {
 	FileInfoList list;
 
-	for( auto &filter : filters )
+	for( auto& filter : filters )
 	{
 		FileInfoList contentsForFilter = dirContents( dirPath, recursive, ContentsType::Files, FileFilterType::FilterByExt, filter );
 
@@ -198,61 +198,66 @@ FileInfoList dirContents( const Path &dirPath, bool recursive, const std::list<s
 }
 
 // ------------------------------------------------------------------------------------------------
-bool createDir( const Path &dirPath )
+bool createDir( const Path& dirPath ) noexcept
 {
 	std::error_code ec;
-	/**/std::filesystem::create_directories( dirPath,ec );
+	/**/std::filesystem::create_directories( dirPath, ec );
 	return !ec;
 }
 
 // ------------------------------------------------------------------------------------------------
-bool copyFile( const Path &source, const Path &dest )
+bool copyFile( const Path& source, const Path& dest ) noexcept
 {
 	std::error_code ec;
 	return std::filesystem::copy_file( source, dest, ec );
 }
 
 // ------------------------------------------------------------------------------------------------
-bool remove( const Path &path )
+bool remove( const Path& path ) noexcept
 {
 	const FileInfo info = fileInfo( path );
 	std::error_code ec;
 	if( info.isDirectory )
 		return std::filesystem::remove_all( info.absolutePath, ec ) != static_cast<std::uintmax_t>( -1 );
-	
+
 	return std::filesystem::remove( info.absolutePath, ec );
 }
 
 // ------------------------------------------------------------------------------------------------
-bool rename(const Path &oldPath, const Path &newPath)
+bool rename( const Path& oldPath, const Path& newPath ) noexcept
 {
-    std::error_code ec;
-    std::filesystem::rename(oldPath, newPath, ec);
-    return !ec;
+	std::error_code ec;
+	std::filesystem::rename( oldPath, newPath, ec );
+	return !ec;
 }
 
 // ------------------------------------------------------------------------------------------------
-bool copyDir( const Path &source, const Path &dest, bool deleteExisting, const CopyDirOptions &options )
+bool copyDir( const Path& source, const Path& dest, bool deleteExisting, const CopyDirOptions& options ) noexcept
 {
-	if( !isDirectory( source ) ) 
+	if( !isDirectory( source ) )
 		return false;
-	
-	if( deleteExisting ) 
-		FileSystem::remove( dest );
-	
+
+	if( deleteExisting )
+	{
+		if( !FileSystem::remove( dest ) )
+		{
+			// Directory might not exist, continue anyway
+		}
+	}
+
 	if( !createDir( dest ) )
 		return false;
 
-	auto copyOptions = [] ( const CopyDirOptions& opt)
+	auto copyOptions = [] ( const CopyDirOptions& opt )
 	{
 		switch( opt )
 		{
 		case CopyDirOptions::OnlyFiles: return std::filesystem::copy_options::none;
 		case CopyDirOptions::Recursive: return std::filesystem::copy_options::recursive;
+		default: return std::filesystem::copy_options::none;
 		}
-		return std::filesystem::copy_options::none;
 	};
-	
+
 	std::error_code ec;
 	std::filesystem::copy( source, dest, copyOptions( options ), ec );
 	return !ec;
@@ -263,63 +268,68 @@ bool copyDir( const Path &source, const Path &dest, bool deleteExisting, const C
 * Returns true if the file exists; otherwise returns false.
 * @param file The path to the file or dir to test
 */
-bool exists( const Path &file )
+bool exists( const Path& file ) noexcept
 {
 	std::error_code ec;
-	return std::filesystem::exists( file,ec );
+	return std::filesystem::exists( file, ec );
 }
 
 // ------------------------------------------------------------------------------------------------
-uint64_t available( const Path &path, const ByteUnits &unit )
+uint64_t available( const Path& path, const ByteUnits& unit ) noexcept
 {
 	constexpr uint64_t KSIZE = 1024;
 
 	std::error_code ec;
-	std::filesystem::space_info sInfo = std::filesystem::space( path,ec );
-	
-	uint64_t size = sInfo.available;
+	std::filesystem::space_info sInfo = std::filesystem::space( path, ec );
+
+	if( ec )
+		return 0;
+
+	uint64_t divisor = 1;
 	switch( unit )
 	{
-	case ByteUnits::GB: size /= KSIZE;
-	case ByteUnits::MB: size /= KSIZE;
-	case ByteUnits::KB: size /= KSIZE;
-	case ByteUnits::B:
-		break;
+	case ByteUnits::GB: divisor = KSIZE * KSIZE * KSIZE; break;
+	case ByteUnits::MB: divisor = KSIZE * KSIZE; break;
+	case ByteUnits::KB: divisor = KSIZE; break;
+	case ByteUnits::B:  divisor = 1; break;
+	default: divisor = 1; break;
+	}
+	return sInfo.available / divisor;
+}
+
+// ------------------------------------------------------------------------------------------------
+int64_t fileSize( const Path& path ) noexcept
+{
+	std::error_code ec;
+	const auto size = std::filesystem::file_size( path, ec );
+
+	return ec ? -1 : size;
+}
+
+// ------------------------------------------------------------------------------------------------
+int64_t dirSize( const Path& path )
+{
+	if( !isDirectory( path ) )
+		return -1;
+
+	int64_t size = 0;
+	FileInfoList list = dirContents( path, true, FileSystem::ContentsType::DirsAndFiles );
+
+	for( const auto& f : list )
+	{
+		const int64_t fSize = fileSize( f.absolutePath );
+		if( fSize >= 0 )
+			size += fSize;
 	}
 
 	return size;
 }
 
 // ------------------------------------------------------------------------------------------------
-int64_t fileSize( const Path& path )
-{
-	std::error_code ec;
-	const auto size = std::filesystem::file_size( path, ec );
-	
-	return ec ? -1 : size;
-}
-
-// ------------------------------------------------------------------------------------------------
-int64_t dirSize( const Path & path )
-{
-	if ( !isDirectory( path ) )
-		return -1;
-
-	int64_t size = 0;
-	FileInfoList list = dirContents( path, true, FileSystem::ContentsType::DirsAndFiles);
-
-	for( auto& f : list )
-		if( !f.isDirectory )
-			size += fileSize( f.path );
-
-	return size;
-}
-
-// ------------------------------------------------------------------------------------------------
-Path standardLocation( const LocationType &type )
+Path standardLocation( const LocationType& type )
 {
 	Path _dir;
-#ifdef _WIN32
+#if defined(_WIN32) || defined(_WIN64)
 	if( type == LocationType::Temp )
 	{
 		wchar_t tmpPath[MAX_PATH];
@@ -331,17 +341,18 @@ Path standardLocation( const LocationType &type )
 		KNOWNFOLDERID fId;
 		switch( type )
 		{
-		case LocationType::Desktop:     fId = FOLDERID_Desktop; break;
-		case LocationType::Documents:   fId = FOLDERID_Documents; break;
-		case LocationType::Fonts:       fId = FOLDERID_Fonts; break;
-		case LocationType::AppData:     fId = FOLDERID_LocalAppData; break;
-		case LocationType::Pictures:    fId = FOLDERID_Pictures; break;
-		case LocationType::Home:        fId = FOLDERID_Profile; break;
-		case LocationType::Downloads:   fId = FOLDERID_Downloads; break;
+		case LocationType::Desktop:     fId = FOLDERID_Desktop;         break;
+		case LocationType::Documents:   fId = FOLDERID_Documents;       break;
+		case LocationType::Fonts:       fId = FOLDERID_Fonts;           break;
+		case LocationType::AppData:     fId = FOLDERID_LocalAppData;    break;
+		case LocationType::Pictures:    fId = FOLDERID_Pictures;        break;
+		case LocationType::Home:        fId = FOLDERID_Profile;         break;
+		case LocationType::Downloads:   fId = FOLDERID_Downloads;       break;
 		case LocationType::ProgramsX86: fId = FOLDERID_ProgramFilesX86; break;
-		case LocationType::ProgramsX64: fId = FOLDERID_ProgramFilesX64; break;
-		case LocationType::SystemX86:   fId = FOLDERID_System; break;
-		case LocationType::SystemX64:   fId = FOLDERID_SystemX86; break;
+		case LocationType::Programs:    fId = FOLDERID_ProgramFiles;    break;
+		case LocationType::SystemX86:   fId = FOLDERID_SystemX86;       break;
+		case LocationType::System:      fId = FOLDERID_System;          break;
+		default: assert( false && "LocationType: Invalid enumerator" ); return L"";
 		}
 		wchar_t* pszPath = NULL;
 		HRESULT hr = SHGetKnownFolderPath( fId, 0, NULL, &pszPath );
@@ -351,40 +362,19 @@ Path standardLocation( const LocationType &type )
 		}
 		CoTaskMemFree( pszPath );
 	}
-
-#if 0
-	IShellLibrary *sLibrary;
-	hr = SHLoadLibraryFromKnownFolder( FOLDERID_DocumentsLibrary,
-									   STGM_READ,
-									   IID_PPV_ARGS( &sLibrary ) );
-	IShellItem* sItem;
-	hr = sLibrary->GetDefaultSaveFolder( DSFT_PUBLIC, IID_IShellItem, (void**) &sItem );
-	LPWSTR ff = 0;
-	hr = sItem->GetDisplayName( SIGDN_FILESYSPATH, &ff );
-
-
-	hr = SHLoadLibraryFromKnownFolder( FOLDERID_Desktop,
-									   STGM_READ,
-									   IID_PPV_ARGS( &sLibrary ) );
-
-	hr = sLibrary->GetDefaultSaveFolder( DSFT_PUBLIC, IID_IShellItem, (void**) &sItem );
-	ff = 0;
-	hr = sItem->GetDisplayName( SIGDN_FILESYSPATH, &ff );
-#endif
-
 #else
 	//LINUX
 	auto fGetEnv = [] ( char* varName ) {
-		char *value = nullptr;
+		char* value = nullptr;
 		if( varName != nullptr )
 		{
 			value = getenv( varName );
 		}
 		if( !value ) value = "";
 		return std::string( value );
-	};
+	);
 
-	
+
 
 	COMPILER_MESSAGE( "Gestire il nome delle cartelle in base alla localizzazione del sistema operatovo. Si puo' fare con getenv(LANGUAGE)" );
 	switch( type )
@@ -397,7 +387,7 @@ Path standardLocation( const LocationType &type )
 	case LocationType::AppData:   _dir = toStdWString( fGetEnv( "HOME" ) ) + L"/.local/share/applications";
 	case LocationType::Pictures:  _dir = toStdWString( fGetEnv( "HOME" ) ) + L"/Pictures";
 	case LocationType::Temp:      _dir = L"/tmp"; break;
-	case LocationType::Downloads: _dir = toStdWString( fGetEnv( "HOME" ) ) + L"/Download"; break;
+	case LocationType::Downloads: _dir = toStdWString( fGetEnv( "HOME" ) ) + L"/Downloads"; break;
 	case LocationType::Home:      _dir = toStdWString( fGetEnv( "HOME" ) );
 	}
 #endif
@@ -408,11 +398,12 @@ Path standardLocation( const LocationType &type )
 Path exeLocation()
 {
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(_WIN64)
 	wchar_t tmpPath[MAX_PATH];
-	int bytes = GetModuleFileNameW( NULL, tmpPath, MAX_PATH );
-	if( bytes == 0 )
+	const DWORD bytes = GetModuleFileNameW( nullptr, tmpPath, MAX_PATH );
+	if( bytes == 0 || bytes == MAX_PATH )
 		return {};
+
 	Path p( tmpPath );
 	return p.parent_path();
 #else
@@ -421,13 +412,21 @@ Path exeLocation()
 	char dest[PATH_MAX];
 	memset( dest, 0, sizeof( dest ) ); // readlink does not null terminate!
 	pid_t pid = getpid();
-	sprintf( path, "/proc/%d/exe", pid );
-	if( readlink( path, dest, PATH_MAX ) == -1 )
+
+	const int written = snprintf( path, PATH_MAX, "/proc/%d/exe", pid );
+	if( written < 0 || written >= PATH_MAX )
 		return {};
+
+	const ssize_t len = readlink( path, dest, PATH_MAX - 1 );
+	if( len == -1 )
+		return {};
+
+	dest[len] = '\0';
 
 	return makepath( toStdWString( std::string( dest ) ) )
 		.parent_path();
 #endif
 }
 
+}
 }

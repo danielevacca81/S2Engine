@@ -9,10 +9,13 @@
 
 #include <string>
 
+namespace s2 {
 namespace Base64 {
 
-std::string S2ENGINE_API encode( const std::string &s );
-std::string S2ENGINE_API decode( const std::string &s );
+std::string S2ENGINE_API encode( const std::string& s );
+std::string S2ENGINE_API decode( const std::string& s );
+
+}
 
 }
 

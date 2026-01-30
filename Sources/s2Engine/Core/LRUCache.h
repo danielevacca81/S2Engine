@@ -3,17 +3,29 @@
 #ifndef	CORE_LRUCACHE_H
 #define CORE_LRUCACHE_H
 
-#include <map>
+#include <unordered_map>
 #include <list>
 #include <vector>
+
+namespace s2 {
+
 
 template <typename K, typename T>
 class LRUCache
 {
-public:
-	typedef typename std::map<K, T>::iterator iterator;
+private:
+	using ListIterator = typename std::list<K>::iterator;
+	using MapType = std::unordered_map<K, std::pair<T, ListIterator>>;
 
 public:
+	using iterator = typename MapType::iterator;
+	using const_iterator = typename MapType::const_iterator;
+
+public:
+	LRUCache( uint32_t capacity = 8 )
+		: _capacity( capacity )
+	{}
+
 	// --------------------------------------------------------------------------------------------
 	void store( const  K& k, const T& v )
 	{
@@ -24,11 +36,18 @@ public:
 			// insert a new entry
 			// push front the key of the most recently used entry
 			_entries.push_front( k );
-			_map[k] = v;
+			_map[k] = { v, _entries.begin() };
 		}
 		else
-			use( k );
-
+		{
+			// update existing value and mark as recently used
+			it->second.first = v;
+			_entries.erase( it->second.second );
+			_entries.push_front( k );
+			it->second.second = _entries.begin();
+		}
+		
+		// evict least recently used if over capacity
 		if( _map.size() > _capacity )
 		{
 			// get the less recent used key
@@ -42,30 +61,39 @@ public:
 	}
 
 	// --------------------------------------------------------------------------------------------
-	void use( const K &key )
+	void use( const K& key )
 	{
-		_entries.remove( key );
+		auto it = _map.find( key );
+		if( it == _map.end() )
+			return;
 
-		// re-insert at the beginning
+		// move to front in O(1)
+		_entries.erase( it->second.second );
 		_entries.push_front( key );
+		it->second.second = _entries.begin();
 	}
 
 	// --------------------------------------------------------------------------------------------
-	iterator find( const K &key ) { return _map.find( key ); }
-	iterator begin() { return _map.begin(); }
-	iterator end() { return _map.end(); }
+	iterator find( const K& key ) { return _map.find( key ); }
+	iterator begin()              { return _map.begin(); }
+	iterator end()                { return _map.end(); }
+
+	const_iterator find( const K& key ) const { return _map.find( key ); }
+	const_iterator begin()              const { return _map.begin(); }
+	const_iterator end()                const { return _map.end(); }
+
 
 	// --------------------------------------------------------------------------------------------
-	T remove( const K &key )
+	T remove( const K& key )
 	{
-		T ret = 0;
-		if( find( key ) )
-		{
-			ret = _map[key];
+		auto it = _map.find( key );
+		if( it == _map.end() )
+			return {};
 
-			_map.erase( key );
-			_entries.remove( key );
-		}
+		auto ret = it->second.first;
+
+		_entries.erase( it->second.second );
+		_map.erase( it );
 
 		return ret;
 	}
@@ -75,10 +103,9 @@ public:
 	std::vector<T> entries() const
 	{
 		std::vector<T> v;
-		for( auto it = _map.begin();
-			 it != _map.end();
-			 ++it )
-			v.push_back( it->second );
+		v.reserve( _map.size() );
+		for( const auto& [key, value] : _map )
+			v.push_back( value.first );
 
 		return v;
 	}
@@ -88,16 +115,15 @@ public:
 	std::vector<K> keys() const
 	{
 		std::vector<K> v;
-		for( auto it = _map.begin();
-			 it != _map.end();
-			 ++it )
-			v.push_back( it->first );
+		v.reserve( _map.size() );
+		for( const auto& [key, _] : _map )
+			v.push_back( key );
 
 		return v;
 	}
 
 	// --------------------------------------------------------------------------------------------
-	bool contains( const K &k ) const
+	bool contains( const K& k ) const
 	{
 		return _map.find( k ) != _map.end();
 	}
@@ -107,16 +133,21 @@ public:
 	// mruEntry()
 
 	// --------------------------------------------------------------------------------------------
-	T* entry( const K &k )
+	T* entry( const K& k )
 	{
 		auto it = _map.find( k );
-
 		if( it == _map.end() )
-			return 0;
+			return nullptr;
 
-		return &it->second;
+		// store returning value before marking as recently used
+		// ( it could be invalidated in use() )
+		auto ret = &it->second.first;
+
+		// mark as recently used
+		use( k );
+
+		return ret;
 	}
-
 
 	// --------------------------------------------------------------------------------------------
 	void invalidate()
@@ -125,10 +156,16 @@ public:
 		_map.clear();
 	}
 
+	// --------------------------------------------------------------------------------------------
+	size_t size()     const { return _map.size(); }
+	size_t capacity() const { return _capacity; }
+
 private:
-	int             _capacity = 8;
-	std::list<K>	_entries;
-	std::map<K, T>	_map;
+	uint32_t     _capacity = 8;
+	std::list<K> _entries;
+	MapType      _map;
 };
+
+}
 
 #endif

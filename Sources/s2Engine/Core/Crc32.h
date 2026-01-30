@@ -5,7 +5,15 @@
 
 #include "s2Engine_API.h"
 
-unsigned long S2ENGINE_API computeCRC32( const char *pBuffer, int len, unsigned int initValue = 0xFFFFFFFF, unsigned int poly = 0xEDB88320L );
+#include <cstdint>
+#include <vector>
 
+namespace s2 {
+namespace Crc32 {
+
+uint32_t S2ENGINE_API compute( const std::vector<uint8_t> &data, uint32_t initValue = 0xFFFFFFFF, uint32_t poly = 0xEDB88320L );
+
+}
+}
 
 #endif

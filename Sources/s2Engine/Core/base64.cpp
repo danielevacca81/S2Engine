@@ -31,7 +31,7 @@
 
 #include "base64.h"
 
-namespace Base64 {
+namespace s2::Base64 {
 
 static const std::string base64_chars =
 "ABCDEFGHIJKLMNOPQRSTUVWXYZ"

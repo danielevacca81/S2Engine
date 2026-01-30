@@ -399,9 +399,11 @@ std::string MD5Computer::hexdigest() const
 
 // ------------------------------------------------------------------------------------------------
 #include "MD5.h"
-
-std::string MD5::compute( const std::string &str )
+namespace s2::MD5 {
+std::string compute( const std::string& str )
 {
 	auto md5 = MD5Computer( str );
 	return md5.hexdigest();
+}
+
 }
