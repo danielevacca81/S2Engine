@@ -2,59 +2,59 @@
 -- actions: 
 --     vs2022
 --     gmake2 --os=linux
---
-function addSDKlibs()
-	filter { "system:windows","configurations:Release"}
-		libdirs{ "../SDK/SDK/bin/x64/Release" }
-		
-	filter { "system:windows","configurations:Debug"}
-		libdirs{ "../SDK/SDK/bin/x64/Debug" }
-		
-	filter { "system:linux","configurations:Debug"}
-		libdirs{"../SDK/SDK/bin/Linux64/Debug" }
-		
-	filter { "system:linux","configurations:Release"}
-		libdirs{"../SDK/SDK/bin/Linux64/Release" }
-		
-	filter{}
-	-- linked libraries
-	links { "Core", "RadarConfiguration", "Network", "RadarInterface", "ProcessingKernel", "SerialInterface" }	
-end
 
-function copySDK( sys, src, ext, dest)
-	-- copy SDK libraries	
-	postbuildcommands
-	{
-		("{COPYFILE} %{wks.location}/../SDK/SDK/bin/"..sys.."/"..src.."/*Core."..ext.." "..dest),
-		("{COPYFILE} %{wks.location}/../SDK/SDK/bin/"..sys.."/"..src.."/*Network."..ext.." "..dest),
-		("{COPYFILE} %{wks.location}/../SDK/SDK/bin/"..sys.."/"..src.."/*RadarConfiguration."..ext.." "..dest),
-		("{COPYFILE} %{wks.location}/../SDK/SDK/bin/"..sys.."/"..src.."/*RadarInterface."..ext.." "..dest),
-		("{COPYFILE} %{wks.location}/../SDK/SDK/bin/"..sys.."/"..src.."/*ProcessingKernel."..ext.." "..dest),
-        ("{COPYFILE} %{wks.location}/../SDK/SDK/bin/"..sys.."/"..src.."/*SerialInterface."..ext.." "..dest),
-	}
-end
-
-
-
-workspace "s2Engine" -- aka solution
+-- SOLUTION
+workspace "s2Engine" 
 	location "../Build"
 	architecture "x64"
 	configurations { "Debug", "Release" }
-	--startproject "Core"
+	startproject "s2Engine"
 	
+    -- solution variables
+	sourcedir  = "../Sources/s2Engine"
+	extlibsdir = "../ExtLibs"
+	outdir     = "../Build"
+	deploydir  = "../s2Engine"
+	sysbuilddir  = "%{cfg.system}/%{cfg.buildcfg}"
+    
+    -- Common flags
+    flags {
+        "MultiProcessorCompile"
+    }
+    
+    -- C++ standard
+    cppdialect "C++20"
+    
+    -- Platform specific settings
+    filter "system:windows"
+        systemversion "latest"
+    
+    filter "configurations:Debug"
+        defines { "_DEBUG" }
+        runtime "Debug"
+        symbols "On"
+        optimize "Off"
+    
+    filter "configurations:Release"
+        defines { "NDEBUG" }
+        runtime "Release"
+        symbols "On"
+        optimize "Speed"
+        flags { "LinkTimeOptimization" }
+    
+    filter {}
 
--- PROJECT s2Engine
+-- Main Engine Project
 project "s2Engine"
-	location "../Build"
 	kind "SharedLib"
+	location "../Build"	
 	language "C++"
 	cppdialect "C++20"
 	
-	sourcedir = "../Sources/s2Engine"
-	extlibsdir = "../ExtLibs"
 	
-	--defines {"GLEW_STATIC"}
-	 
+	targetdir ( "%{outdir}/bin/%{sysbuilddir}" ) -- i.e. bin/windows/release
+	objdir    ( "%{outdir}/tmp/%{sysbuilddir}" )	
+		
     -- IDE Grouping @todo
 	--vpaths { ["Core"] = {"Core/**.h","Core/**.hpp","Core/**.cpp"} }
 
@@ -65,51 +65,66 @@ project "s2Engine"
 		"%{sourcedir}/**.c",
 		"%{sourcedir}/**.hpp",
 		"%{sourcedir}/**.cpp",
-		--"%{extlibsdir}/glew-2.3.1/src/glew.c",
 	}
 	
 	-- additional include directories
 	includedirs
 	{ 
 		"%{sourcedir}/",
-		-- "%{extlibsdir}/glm-1.0.1",
 		"%{extlibsdir}/glfwpp/include",
 	}
 	
-	libdirs{}
+    links {
+        "opengl32"
+    }
 	
-	targetdir ( "../Build/bin/%{cfg.system}/%{cfg.buildcfg}" ) -- i.e. bin/windows/release
-	objdir    ( "../Build/tmp/%{cfg.system}/%{cfg.buildcfg}" )
+    defines {
+        "S2ENGINE_EXPORTS",
+    }
 	
-	-- specifc for windows
-	filter "system:windows"
-	  --staticruntime "On"
-	  systemversion "latest"
-	  --links { "glew32.lib" }
-	  defines { "S2ENGINE_EXPORTS" }
+	postbuildcommands {
+	    ("{MKDIR} %{deploydir}/bin/%{sysbuilddir}"),
+		("{MKDIR} %{deploydir}/include"),
+		("{COPYFILE} %{cfg.buildtarget.relpath} %{deploydir}/bin/%{sysbuilddir}"),
+		("{COPYFILE} %{cfg.linktarget.relpath} %{deploydir}/bin/%{sysbuilddir}"),
+		--
+		("{COPYFILE} %{sourcedir}/s2Engine_API.h %{deploydir}/include"),
+		("{COPYDIR} %{sourcedir}/Application/*.h*    %{deploydir}/include/Application"),
+		("{COPYDIR} %{sourcedir}/Core/*.h*           %{deploydir}/include/Core"),
+		("{COPYDIR} %{sourcedir}/Geometry/*.h*       %{deploydir}/include/Geometry"),
+		("{COPYDIR} %{sourcedir}/Graphics/*.h*       %{deploydir}/include/Graphics"),
+		("{COPYDIR} %{sourcedir}/Math/*.h*           %{deploydir}/include/Math"),
+		("{COPYDIR} %{sourcedir}/RenderCore/*.h*     %{deploydir}/include/RenderCore"),
+		("{COPYDIR} %{sourcedir}/Renderer/*.h*       %{deploydir}/include/Renderer"),
+	}
+    
+	
+	-- -- specifc for windows
+	-- filter "system:windows"
+	  -- --staticruntime "On"
+	  -- systemversion "latest"
+	  -- defines { "S2ENGINE_EXPORTS" }
 	  
-	filter "configurations:Debug"
-	  --defines { "_DEBUG" }
-	  symbols "On"
+	-- filter "configurations:Debug"
+	  -- --defines { "_DEBUG" }
+	  -- symbols "On"
 
-	filter "configurations:Release"
-	  defines { "NDEBUG" }
-	  optimize "On"
-	  symbols "On"	  
+	-- filter "configurations:Release"
+	  -- defines { "NDEBUG" }
+	  -- optimize "On"
+	  -- symbols "On"	  
 	
-	filter{} -- close filters
+	-- filter{} -- close filters
 
 
 	-- postbuildcommands 
 	-- {
-		-- ("{MKDIR} %{pkgBinDir}"),
-		-- ("{MKDIR} %{pkgIncDir}"),
-		-- ("{COPYFILE} %{cfg.buildtarget.relpath} %{pkgBinDir}"),
-		-- ("{COPYFILE} %{cfg.linktarget.relpath} %{pkgBinDir}"),
-		-- ("{COPYFILE} %{prj.location}/src/DigX_API.h %{pkgIncDir}"),		
-		-- ("{COPYFILE} %{prj.location}/src/DigXInterface.h %{pkgIncDir}"),
-		-- ("{COPYFILE} %{prj.location}/src/DigXTypes.h %{pkgIncDir}"),
-	-- }	
+		-- ("{MKDIR} %{deploydir}/bin"),
+		-- ("{MKDIR} %{deploydir}/include"),
+		-- ("{COPYFILE} %{cfg.buildtarget.relpath} %{deploydir}/%{cfg.buildtarget.directory}"), -- copy .dll
+		-- ("{COPYFILE} %{cfg.buildtarget.relpath} %{deploydir}/%{cfg.buildtarget.directory}"), -- copy .dll
+		-- ("{COPYFILE} %{cfg.longname} %{deploydir}/%{cfg.linktarget.relpath}"),   -- copy .lib
+	-- }
 	
 
 	-- filter { "system:windows","configurations:Release"}
@@ -129,4 +144,4 @@ project "s2Engine"
 	-- filter { "system:linux","configurations:Debug"}		
 		-- copySDK( "Linux64", "Debug", "so", "%{pkgBinDir}")		
    
-   filter{} -- close filters   
+   --filter{} -- close filters   
