@@ -27,6 +27,7 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #endif // GLM_ENABLE_EXPERIMENTAL
 
+#include "glm/gtx/projection.hpp"
 #include "glm/gtx/spline.hpp"
 #include "glm/gtx/matrix_decompose.hpp"
 #include "glm/gtx/easing.hpp"

@@ -3,7 +3,7 @@
 #ifndef MATH_SPACE_H
 #define MATH_SPACE_H
 
-#include "Math.h"
+#include "Math/Math.h"
 
 #include "Plane.h"
 

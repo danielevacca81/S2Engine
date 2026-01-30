@@ -5,7 +5,8 @@
 
 #include "s2Engine_API.h"
 
-#include "Math.h"
+#include "Math/Math.h"
+
 
 namespace glm {
 
@@ -67,7 +68,7 @@ class Ease
 {
 public:
 	GLM_CTOR_DECL Ease() = default;
-	GLM_CTOR_DECL Ease( const T& startValue, const T& endValue, double duration_sec, EasingCurve curve = EasingCurve::Linear, Mode mode = Mode::Once )
+	GLM_CTOR_DECL Ease( const T& startValue, const T& endValue, double duration_sec, Curve curve = Curve::Linear, Mode mode = Mode::Once )
 		: _startValue( startValue )
 		, _endValue( endValue )
 		, _duration_sec( duration_sec )

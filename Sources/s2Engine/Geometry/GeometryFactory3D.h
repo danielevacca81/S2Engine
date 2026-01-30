@@ -11,12 +11,16 @@
 
 #include <vector>
 namespace s2 {
-namespace Geometry {
 
 class S2ENGINE_API GeometryFactory3D
 {
 public:
 	static Geometry createTorus( double innerRadius, double outerRadius, int sidesCount, int ringsCount );
+	static Geometry createCylinder( const Math::dvec3& startPoint, const Math::dvec3& endPoint, double radius, bool capStart, bool capEnd, int slices );
+	static Geometry createSphere( const Math::dvec3& center, double radius, int slices );
+	static Geometry createCone( const Math::dvec3& startPoint, const Math::dvec3& endPoint, double radius, bool capStart, bool capEnd, int slices );
+	static Geometry createCube( const Math::dvec3& center, double size );
+
 
 	// static Mesh cylinder( const Math::dvec3 &startPoint, const Math::dvec3 &endPoint, double radius, bool capStart, bool capEnd, int slices );
 	// static Mesh sphere( const Math::dvec3 &center, double radius, int slices );
@@ -30,7 +34,6 @@ public:
 	GeometryFactory3D() = delete;
 };
 
-}
 }
 
 #endif

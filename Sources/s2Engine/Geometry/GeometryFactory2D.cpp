@@ -1,12 +1,11 @@
 // Geometry.cpp
 // 
-#include "Geometry.h"
+#include "GeometryFactory2D.h"
 
-namespace s2 {
-namespace Geometry {
+using namespace s2;
 
 // ------------------------------------------------------------------------------------------------
-std::vector< Math::dvec2 > circle( const Math::dvec2 &center, double radius, int LOD /* = 32 */ )
+std::vector< Math::dvec2 > GeometryFactory2D::circle( const Math::dvec2 &center, double radius, int LOD /* = 32 */ )
 {
 	std::vector< Math::dvec2 > circlePoints;
 
@@ -23,7 +22,4 @@ std::vector< Math::dvec2 > circle( const Math::dvec2 &center, double radius, int
 	}
 
 	return circlePoints;
-}
-
-}
 }

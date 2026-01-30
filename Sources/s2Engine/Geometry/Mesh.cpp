@@ -196,5 +196,5 @@ std::vector<unsigned int> Mesh::indices()   const
 		i+=3;
 	}
 
-	return std::move( idx );
+	return idx;
 }

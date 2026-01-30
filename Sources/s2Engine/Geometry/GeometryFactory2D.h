@@ -12,12 +12,19 @@
 
 namespace s2 {
 
+class S2ENGINE_API GeometryFactory2D
+{
+public:
+
 // 2D 
 //std::vector< Math::dvec3 > S2ENGINE_API ellipse();
 //std::vector< Math::dvec3 > S2ENGINE_API rectangle();
-std::vector< Math::dvec2 > S2ENGINE_API circle( const Math::dvec2 &center, double radius, int LOD = 32 );
+std::vector< Math::dvec2 >  circle( const Math::dvec2 &center, double radius, int slices = 32 );
 
 
+private:
+	GeometryFactory2D() = delete;
+};
 // 3D
 //std::vector< Math::dvec3 > S2ENGINE_API cube();
 //std::vector< Math::dvec3 > S2ENGINE_API sphere( int numc, int numt );

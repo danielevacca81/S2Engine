@@ -9,7 +9,6 @@
 #include <vector>
 
 namespace s2 {
-namespace Geometry {
 
 struct S2ENGINE_API Geometry
 {
@@ -19,7 +18,6 @@ struct S2ENGINE_API Geometry
 	std::vector<uint32_t>      indices;
 };
 
-}
 
 }
 
