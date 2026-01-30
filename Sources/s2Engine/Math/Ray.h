@@ -46,7 +46,7 @@ public:
 
 } // end namespace detail
 
-typedef detail::tray<float, defaultp>  fray;
+typedef detail::tray<float,  defaultp> fray;
 typedef detail::tray<double, defaultp> dray;
 
 } // end namespace glm

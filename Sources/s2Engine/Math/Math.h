@@ -48,8 +48,8 @@ namespace glm {
 	normalizeAngle_rad( const genType& rad )
 	{
 		auto angle = rad;
-		while( angle >   pi<genType>() ) angle -= pi<genType>() * genType(2);
-		while( angle <= -pi<genType>() ) angle += pi<genType>() * genType(2);
+		while( angle >   pi<genType>() ) angle -= two_pi<genType>();
+		while( angle <= -pi<genType>() ) angle += two_pi<genType>();
 		return angle;
 	}
 

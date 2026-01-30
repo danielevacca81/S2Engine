@@ -34,7 +34,6 @@ ProjectionTransform ProjectionTransform::createPerspectiveByFovHorizontal( doubl
 		pt._farPlane     = farPlane;
 	};
 	return pt;
-
 }
 
 // ------------------------------------------------------------------------------------------------
