@@ -15,7 +15,7 @@
 #include "FrameBuffer.h"
 
 
-#include "Core/Pixmap.h"
+#include "Graphics/Pixmap.h"
 #include "Math/Rectangle.h"
 
 #include <initializer_list>

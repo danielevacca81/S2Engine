@@ -5,7 +5,7 @@
 
 #include "RenderState.h"
 
-#include "Core/Color.h"
+#include "Graphics/Color.h"
 
 #include <array>
 #include <utility>

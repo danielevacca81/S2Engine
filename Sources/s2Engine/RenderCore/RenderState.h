@@ -3,7 +3,7 @@
 #ifndef RENDERSTATE_H
 #define RENDERSTATE_H
 
-#include "Core/Color.h"
+#include "Graphics/Color.h"
 #include "Math/Rectangle.h"
 
 #include <array>

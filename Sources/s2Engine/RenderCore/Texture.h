@@ -11,7 +11,7 @@
 
 #include "OpenGLObject.h"
 
-#include "Core/Pixmap.h"
+#include "Graphics/Pixmap.h"
 
 #include <memory>
 

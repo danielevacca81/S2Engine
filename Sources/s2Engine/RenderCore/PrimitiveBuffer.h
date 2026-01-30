@@ -9,7 +9,7 @@
 #include "BufferObject.h"
 #include "VertexArray.h"
 
-#include "Core/Color.h"
+#include "Graphics/Color.h"
 #include "Math/Math.h"
 
 #include <vector>

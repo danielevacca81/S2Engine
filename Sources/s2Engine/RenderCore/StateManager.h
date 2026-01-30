@@ -9,7 +9,7 @@
 #include "ClearState.h"
 #include "RenderState.h"
 
-#include "Core/Color.h"
+#include "Graphics/Color.h"
 
 #include "Program.h"
 #include "FrameBuffer.h"
