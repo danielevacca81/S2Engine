@@ -5,30 +5,27 @@
 
 #include "s2Engine_API.h"
 
-#include "Geometry.h"
-
+#include "MeshData.h"
 #include "Math/Math.h"
 
 #include <vector>
+
 namespace s2 {
 
 class S2ENGINE_API GeometryFactory3D
 {
 public:
-	static Geometry createTorus( double innerRadius, double outerRadius, int sidesCount, int ringsCount );
-	static Geometry createCylinder( const Math::dvec3& startPoint, const Math::dvec3& endPoint, double radius, bool capStart, bool capEnd, int slices );
-	static Geometry createSphere( const Math::dvec3& center, double radius, int slices );
-	static Geometry createCone( const Math::dvec3& startPoint, const Math::dvec3& endPoint, double radius, bool capStart, bool capEnd, int slices );
-	static Geometry createCube( const Math::dvec3& center, double size );
+	static MeshData3D createTorus( double innerRadius, double outerRadius, int sidesCount, int ringsCount );
+	static MeshData3D createCylinder( const Math::dvec3& startPoint, const Math::dvec3& endPoint, double radius, bool capStart, bool capEnd, int slices );
+	static MeshData3D createSphere( const Math::dvec3& center, double radius, int slices );
+	static MeshData3D createCone( const Math::dvec3& center, const Math::dvec3& tip, double baseRadius, bool cap, int slices );
+	static MeshData3D createCube( const Math::dvec3& center, double size );
+	//static MeshData3D createCapsule( const Math::dvec3& startPoint, const Math::dvec3& endPoint, double radius, int slices, int rings );
+	static MeshData3D createTeapot( int resU, int resV );
 
 
-	// static Mesh cylinder( const Math::dvec3 &startPoint, const Math::dvec3 &endPoint, double radius, bool capStart, bool capEnd, int slices );
-	// static Mesh sphere( const Math::dvec3 &center, double radius, int slices );
-	// ...
-	// static Mesh cone( const Math::dvec3 &startPoint, const Math::dvec3 &endPoint, double radius, bool capStart, bool capEnd, int slices );
-	// static Mesh cube( const Math::dvec3 &center, double size );
+
 	// static Mesh teapot( int resU, int resV );
-	// ...
 
 public:
 	GeometryFactory3D() = delete;

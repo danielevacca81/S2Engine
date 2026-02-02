@@ -5,6 +5,8 @@
 #include "GeometryFactory2D.h"
 #include "Math/Space.h"
 
+#include <array>
+
 using namespace s2;
 
 // ------------------------------------------------------------------------------------------------
@@ -13,22 +15,15 @@ static inline std::vector<Math::dvec3> generateCircle3D( const Math::dvec3& cent
 														 double radius, int slices )
 {
 	std::vector<Math::dvec3> circlePoints;
-	// Generate a local frame based on the normal
-	//const Math::dmat4 basis = [normal]()
-	//{
-	//	Math::dmat4 frame4x4 = Math::localFrame( normal );
-	//	frame4x4[3] = Math::dvec4 { 0.0, 0.0, 0.0, 1.0 };
-	//	return frame4x4;
-	//}();
-	const Math::dmat4 basis = Math::localFrame( normal );
-	const Math::dmat4 rotateAroundCenter = basis;
+	const Math::dmat4 rotateAroundCenter = Math::localFrame( normal );
 	const double step = Math::two_pi<double>() / slices;
 	for( int i = 0; i < slices; ++i )
 	{
 		const double angle = i * step;
 		const double cx = radius * Math::cos( angle );
 		const double cy = radius * Math::sin( angle );
-		// build a circle on the plane YZ
+		
+		// Build a circle on the YZ plane and rotate it to align with the normal
 		const Math::dvec3 p = rotateAroundCenter * Math::dvec4( 0.0, cx, cy, 1.0 );
 		circlePoints.push_back( center + p );
 	}
@@ -36,17 +31,17 @@ static inline std::vector<Math::dvec3> generateCircle3D( const Math::dvec3& cent
 }
 
 // ------------------------------------------------------------------------------------------------
-Geometry GeometryFactory3D::createTorus( double innerRadius, double outerRadius, int numc, int numt )
+MeshData3D GeometryFactory3D::createTorus( double innerRadius, double outerRadius, int numc, int numt )
 {
 	if( innerRadius <= 0.0 || outerRadius <= 0.0 || numc < 3 || numt < 3 )
 		return {};
 
-	Geometry g;
+	MeshData3D g;
 
-	// numc = numero di circonferenze (sectors)
+	// numc = number of circles (sectors)
 	for( int i = 0; i < numc; ++i )
 	{
-		// numt = punti per circonferenza
+		// numt = points per circle
 		for( int j = 0; j < numt; ++j )
 		{
 			const double t = Math::two_pi<double>() * i / (double) numc;
@@ -64,14 +59,13 @@ Geometry GeometryFactory3D::createTorus( double innerRadius, double outerRadius,
 								 Math::cos( p ) );
 
 			g.normals.push_back( Math::cross( T, B ) );
-			//normals.push_back( Math::normalize( Math::dvec3( x, y, z ) ) );
 
-			// first_triangle
+			// First triangle
 			g.indices.push_back( ( i * numt ) + j );
 			g.indices.push_back( ( ( ( i + 1 ) % numc ) * numt ) + j );
 			g.indices.push_back( ( ( ( i + 1 ) % numc ) * numt ) + ( j + 1 ) % numt );
 
-			// second triangle
+			// Second triangle
 			g.indices.push_back( ( i * numt ) + j );
 			g.indices.push_back( ( ( ( i + 1 ) % numc ) * numt ) + ( j + 1 ) % numt );
 			g.indices.push_back( ( i * numt ) + ( j + 1 ) % numt );
@@ -82,105 +76,167 @@ Geometry GeometryFactory3D::createTorus( double innerRadius, double outerRadius,
 }
 
 // ------------------------------------------------------------------------------------------------
-Geometry GeometryFactory3D::createCylinder( const Math::dvec3& startPoint, const Math::dvec3& endPoint, double radius, bool capStart, bool capEnd, int slices )
+MeshData3D GeometryFactory3D::createCylinder(
+	const Math::dvec3& startPoint,
+	const Math::dvec3& endPoint,
+	double radius,
+	bool capStart,
+	bool capEnd,
+	int slices )
 {
 	if( slices < 4 )
 		return {};
 
-	// check for degenerate case
+	// Check for degenerate case
 	if( Math::length( endPoint - startPoint ) < Math::epsilon<double>() )
 		return {};
 
-	const std::vector<Math::dvec3> circle = generateCircle3D( Math::dvec3( 0.0, 0.0, 0.0 ), Math::dvec3( 0.0, 1.0, 0.0 ), radius, slices );
-
 	const Math::dvec3 dir = Math::normalize( endPoint - startPoint );
-	const Math::dmat4 basis = Math::localFrame( dir );
-	const Math::dmat4 rotateAroundStartPoint = basis;
-
-	Geometry cylinder;
 	const double len = Math::length( endPoint - startPoint );
-	const int loopIndex = slices * 2;  // two rings (start/end)
-	for( int idx = 0; auto& s : circle )
+
+	// Generate base circle
+	const std::vector<Math::dvec3> circle = generateCircle3D( startPoint, dir, radius, slices );
+
+	MeshData3D cylinder;
+
+	// Generate vertices for cylinder sides (base + top rings)
+	for( int i = 0; i < slices; ++i )
 	{
-		// two points per iteration, one around at startPoint one around endPoint
-		const Math::dvec3 pStart = rotateAroundStartPoint * Math::dvec4( s, 1.0 );
-		const Math::dvec3 pEnd = pStart + dir * len;
+		const Math::dvec3 pBase = circle[i];
+		const Math::dvec3 pTop = pBase + dir * len;
 
-		cylinder.vertices.emplace_back( startPoint + pEnd );
-		cylinder.vertices.emplace_back( startPoint + pStart );
-		cylinder.normals.emplace_back( Math::dmat3( basis ) * s );
-		cylinder.normals.emplace_back( Math::dmat3( basis ) * s );
+		cylinder.vertices.emplace_back( pBase );
+		cylinder.vertices.emplace_back( pTop );
 
-		// six indices per slices, idx+=2
-		// 0 , 1 , 3
-		// 0 , 3 , 2		
-		cylinder.indices.emplace_back( idx + 0 );
-		cylinder.indices.emplace_back( idx + 1 );
-		cylinder.indices.emplace_back( ( idx + 3 ) % loopIndex );
-
-		cylinder.indices.emplace_back( idx + 0 );
-		cylinder.indices.emplace_back( ( idx + 3 ) % loopIndex );
-		cylinder.indices.emplace_back( ( idx + 2 ) % loopIndex );
-
-		idx += 2;
+		// Radial normal (perpendicular to cylinder axis)
+		const auto n = Math::normalize( pBase - startPoint );
+		cylinder.normals.emplace_back( n );
+		cylinder.normals.emplace_back( n );
 	}
 
-	auto addCapCircleAt = [&] ( const Math::dvec3 &p, const Math::dvec3 &n )
+	// Generate indices for cylinder sides
+	const int loopIndex = slices * 2;
+	for( int idx = 0; idx < slices * 2; idx += 2 )
 	{
-		const int first = (int) cylinder.vertices.size();
+		// Two triangles per quad
+		// Triangle 1: base[i], top[i], top[i+1]
+		cylinder.indices.emplace_back( idx + 0 );
+		cylinder.indices.emplace_back( ( idx + 3 ) % loopIndex );
+		cylinder.indices.emplace_back( idx + 1 );
 
-		for( int k=0; auto& s : circle )
+		// Triangle 2: base[i], top[i+1], base[i+1]
+		cylinder.indices.emplace_back( idx + 0 );
+		cylinder.indices.emplace_back( ( idx + 2 ) % loopIndex );
+		cylinder.indices.emplace_back( ( idx + 3 ) % loopIndex );
+	}
+
+	// Add start cap if requested
+	if( capStart )
+	{
+		const int centerIdx = (int) cylinder.vertices.size();
+
+		// Center vertex
+		cylinder.vertices.emplace_back( startPoint );
+		cylinder.normals.emplace_back( -dir );
+
+		// Circle vertices (duplicated with -dir normal)
+		for( int i = 0; i < slices; ++i )
 		{
-			cylinder.vertices.emplace_back( startPoint + p );
-			cylinder.normals.emplace_back( n );
-
-			if( k >= 2 )
-			{
-				cylinder.indices.emplace_back( first + 0 );
-				cylinder.indices.emplace_back( first + k - 1 );
-				cylinder.indices.emplace_back( first + k );
-			}
-
-			++k;
+			cylinder.vertices.emplace_back( circle[i] );
+			cylinder.normals.emplace_back( -dir );
 		}
-	};
 
+		// Fan triangulation (CW winding when viewed from -dir)
+		for( int i = 0; i < slices; ++i )
+		{
+			cylinder.indices.emplace_back( centerIdx );
+			cylinder.indices.emplace_back( centerIdx + 1 + ( i + 1 ) % slices );
+			cylinder.indices.emplace_back( centerIdx + 1 + i );
+		}
+	}
 
-	if( capStart ) addCapCircleAt(              rotateAroundStartPoint * Math::dvec4( Math::dvec3( 0.0 ), 1.0 ),-dir );
-	if( capEnd )   addCapCircleAt( Math::dvec3( rotateAroundStartPoint * Math::dvec4( Math::dvec3( 0.0 ), 1.0 ) ) + dir * len, dir );
+	// Add end cap if requested
+	if( capEnd )
+	{
+		const int centerIdx = (int) cylinder.vertices.size();
+
+		// Center vertex
+		cylinder.vertices.emplace_back( endPoint );
+		cylinder.normals.emplace_back( dir );
+
+		// Circle vertices (duplicated with +dir normal)
+		for( int i = 0; i < slices; ++i )
+		{
+			cylinder.vertices.emplace_back( circle[i] + dir * len );
+			cylinder.normals.emplace_back( dir );
+		}
+
+		// Fan triangulation (CCW winding when viewed from +dir)
+		for( int i = 0; i < slices; ++i )
+		{
+			cylinder.indices.emplace_back( centerIdx );
+			cylinder.indices.emplace_back( centerIdx + 1 + i );
+			cylinder.indices.emplace_back( centerIdx + 1 + ( i + 1 ) % slices );
+		}
+	}
 
 	return cylinder;
 }
 
 // ------------------------------------------------------------------------------------------------
-Geometry GeometryFactory3D::createSphere( const Math::dvec3& center, double radius, int slices )
+MeshData3D GeometryFactory3D::createSphere( const Math::dvec3& center, double radius, int slices )
 {
 	if( slices < 4 )
 		return {};
 
-	Geometry sphere;
+	MeshData3D sphere;
 	const int    rings = slices;
 	const double twopi = Math::two_pi<double>();
 	const double dTheta = twopi / double( slices );
 	const double dPhi   = Math::pi<double>() / double( rings );
-	for( int r = 0; r < rings+1; ++r )
+	
+	// Generate vertices and normals
+	for( int r = 0; r < rings + 1; ++r )
 	{
 		const double phi    = Math::half_pi<double>() - double( r ) * dPhi;
 		const double cosPhi = Math::cos( phi );
 		const double sinPhi = Math::sin( phi );
-		for( int s = 0; s < slices+1; ++s )
+		
+		for( int s = 0; s < slices + 1; ++s )
 		{
 			const double theta    = double( s ) * dTheta;
 			const double cosTheta = Math::cos( theta );
 			const double sinTheta = Math::sin( theta );
+			
 			const Math::dvec3 p = 
 			{
 				cosTheta * cosPhi,
 				sinPhi,
 				sinTheta * cosPhi
 			};
-			sphere.vertices.emplace_back( center +  p * radius );
-			sphere.normals.emplace_back( p );
+			
+			sphere.vertices.emplace_back( center + p * radius );
+			sphere.normals.emplace_back( -p );
+		}
+	}
+	
+	// Generate indices
+	for( int r = 0; r < rings; ++r )
+	{
+		for( int s = 0; s < slices; ++s )
+		{
+			const int current = r * ( slices + 1 ) + s;
+			const int next    = current + slices + 1;
+			
+			// First triangle
+			sphere.indices.emplace_back( current );
+			sphere.indices.emplace_back( next );
+			sphere.indices.emplace_back( current + 1 );
+			
+			// Second triangle
+			sphere.indices.emplace_back( current + 1 );
+			sphere.indices.emplace_back( next );
+			sphere.indices.emplace_back( next + 1 );
 		}
 	}
 
@@ -188,573 +244,482 @@ Geometry GeometryFactory3D::createSphere( const Math::dvec3& center, double radi
 }
 
 // ------------------------------------------------------------------------------------------------
-Geometry GeometryFactory3D::createCone( const Math::dvec3& startPoint, const Math::dvec3& endPoint, double radius, bool capStart, bool capEnd, int slices )
+MeshData3D GeometryFactory3D::createCone( const Math::dvec3& center, const Math::dvec3& tip, double baseRadius, bool cap, int slices )
 {
 	if( slices < 4 )
 		return {};
 
-	// check for degenerate case
-	if( Math::length( endPoint - startPoint ) < Math::epsilon<double>() )
+	// Check for degenerate case
+	if( Math::length( tip - center ) < Math::epsilon<double>() )
 		return {};
 
+	const Math::dvec3 dir = Math::normalize( tip - center );
+	const std::vector<Math::dvec3> circle = generateCircle3D( center, dir, baseRadius, slices );
 
-	const std::vector<Math::dvec3> circle = generateCircle3D( Math::dvec3( 0.0, 0.0, 0.0 ), Math::dvec3( 0.0, 1.0, 0.0 ), radius, slices );
-	const Math::dvec3 dir = Math::normalize( endPoint - startPoint );
-	//const Math::dmat4 basis = [dir] ()
-	//{
-	//	Math::dmat4 frame4x4 = Math::localFrame( dir );
-	//	frame4x4[3] = Math::dvec4 { 0.0, 0.0, 0.0, 1.0 };
-	//	return frame4x4;
-	//}( );
-	const Math::dmat4 basis = Math::localFrame( dir );
-
-	const Math::dmat4 rotateAroundStartPoint = basis;
-	Geometry cone;
-	const double len = Math::length( endPoint - startPoint );
-	const int loopIndex = slices + 1;  // one ring + tip
-	for( int idx = 0; auto& s : circle )
+	MeshData3D cone;
+	
+	// Vertex 0: tip
+	cone.vertices.emplace_back( tip );
+	cone.normals.emplace_back( dir );
+	
+	// Vertices 1..slices: cone base
+	for( int i = 0; i < slices; ++i )
 	{
-		// one point per iteration around at startPoint
-		const Math::dvec3 pStart = rotateAroundStartPoint * Math::dvec4( s, 1.0 );
-		cone.vertices.emplace_back( startPoint + pStart );
-		cone.normals.emplace_back( Math::dmat3( basis ) * s );
-		// three indices per slices, idx+=1
-		// 0 , 1 , tip
-		cone.indices.emplace_back( idx + 0 );
-		cone.indices.emplace_back( ( ( idx + 1 ) % loopIndex ) );
-		cone.indices.emplace_back( loopIndex - 1 ); // tip index
-		idx += 1;
+		const auto &p0 = circle[i];
+		const auto &p1 = circle[( i + 1 ) % slices];
+		
+		cone.vertices.emplace_back( p0 );
+		
+		// Compute normal for triangle [tip, p0, p1]
+		const auto edge1 = p0 - tip;
+		const auto edge2 = p1 - tip;
+		const auto n = Math::normalize( Math::cross( edge1, edge2 ) );
+		cone.normals.emplace_back( n );
 	}
-	cone.vertices.emplace_back( endPoint ); // tip
-	cone.normals.emplace_back( Math::dmat3( basis ) * Math::dvec3( 0.0, 0.0, 1.0 ) );
-
-	auto addCapCircleAt = [&] ( const Math::dvec3 &p, const Math::dvec3 &n )
+	
+	// Generate indices for cone sides
+	for( int i = 0; i < slices; ++i )
 	{
-		const int first = (int) cone.vertices.size();
-		for( int k=0; auto& s : circle )
+		const int current = i + 1;                    // Current base vertex
+		const int next = ( i + 1 ) % slices + 1;      // Next base vertex
+		
+		// Triangle: tip -> current -> next (CCW winding)
+		cone.indices.emplace_back( 0 );
+		cone.indices.emplace_back( current );
+		cone.indices.emplace_back( next );
+	}
+	
+	// Add cap if requested
+	if( cap )
+	{
+		const int firstCapVertex = (int)cone.vertices.size();
+		
+		// Add vertices for cap (duplicated with -dir normal)
+		for( int i = 0; i < slices; ++i )
 		{
-			cone.vertices.emplace_back( startPoint + p );
-			cone.normals.emplace_back( n );
-			if( k >= 2 )
-			{
-				cone.indices.emplace_back( first + 0 );
-				cone.indices.emplace_back( first + k - 1 );
-				cone.indices.emplace_back( first + k );
-			}
-			++k;
+			cone.vertices.emplace_back( circle[i] );
+			cone.normals.emplace_back( -dir );
 		}
-	};
-
-	if( capStart ) addCapCircleAt( rotateAroundStartPoint * Math::dvec4( Math::dvec3( 0.0 ), 1.0 ), -dir );
-	if( capEnd )   addCapCircleAt( Math::dvec3( rotateAroundStartPoint * Math::dvec4( Math::dvec3( 0.0 ), 1.0 ) ) + dir * len, dir );
+		
+		// Generate indices for cap (fan triangulation)
+		for( int i = 2; i < slices; ++i )
+		{
+			cone.indices.emplace_back( firstCapVertex );
+			cone.indices.emplace_back( firstCapVertex + i );
+			cone.indices.emplace_back( firstCapVertex + i - 1 );
+		}
+	}
+	
 	return cone;
 }
 
 // ------------------------------------------------------------------------------------------------
-Geometry GeometryFactory3D::createCube( const Math::dvec3& center, double size )
+MeshData3D GeometryFactory3D::createCube( const Math::dvec3& center, double size )
 {
-	Geometry cube;
+	MeshData3D cube;
 	const double halfSize = size * 0.5;
-	// 8 vertices
+	
+	// 24 vertices (4 per face for proper normals)
 	cube.vertices =
 	{
-		Math::dvec3( center.x - halfSize, center.y - halfSize, center.z - halfSize ), // 0
-		Math::dvec3( center.x + halfSize, center.y - halfSize, center.z - halfSize ), // 1
-		Math::dvec3( center.x + halfSize, center.y + halfSize, center.z - halfSize ), // 2
-		Math::dvec3( center.x - halfSize, center.y + halfSize, center.z - halfSize ), // 3
-		Math::dvec3( center.x - halfSize, center.y - halfSize, center.z + halfSize ), // 4
-		Math::dvec3( center.x + halfSize, center.y - halfSize, center.z + halfSize ), // 5
-		Math::dvec3( center.x + halfSize, center.y + halfSize, center.z + halfSize ), // 6
-		Math::dvec3( center.x - halfSize, center.y + halfSize, center.z + halfSize )  // 7
+		// Front face
+		Math::dvec3( center.x - halfSize, center.y - halfSize, center.z + halfSize ), // 0
+		Math::dvec3( center.x + halfSize, center.y - halfSize, center.z + halfSize ), // 1
+		Math::dvec3( center.x + halfSize, center.y + halfSize, center.z + halfSize ), // 2
+		Math::dvec3( center.x - halfSize, center.y + halfSize, center.z + halfSize ), // 3
+
+		// Right face
+		Math::dvec3( center.x + halfSize, center.y - halfSize, center.z + halfSize ), // 4
+		Math::dvec3( center.x + halfSize, center.y - halfSize, center.z - halfSize ), // 5
+		Math::dvec3( center.x + halfSize, center.y + halfSize, center.z - halfSize ), // 6
+		Math::dvec3( center.x + halfSize, center.y + halfSize, center.z + halfSize ), // 7
+
+		// Back face
+		Math::dvec3( center.x + halfSize, center.y - halfSize, center.z - halfSize ), // 8
+		Math::dvec3( center.x - halfSize, center.y - halfSize, center.z - halfSize ), // 9
+		Math::dvec3( center.x - halfSize, center.y + halfSize, center.z - halfSize ), // 10
+		Math::dvec3( center.x + halfSize, center.y + halfSize, center.z - halfSize ), // 11
+
+		// Left face
+		Math::dvec3( center.x - halfSize, center.y - halfSize, center.z - halfSize ), // 12
+		Math::dvec3( center.x - halfSize, center.y - halfSize, center.z + halfSize ), // 13
+		Math::dvec3( center.x - halfSize, center.y + halfSize, center.z + halfSize ), // 14
+		Math::dvec3( center.x - halfSize, center.y + halfSize, center.z - halfSize ), // 15
+
+		// Top face
+		Math::dvec3( center.x - halfSize, center.y + halfSize, center.z + halfSize ), // 16
+		Math::dvec3( center.x + halfSize, center.y + halfSize, center.z + halfSize ), // 17
+		Math::dvec3( center.x + halfSize, center.y + halfSize, center.z - halfSize ), // 18
+		Math::dvec3( center.x - halfSize, center.y + halfSize, center.z - halfSize ), // 19
+
+		// Bottom face
+		Math::dvec3( center.x - halfSize, center.y - halfSize, center.z - halfSize ), // 20
+		Math::dvec3( center.x + halfSize, center.y - halfSize, center.z - halfSize ), // 21
+		Math::dvec3( center.x + halfSize, center.y - halfSize, center.z + halfSize ), // 22
+		Math::dvec3( center.x - halfSize, center.y - halfSize, center.z + halfSize ), // 23
 	};
-	// normals
+	
+	// Normals (one per face, repeated for each vertex)
 	cube.normals =
 	{
-		Math::normalize( Math::dvec3( -1.0, -1.0, -1.0 ) ),
-		Math::normalize( Math::dvec3(  1.0, -1.0, -1.0 ) ),
-		Math::normalize( Math::dvec3(  1.0,  1.0, -1.0 ) ),
-		Math::normalize( Math::dvec3( -1.0,  1.0, -1.0 ) ),
-		Math::normalize( Math::dvec3( -1.0, -1.0,  1.0 ) ),
-		Math::normalize( Math::dvec3(  1.0, -1.0,  1.0 ) ),
-		Math::normalize( Math::dvec3(  1.0,  1.0,  1.0 ) ),
-		Math::normalize( Math::dvec3( -1.0,  1.0,  1.0 ) )
+		Math::dvec3(  0.0,  0.0,  1.0 ),
+		Math::dvec3(  0.0,  0.0,  1.0 ),
+		Math::dvec3(  0.0,  0.0,  1.0 ),
+		Math::dvec3(  0.0,  0.0,  1.0 ),
+
+		Math::dvec3(  1.0,  0.0,  0.0 ),
+		Math::dvec3(  1.0,  0.0,  0.0 ),
+		Math::dvec3(  1.0,  0.0,  0.0 ),
+		Math::dvec3(  1.0,  0.0,  0.0 ),
+
+		Math::dvec3(  0.0,  0.0, -1.0 ),
+		Math::dvec3(  0.0,  0.0, -1.0 ),
+		Math::dvec3(  0.0,  0.0, -1.0 ),
+		Math::dvec3(  0.0,  0.0, -1.0 ),
+
+		Math::dvec3( -1.0,  0.0,  0.0 ),
+		Math::dvec3( -1.0,  0.0,  0.0 ),
+		Math::dvec3( -1.0,  0.0,  0.0 ),
+		Math::dvec3( -1.0,  0.0,  0.0 ),
+
+		Math::dvec3(  0.0,  1.0,  0.0 ),
+		Math::dvec3(  0.0,  1.0,  0.0 ),
+		Math::dvec3(  0.0,  1.0,  0.0 ),
+		Math::dvec3(  0.0,  1.0,  0.0 ),
+
+		Math::dvec3(  0.0, -1.0,  0.0 ),
+		Math::dvec3(  0.0, -1.0,  0.0 ),
+		Math::dvec3(  0.0, -1.0,  0.0 ),
+		Math::dvec3(  0.0, -1.0,  0.0 ),
 	};
 
-	// indices
+	// Indices (2 triangles per face)
 	cube.indices =
 	{
-		0, 1, 2,  0, 2, 3, // back face
-		1, 5, 6,  1, 6, 2, // right face
-		5, 4, 7,  5, 7, 6, // front face
-		4, 0, 3,  4, 3, 7, // left face
-		3, 2, 6,  3, 6, 7, // top face
-		4, 5, 1,  4, 1, 0  // bottom face
+		0, 1, 2,   0, 2, 3,    // Front face
+		4, 5, 6,   4, 6, 7,    // Right face
+		8, 9, 10,  8, 10, 11,  // Back face
+		12, 13, 14, 12, 14, 15, // Left face		
+		16, 17, 18, 16, 18, 19, // Top face
+		20, 21, 22, 20, 22, 23  // Bottom face
 	};
+	
 	return cube;
 }
 
-
-
-#if 0 
 // ------------------------------------------------------------------------------------------------
-#pragma region TEAPOT
-struct vertex { double x, y, z; };
-struct vertex teapot_cp_vertices[] = {
-	// 1
-	{  1.4   ,   0.0   ,  2.4     },
-	{  1.4   ,  -0.784 ,  2.4     },
-	{  0.784 ,  -1.4   ,  2.4     },
-	{  0.0   ,  -1.4   ,  2.4     },
-	{  1.3375,   0.0   ,  2.53125 },
-	{  1.3375,  -0.749 ,  2.53125 },
-	{  0.749 ,  -1.3375,  2.53125 },
-	{  0.0   ,  -1.3375,  2.53125 },
-	{  1.4375,    0.0  ,  2.53125 },
-	{  1.4375,  -0.805 ,  2.53125 },
-	// 11
-	{  0.805 ,  -1.4375,  2.53125 },
-	{  0.0   ,  -1.4375,  2.53125 },
-	{  1.5   ,   0.0   ,  2.4     },
-	{  1.5   ,  -0.84  ,  2.4     },
-	{  0.84  ,  -1.5   ,  2.4     },
-	{  0.0   ,  -1.5   ,  2.4     },
-	{ -0.784 ,  -1.4   ,  2.4     },
-	{ -1.4   ,  -0.784 ,  2.4     },
-	{ -1.4   ,   0.0   ,  2.4     },
-	{ -0.749 ,  -1.3375,  2.53125 },
-	// 21
-	{ -1.3375,  -0.749 ,  2.53125 },
-	{ -1.3375,   0.0   ,  2.53125 },
-	{ -0.805 ,  -1.4375,  2.53125 },
-	{ -1.4375,  -0.805 ,  2.53125 },
-	{ -1.4375,   0.0   ,  2.53125 },
-	{ -0.84  ,  -1.5   ,  2.4     },
-	{ -1.5   ,  -0.84  ,  2.4     },
-	{ -1.5   ,   0.0   ,  2.4     },
-	{ -1.4   ,   0.784 ,  2.4     },
-	{ -0.784 ,   1.4   ,  2.4     },
-	// 31
-	{  0.0   ,   1.4   ,  2.4     },
-	{ -1.3375,   0.749 ,  2.53125 },
-	{ -0.749 ,   1.3375,  2.53125 },
-	{  0.0   ,   1.3375,  2.53125 },
-	{ -1.4375,   0.805 ,  2.53125 },
-	{ -0.805 ,   1.4375,  2.53125 },
-	{  0.0   ,   1.4375,  2.53125 },
-	{ -1.5   ,   0.84  ,  2.4     },
-	{ -0.84  ,   1.5   ,  2.4     },
-	{  0.0   ,   1.5   ,  2.4     },
-	// 41
-	{  0.784 ,   1.4   ,  2.4     },
-	{  1.4   ,   0.784 ,  2.4     },
-	{  0.749 ,   1.3375,  2.53125 },
-	{  1.3375,   0.749 ,  2.53125 },
-	{  0.805 ,   1.4375,  2.53125 },
-	{  1.4375,   0.805 ,  2.53125 },
-	{  0.84  ,   1.5   ,  2.4     },
-	{  1.5   ,   0.84  ,  2.4     },
-	{  1.75  ,   0.0   ,  1.875   },
-	{  1.75  ,  -0.98  ,  1.875   },
-	// 51
-	{  0.98  ,  -1.75  ,  1.875   },
-	{  0.0   ,  -1.75  ,  1.875   },
-	{  2.0   ,   0.0   ,  1.35    },
-	{  2.0   ,  -1.12  ,  1.35    },
-	{  1.12  ,  -2.0   ,  1.35    },
-	{  0.0   ,  -2.0   ,  1.35    },
-	{  2.0   ,   0.0   ,  0.9     },
-	{  2.0   ,  -1.12  ,  0.9     },
-	{  1.12  ,  -2.0   ,  0.9     },
-	{  0.0   ,  -2.0   ,  0.9     },
-	// 61
-	{ -0.98  ,  -1.75  ,  1.875   },
-	{ -1.75  ,  -0.98  ,  1.875   },
-	{ -1.75  ,   0.0   ,  1.875   },
-	{ -1.12  ,  -2.0   ,  1.35    },
-	{ -2.0   ,  -1.12  ,  1.35    },
-	{ -2.0   ,   0.0   ,  1.35    },
-	{ -1.12  ,  -2.0   ,  0.9     },
-	{ -2.0   ,  -1.12  ,  0.9     },
-	{ -2.0   ,   0.0   ,  0.9     },
-	{ -1.75  ,   0.98  ,  1.875   },
-	// 71
-	{ -0.98  ,   1.75  ,  1.875   },
-	{  0.0   ,   1.75  ,  1.875   },
-	{ -2.0   ,   1.12  ,  1.35    },
-	{ -1.12  ,   2.0   ,  1.35    },
-	{  0.0   ,   2.0   ,  1.35    },
-	{ -2.0   ,   1.12  ,  0.9     },
-	{ -1.12  ,   2.0   ,  0.9     },
-	{  0.0   ,   2.0   ,  0.9     },
-	{  0.98  ,   1.75  ,  1.875   },
-	{  1.75  ,   0.98  ,  1.875   },
-	// 81
-	{  1.12  ,   2.0   ,  1.35    },
-	{  2.0   ,   1.12  ,  1.35    },
-	{  1.12  ,   2.0   ,  0.9     },
-	{  2.0   ,   1.12  ,  0.9     },
-	{  2.0   ,   0.0   ,  0.45    },
-	{  2.0   ,  -1.12  ,  0.45    },
-	{  1.12  ,  -2.0   ,  0.45    },
-	{  0.0   ,  -2.0   ,  0.45    },
-	{  1.5   ,   0.0   ,  0.225   },
-	{  1.5   ,  -0.84  ,  0.225   },
-	// 91
-	{  0.84  ,  -1.5   ,  0.225   },
-	{  0.0   ,  -1.5   ,  0.225   },
-	{  1.5   ,   0.0   ,  0.15    },
-	{  1.5   ,  -0.84  ,  0.15    },
-	{  0.84  ,  -1.5   ,  0.15    },
-	{  0.0   ,  -1.5   ,  0.15    },
-	{ -1.12  ,  -2.0   ,  0.45    },
-	{ -2.0   ,  -1.12  ,  0.45    },
-	{ -2.0   ,   0.0   ,  0.45    },
-	{ -0.84  ,  -1.5   ,  0.225   },
-	// 101
-	{ -1.5   ,  -0.84  ,  0.225   },
-	{ -1.5   ,   0.0   ,  0.225   },
-	{ -0.84  ,  -1.5   ,  0.15    },
-	{ -1.5   ,  -0.84  ,  0.15    },
-	{ -1.5   ,   0.0   ,  0.15    },
-	{ -2.0   ,   1.12  ,  0.45    },
-	{ -1.12  ,   2.0   ,  0.45    },
-	{  0.0   ,   2.0   ,  0.45    },
-	{ -1.5   ,   0.84  ,  0.225   },
-	{ -0.84  ,   1.5   ,  0.225   },
-	// 111
-	{  0.0   ,   1.5   ,  0.225   },
-	{ -1.5   ,   0.84  ,  0.15    },
-	{ -0.84  ,   1.5   ,  0.15    },
-	{  0.0   ,   1.5   ,  0.15    },
-	{  1.12  ,   2.0   ,  0.15    },
-	{  2.0   ,   1.12  ,  0.45    },
-	{  0.84  ,   1.5   ,  0.225   },
-	{  1.5   ,   0.84  ,  0.225   },
-	{  0.84  ,   1.5   ,  0.15    },
-	{  1.5   ,   0.84  ,  0.15    },
-	// 121
-	{ -1.6   ,   0.0   ,  2.025   },
-	{ -1.6   ,  -0.3   ,  2.025   },
-	{ -1.5   ,  -0.3   ,  2.25    },
-	{ -1.5   ,   0.0   ,  2.25    },
-	{ -2.3   ,   0.0   ,  2.025   },
-	{ -2.3   ,  -0.3   ,  2.025   },
-	{ -2.5   ,  -0.3   ,  2.25    },
-	{ -2.5   ,   0.0   ,  2.25    },
-	{ -2.7   ,   0.0   ,  2.025   },
-	{ -2.7   ,  -0.3   ,  2.025   },
-	// 131
-	{ -3.0   ,  -0.3   ,  2.25    },
-	{ -3.0   ,   0.0   ,  2.25    },
-	{ -2.7   ,   0.0   ,  1.8     },
-	{ -2.7   ,  -0.3   ,  1.8     },
-	{ -3.0   ,  -0.3   ,  1.8     },
-	{ -3.0   ,   0.0   ,  1.8     },
-	{ -1.5   ,   0.3   ,  2.25    },
-	{ -1.6   ,   0.3   ,  2.025   },
-	{ -2.5   ,   0.3   ,  2.25    },
-	{ -2.3   ,   0.3   ,  2.025   },
-	// 141
-	{ -3.0   ,   0.3   ,  2.25    },
-	{ -2.7   ,   0.3   ,  2.025   },
-	{ -3.0   ,   0.3   ,  1.8     },
-	{ -2.7   ,   0.3   ,  1.8     },
-	{ -2.7   ,   0.0   ,  1.575   },
-	{ -2.7   ,  -0.3   ,  1.575   },
-	{ -3.0   ,  -0.3   ,  1.35    },
-	{ -3.0   ,   0.0   ,  1.35    },
-	{ -2.5   ,   0.0   ,  1.125   },
-	{ -2.5   ,  -0.3   ,  1.125   },
-	// 151
-	{ -2.65  ,  -0.3   ,  0.9375  },
-	{ -2.65  ,   0.0   ,  0.9375  },
-	{ -2.0   ,  -0.3   ,  0.9     },
-	{ -1.9   ,  -0.3   ,  0.6     },
-	{ -1.9   ,   0.0   ,  0.6     },
-	{ -3.0   ,   0.3   ,  1.35    },
-	{ -2.7   ,   0.3   ,  1.575   },
-	{ -2.65  ,   0.3   ,  0.9375  },
-	{ -2.5   ,   0.3   ,  1.1255  },
-	{ -1.9   ,   0.3   ,  0.6     },
-	// 161
-	{ -2.0   ,   0.3   ,  0.9     },
-	{  1.7   ,   0.0   ,  1.425   },
-	{  1.7   ,  -0.66  ,  1.425   },
-	{  1.7   ,  -0.66  ,  0.6     },
-	{  1.7   ,   0.0   ,  0.6     },
-	{  2.6   ,   0.0   ,  1.425   },
-	{  2.6   ,  -0.66  ,  1.425   },
-	{  3.1   ,  -0.66  ,  0.825   },
-	{  3.1   ,   0.0   ,  0.825   },
-	{  2.3   ,   0.0   ,  2.1     },
-	// 171
-	{  2.3   ,  -0.25  ,  2.1     },
-	{  2.4   ,  -0.25  ,  2.025   },
-	{  2.4   ,   0.0   ,  2.025   },
-	{  2.7   ,   0.0   ,  2.4     },
-	{  2.7   ,  -0.25  ,  2.4     },
-	{  3.3   ,  -0.25  ,  2.4     },
-	{  3.3   ,   0.0   ,  2.4     },
-	{  1.7   ,   0.66  ,  0.6     },
-	{  1.7   ,   0.66  ,  1.425   },
-	{  3.1   ,   0.66  ,  0.825   },
-	// 181
-	{  2.6   ,   0.66  ,  1.425   },
-	{  2.4   ,   0.25  ,  2.025   },
-	{  2.3   ,   0.25  ,  2.1     },
-	{  3.3   ,   0.25  ,  2.4     },
-	{  2.7   ,   0.25  ,  2.4     },
-	{  2.8   ,   0.0   ,  2.475   },
-	{  2.8   ,  -0.25  ,  2.475   },
-	{  3.525 ,  -0.25  ,  2.49375 },
-	{  3.525 ,   0.0   ,  2.49375 },
-	{  2.9   ,   0.0   ,  2.475   },
-	// 191
-	{  2.9   ,  -0.15  ,  2.475   },
-	{  3.45  ,  -0.15  ,  2.5125  },
-	{  3.45  ,   0.0   ,  2.5125  },
-	{  2.8   ,   0.0   ,  2.4     },
-	{  2.8   ,  -0.15  ,  2.4     },
-	{  3.2   ,  -0.15  ,  2.4     },
-	{  3.2   ,   0.0   ,  2.4     },
-	{  3.525 ,   0.25  ,  2.49375 },
-	{  2.8   ,   0.25  ,  2.475   },
-	{  3.45  ,   0.15  ,  2.5125  },
-	// 201
-	{  2.9   ,   0.15  ,  2.475   },
-	{  3.2   ,   0.15  ,  2.4     },
-	{  2.8   ,   0.15  ,  2.4     },
-	{  0.0   ,   0.0   ,  3.15    },
-	{  0.0   ,  -0.002 ,  3.15    },
-	{  0.002 ,   0.0   ,  3.15    },
-	{  0.8   ,   0.0   ,  3.15    },
-	{  0.8   ,  -0.45  ,  3.15    },
-	{  0.45  ,  -0.8   ,  3.15    },
-	{  0.0   ,  -0.8   ,  3.15    },
-	// 211
-	{  0.0   ,   0.0   ,  2.85    },
-	{  0.2   ,   0.0   ,  2.7     },
-	{  0.2   ,  -0.112 ,  2.7     },
-	{  0.112 ,  -0.2   ,  2.7     },
-	{  0.0   ,  -0.2   ,  2.7     },
-	{ -0.002 ,   0.0   ,  3.15    },
-	{ -0.45  ,  -0.8   ,  3.15    },
-	{ -0.8   ,  -0.45  ,  3.15    },
-	{ -0.8   ,   0.0   ,  3.15    },
-	{ -0.112 ,  -0.2   ,  2.7     },
-	// 221
-	{ -0.2   ,  -0.112 ,  2.7     },
-	{ -0.2   ,   0.0   ,  2.7     },
-	{  0.0   ,   0.002 ,  3.15    },
-	{ -0.8   ,   0.45  ,  3.15    },
-	{ -0.45  ,   0.8   ,  3.15    },
-	{  0.0   ,   0.8   ,  3.15    },
-	{ -0.2   ,   0.112 ,  2.7     },
-	{ -0.112 ,   0.2   ,  2.7     },
-	{  0.0   ,   0.2   ,  2.7     },
-	{  0.45  ,   0.8   ,  3.15    },
-	// 231
-	{  0.8   ,   0.45  ,  3.15    },
-	{  0.112 ,   0.2   ,  2.7     },
-	{  0.2   ,   0.112 ,  2.7     },
-	{  0.4   ,   0.0   ,  2.55    },
-	{  0.4   ,  -0.224 ,  2.55    },
-	{  0.224 ,  -0.4   ,  2.55    },
-	{  0.0   ,  -0.4   ,  2.55    },
-	{  1.3   ,   0.0   ,  2.55    },
-	{  1.3   ,  -0.728 ,  2.55    },
-	{  0.728 ,  -1.3   ,  2.55    },
-	// 241
-	{  0.0   ,  -1.3   ,  2.55    },
-	{  1.3   ,   0.0   ,  2.4     },
-	{  1.3   ,  -0.728 ,  2.4     },
-	{  0.728 ,  -1.3   ,  2.4     },
-	{  0.0   ,  -1.3   ,  2.4     },
-	{ -0.224 ,  -0.4   ,  2.55    },
-	{ -0.4   ,  -0.224 ,  2.55    },
-	{ -0.4   ,   0.0   ,  2.55    },
-	{ -0.728 ,  -1.3   ,  2.55    },
-	{ -1.3   ,  -0.728 ,  2.55    },
-	// 251
-	{ -1.3   ,   0.0   ,  2.55    },
-	{ -0.728 ,  -1.3   ,  2.4     },
-	{ -1.3   ,  -0.728 ,  2.4     },
-	{ -1.3   ,   0.0   ,  2.4     },
-	{ -0.4   ,   0.224 ,  2.55    },
-	{ -0.224 ,   0.4   ,  2.55    },
-	{  0.0   ,   0.4   ,  2.55    },
-	{ -1.3   ,   0.728 ,  2.55    },
-	{ -0.728 ,   1.3   ,  2.55    },
-	{  0.0   ,   1.3   ,  2.55    },
-	// 261
-	{ -1.3   ,   0.728 ,  2.4     },
-	{ -0.728 ,   1.3   ,  2.4     },
-	{  0.0   ,   1.3   ,  2.4     },
-	{  0.224 ,   0.4   ,  2.55    },
-	{  0.4   ,   0.224 ,  2.55    },
-	{  0.728 ,   1.3   ,  2.55    },
-	{  1.3   ,   0.728 ,  2.55    },
-	{  0.728 ,   1.3   ,  2.4     },
-	{  1.3   ,   0.728 ,  2.4     },
+// Teapot generation using Bézier patches
+// ------------------------------------------------------------------------------------------------
+namespace {
+
+// Teapot control points data (Utah Teapot by Martin Newell, 1975)
+constexpr std::array<Math::dvec3, 269> TEAPOT_CONTROL_POINTS = {
+	Math::dvec3{  1.4   ,   0.0   ,  2.4     }, Math::dvec3{  1.4   ,  -0.784 ,  2.4     },
+	Math::dvec3{  0.784 ,  -1.4   ,  2.4     }, Math::dvec3{  0.0   ,  -1.4   ,  2.4     },
+	Math::dvec3{  1.3375,   0.0   ,  2.53125 }, Math::dvec3{  1.3375,  -0.749 ,  2.53125 },
+	Math::dvec3{  0.749 ,  -1.3375,  2.53125 }, Math::dvec3{  0.0   ,  -1.3375,  2.53125 },
+	Math::dvec3{  1.4375,    0.0  ,  2.53125 }, Math::dvec3{  1.4375,  -0.805 ,  2.53125 },
+	Math::dvec3{  0.805 ,  -1.4375,  2.53125 }, Math::dvec3{  0.0   ,  -1.4375,  2.53125 },
+	Math::dvec3{  1.5   ,   0.0   ,  2.4     }, Math::dvec3{  1.5   ,  -0.84  ,  2.4     },
+	Math::dvec3{  0.84  ,  -1.5   ,  2.4     }, Math::dvec3{  0.0   ,  -1.5   ,  2.4     },
+	Math::dvec3{ -0.784 ,  -1.4   ,  2.4     }, Math::dvec3{ -1.4   ,  -0.784 ,  2.4     },
+	Math::dvec3{ -1.4   ,   0.0   ,  2.4     }, Math::dvec3{ -0.749 ,  -1.3375,  2.53125 },
+	Math::dvec3{ -1.3375,  -0.749 ,  2.53125 }, Math::dvec3{ -1.3375,   0.0   ,  2.53125 },
+	Math::dvec3{ -0.805 ,  -1.4375,  2.53125 }, Math::dvec3{ -1.4375,  -0.805 ,  2.53125 },
+	Math::dvec3{ -1.4375,   0.0   ,  2.53125 }, Math::dvec3{ -0.84  ,  -1.5   ,  2.4     },
+	Math::dvec3{ -1.5   ,  -0.84  ,  2.4     }, Math::dvec3{ -1.5   ,   0.0   ,  2.4     },
+	Math::dvec3{ -1.4   ,   0.784 ,  2.4     }, Math::dvec3{ -0.784 ,   1.4   ,  2.4     },
+	Math::dvec3{  0.0   ,   1.4   ,  2.4     }, Math::dvec3{ -1.3375,   0.749 ,  2.53125 },
+	Math::dvec3{ -0.749 ,   1.3375,  2.53125 }, Math::dvec3{  0.0   ,   1.3375,  2.53125 },
+	Math::dvec3{ -1.4375,   0.805 ,  2.53125 }, Math::dvec3{ -0.805 ,   1.4375,  2.53125 },
+	Math::dvec3{  0.0   ,   1.4375,  2.53125 }, Math::dvec3{ -1.5   ,   0.84  ,  2.4     },
+	Math::dvec3{ -0.84  ,   1.5   ,  2.4     }, Math::dvec3{  0.0   ,   1.5   ,  2.4     },
+	Math::dvec3{  0.784 ,   1.4   ,  2.4     }, Math::dvec3{  1.4   ,   0.784 ,  2.4     },
+	Math::dvec3{  0.749 ,   1.3375,  2.53125 }, Math::dvec3{  1.3375,   0.749 ,  2.53125 },
+	Math::dvec3{  0.805 ,   1.4375,  2.53125 }, Math::dvec3{  1.4375,   0.805 ,  2.53125 },
+	Math::dvec3{  0.84  ,   1.5   ,  2.4     }, Math::dvec3{  1.5   ,   0.84  ,  2.4     },
+	Math::dvec3{  1.75  ,   0.0   ,  1.875   }, Math::dvec3{  1.75  ,  -0.98  ,  1.875   },
+	Math::dvec3{  0.98  ,  -1.75  ,  1.875   }, Math::dvec3{  0.0   ,  -1.75  ,  1.875   },
+	Math::dvec3{  2.0   ,   0.0   ,  1.35    }, Math::dvec3{  2.0   ,  -1.12  ,  1.35    },
+	Math::dvec3{  1.12  ,  -2.0   ,  1.35    }, Math::dvec3{  0.0   ,  -2.0   ,  1.35    },
+	Math::dvec3{  2.0   ,   0.0   ,  0.9     }, Math::dvec3{  2.0   ,  -1.12  ,  0.9     },
+	Math::dvec3{  1.12  ,  -2.0   ,  0.9     }, Math::dvec3{  0.0   ,  -2.0   ,  0.9     },
+	Math::dvec3{ -0.98  ,  -1.75  ,  1.875   }, Math::dvec3{ -1.75  ,  -0.98  ,  1.875   },
+	Math::dvec3{ -1.75  ,   0.0   ,  1.875   }, Math::dvec3{ -1.12  ,  -2.0   ,  1.35    },
+	Math::dvec3{ -2.0   ,  -1.12  ,  1.35    }, Math::dvec3{ -2.0   ,   0.0   ,  1.35    },
+	Math::dvec3{ -1.12  ,  -2.0   ,  0.9     }, Math::dvec3{ -2.0   ,  -1.12  ,  0.9     },
+	Math::dvec3{ -2.0   ,   0.0   ,  0.9     }, Math::dvec3{ -1.75  ,   0.98  ,  1.875   },
+	Math::dvec3{ -0.98  ,   1.75  ,  1.875   }, Math::dvec3{  0.0   ,   1.75  ,  1.875   },
+	Math::dvec3{ -2.0   ,   1.12  ,  1.35    }, Math::dvec3{ -1.12  ,   2.0   ,  1.35    },
+	Math::dvec3{  0.0   ,   2.0   ,  1.35    }, Math::dvec3{ -2.0   ,   1.12  ,  0.9     },
+	Math::dvec3{ -1.12  ,   2.0   ,  0.9     }, Math::dvec3{  0.0   ,   2.0   ,  0.9     },
+	Math::dvec3{  0.98  ,   1.75  ,  1.875   }, Math::dvec3{  1.75  ,   0.98  ,  1.875   },
+	Math::dvec3{  1.12  ,   2.0   ,  1.35    }, Math::dvec3{  2.0   ,   1.12  ,  1.35    },
+	Math::dvec3{  1.12  ,   2.0   ,  0.9     }, Math::dvec3{  2.0   ,   1.12  ,  0.9     },
+	Math::dvec3{  2.0   ,   0.0   ,  0.45    }, Math::dvec3{  2.0   ,  -1.12  ,  0.45    },
+	Math::dvec3{  1.12  ,  -2.0   ,  0.45    }, Math::dvec3{  0.0   ,  -2.0   ,  0.45    },
+	Math::dvec3{  1.5   ,   0.0   ,  0.225   }, Math::dvec3{  1.5   ,  -0.84  ,  0.225   },
+	Math::dvec3{  0.84  ,  -1.5   ,  0.225   }, Math::dvec3{  0.0   ,  -1.5   ,  0.225   },
+	Math::dvec3{  1.5   ,   0.0   ,  0.15    }, Math::dvec3{  1.5   ,  -0.84  ,  0.15    },
+	Math::dvec3{  0.84  ,  -1.5   ,  0.15    }, Math::dvec3{  0.0   ,  -1.5   ,  0.15    },
+	Math::dvec3{ -1.12  ,  -2.0   ,  0.45    }, Math::dvec3{ -2.0   ,  -1.12  ,  0.45    },
+	Math::dvec3{ -2.0   ,   0.0   ,  0.45    }, Math::dvec3{ -0.84  ,  -1.5   ,  0.225   },
+	Math::dvec3{ -1.5   ,  -0.84  ,  0.225   }, Math::dvec3{ -1.5   ,   0.0   ,  0.225   },
+	Math::dvec3{ -0.84  ,  -1.5   ,  0.15    }, Math::dvec3{ -1.5   ,  -0.84  ,  0.15    },
+	Math::dvec3{ -1.5   ,   0.0   ,  0.15    }, Math::dvec3{ -2.0   ,   1.12  ,  0.45    },
+	Math::dvec3{ -1.12  ,   2.0   ,  0.45    }, Math::dvec3{  0.0   ,   2.0   ,  0.45    },
+	Math::dvec3{ -1.5   ,   0.84  ,  0.225   }, Math::dvec3{ -0.84  ,   1.5   ,  0.225   },
+	Math::dvec3{  0.0   ,   1.5   ,  0.225   }, Math::dvec3{ -1.5   ,   0.84  ,  0.15    },
+	Math::dvec3{ -0.84  ,   1.5   ,  0.15    }, Math::dvec3{  0.0   ,   1.5   ,  0.15    },
+	Math::dvec3{  1.12  ,   2.0   ,  0.15    }, Math::dvec3{  2.0   ,   1.12  ,  0.45    },
+	Math::dvec3{  0.84  ,   1.5   ,  0.225   }, Math::dvec3{  1.5   ,   0.84  ,  0.225   },
+	Math::dvec3{  0.84  ,   1.5   ,  0.15    }, Math::dvec3{  1.5   ,   0.84  ,  0.15    },
+	Math::dvec3{ -1.6   ,   0.0   ,  2.025   }, Math::dvec3{ -1.6   ,  -0.3   ,  2.025   },
+	Math::dvec3{ -1.5   ,  -0.3   ,  2.25    }, Math::dvec3{ -1.5   ,   0.0   ,  2.25    },
+	Math::dvec3{ -2.3   ,   0.0   ,  2.025   }, Math::dvec3{ -2.3   ,  -0.3   ,  2.025   },
+	Math::dvec3{ -2.5   ,  -0.3   ,  2.25    }, Math::dvec3{ -2.5   ,   0.0   ,  2.25    },
+	Math::dvec3{ -2.7   ,   0.0   ,  2.025   }, Math::dvec3{ -2.7   ,  -0.3   ,  2.025   },
+	Math::dvec3{ -3.0   ,  -0.3   ,  2.25    }, Math::dvec3{ -3.0   ,   0.0   ,  2.25    },
+	Math::dvec3{ -2.7   ,   0.0   ,  1.8     }, Math::dvec3{ -2.7   ,  -0.3   ,  1.8     },
+	Math::dvec3{ -3.0   ,  -0.3   ,  1.8     }, Math::dvec3{ -3.0   ,   0.0   ,  1.8     },
+	Math::dvec3{ -1.5   ,   0.3   ,  2.25    }, Math::dvec3{ -1.6   ,   0.3   ,  2.025   },
+	Math::dvec3{ -2.5   ,   0.3   ,  2.25    }, Math::dvec3{ -2.3   ,   0.3   ,  2.025   },
+	Math::dvec3{ -3.0   ,   0.3   ,  2.25    }, Math::dvec3{ -2.7   ,   0.3   ,  2.025   },
+	Math::dvec3{ -3.0   ,   0.3   ,  1.8     }, Math::dvec3{ -2.7   ,   0.3   ,  1.8     },
+	Math::dvec3{ -2.7   ,   0.0   ,  1.575   }, Math::dvec3{ -2.7   ,  -0.3   ,  1.575   },
+	Math::dvec3{ -3.0   ,  -0.3   ,  1.35    }, Math::dvec3{ -3.0   ,   0.0   ,  1.35    },
+	Math::dvec3{ -2.5   ,   0.0   ,  1.125   }, Math::dvec3{ -2.5   ,  -0.3   ,  1.125   },
+	Math::dvec3{ -2.65  ,  -0.3   ,  0.9375  }, Math::dvec3{ -2.65  ,   0.0   ,  0.9375  },
+	Math::dvec3{ -2.0   ,  -0.3   ,  0.9     }, Math::dvec3{ -1.9   ,  -0.3   ,  0.6     },
+	Math::dvec3{ -1.9   ,   0.0   ,  0.6     }, Math::dvec3{ -3.0   ,   0.3   ,  1.35    },
+	Math::dvec3{ -2.7   ,   0.3   ,  1.575   }, Math::dvec3{ -2.65  ,   0.3   ,  0.9375  },
+	Math::dvec3{ -2.5   ,   0.3   ,  1.1255  }, Math::dvec3{ -1.9   ,   0.3   ,  0.6     },
+	Math::dvec3{ -2.0   ,   0.3   ,  0.9     }, Math::dvec3{  1.7   ,   0.0   ,  1.425   },
+	Math::dvec3{  1.7   ,  -0.66  ,  1.425   }, Math::dvec3{  1.7   ,  -0.66  ,  0.6     },
+	Math::dvec3{  1.7   ,   0.0   ,  0.6     }, Math::dvec3{  2.6   ,   0.0   ,  1.425   },
+	Math::dvec3{  2.6   ,  -0.66  ,  1.425   }, Math::dvec3{  3.1   ,  -0.66  ,  0.825   },
+	Math::dvec3{  3.1   ,   0.0   ,  0.825   }, Math::dvec3{  2.3   ,   0.0   ,  2.1     },
+	Math::dvec3{  2.3   ,  -0.25  ,  2.1     }, Math::dvec3{  2.4   ,  -0.25  ,  2.025   },
+	Math::dvec3{  2.4   ,   0.0   ,  2.025   }, Math::dvec3{  2.7   ,   0.0   ,  2.4     },
+	Math::dvec3{  2.7   ,  -0.25  ,  2.4     }, Math::dvec3{  3.3   ,  -0.25  ,  2.4     },
+	Math::dvec3{  3.3   ,   0.0   ,  2.4     }, Math::dvec3{  1.7   ,   0.66  ,  0.6     },
+	Math::dvec3{  1.7   ,   0.66  ,  1.425   }, Math::dvec3{  3.1   ,   0.66  ,  0.825   },
+	Math::dvec3{  2.6   ,   0.66  ,  1.425   }, Math::dvec3{  2.4   ,   0.25  ,  2.025   },
+	Math::dvec3{  2.3   ,   0.25  ,  2.1     }, Math::dvec3{  3.3   ,   0.25  ,  2.4     },
+	Math::dvec3{  2.7   ,   0.25  ,  2.4     }, Math::dvec3{  2.8   ,   0.0   ,  2.475   },
+	Math::dvec3{  2.8   ,  -0.25  ,  2.475   }, Math::dvec3{  3.525 ,  -0.25  ,  2.49375 },
+	Math::dvec3{  3.525 ,   0.0   ,  2.49375 }, Math::dvec3{  2.9   ,   0.0   ,  2.475   },
+	Math::dvec3{  2.9   ,  -0.15  ,  2.475   }, Math::dvec3{  3.45  ,  -0.15  ,  2.5125  },
+	Math::dvec3{  3.45  ,   0.0   ,  2.5125  }, Math::dvec3{  2.8   ,   0.0   ,  2.4     },
+	Math::dvec3{  2.8   ,  -0.15  ,  2.4     }, Math::dvec3{  3.2   ,  -0.15  ,  2.4     },
+	Math::dvec3{  3.2   ,   0.0   ,  2.4     }, Math::dvec3{  3.525 ,   0.25  ,  2.49375 },
+	Math::dvec3{  2.8   ,   0.25  ,  2.475   }, Math::dvec3{  3.45  ,   0.15  ,  2.5125  },
+	Math::dvec3{  2.9   ,   0.15  ,  2.475   }, Math::dvec3{  3.2   ,   0.15  ,  2.4     },
+	Math::dvec3{  2.8   ,   0.15  ,  2.4     }, Math::dvec3{  0.0   ,   0.0   ,  3.15    },
+	Math::dvec3{  0.0   ,  -0.002 ,  3.15    }, Math::dvec3{  0.002 ,   0.0   ,  3.15    },
+	Math::dvec3{  0.8   ,   0.0   ,  3.15    }, Math::dvec3{  0.8   ,  -0.45  ,  3.15    },
+	Math::dvec3{  0.45  ,  -0.8   ,  3.15    }, Math::dvec3{  0.0   ,  -0.8   ,  3.15    },
+	Math::dvec3{  0.0   ,   0.0   ,  2.85    }, Math::dvec3{  0.2   ,   0.0   ,  2.7     },
+	Math::dvec3{  0.2   ,  -0.112 ,  2.7     }, Math::dvec3{  0.112 ,  -0.2   ,  2.7     },
+	Math::dvec3{  0.0   ,  -0.2   ,  2.7     }, Math::dvec3{ -0.002 ,   0.0   ,  3.15    },
+	Math::dvec3{ -0.45  ,  -0.8   ,  3.15    }, Math::dvec3{ -0.8   ,  -0.45  ,  3.15    },
+	Math::dvec3{ -0.8   ,   0.0   ,  3.15    }, Math::dvec3{ -0.112 ,  -0.2   ,  2.7     },
+	Math::dvec3{ -0.2   ,  -0.112 ,  2.7     }, Math::dvec3{ -0.2   ,   0.0   ,  2.7     },
+	Math::dvec3{  0.0   ,   0.002 ,  3.15    }, Math::dvec3{ -0.8   ,   0.45  ,  3.15    },
+	Math::dvec3{ -0.45  ,   0.8   ,  3.15    }, Math::dvec3{  0.0   ,   0.8   ,  3.15    },
+	Math::dvec3{ -0.2   ,   0.112 ,  2.7     }, Math::dvec3{ -0.112 ,   0.2   ,  2.7     },
+	Math::dvec3{  0.0   ,   0.2   ,  2.7     }, Math::dvec3{  0.45  ,   0.8   ,  3.15    },
+	Math::dvec3{  0.8   ,   0.45  ,  3.15    }, Math::dvec3{  0.112 ,   0.2   ,  2.7     },
+	Math::dvec3{  0.2   ,   0.112 ,  2.7     }, Math::dvec3{  0.4   ,   0.0   ,  2.55    },
+	Math::dvec3{  0.4   ,  -0.224 ,  2.55    }, Math::dvec3{  0.224 ,  -0.4   ,  2.55    },
+	Math::dvec3{  0.0   ,  -0.4   ,  2.55    }, Math::dvec3{  1.3   ,   0.0   ,  2.55    },
+	Math::dvec3{  1.3   ,  -0.728 ,  2.55    }, Math::dvec3{  0.728 ,  -1.3   ,  2.55    },
+	Math::dvec3{  0.0   ,  -1.3   ,  2.55    }, Math::dvec3{  1.3   ,   0.0   ,  2.4     },
+	Math::dvec3{  1.3   ,  -0.728 ,  2.4     }, Math::dvec3{  0.728 ,  -1.3   ,  2.4     },
+	Math::dvec3{  0.0   ,  -1.3   ,  2.4     }, Math::dvec3{ -0.224 ,  -0.4   ,  2.55    },
+	Math::dvec3{ -0.4   ,  -0.224 ,  2.55    }, Math::dvec3{ -0.4   ,   0.0   ,  2.55    },
+	Math::dvec3{ -0.728 ,  -1.3   ,  2.55    }, Math::dvec3{ -1.3   ,  -0.728 ,  2.55    },
+	Math::dvec3{ -1.3   ,   0.0   ,  2.55    }, Math::dvec3{ -0.728 ,  -1.3   ,  2.4     },
+	Math::dvec3{ -1.3   ,  -0.728 ,  2.4     }, Math::dvec3{ -1.3   ,   0.0   ,  2.4     },
+	Math::dvec3{ -0.4   ,   0.224 ,  2.55    }, Math::dvec3{ -0.224 ,   0.4   ,  2.55    },
+	Math::dvec3{  0.0   ,   0.4   ,  2.55    }, Math::dvec3{ -1.3   ,   0.728 ,  2.55    },
+	Math::dvec3{ -0.728 ,   1.3   ,  2.55    }, Math::dvec3{  0.0   ,   1.3   ,  2.55    },
+	Math::dvec3{ -1.3   ,   0.728 ,  2.4     }, Math::dvec3{ -0.728 ,   1.3   ,  2.4     },
+	Math::dvec3{  0.0   ,   1.3   ,  2.4     }, Math::dvec3{  0.224 ,   0.4   ,  2.55    },
+	Math::dvec3{  0.4   ,   0.224 ,  2.55    }, Math::dvec3{  0.728 ,   1.3   ,  2.55    },
+	Math::dvec3{  1.3   ,   0.728 ,  2.55    }, Math::dvec3{  0.728 ,   1.3   ,  2.4     },
+	Math::dvec3{  1.3   ,   0.728 ,  2.4     }
 };
-#define TEAPOT_NB_PATCHES 28
-#define ORDER 3
-unsigned short teapot_patches[][ORDER + 1][ORDER + 1] = {
-	// rim
-	{ {   1,   2,   3,   4 }, {   5,   6,   7,   8 }, {   9,  10,  11,  12 }, {  13,  14,  15,  16, } },
-	{ {   4,  17,  18,  19 }, {   8,  20,  21,  22 }, {  12,  23,  24,  25 }, {  16,  26,  27,  28, } },
-	{ {  19,  29,  30,  31 }, {  22,  32,  33,  34 }, {  25,  35,  36,  37 }, {  28,  38,  39,  40, } },
-	{ {  31,  41,  42,   1 }, {  34,  43,  44,   5 }, {  37,  45,  46,   9 }, {  40,  47,  48,  13, } },
-	// body
-	{ {  13,  14,  15,  16 }, {  49,  50,  51,  52 }, {  53,  54,  55,  56 }, {  57,  58,  59,  60, } },
-	{ {  16,  26,  27,  28 }, {  52,  61,  62,  63 }, {  56,  64,  65,  66 }, {  60,  67,  68,  69, } },
-	{ {  28,  38,  39,  40 }, {  63,  70,  71,  72 }, {  66,  73,  74,  75 }, {  69,  76,  77,  78, } },
-	{ {  40,  47,  48,  13 }, {  72,  79,  80,  49 }, {  75,  81,  82,  53 }, {  78,  83,  84,  57, } },
-	{ {  57,  58,  59,  60 }, {  85,  86,  87,  88 }, {  89,  90,  91,  92 }, {  93,  94,  95,  96, } },
-	{ {  60,  67,  68,  69 }, {  88,  97,  98,  99 }, {  92, 100, 101, 102 }, {  96, 103, 104, 105, } },
-	{ {  69,  76,  77,  78 }, {  99, 106, 107, 108 }, { 102, 109, 110, 111 }, { 105, 112, 113, 114, } },
-	{ {  78,  83,  84,  57 }, { 108, 115, 116,  85 }, { 111, 117, 118,  89 }, { 114, 119, 120,  93, } },
-	// handle
-	{ { 121, 122, 123, 124 }, { 125, 126, 127, 128 }, { 129, 130, 131, 132 }, { 133, 134, 135, 136, } },
-	{ { 124, 137, 138, 121 }, { 128, 139, 140, 125 }, { 132, 141, 142, 129 }, { 136, 143, 144, 133, } },
-	{ { 133, 134, 135, 136 }, { 145, 146, 147, 148 }, { 149, 150, 151, 152 }, {  69, 153, 154, 155, } },
-	{ { 136, 143, 144, 133 }, { 148, 156, 157, 145 }, { 152, 158, 159, 149 }, { 155, 160, 161,  69, } },
-	// spout
-	{ { 162, 163, 164, 165 }, { 166, 167, 168, 169 }, { 170, 171, 172, 173 }, { 174, 175, 176, 177, } },
-	{ { 165, 178, 179, 162 }, { 169, 180, 181, 166 }, { 173, 182, 183, 170 }, { 177, 184, 185, 174, } },
-	{ { 174, 175, 176, 177 }, { 186, 187, 188, 189 }, { 190, 191, 192, 193 }, { 194, 195, 196, 197, } },
-	{ { 177, 184, 185, 174 }, { 189, 198, 199, 186 }, { 193, 200, 201, 190 }, { 197, 202, 203, 194, } },
-	// lid
-	{ { 204, 204, 204, 204 }, { 207, 208, 209, 210 }, { 211, 211, 211, 211 }, { 212, 213, 214, 215, } },
-	{ { 204, 204, 204, 204 }, { 210, 217, 218, 219 }, { 211, 211, 211, 211 }, { 215, 220, 221, 222, } },
-	{ { 204, 204, 204, 204 }, { 219, 224, 225, 226 }, { 211, 211, 211, 211 }, { 222, 227, 228, 229, } },
-	{ { 204, 204, 204, 204 }, { 226, 230, 231, 207 }, { 211, 211, 211, 211 }, { 229, 232, 233, 212, } },
-	{ { 212, 213, 214, 215 }, { 234, 235, 236, 237 }, { 238, 239, 240, 241 }, { 242, 243, 244, 245, } },
-	{ { 215, 220, 221, 222 }, { 237, 246, 247, 248 }, { 241, 249, 250, 251 }, { 245, 252, 253, 254, } },
-	{ { 222, 227, 228, 229 }, { 248, 255, 256, 257 }, { 251, 258, 259, 260 }, { 254, 261, 262, 263, } },
-	{ { 229, 232, 233, 212 }, { 257, 264, 265, 234 }, { 260, 266, 267, 238 }, { 263, 268, 269, 242, } },
-	// no bottom!
+
+// Teapot patch indices (28 Bézier patches of order 3)
+constexpr int TEAPOT_NUM_PATCHES = 28;
+constexpr int BEZIER_ORDER = 3;
+
+constexpr std::array<std::array<std::array<uint16_t, 4>, 4>, TEAPOT_NUM_PATCHES> TEAPOT_PATCHES = {{
+	// Rim
+	{{{   0,   1,   2,   3 }, {   4,   5,   6,   7 }, {   8,   9,  10,  11 }, {  12,  13,  14,  15 }}},
+	{{{   3,  16,  17,  18 }, {   7,  19,  20,  21 }, {  11,  22,  23,  24 }, {  15,  25,  26,  27 }}},
+	{{{  18,  28,  29,  30 }, {  21,  31,  32,  33 }, {  24,  34,  35,  36 }, {  27,  37,  38,  39 }}},
+	{{{  30,  40,  41,   0 }, {  33,  42,  43,   4 }, {  36,  44,  45,   8 }, {  39,  46,  47,  12 }}},
+	// Body
+	{{{  12,  13,  14,  15 }, {  48,  49,  50,  51 }, {  52,  53,  54,  55 }, {  56,  57,  58,  59 }}},
+	{{{  15,  25,  26,  27 }, {  51,  60,  61,  62 }, {  55,  63,  64,  65 }, {  59,  66,  67,  68 }}},
+	{{{  27,  37,  38,  39 }, {  62,  69,  70,  71 }, {  65,  72,  73,  74 }, {  68,  75,  76,  77 }}},
+	{{{  39,  46,  47,  12 }, {  71,  78,  79,  48 }, {  74,  80,  81,  52 }, {  77,  82,  83,  56 }}},
+	{{{  56,  57,  58,  59 }, {  84,  85,  86,  87 }, {  88,  89,  90,  91 }, {  92,  93,  94,  95 }}},
+	{{{  59,  66,  67,  68 }, {  87,  96,  97,  98 }, {  91,  99, 100, 101 }, {  95, 102, 103, 104 }}},
+	{{{  68,  75,  76,  77 }, {  98, 105, 106, 107 }, { 101, 108, 109, 110 }, { 104, 111, 112, 113 }}},
+	{{{  77,  82,  83,  56 }, { 107, 114, 115,  84 }, { 110, 116, 117,  88 }, { 113, 118, 119,  92 }}},
+	// Handle
+	{{{ 120, 121, 122, 123 }, { 124, 125, 126, 127 }, { 128, 129, 130, 131 }, { 132, 133, 134, 135 }}},
+	{{{ 123, 136, 137, 120 }, { 127, 138, 139, 124 }, { 131, 140, 141, 128 }, { 135, 142, 143, 132 }}},
+	{{{ 132, 133, 134, 135 }, { 144, 145, 146, 147 }, { 148, 149, 150, 151 }, {  68, 152, 153, 154 }}},
+	{{{ 135, 142, 143, 132 }, { 147, 155, 156, 144 }, { 151, 157, 158, 148 }, { 154, 159, 160,  68 }}},
+	// Spout
+	{{{ 161, 162, 163, 164 }, { 165, 166, 167, 168 }, { 169, 170, 171, 172 }, { 173, 174, 175, 176 }}},
+	{{{ 164, 177, 178, 161 }, { 168, 179, 180, 165 }, { 172, 181, 182, 169 }, { 176, 183, 184, 173 }}},
+	{{{ 173, 174, 175, 176 }, { 185, 186, 187, 188 }, { 189, 190, 191, 192 }, { 193, 194, 195, 196 }}},
+	{{{ 176, 183, 184, 173 }, { 188, 197, 198, 185 }, { 192, 199, 200, 189 }, { 196, 201, 202, 193 }}},
+	// Lid
+	{{{ 203, 203, 203, 203 }, { 206, 207, 208, 209 }, { 210, 210, 210, 210 }, { 211, 212, 213, 214 }}},
+	{{{ 203, 203, 203, 203 }, { 209, 216, 217, 218 }, { 210, 210, 210, 210 }, { 214, 219, 220, 221 }}},
+	{{{ 203, 203, 203, 203 }, { 218, 223, 224, 225 }, { 210, 210, 210, 210 }, { 221, 226, 227, 228 }}},
+	{{{ 203, 203, 203, 203 }, { 225, 229, 230, 206 }, { 210, 210, 210, 210 }, { 228, 231, 232, 211 }}},
+	{{{ 211, 212, 213, 214 }, { 233, 234, 235, 236 }, { 237, 238, 239, 240 }, { 241, 242, 243, 244 }}},
+	{{{ 214, 219, 220, 221 }, { 236, 245, 246, 247 }, { 240, 248, 249, 250 }, { 244, 251, 252, 253 }}},
+	{{{ 221, 226, 227, 228 }, { 247, 254, 255, 256 }, { 250, 257, 258, 259 }, { 253, 260, 261, 262 }}},
+	{{{ 228, 231, 232, 211 }, { 256, 263, 264, 233 }, { 259, 265, 266, 237 }, { 262, 267, 268, 241 }}}
+}};
+
+// Bezier curve evaluation
+class BezierPatch {
+public:
+	// Compute binomial coefficient C(n, k) = n! / (k! * (n-k)!)
+	static constexpr double binomialCoeff( int n, int k ) noexcept {
+		if( k > n || k < 0 ) return 0.0;
+		if( k == 0 || k == n ) return 1.0;
+		
+		double result = 1.0;
+		for( int i = 1; i <= k; ++i ) {
+			result *= static_cast<double>( n - (k - i) ) / static_cast<double>( i );
+		}
+		return result;
+	}
+
+	// Bernstein polynomial: B(i,n,t) = C(n,i) * t^i * (1-t)^(n-i)
+	static double bernstein( int i, int n, double t ) noexcept {
+		return binomialCoeff( n, i ) * std::pow( t, i ) * std::pow( 1.0 - t, n - i );
+	}
+
+	// Evaluate Bezier surface at parametric coordinates (u, v)
+	static Math::dvec3 evaluate(
+		const std::array<std::array<Math::dvec3, 4>, 4>& controlPoints,
+		double u,
+		double v ) noexcept
+	{
+		Math::dvec3 result{ 0.0, 0.0, 0.0 };
+		
+		for( int i = 0; i <= BEZIER_ORDER; ++i ) {
+			const double b_i = bernstein( i, BEZIER_ORDER, u );
+			
+			for( int j = 0; j <= BEZIER_ORDER; ++j ) {
+				const double b_j = bernstein( j, BEZIER_ORDER, v );
+				result += controlPoints[i][j] * (b_i * b_j);
+			}
+		}
+		
+		return result;
+	}
+
+	// Get control points for a specific patch
+	static std::array<std::array<Math::dvec3, 4>, 4> getControlPoints( int patchIndex ) {
+		std::array<std::array<Math::dvec3, 4>, 4> points;
+		
+		for( int i = 0; i <= BEZIER_ORDER; ++i ) {
+			for( int j = 0; j <= BEZIER_ORDER; ++j ) {
+				points[i][j] = TEAPOT_CONTROL_POINTS[ TEAPOT_PATCHES[patchIndex][i][j] ];
+			}
+		}
+		
+		return points;
+	}
 };
-#define RESU 10
-#define RESV 10
-static struct vertex  teapot_vertices[TEAPOT_NB_PATCHES * RESU*RESV];
-static unsigned short teapot_elements[TEAPOT_NB_PATCHES * ( RESU - 1 )*( RESV - 1 ) * 2 * 3];
-static double         teapot_colors[TEAPOT_NB_PATCHES * RESU*RESV * 3];
 
-static unsigned short teapot_cp_elements[TEAPOT_NB_PATCHES][ORDER + 1][ORDER + 1];
-static double         teapot_cp_colors[269 * 3];
+} // anonymous namespace
 
-static void build_control_points_k( int p, struct vertex control_points_k[][ORDER + 1] );
-static struct vertex compute_position( struct vertex control_points_k[][ORDER + 1], double u, double v );
-static double bernstein_polynomial( int i, int n, double u );
-static double binomial_coefficient( int i, int n );
-static int factorial( int n );
+// ------------------------------------------------------------------------------------------------
+MeshData3D GeometryFactory3D::createTeapot( int resU, int resV )
+{
+	// Validate resolution
+	resU = Math::clamp( resU, 2, 64 );
+	resV = Math::clamp( resV, 2, 64 );
 
-static void build_teapot() {
-	// Vertices
-	for( int p = 0; p < TEAPOT_NB_PATCHES; p++ ) {
-		struct vertex control_points_k[ORDER + 1][ORDER + 1];
-		build_control_points_k( p, control_points_k );
-		for( int ru = 0; ru <= RESU - 1; ru++ ) {
-			double u = 1.0 * ru / ( RESU - 1 );
-			for( int rv = 0; rv <= RESV - 1; rv++ ) {
-				double v = 1.0 * rv / ( RESV - 1 );
-				teapot_vertices[p*RESU*RESV + ru * RESV + rv] = compute_position( control_points_k, u, v );
-				teapot_colors[p*RESU*RESV * 3 + ru * RESV * 3 + rv * 3 + 0] = 1.0 * p / TEAPOT_NB_PATCHES;
-				teapot_colors[p*RESU*RESV * 3 + ru * RESV * 3 + rv * 3 + 1] = 1.0 * p / TEAPOT_NB_PATCHES;
-				teapot_colors[p*RESU*RESV * 3 + ru * RESV * 3 + rv * 3 + 2] = 0.8;
+	MeshData3D teapot;
+	teapot.vertices.reserve( TEAPOT_NUM_PATCHES * resU * resV );
+	teapot.indices.reserve( TEAPOT_NUM_PATCHES * (resU - 1) * (resV - 1) * 6 );
+
+	// Generate mesh for each Bézier patch
+	for( int patchIdx = 0; patchIdx < TEAPOT_NUM_PATCHES; ++patchIdx ) {
+		const auto controlPoints = BezierPatch::getControlPoints( patchIdx );
+		const int baseVertex = static_cast<int>( teapot.vertices.size() );
+
+		// Generate vertices for this patch
+		for( int ru = 0; ru < resU; ++ru ) {
+			const double u = static_cast<double>( ru ) / static_cast<double>( resU - 1 );
+			
+			for( int rv = 0; rv < resV; ++rv ) {
+				const double v = static_cast<double>( rv ) / static_cast<double>( resV - 1 );
+				
+				// Evaluate Bézier surface
+				const Math::dvec3 vertex = BezierPatch::evaluate( controlPoints, u, v );
+				teapot.vertices.push_back( vertex );
+			}
+		}
+
+		// Generate indices (two triangles per quad)
+		for( int ru = 0; ru < resU - 1; ++ru ) {
+			for( int rv = 0; rv < resV - 1; ++rv ) {
+				const int i0 = baseVertex + ru * resV + rv;
+				const int i1 = baseVertex + ru * resV + (rv + 1);
+				const int i2 = baseVertex + (ru + 1) * resV + (rv + 1);
+				const int i3 = baseVertex + (ru + 1) * resV + rv;
+
+				// First triangle (CCW winding)
+				teapot.indices.push_back( i0 );
+				teapot.indices.push_back( i1 );
+				teapot.indices.push_back( i2 );
+
+				// Second triangle (CCW winding)
+				teapot.indices.push_back( i0 );
+				teapot.indices.push_back( i2 );
+				teapot.indices.push_back( i3 );
 			}
 		}
 	}
 
-	// Elements
-	int n = 0;
-	for( int p = 0; p < TEAPOT_NB_PATCHES; p++ )
-		for( int ru = 0; ru < RESU - 1; ru++ )
-			for( int rv = 0; rv < RESV - 1; rv++ ) {
-				// 1 square ABCD = 2 triangles ABC + CDA
-				// ABC
-				teapot_elements[n] = p * RESU*RESV + ru * RESV + rv; n++;
-				teapot_elements[n] = p * RESU*RESV + ru * RESV + ( rv + 1 ); n++;
-				teapot_elements[n] = p * RESU*RESV + ( ru + 1 )*RESV + ( rv + 1 ); n++;
-				// CDA
-				teapot_elements[n] = p * RESU*RESV + ( ru + 1 )*RESV + ( rv + 1 ); n++;
-				teapot_elements[n] = p * RESU*RESV + ( ru + 1 )*RESV + rv; n++;
-				teapot_elements[n] = p * RESU*RESV + ru * RESV + rv; n++;
-			}
+	// Compute normals (average of adjacent face normals)
+	teapot.normals.resize( teapot.vertices.size(), Math::dvec3{ 0.0, 0.0, 0.0 } );
 
-	// Control points elements for debugging
-	memset( teapot_cp_colors, 0, sizeof( teapot_cp_colors ) ); // black
-	for( int p = 0; p < TEAPOT_NB_PATCHES; p++ )
-		for( int i = 0; i < ( ORDER + 1 ); i++ )
-			for( int j = 0; j < ( ORDER + 1 ); j++ )
-				teapot_cp_elements[p][i][j] = teapot_patches[p][i][j] - 1;
-}
+	for( size_t i = 0; i < teapot.indices.size(); i += 3 ) {
+		const auto& v0 = teapot.vertices[ teapot.indices[i + 0] ];
+		const auto& v1 = teapot.vertices[ teapot.indices[i + 1] ];
+		const auto& v2 = teapot.vertices[ teapot.indices[i + 2] ];
 
-static void build_control_points_k( int p, struct vertex control_points_k[][ORDER + 1] ) {
-	for( int i = 0; i <= ORDER; i++ ) {
-		for( int j = 0; j <= ORDER; j++ ) {
-			control_points_k[i][j].x = teapot_cp_vertices[teapot_patches[p][i][j] - 1].x;
-			control_points_k[i][j].y = teapot_cp_vertices[teapot_patches[p][i][j] - 1].y;
-			control_points_k[i][j].z = teapot_cp_vertices[teapot_patches[p][i][j] - 1].z;
-		}
+		// Compute face normal
+		const Math::dvec3 edge1 = v1 - v0;
+		const Math::dvec3 edge2 = v2 - v0;
+		const Math::dvec3 faceNormal = Math::normalize( Math::cross( edge1, edge2 ) );
+
+		// Accumulate to vertex normals
+		teapot.normals[ teapot.indices[i + 0] ] += faceNormal;
+		teapot.normals[ teapot.indices[i + 1] ] += faceNormal;
+		teapot.normals[ teapot.indices[i + 2] ] += faceNormal;
 	}
-}
 
-static struct vertex compute_position( struct vertex control_points_k[][ORDER + 1], double u, double v ) {
-	struct vertex result = { 0.0, 0.0, 0.0 };
-	for( int i = 0; i <= ORDER; i++ ) {
-		double poly_i = bernstein_polynomial( i, ORDER, u );
-		for( int j = 0; j <= ORDER; j++ ) {
-			double poly_j = bernstein_polynomial( j, ORDER, v );
-			result.x += poly_i * poly_j * control_points_k[i][j].x;
-			result.y += poly_i * poly_j * control_points_k[i][j].y;
-			result.z += poly_i * poly_j * control_points_k[i][j].z;
-		}
+	// Normalize all vertex normals
+	for( auto& normal : teapot.normals ) {
+		normal = Math::normalize( normal );
 	}
-	return result;
+
+	return teapot;
 }
-
-static double bernstein_polynomial( int i, int n, double u ) {
-	return binomial_coefficient( i, n ) * pow( u, i ) * pow( 1 - u, n - i );
-}
-
-static double binomial_coefficient( int i, int n ) {
-	assert( i >= 0 ); assert( n >= 0 );
-	return 1.0 * factorial( n ) / ( factorial( i ) * factorial( n - i ) );
-}
-
-static int factorial( int n ) {
-	assert( n >= 0 );
-	int result = 1;
-	for( int i = n; i > 1; i-- )
-		result *= i;
-	return result;
-}
-
-#pragma endregion
-
-//VMesh Geometry::teapot(  int resU, int resV )
-//{
-//	build_teapot();
-//
-//	//teapot_vertices[TEAPOT_NB_PATCHES * RESU*RESV];
-//	//teapot_elements[TEAPOT_NB_PATCHES * (RESU-1)*(RESV-1) * 2*3];
-//	//teapot_colors[TEAPOT_NB_PATCHES * RESU*RESV * 3];
-//	std::vector<Math::dvec3> vertices;
-//	std::vector<unsigned int> indices;
-//
-//	for( int i=0; i<TEAPOT_NB_PATCHES * RESU*RESV; ++i )
-//		vertices.push_back( Math::dvec3(teapot_vertices[i].x,teapot_vertices[i].y,teapot_vertices[i].z) );
-//
-//	for( int i=0; i<TEAPOT_NB_PATCHES * (RESU-1)*(RESV-1) * 2*3; ++i )
-//		indices.push_back( teapot_elements[i] );
-//
-//	VMesh mesh(vertices, indices);
-//	mesh.computeNormals();
-//	return mesh;
-//}
-}
-
-
-#endif
