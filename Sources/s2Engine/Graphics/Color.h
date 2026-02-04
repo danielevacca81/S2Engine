@@ -65,16 +65,16 @@ public:
 
 	// ------------------------------------------------------------------------------------------------
 	// Colors by name
-	static Color white()   { return Color(1.f,1.f,1.f,1.f); }
-	static Color black()   { return Color(0.f,0.f,0.f,1.f); }
-	static Color red()	   { return Color(1.f,0.f,0.f,1.f); }
-	static Color green()   { return Color(0.f,1.f,0.f,1.f); }
-	static Color blue()    { return Color(0.f,0.f,1.f,1.f); }
-	static Color yellow()  { return Color(1.f,1.f,0.f,1.f); }
-	static Color cyan()    { return Color(0.f,1.f,1.f,1.f); }
-	static Color magenta() { return Color(1.f,0.f,1.f,1.f); }
-	static Color gray()    { return Color(.5f,.5f,.5f,1.f); }
-	static Color orange()  { return Color(1.f,.6f,.0f,1.f); }
+	static constexpr Color white()   noexcept { return Color(1.f,1.f,1.f,1.f); }
+	static constexpr Color black()   noexcept { return Color(0.f,0.f,0.f,1.f); }
+	static constexpr Color red()     noexcept { return Color(1.f,0.f,0.f,1.f); }
+	static constexpr Color green()   noexcept { return Color(0.f,1.f,0.f,1.f); }
+	static constexpr Color blue()    noexcept { return Color(0.f,0.f,1.f,1.f); }
+	static constexpr Color yellow()  noexcept { return Color(1.f,1.f,0.f,1.f); }
+	static constexpr Color cyan()    noexcept { return Color(0.f,1.f,1.f,1.f); }
+	static constexpr Color magenta() noexcept { return Color(1.f,0.f,1.f,1.f); }
+	static constexpr Color gray()    noexcept { return Color(.5f,.5f,.5f,1.f); }
+	static constexpr Color orange()  noexcept { return Color(1.f,.6f,.0f,1.f); }
 	static Color random();
 
 
@@ -94,5 +94,9 @@ private:
 	float _b = 0.f;
 	float _a = 1.f;
 };
+
+// ------------------------------------------------------------------------------------------------
+// Non-member operator for scalar pre-multiplication
+inline Color operator*( float v, const Color& c ) { return c * v; }
 
 #endif

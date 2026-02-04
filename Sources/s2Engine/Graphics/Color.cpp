@@ -97,46 +97,46 @@ Color Color::fromHSL( const HSL& hsl )
 
 // ------------------------------------------------------------------------------------------------
 Color::Color( float R, float G, float B, float A )
-	: _r( R )
-	, _g( G )
-	, _b( B )
-	, _a( A )
+	: _r( std::clamp( R, 0.f, 1.f ) )
+	, _g( std::clamp( G, 0.f, 1.f ) )
+	, _b( std::clamp( B, 0.f, 1.f ) )
+	, _a( std::clamp( A, 0.f, 1.f ) )
 {}
 
 // ------------------------------------------------------------------------------------------------
 Color::Color( float R, float G, float B )
-	: _r( R )
-	, _g( G )
-	, _b( B )
+	: _r( std::clamp( R, 0.f, 1.f ) )
+	, _g( std::clamp( G, 0.f, 1.f ) )
+	, _b( std::clamp( B, 0.f, 1.f ) )
 	, _a( 1.f )
 {}
 
 // ------------------------------------------------------------------------------------------------
-float Color::r()           const { return _r; }
-float Color::g()           const { return _g; }
-float Color::b()           const { return _b; }
-float Color::a()           const { return _a; }
-const float* Color::rgba() const { return &_r; }
+float Color::r()           const noexcept{ return _r; }
+float Color::g()           const noexcept{ return _g; }
+float Color::b()           const noexcept{ return _b; }
+float Color::a()           const noexcept{ return _a; }
+const float* Color::rgba() const noexcept{ return &_r; }
 
 // ------------------------------------------------------------------------------------------------
-float Color::luminance()  const { return ( _r * 0.2126f ) + ( _g * 0.7152f ) + ( _b * 0.0722f ); }
-float Color::brightness() const { return ( ( _r * 0.299f ) + ( _g * 0.587f ) + ( _b * 0.114f ) ) * 255.f; }
-float Color::hue() const
+float Color::luminance()  const noexcept{ return ( _r * 0.2126f ) + ( _g * 0.7152f ) + ( _b * 0.0722f ); }
+float Color::brightness() const noexcept{ return ( ( _r * 0.299f ) + ( _g * 0.587f ) + ( _b * 0.114f ) ) * 255.f; }
+float Color::hue() const noexcept
 {
 	const float mx = std::max( { _r, _g,_b } );
 	const float mn = std::min( { _r, _g,_b } );
+	const float d = mx - mn;
+
+	// Prevent division by zero for achromatic colors
+	if( d < 1e-9f )
+		return 0.f;
 
 	float h = 0.f;
-	if( mx == _r ) h = 0.f + ( _g - _b );
-	else if( mx == _g ) h = 2.f + ( _b - _r );
-	else if( mx == _b ) h = 4.f + ( _r - _g );
+	if     ( mx == _r ) h = 0.f + ( _g - _b ) / d + ( _g < _b ? 6.f : 0.f );
+	else if( mx == _g ) h = 2.f + ( _b - _r ) / d;
+	else                h = 4.f + ( _r - _g ) / d;
 
-	h = h * 60.f / ( mx - mn );
-
-	if( h < 0.f )
-		h = h + 360.f;
-
-	return h;
+	return h * 60.f;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -281,10 +281,11 @@ Color Color::operator *( const float& v ) const
 // ------------------------------------------------------------------------------------------------
 bool Color::operator==( const Color& c ) const
 {
-	return _r == c._r &&
-		_g == c._g &&
-		_b == c._b &&
-		_a == c._a;
+	constexpr float epsilon = 1e-6f;
+	return std::abs( _r - c._r ) < epsilon 
+		&& std::abs( _g - c._g ) < epsilon 
+		&& std::abs( _b - c._b ) < epsilon 
+		&& std::abs( _a - c._a ) < epsilon;
 }
 
 // ------------------------------------------------------------------------------------------------
