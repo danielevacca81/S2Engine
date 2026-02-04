@@ -125,9 +125,9 @@ static inline DrawState sanitizeDrawState( const DrawState& ds, RenderTarget con
 }
 
 // ------------------------------------------------------------------------------------------------
-void RenderTarget::draw( const PrimitiveType &primitiveType, const VertexArrayPtr &vao, const DrawState &ds )           const { Renderer::draw( _fbo, primitiveType , vao, sanitizeDrawState( ds, this ) );}
-void RenderTarget::draw( const PrimitiveType &primitiveType, const PrimitiveBufferPtr &primitive, const DrawState &ds ) const { Renderer::draw( _fbo, primitiveType, primitive, sanitizeDrawState( ds, this ) ); }
-void RenderTarget::draw( const PrimitiveBatch& batch, const DrawState& ds )                                             const { Renderer::draw( _fbo, batch, sanitizeDrawState( ds, this ) );}
+void RenderTarget::draw( const PrimitiveType &primitiveType, const VertexArrayPtr &vao, const DrawState &ds )      const { Renderer::draw( _fbo, primitiveType , vao, sanitizeDrawState( ds, this ) );}
+void RenderTarget::draw( const PrimitiveType &primitiveType, const VertexDataPtr &primitive, const DrawState &ds ) const { Renderer::draw( _fbo, primitiveType, primitive, sanitizeDrawState( ds, this ) ); }
+void RenderTarget::draw( const PrimitiveBatch& batch, const DrawState& ds )                                        const { Renderer::draw( _fbo, batch, sanitizeDrawState( ds, this ) );}
 
 // ------------------------------------------------------------------------------------------------
 Pixmap<uint8_t> RenderTarget::grabImage() const

@@ -724,4 +724,24 @@ uint32_t glWrap( const PrimitiveType &primitive )
 
 #pragma endregion
 
+/************************************************************************************************/
+/*                                         ShaderType                                          */
+/************************************************************************************************/
+#pragma region ShaderType
+uint32_t glWrap( const ShaderType &shaderType )
+{
+	switch( shaderType )
+	{
+	case ShaderType::Vertex:                  return GL_VERTEX_SHADER;
+	case ShaderType::Fragment:                return GL_FRAGMENT_SHADER;
+	case ShaderType::Geometry:                return GL_GEOMETRY_SHADER;
+	case ShaderType::TessellationControl:     return GL_TESS_CONTROL_SHADER;
+	case ShaderType::TessellationEvaluation:  return GL_TESS_EVALUATION_SHADER;
+	case ShaderType::Compute:                 return GL_COMPUTE_SHADER;
+	}
+	assert( ( "Unknown ShaderType", 0 ) );
+	return -1;
+}
+#pragma endregion
+
 }

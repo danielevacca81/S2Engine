@@ -17,7 +17,7 @@ namespace RenderCore {
 class BufferObject;
 typedef std::shared_ptr<BufferObject>   BufferObjectPtr;
 
-class S2ENGINE_API BufferObject: public OpenGLObject
+class S2ENGINE_API BufferObject : public OpenGLObject // rename GPUBufferObject?
 {
 public:
 	enum class UsageHint

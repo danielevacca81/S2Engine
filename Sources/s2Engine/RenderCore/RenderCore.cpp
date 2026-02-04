@@ -3,6 +3,8 @@
 #include "RenderCore.h"
 
 #include "Core/Strings.h"
+#include "Shader.h"
+#include "ShaderCompiler.h"
 
 namespace RenderCore {
 static bool gInitialized { false }; // Flag to check if the resources have been initialized. @todo: once per context
@@ -28,8 +30,7 @@ static inline bool initShaders()
 	// #####################################
 	DefaultShaders.FullscreenQuad = Program::New();
 	{
-		ok &= DefaultShaders.FullscreenQuad->attachVertexShader( STRINGIFY( #version 330\n
-
+		auto vtxOk = ShaderCompiler::compile( ShaderType::Vertex, STRINGIFY( #version 330\n
         const vec3 in_Vertex[4] = vec3[4]( 
                        vec3( -1.0,  1.0, 0.0 ), 
 				       vec3( -1.0, -1.0, 0.0 ),
@@ -45,8 +46,7 @@ static inline bool initShaders()
 			texCoord    = vec2( ( pos4.x + 1.0 ) / 2.0, ( pos4.y + 1.0 ) / 2.0 );
 		}) );
 
-		ok &= DefaultShaders.FullscreenQuad->attachFragmentShader( STRINGIFY( #version 330\n
-
+		auto frgOk = ShaderCompiler::compile( ShaderType::Fragment, STRINGIFY( #version 330\n
 		out vec4 color;
 		in vec2 texCoord;
 
@@ -57,13 +57,18 @@ static inline bool initShaders()
 			color = texture( text, texCoord );
 		}) );
 
-		ok &= DefaultShaders.FullscreenQuad->link( "DefaultShaders.FullscreenQuad" );
+		if( vtxOk && frgOk )
+		{
+			ok &= DefaultShaders.FullscreenQuad->attachVertexShader( vtxOk.shader );
+			ok &= DefaultShaders.FullscreenQuad->attachFragmentShader( frgOk.shader );
+			ok &= ShaderCompiler::linkProgram( DefaultShaders.FullscreenQuad, "DefaultShaders.FullscreenQuad" ).success;
+		}
 	}
 
 	// #####################################
 	DefaultShaders.Simple = Program::New();
 	{
-		ok &= DefaultShaders.Simple->attachVertexShader( STRINGIFY( #version 330\n
+		auto vtxOk = ShaderCompiler::compile( ShaderType::Vertex, STRINGIFY( #version 330\n
 		layout( location = 0 ) in vec3 in_Vertex;
 		layout( location = 1 ) in vec4 in_Color;
 
@@ -79,9 +84,8 @@ static inline bool initShaders()
 		}
 		) );
 
-		ok &= DefaultShaders.Simple->attachFragmentShader( STRINGIFY( #version 330\n
-
-													in vec4 color;
+		auto frgOk = ShaderCompiler::compile( ShaderType::Fragment, STRINGIFY( #version 330\n
+        in vec4 color;
 		out vec4 fragColor;
 
 		void main()
@@ -90,13 +94,18 @@ static inline bool initShaders()
 		}
 		) );
 
-		ok &= DefaultShaders.Simple->link( "DefaultShaders.Simple" );
+		if( vtxOk && frgOk )
+		{
+			ok &= DefaultShaders.Simple->attachVertexShader( vtxOk.shader );
+			ok &= DefaultShaders.Simple->attachFragmentShader( frgOk.shader );
+			ok &= ShaderCompiler::linkProgram( DefaultShaders.Simple, "DefaultShaders.Simple" ).success;
+		}
 	}
 
 	// #####################################
 	DefaultShaders.Phong = Program::New();
 	{
-		ok &= DefaultShaders.Phong->attachVertexShader( STRINGIFY( #version 330\n
+		auto vtxOk = ShaderCompiler::compile( ShaderType::Vertex, STRINGIFY( #version 330\n
         layout( location = 0 ) in vec3 in_Vertex;
 		layout( location = 1 ) in vec4 in_Color;
 		layout( location = 2 ) in vec3 in_Normal;
@@ -118,7 +127,7 @@ static inline bool initShaders()
 		}
 		) );
 
-		ok &= DefaultShaders.Phong->attachFragmentShader( STRINGIFY( #version 330\n
+		auto frgOk = ShaderCompiler::compile( ShaderType::Fragment, STRINGIFY( #version 330\n
 		uniform vec4  u_LightPosition;
 		uniform vec4  u_LightAmbient;
 		uniform vec4  u_LightDiffuse;
@@ -153,13 +162,18 @@ static inline bool initShaders()
 		}
 		) );
 
-		ok &= DefaultShaders.Phong->link( "DefaultShaders.Phong" );
+		if( vtxOk && frgOk )
+		{
+			ok &= DefaultShaders.Phong->attachVertexShader( vtxOk.shader );
+			ok &= DefaultShaders.Phong->attachFragmentShader( frgOk.shader );
+			ok &= ShaderCompiler::linkProgram( DefaultShaders.Phong, "DefaultShaders.Phong" ).success;
+		}
 	}
 
 	// #####################################
 	DefaultShaders.BlinnPhong = Program::New();
 	{
-		ok &= DefaultShaders.BlinnPhong->attachVertexShader( STRINGIFY( #version 330\n
+		auto vtxOk = ShaderCompiler::compile( ShaderType::Vertex, STRINGIFY( #version 330\n
         layout( location = 0 ) in vec3 in_Vertex;
 		layout( location = 1 ) in vec4 in_Color;
 		layout( location = 2 ) in vec3 in_Normal;
@@ -184,7 +198,7 @@ static inline bool initShaders()
 		}
 		) );
 
-		ok &= DefaultShaders.BlinnPhong->attachFragmentShader( STRINGIFY( #version 330\n
+		auto frgOk = ShaderCompiler::compile( ShaderType::Fragment, STRINGIFY( #version 330\n
 		uniform vec4  u_LightPosition;
 		uniform vec4  u_LightAmbient;
 		uniform vec4  u_LightDiffuse;
@@ -217,7 +231,12 @@ static inline bool initShaders()
 		}
 		) );
 
-		ok &= DefaultShaders.BlinnPhong->link( "DefaultShaders.BlinnPhong" );
+		if( vtxOk && frgOk )
+		{
+			ok &= DefaultShaders.BlinnPhong->attachVertexShader( vtxOk.shader );
+			ok &= DefaultShaders.BlinnPhong->attachFragmentShader( frgOk.shader );
+			ok &= ShaderCompiler::linkProgram( DefaultShaders.BlinnPhong, "DefaultShaders.BlinnPhong" ).success;
+		}
 	}
 	return ok;
 }

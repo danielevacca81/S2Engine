@@ -1,0 +1,71 @@
+// ShaderCompiler.h
+//
+#ifndef SHADERCOMPILER_H
+#define SHADERCOMPILER_H
+
+#include "s2Engine_API.h"
+
+#include "Shader.h"
+#include "Program.h"
+
+#include <string>
+#include <vector>
+#include <filesystem>
+
+namespace RenderCore {
+
+// ------------------------------------------------------------------------------------------------
+struct ShaderCompilationResult
+{
+    bool        success;
+    std::string errorLog;
+    ShaderPtr   shader;  // nullptr if failed
+
+    explicit operator bool() const { return success; }
+};
+
+// ------------------------------------------------------------------------------------------------
+struct ProgramLinkResult
+{
+    bool        success;
+    std::string errorLog;
+
+    explicit operator bool() const { return success; }
+};
+
+// ------------------------------------------------------------------------------------------------
+class S2ENGINE_API ShaderCompiler
+{
+public:
+    /// Compile a shader from source code
+    /// Returns compilation result with error log if failed
+    static ShaderCompilationResult compile( ShaderType type, const std::string& source );
+
+    /// Compile shader from file
+    static ShaderCompilationResult compileFromFile( ShaderType type, const std::filesystem::path &filepath );
+
+    /// Get shader info log
+    static std::string getShaderInfoLog( const ShaderPtr &shader );
+
+    /// Link the program with all attached shaders
+    static ProgramLinkResult linkProgram( const ProgramPtr& program, const std::string& name = "" );
+
+    /// Validate the program (check if it can execute given current OpenGL state)
+    static ProgramLinkResult validateProgram( const ProgramPtr& program );
+
+    /// Get detailed info about a program (attributes, uniforms, etc.)
+    static std::string getProgramInfo( const ProgramPtr &program, bool verbose = false );
+
+    /// Get program info log
+    static std::string getProgramInfoLog( const ProgramPtr &program );
+
+
+
+
+//private:
+//    std::vector<unsigned int> _compiledShaders;  // Track for cleanup
+};
+
+}
+
+#endif // !SHADERCOMPILER_H

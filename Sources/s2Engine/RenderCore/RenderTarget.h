@@ -7,7 +7,7 @@
 
 #include "VertexArray.h"
 #include "PrimitiveType.h"
-#include "PrimitiveBuffer.h"
+#include "VertexData.h"
 #include "PrimitiveBatch.h"
 #include "Texture.h"
 #include "ClearState.h"
@@ -44,7 +44,7 @@ public:
 
 	void clear( const ClearState& cs = {} ) const;
 	void draw( const PrimitiveType& primitiveType, const VertexArrayPtr& va, const DrawState& ds = {} ) const;
-	void draw( const PrimitiveType& primitiveType, const PrimitiveBufferPtr& p, const DrawState& ds = {} ) const ;
+	void draw( const PrimitiveType& primitiveType, const VertexDataPtr& p, const DrawState& ds = {} ) const ;
 	void draw( const PrimitiveBatch& batch, const DrawState& ds = {} ) const;
 
 	uint32_t width()  const { return _width;  }

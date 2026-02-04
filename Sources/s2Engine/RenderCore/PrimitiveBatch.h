@@ -5,7 +5,6 @@
 
 #include "s2Engine_API.h"
 
-#include "PrimitiveBuffer.h"
 #include "PrimitiveType.h"
 
 #include "Graphics/Color.h"

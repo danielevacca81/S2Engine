@@ -12,6 +12,7 @@
 #include "RenderState.h"
 #include "RenderBuffer.h"
 #include "PrimitiveType.h"
+#include "Shader.h"
 
 #define DATA_PTR(i) ((void*)(i))
 
@@ -78,6 +79,12 @@ uint32_t glWrap( const RenderState::RasterizationMode       &mode );
 /*                                            Primitive                                         */
 /************************************************************************************************/
 uint32_t glWrap( const PrimitiveType &primitive );
+
+
+/************************************************************************************************/
+/*                                            ShaderType                                        */
+/************************************************************************************************/
+uint32_t glWrap( const ShaderType& shaderType );
 
 }
 #endif

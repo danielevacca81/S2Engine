@@ -5,9 +5,9 @@
 
 #include "s2Engine_API.h"
 
-#include "PrimitiveType.h"
 #include "BufferObject.h"
 #include "VertexArray.h"
+#include "VertexAttributeLocation.h"
 
 #include "Graphics/Color.h"
 #include "Geometry/MeshData.h"
@@ -41,22 +41,23 @@ public:
 	VertexData( const std::vector<Math::vec3>& points, const BufferObject::UsageHint& hint = BufferObject::UsageHint::StaticDraw );
 	VertexData( const s2::MeshData3D& meshData, const BufferObject::UsageHint& hint = BufferObject::UsageHint::StaticDraw );
 
-	void setVertices( const std::vector<Math::vec3>& points );
-	void setVertices( const std::vector<Math::vec2>& points2D );
-	void setColors( const std::vector<Color>& colors );
-	void setNormals( const std::vector<Math::vec3>& normals );
-	void setTextureCoords( const std::vector<Math::vec2>& texCoords );
-	void setIndices( const std::vector<unsigned int>& indices );
-	void setIntAttribute( const std::vector<uint32_t>& attrib );
-	void setIntVector2Attribute( const std::vector<Math::ivec2>& attrib );
-	void setIntVector3Attribute( const std::vector<Math::ivec3>& attrib );
-	void setIntVector4Attribute( const std::vector<Math::ivec4>& attrib );
-	void setFloatAttribute( const std::vector<float>& attrib );
-	void setFloatVector2Attribute( const std::vector<Math::fvec2>& attrib );
-	void setFloatVector3Attribute( const std::vector<Math::fvec3>& attrib );
-	void setFloatVector4Attribute( const std::vector<Math::fvec4>& attrib );
+	void setVertices( const std::vector<Math::fvec3>& points );
+	void setVertices( const std::vector<Math::fvec2>& points2D );
+	void setColors  ( const std::vector<Color>& colors );
+	void setNormals ( const std::vector<Math::fvec3>& normals );
+	void setTextureCoords( const std::vector<Math::fvec2>& texCoords );
+	void setIndices( const std::vector<uint32_t>& indices );
 
-	//WindingOrder            frontFaceWindingOrder;
+	void setAttribute( VertexAttributeLocation loc, const std::vector<uint32_t>& attrib );
+	void setAttribute( VertexAttributeLocation loc, const std::vector<Math::ivec2>& attrib );
+	void setAttribute( VertexAttributeLocation loc, const std::vector<Math::ivec3>& attrib );
+	void setAttribute( VertexAttributeLocation loc, const std::vector<Math::ivec4>& attrib );
+
+	void setAttribute( VertexAttributeLocation loc, const std::vector<float>& attrib );
+	void setAttribute( VertexAttributeLocation loc, const std::vector<Math::fvec2>& attrib );
+	void setAttribute( VertexAttributeLocation loc, const std::vector<Math::fvec3>& attrib );
+	void setAttribute( VertexAttributeLocation loc, const std::vector<Math::fvec4>& attrib );
+
 
 private:
 	VertexArrayPtr _vao;

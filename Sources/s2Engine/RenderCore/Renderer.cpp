@@ -9,7 +9,7 @@
 
 using namespace RenderCore;
 
-//-------------------------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------------
 static inline void draw( const PrimitiveType& primitive, const VertexArrayPtr& va )
 {
 	va->bind();
@@ -67,7 +67,7 @@ void Renderer::draw( const FrameBufferPtr& fbo, const PrimitiveType& primitiveTy
 }
 
 // ------------------------------------------------------------------------------------------------
-void Renderer::draw( const FrameBufferPtr& fbo, const PrimitiveType& primitiveType, const PrimitiveBufferPtr& p, const DrawState& ds )
+void Renderer::draw( const FrameBufferPtr& fbo, const PrimitiveType& primitiveType, const VertexDataPtr& p, const DrawState& ds )
 {
 	if( !fbo )
 		return;
@@ -94,7 +94,7 @@ void Renderer::draw( const FrameBufferPtr& fbo, const PrimitiveBatch& batch, con
 
 	auto b = batch.batch();
 
-	auto pBuffer = PrimitiveBuffer::New();
+	auto pBuffer = VertexData::New();
 	pBuffer->setVertices( b.vertices );
 	pBuffer->setTextureCoords( b.textureCoords );
 	pBuffer->setColors( b.colors );
@@ -113,7 +113,7 @@ void Renderer::draw( const FrameBufferPtr& fbo, const PrimitiveBatch& batch, con
 }
 
 // ------------------------------------------------------------------------------------------------
-void Renderer::draw( uint32_t targetFBO, const PrimitiveType& primitiveType, const PrimitiveBufferPtr& primitive, const DrawState& ds )
+void Renderer::draw( uint32_t targetFBO, const PrimitiveType& primitiveType, const VertexDataPtr& primitive, const DrawState& ds )
 {
 	if( !primitive )
 		return;

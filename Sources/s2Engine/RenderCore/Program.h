@@ -7,6 +7,7 @@
 
 #include "OpenGLObject.h"
 #include "Uniform.h"
+#include "Shader.h"
 
 #include <map>
 #include <string>
@@ -34,18 +35,16 @@ public:
 	~Program();
 
 	// @todo: return this for concatenation
-	bool attachVertexShader( const std::string &vertexSource );
-	bool attachFragmentShader( const std::string &fragmentSource );
-	bool attachGeometryShader( const std::string &geometrySource );
-
-	bool link( const std::string &name = std::string( "" ) );
+	bool attachVertexShader( const ShaderPtr &shader );
+	bool attachFragmentShader( const ShaderPtr &shader );
+	bool attachGeometryShader( const ShaderPtr &shader );
+	bool attachComputeShader( const ShaderPtr& shader );
+	bool attachTessellationControlShader( const ShaderPtr& shader );
+	bool attachTessellationEvaluationShader( const ShaderPtr& shader );
 
 	bool        isLinked()    const;
-	std::string info( bool verbose = false ) const;
 	std::string name() const;
 
-	void create()  override;
-	void destroy() override;
 	void bind()    const override;
 	void unbind()  const override;
 	void applyUniforms() const;
@@ -79,21 +78,30 @@ public:
 	}
 
 private:
-	static Uniform *createUniform( const std::string &name, unsigned int loc, unsigned int type );
-	
-	void findUniforms();
+	void create()  override;
+	void destroy() override;
 	int  objectLabelIdentifier() const override;
 	void reset() override;
 
+	void findUniforms();
 private:
-	unsigned int _vshd;
-	unsigned int _gshd;
-	unsigned int _fshd;
-	bool         _linked;
+	ShaderPtr _vshd;
+	ShaderPtr _fshd;
+	ShaderPtr _gshd;
+	
+	ShaderPtr _cshd; // compute shader
+	ShaderPtr _tshd; // tessellation shader
+	ShaderPtr _teshd;// tessellation evaluation shader
+
+
+	bool         _linked { false };
 	std::string  _name;
 
 	std::map< std::string, unsigned int >  _attributes;
 	std::map< std::string, Uniform*>       _uniforms;
+
+
+	friend class ShaderCompiler;
 };
 
 }
