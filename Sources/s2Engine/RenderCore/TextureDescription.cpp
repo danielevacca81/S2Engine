@@ -27,7 +27,7 @@ int           TextureDescription::width()                    const { return _wid
 int           TextureDescription::height()                   const { return _height; }
 TextureFormat TextureDescription::textureFormat()            const { return _format; }
 bool          TextureDescription::isGenerateMipmapsEnabled() const { return _generateMipmaps; }
-bool          TextureDescription::isRectagle()               const { return false; } //@TBD: if true bind to GL_TEXTURE_RECTANGLE instead of GL_TEXTURE_2D
+bool          TextureDescription::isRectangle()               const { return false; } //@TBD: if true bind to GL_TEXTURE_RECTANGLE instead of GL_TEXTURE_2D
 
 // ------------------------------------------------------------------------------------------------
 bool TextureDescription::isColorRenderable() const

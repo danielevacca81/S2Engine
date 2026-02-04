@@ -19,7 +19,7 @@ namespace RenderCore {
 
 // ------------------------------------------------------------------------------------------------
 // returns total dedicated memory in MB
-int getDedicatedTotalMemory()
+int getGPUDedicatedTotalMemory()
 {
 	GLint dedicatedMemKB = 0;
 
@@ -33,7 +33,7 @@ int getDedicatedTotalMemory()
 
 // ------------------------------------------------------------------------------------------------
 // returns available free memory in MB
-int getFreeMemory()
+int getGPUFreeMemory()
 {
 	GLint freeMemKB = 0;
 	if( supportMemoryQuery() )
@@ -45,7 +45,7 @@ int getFreeMemory()
 
 // ------------------------------------------------------------------------------------------------
 // returns total available memory in MB
-int getTotalMemory()
+int getGPUTotalMemory()
 {
 	GLint totalMemKB = 0;
 

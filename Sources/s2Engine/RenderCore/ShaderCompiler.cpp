@@ -6,7 +6,7 @@
 #include "OpenGLCheck.h"
 
 #include <fstream>
-#include <sstream>
+#include <string>
 
 using namespace RenderCore;
 
@@ -43,10 +43,12 @@ ShaderCompilationResult ShaderCompiler::compileFromFile( ShaderType type, const 
 	if( !file.is_open() )
 		return ShaderCompilationResult { false,"Failed to open file: " + filepath.string(),nullptr };
 
-	std::stringstream buffer;
-	buffer << file.rdbuf();
+	const std::string content(
+		(std::istreambuf_iterator<char>( file )),
+		std::istreambuf_iterator<char>()
+	);
 
-	return compile( type, buffer.str() );
+	return compile( type, content );
 }
 
 // ------------------------------------------------------------------------------------------------

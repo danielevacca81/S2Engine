@@ -78,7 +78,7 @@ public:
 	int height() const;
 	TextureFormat textureFormat() const;
 	
-	bool isRectagle() const;
+	bool isRectangle() const;
 	bool isGenerateMipmapsEnabled() const;
 	bool isColorRenderable() const;
 	bool isDepthRenderable() const;

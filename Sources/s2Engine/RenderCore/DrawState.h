@@ -3,7 +3,9 @@
 #ifndef DRAWSTATE_H
 #define DRAWSTATE_H
 
+#ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN //#undef DrawState // undefine DrawState macro from windows.h
+#endif
 
 #include "s2Engine_API.h"
 

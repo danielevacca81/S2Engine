@@ -7,9 +7,9 @@
 
 namespace RenderCore {
 
-int S2ENGINE_API getFreeMemory();
-int S2ENGINE_API getTotalMemory();
-int S2ENGINE_API getDedicatedTotalMemory();
+int S2ENGINE_API getGPUFreeMemory();
+int S2ENGINE_API getGPUTotalMemory();
+int S2ENGINE_API getGPUDedicatedTotalMemory();
 
 }
 #endif // !RENDERCORE_MEMORY_H

@@ -76,7 +76,7 @@ void Texture2D::create()
 	glGenTextures( 1, &_objectID );
 	glCheck;
 
-	if( _description.isRectagle() )
+	if( _description.isRectangle() )
 	{
 		//glBindTexture(GL_TEXTURE_2D); bind rectangle
 	}
