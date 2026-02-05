@@ -7,9 +7,9 @@
 
 #include "ContextInfo.h"
 #include "StateManager.h"
-#include "FrameBuffer.h"
-#include "PrimitiveType.h"
-#include "VertexArray.h"
+// #include "FrameBuffer.h"
+// #include "PrimitiveType.h"
+// #include "VertexArray.h"
 
 namespace s2 {
 namespace RenderCore {
@@ -35,9 +35,9 @@ public:
 	//virtual void makeCurrent() { /*todo*/}
 	//virtual void doneCurrent() { /*todo*/}
 
-	virtual void            clear( const FrameBufferPtr& fbo, const ClearState& cs );
-	virtual void            draw( const FrameBufferPtr& fbo, const PrimitiveType& primitiveType, const VertexArrayPtr& va, const DrawState& ds );
-	virtual Pixmap<uint8_t> readPixels( const FrameBufferPtr& fbo, uint32_t width, uint32_t height );
+	// virtual void            clear( const FrameBufferPtr& fbo, const ClearState& cs );
+	// virtual void            draw( const FrameBufferPtr& fbo, const PrimitiveType& primitiveType, const VertexArrayPtr& va, const DrawState& ds );
+	// virtual Pixmap<uint8_t> readPixels( const FrameBufferPtr& fbo, uint32_t width, uint32_t height );
 
 
 protected:
@@ -50,7 +50,7 @@ protected:
 	ContextInfo  _info;
 	StateManager _stateManager;
 
-	friend class Renderer;
+	friend class RenderBackend;
 };
 
 } // namespace RenderCore

@@ -3,7 +3,7 @@
 #ifndef S2_RENDERCORE_DRAWSTATE_H
 #define S2_RENDERCORE_DRAWSTATE_H
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(_WIN64)
 #define WIN32_LEAN_AND_MEAN //#undef DrawState // undefine DrawState macro from windows.h
 #endif
 

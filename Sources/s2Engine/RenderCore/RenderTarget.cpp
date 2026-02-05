@@ -4,7 +4,7 @@
 
 #include "Context.h"
 #include "Texture.h"
-#include "Renderer.h"
+#include "RenderBackend.h"
 
 
 using namespace s2::RenderCore;
@@ -125,9 +125,9 @@ static inline DrawState sanitizeDrawState( const DrawState& ds, RenderTarget con
 }
 
 // ------------------------------------------------------------------------------------------------
-void RenderTarget::draw( const PrimitiveType &primitiveType, const VertexArrayPtr &vao, const DrawState &ds )      const { Renderer::draw( _fbo, primitiveType , vao, sanitizeDrawState( ds, this ) );}
-void RenderTarget::draw( const PrimitiveType &primitiveType, const VertexDataPtr &primitive, const DrawState &ds ) const { Renderer::draw( _fbo, primitiveType, primitive, sanitizeDrawState( ds, this ) ); }
-void RenderTarget::draw( const PrimitiveBatch& batch, const DrawState& ds )                                        const { Renderer::draw( _fbo, batch, sanitizeDrawState( ds, this ) );}
+void RenderTarget::draw( const PrimitiveType &primitiveType, const VertexArrayPtr &vao, const DrawState &ds )      const { RenderBackend::draw( _fbo, primitiveType , vao, sanitizeDrawState( ds, this ) );}
+void RenderTarget::draw( const PrimitiveType &primitiveType, const VertexDataPtr &primitive, const DrawState &ds ) const { RenderBackend::draw( _fbo, primitiveType, primitive, sanitizeDrawState( ds, this ) ); }
+void RenderTarget::draw( const PrimitiveBatch& batch, const DrawState& ds )                                        const { RenderBackend::draw( _fbo, batch, sanitizeDrawState( ds, this ) );}
 
 // ------------------------------------------------------------------------------------------------
 Pixmap<uint8_t> RenderTarget::grabImage() const
@@ -151,23 +151,23 @@ void RenderTarget::readPixels( const FrameBuffer::AttachmentPoint &attachPoint,
 
 // ------------------------------------------------------------------------------------------------
 // This is a convenience function
-void RenderTarget::RenderTarget::readPixels( const FrameBuffer::AttachmentPoint &attachPoint, 
-											 const ImageFormat &pixelFormat, 
-											 const Math::irect&roi, uint8_t *pixels ) const
-{ 
+void RenderTarget::readPixels(const FrameBuffer::AttachmentPoint &attachPoint,
+							  const ImageFormat &pixelFormat,
+							  const Math::irect &roi, uint8_t *pixels) const
+{
 	_fbo->bind();
 	_fbo->readPixels( attachPoint, pixelFormat, roi, pixels );
-} 
+}
 
 // ------------------------------------------------------------------------------------------------
-void RenderTarget::RenderTarget::RenderTarget::readPixels( const FrameBuffer::AttachmentPoint &attachPoint, 
-														   const ImageFormat &pixelFormat, 
-														   const ImageDataType &pixelType, 
-														   const Math::irect&roi, void *pixels )
-{ 
+void RenderTarget::readPixels(const FrameBuffer::AttachmentPoint &attachPoint,
+							  const ImageFormat &pixelFormat,
+							  const ImageDataType &pixelType,
+							  const Math::irect &roi, void *pixels)
+{
 	_fbo->bind();
 	_fbo->readPixels( attachPoint, pixelFormat, pixelType, roi, pixels );
-} 
+}
 
 // ------------------------------------------------------------------------------------------------
 inline std::string RenderTarget::genLabelAttachment( const FrameBuffer::AttachmentPoint &attachPoint ) const
