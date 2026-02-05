@@ -7,7 +7,8 @@
 
 #include "s2Engine_API.h"
 
-namespace Graphics {
+namespace s2 {
+namespace Scene {
 
 class S2ENGINE_API TrackBall
 {
@@ -49,4 +50,5 @@ private:
 };
 
 }
-#endif // !GRAPHICS_TRACKBALL_H
+}
+#endif // !SCENE_TRACKBALL_H

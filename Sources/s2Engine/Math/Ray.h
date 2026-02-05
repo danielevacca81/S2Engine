@@ -5,7 +5,7 @@
 
 // A point on ray is P = O + Dt
 
-#include "Math.h"
+#include "Math/Math.h"
 #include "Plane.h"
 
 namespace glm {
@@ -31,12 +31,12 @@ public:
 	{
 		const T denom = dot( d, plane.n );
 
-		if( Math::abs( denom ) < 1e-5 )
+		if( Math::abs( denom ) < T(1e-8) )
 			return false;
 
 		t = -( dot( o, plane.n ) + plane.d ) / denom;
 
-		return t >= 0;
+		return t >= T(0);
 	}
 
 	// @ tbd

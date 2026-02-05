@@ -1,7 +1,7 @@
 ﻿// DrawState.h
 // 
-#ifndef DRAWSTATE_H
-#define DRAWSTATE_H
+#ifndef S2_RENDERCORE_DRAWSTATE_H
+#define S2_RENDERCORE_DRAWSTATE_H
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN //#undef DrawState // undefine DrawState macro from windows.h
@@ -15,7 +15,7 @@
 #include "RenderCore.h"
 #include "TextureUnit.h"
 
-
+namespace s2 {
 namespace RenderCore {
 
 struct DrawState
@@ -35,5 +35,6 @@ struct DrawState
 	{}
 };
 
-}
-#endif
+} // namespace RenderCore
+} // namespace s2
+#endif // !S2_RENDERCORE_DRAWSTATE_H

@@ -1,7 +1,7 @@
 // Picker.h
 //
-#ifndef PICKER_H
-#define PICKER_H
+#ifndef S2_RENDERCORE_PICKER_H
+#define S2_RENDERCORE_PICKER_H
 
 #include "s2Engine_API.h"
 
@@ -10,6 +10,7 @@
 #include "Texture.h"
 
 
+namespace s2 {
 namespace RenderCore {
 
 class RenderTarget;
@@ -41,5 +42,6 @@ private:
 	Texture2DPtr	             _pickTexture; 
 };
 
-}
-#endif
+} // namespace RenderCore
+} // namespace s2
+#endif // !S2_RENDERCORE_PICKER_H

@@ -6,7 +6,7 @@
 #include "OpenGLWrap.h"
 #include "OpenGLCheck.h"
 
-using namespace RenderCore;
+using namespace s2::RenderCore;
 
 // ------------------------------------------------------------------------------------------------
 RenderBufferPtr RenderBuffer::New( const Format &format, int width, int height, int samples )

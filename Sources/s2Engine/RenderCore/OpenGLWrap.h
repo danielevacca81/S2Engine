@@ -1,7 +1,7 @@
 // OpenGLWrap.h
 // 
-#ifndef OPENGLWRAP_H
-#define OPENGLWRAP_H
+#ifndef S2_RENDERCORE_OPENGLWRAP_H
+#define S2_RENDERCORE_OPENGLWRAP_H
 
 #include "Texture.h"
 #include "Sampler.h"
@@ -17,6 +17,7 @@
 #define DATA_PTR(i) ((void*)(i))
 
 
+namespace s2 {
 namespace RenderCore {
 
 /************************************************************************************************/
@@ -86,5 +87,6 @@ uint32_t glWrap( const PrimitiveType &primitive );
 /************************************************************************************************/
 uint32_t glWrap( const ShaderType& shaderType );
 
-}
-#endif
+} // namespace RenderCore
+} // namespace s2
+#endif // !S2_RENDERCORE_OPENGLWRAP_H

@@ -1,7 +1,7 @@
 // BufferObject.h
 // 
-#ifndef BUFFEROBJECT_H
-#define BUFFEROBJECT_H
+#ifndef S2_RENDERCORE_BUFFEROBJECT_H
+#define S2_RENDERCORE_BUFFEROBJECT_H
 
 #include "s2Engine_API.h"
 
@@ -9,6 +9,7 @@
 
 #include <memory>
 
+namespace s2 {
 namespace RenderCore {
 
 /************************************************************************************************/
@@ -99,4 +100,5 @@ private:
 };
 
 } // namespace RenderCore
-#endif
+} // namespace s2
+#endif // !S2_RENDERCORE_BUFFEROBJECT_H

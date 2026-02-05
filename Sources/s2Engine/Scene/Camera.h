@@ -10,7 +10,8 @@
 #include "Math/Rectangle.h"
 #include "Math/Ray.h"
 
-namespace Graphics {
+namespace s2 {
+namespace Scene {
 
 class S2ENGINE_API Camera
 {
@@ -62,6 +63,7 @@ protected:
 	Math::dvec3 _up       { 0.0, 1.0, 0.0 };     // normalized camera upvector
 };
 
+}
 }
 
 #endif // !GRAPHICS_CAMERA_H

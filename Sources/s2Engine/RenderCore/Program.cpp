@@ -6,24 +6,11 @@
 #include "OpenGLCheck.h"
 #include "OpenGLWrap.h"
 
-#include "UniformInt.h"
-#include "UniformBool.h"
-#include "UniformFloat.h"
-#include "UniformSampler.h"
-
-#include "UniformFloatVector2.h"
-#include "UniformFloatVector3.h"
-#include "UniformFloatVector4.h"
-
-#include "UniformFloatMatrix22.h"
-#include "UniformFloatMatrix33.h"
-#include "UniformFloatMatrix44.h"
-
 #include <vector>
 #include <sstream>
 #include <iostream>
 
-using namespace RenderCore;
+using namespace s2::RenderCore;
 
 #pragma region Helpers
 // ------------------------------------------------------------------------------------------------

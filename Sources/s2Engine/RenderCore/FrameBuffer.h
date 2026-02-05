@@ -1,7 +1,7 @@
 // FrameBuffer.h
 //
-#ifndef FRAMEBUFFER_H
-#define FRAMEBUFFER_H
+#ifndef S2_RENDERCORE_FRAMEBUFFER_H
+#define S2_RENDERCORE_FRAMEBUFFER_H
 
 #include "s2Engine_API.h"
 
@@ -16,6 +16,7 @@
 #include <memory>
 #include <cstdint>
 
+namespace s2 {
 namespace RenderCore {
 
 class Context;
@@ -115,5 +116,7 @@ private:
 	mutable Changes                      _changes;
 };
 
-}
-#endif
+} // namespace RenderCore
+} // namespace s2
+
+#endif //!S2_RENDERCORE_FRAMEBUFFER_H

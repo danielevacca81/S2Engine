@@ -5,13 +5,16 @@
 
 #include "s2Engine_API.h"
 
-#include "CubemapTexture.h"
+#include "Math/Math.h"
+
+#include "Resources/CubemapTexture.h"
 #include "Graphics/Color.h"
 
 #include <memory>
 #include <string>
 
-namespace Renderer {
+namespace s2 {
+namespace Scene {
 
 /************************************************************************************************/
 /*                                           Skybox                                             */
@@ -42,7 +45,7 @@ public:
 	static SkyboxPtr NewGradient( const std::string& name,
 								  const Color& topColor,
 								  const Color& bottomColor );
-	static SkyboxPtr NewCubemap( const std::string& name, CubemapTexturePtr cubemap );
+	static SkyboxPtr NewCubemap( const std::string& name, Resources::CubemapTexturePtr cubemap );
 
 public:
 	Skybox( const std::string& name );
@@ -65,8 +68,8 @@ public:
 	Color bottomColor() const { return _bottomColor; }
 
 	// Cubemap setup
-	void setCubemap( CubemapTexturePtr cubemap );
-	CubemapTexturePtr cubemap() const { return _cubemap; }
+	void setCubemap( Resources::CubemapTexturePtr cubemap );
+	Resources::CubemapTexturePtr cubemap() const { return _cubemap; }
 
 	// Properties
 	float intensity() const { return _intensity; }
@@ -90,7 +93,7 @@ private:
 	Color _bottomColor { Color::white() };
 
 	// Cubemap properties
-	CubemapTexturePtr _cubemap;
+	Resources::CubemapTexturePtr _cubemap;
 
 	// Common properties
 	float _intensity { 1.0f };  // Brightness multiplier
@@ -98,5 +101,6 @@ private:
 };
 
 }
+}
 
-#endif // RENDERER_SKYBOX_H
+#endif // !S2_SCENE_SKYBOX_H

@@ -1,12 +1,11 @@
 // MaterialLibrary.h
 //
-#ifndef RENDERER_MATERIAL_LIBRARY_H
-#define RENDERER_MATERIAL_LIBRARY_H
+#ifndef S2_RESOURCES_MATERIAL_LIBRARY_H
+#define S2_RESOURCES_MATERIAL_LIBRARY_H
 
 #include "s2Engine_API.h"
 
 #include "Material.h"
-#include "Skybox.h"
 #include "CubemapTexture.h"
 
 #include <memory>
@@ -15,11 +14,9 @@
 #include <vector>
 #include <functional>
 
-namespace Renderer {
+namespace s2 {
+namespace Resources {
 
-/************************************************************************************************/
-/*                                    MaterialLibrary                                           */
-/************************************************************************************************/
 class MaterialLibrary;
 typedef std::shared_ptr<MaterialLibrary> MaterialLibraryPtr;
 
@@ -67,15 +64,15 @@ public:
 	bool hasTexture( const std::string& name ) const;
 	void removeTexture( const std::string& name );
 
-	// Skybox management
-	SkyboxPtr createSkybox( const std::string& name );
-	SkyboxPtr createSkyboxSolidColor( const std::string& name, const Color& color );
-	SkyboxPtr createSkyboxGradient( const std::string& name,
-	                                const Color& topColor,
-	                                const Color& bottomColor );
-	SkyboxPtr createSkyboxCubemap( const std::string& name, CubemapTexturePtr cubemap );
+	//// Skybox management
+	//SkyboxPtr createSkybox( const std::string& name );
+	//SkyboxPtr createSkyboxSolidColor( const std::string& name, const Color& color );
+	//SkyboxPtr createSkyboxGradient( const std::string& name,
+	//                                const Color& topColor,
+	//                                const Color& bottomColor );
+	//SkyboxPtr createSkyboxCubemap( const std::string& name, CubemapTexturePtr cubemap );
 
-	SkyboxPtr getSkybox( const std::string& name ) const;
+	//SkyboxPtr getSkybox( const std::string& name ) const;
 	bool hasSkybox( const std::string& name ) const;
 	void removeSkybox( const std::string& name );
 
@@ -96,7 +93,7 @@ public:
 	// Statistics
 	size_t materialCount() const { return _materials.size(); }
 	size_t textureCount() const { return _textures.size(); }
-	size_t skyboxCount() const { return _skyboxes.size(); }
+	//size_t skyboxCount() const { return _skyboxes.size(); }
 	size_t cubemapCount() const { return _cubemaps.size(); }
 
 	std::vector<std::string> materialNames() const;
@@ -109,10 +106,11 @@ public:
 private:
 	std::unordered_map<std::string, MaterialPtr> _materials;
 	std::unordered_map<std::string, TexturePtr> _textures;
-	std::unordered_map<std::string, SkyboxPtr> _skyboxes;
+	//std::unordered_map<std::string, SkyboxPtr> _skyboxes;
 	std::unordered_map<std::string, CubemapTexturePtr> _cubemaps;
 };
 
 }
+}
 
-#endif // RENDERER_MATERIAL_LIBRARY_H
+#endif // !S2_RESOURCES_MATERIAL_LIBRARY_H

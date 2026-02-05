@@ -20,7 +20,7 @@
 #include <map>
 #include <iostream>
 
-using namespace RenderCore;
+using namespace s2::RenderCore;
 
 // mutex??
 static std::map<uint64_t, Context*> gRegistry;

@@ -1,7 +1,7 @@
 // ClearState.h
 // 
-#ifndef CLEARSTATE_H
-#define CLEARSTATE_H
+#ifndef S2_RENDERCORE_CLEARSTATE_H
+#define S2_RENDERCORE_CLEARSTATE_H
 
 #include "RenderState.h"
 
@@ -11,6 +11,7 @@
 #include <utility>
 #include <variant>
 
+namespace s2 {
 namespace RenderCore {
 
 /************************************************************************/
@@ -45,5 +46,6 @@ struct ClearState
 	ClearColorSeparate  colorSeparate;
 };
 
-}
-#endif
+} // namespace RenderCore
+} // namespace s2
+#endif // !S2_RENDERCORE_CLEARSTATE_H

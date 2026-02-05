@@ -2,7 +2,7 @@
 //
 #include "Texture.h"
 
-using namespace Renderer;
+using namespace s2::Resources;
 
 // -------------------------------------------------------------------------------------------------
 TexturePtr Texture::New( const std::string& name,

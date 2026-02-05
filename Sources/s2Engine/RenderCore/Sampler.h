@@ -1,7 +1,7 @@
 // Sampler.h
 //
-#ifndef TEXTURE_SAMPLER_H
-#define TEXTURE_SAMPLER_H
+#ifndef S2_RENDERCORE_SAMPLER_H
+#define S2_RENDERCORE_SAMPLER_H
 
 #include "s2Engine_API.h"
 
@@ -9,6 +9,7 @@
 
 #include <memory>
 
+namespace s2 {
 namespace RenderCore{
 
 /************************************************************************************************/
@@ -82,5 +83,6 @@ private:
 	float               _maximumAnistropy;
 };
 
-}
-#endif // !TEXTURE_SAMPLER_H
+} // namespace RenderCore
+} // namespace s2
+#endif // !S2_RENDERCORE_SAMPLER_H

@@ -6,7 +6,7 @@
 #include "OpenGLWrap.h"
 #include "OpenGLCheck.h"
 
-using namespace RenderCore;
+using namespace s2::RenderCore;
 
 // -------------------------------------------------------------------------------------------------
 BufferObjectPtr BufferObject::New( int size, const Type &type, const UsageHint &usageHint )

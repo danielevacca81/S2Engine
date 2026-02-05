@@ -5,6 +5,7 @@
 #include "Core/VectorCast.h"
 
 
+using namespace s2;
 using namespace RenderCore;
 
 

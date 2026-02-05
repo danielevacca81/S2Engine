@@ -1,10 +1,11 @@
 // Device.h
 //
-#ifndef DEVICE_H
-#define DEVICE_H
+#ifndef S2_RENDERCORE_DEVICE_H
+#define S2_RENDERCORE_DEVICE_H
 
 #include "s2Engine_API.h"
 
+namespace s2 {
 namespace RenderCore {
 
 class S2ENGINE_API Device
@@ -31,5 +32,6 @@ public:
 	Device() = delete;
 };
 
-}
-#endif
+} // namespace RenderCore
+} // namespace s2
+#endif // !S2_RENDERCORE_DEVICE_H

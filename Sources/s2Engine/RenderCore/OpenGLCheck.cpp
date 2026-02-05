@@ -8,6 +8,7 @@
 
 static bool gDebugOutputEnabled { false };
 
+namespace s2 {
 namespace RenderCore {
 
 // ------------------------------------------------------------------------------------------------
@@ -110,6 +111,8 @@ void checkOpenGLError( const char* file, unsigned int line )
 			<< " " << errorStr
 			<< '\n';		
 	}
+}
+
 }
 
 }

@@ -1,13 +1,14 @@
 // ContextInfo.h
 //
-#ifndef CONTEXTINFO_H
-#define CONTEXTINFO_H
+#ifndef S2_RENDERCORE_CONTEXTINFO_H
+#define S2_RENDERCORE_CONTEXTINFO_H
 
 #include "s2Engine_API.h"
 
 #include <string>
 #include <set>
 
+namespace s2 {
 namespace RenderCore {
 
 class S2ENGINE_API ContextInfo
@@ -24,7 +25,7 @@ public:
 	bool    isContextProfileNoError() const;
 
 	const std::set<std::string>& extensions() const;
-	
+
 	std::string toString() const;
 private:
 	void init();
@@ -34,7 +35,7 @@ private:
 	int32_t _versionMinor { 0 };
 	int32_t _openGLContextProfile { 0 };
 	int32_t _openGLContextFlags { 0 };
-	
+
 	std::string _vendor;
 	std::string _version;
 	std::string _renderer;
@@ -47,5 +48,6 @@ private:
 	friend class Context;
 };
 
-}
-#endif
+} // namespace RenderCore
+} // namespace s2
+#endif // !S2_RENDERCORE_CONTEXTINFO_H

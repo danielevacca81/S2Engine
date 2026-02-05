@@ -21,25 +21,17 @@
 #include "glm/gtc/epsilon.hpp"
 
 
-
-
 #ifndef GLM_ENABLE_EXPERIMENTAL
 #define GLM_ENABLE_EXPERIMENTAL
-#endif // GLM_ENABLE_EXPERIMENTAL
+#endif
 
 #include "glm/gtx/projection.hpp"
 #include "glm/gtx/spline.hpp"
 #include "glm/gtx/matrix_decompose.hpp"
 #include "glm/gtx/easing.hpp"
-//#include "glm/gtx/color_space.hpp"
-//#include "glm/gtx/closest_point.hpp"
-//#include "glm/gtx/gradient_paint.hpp"
-//#include "glm/gtx/io.hpp"
-//#include "glm/gtx/polar_coordinates.hpp"
+
 
 namespace Math = glm;
-
-/* do not include any glm custom class/function into s2 or s2::Math namespace*/
 
 namespace glm {
 	
@@ -125,7 +117,6 @@ namespace glm {
 		return x;
 	}
 
-
 	// ------------------------------------------------------------------------------------------------
 	/// Returns the component-wise comparison of |x - y| / min(|x|,|y|) <= epsilon.
 	/// True if this expression is satisfied.
@@ -176,6 +167,13 @@ namespace glm {
 			lessThanEqual( abs( x - y ) / min( abs( x ), abs( y ) ), epsilon );
 	}
 
+	// ------------------------------------------------------------------------------------------------
+	template<typename genType>
+	bool equals( genType const& x, genType const& y )
+	{
+		return epsilonEqualRelative( x, y, Math::epsilon<genType>() );
+	}
+
 }
 
-#endif
+#endif // !MATH_MATH_H

@@ -8,8 +8,7 @@
 
 #include <algorithm>
 
-
-using namespace RenderCore;
+using namespace s2::RenderCore;
 
 // ------------------------------------------------------------------------------------------------
 static inline void makeGLAttachment( const FrameBuffer::AttachmentPoint &attachPoint, const Texture2DPtr &texture )

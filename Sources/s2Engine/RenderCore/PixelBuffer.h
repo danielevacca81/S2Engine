@@ -1,7 +1,7 @@
 // PixelBuffer.h
 //
-#ifndef PIXELBUFFER_H
-#define PIXELBUFFER_H
+#ifndef S2_RENDERCORE_PIXELBUFFER_H
+#define S2_RENDERCORE_PIXELBUFFER_H
 
 #include "s2Engine_API.h"
 
@@ -9,6 +9,7 @@
 
 #include <memory>
 
+namespace s2 {
 namespace RenderCore {
 
 /************************************************************************************************/
@@ -80,6 +81,6 @@ private:
 	BufferObjectPtr _bufferObject;
 };
 
-}
-
-#endif
+} // namespace RenderCore
+} // namespace s2
+#endif // !S2_RENDERCORE_PIXELBUFFER_H

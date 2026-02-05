@@ -4,7 +4,7 @@
 
 #include <stdexcept>
 
-using namespace Renderer;
+using namespace s2::Resources;
 
 // -------------------------------------------------------------------------------------------------
 CubemapTexturePtr CubemapTexture::New( const std::string& name, int faceSize, int channels )

@@ -9,7 +9,7 @@
 #include "Sampler.h"
 #include "RenderCore.h" //samplers
 
-using namespace RenderCore;
+using namespace s2::RenderCore;
 
 // -------------------------------------------------------------------------------------------------
 Texture2DPtr Texture2D::New( const TextureDescription &desc, void *data )

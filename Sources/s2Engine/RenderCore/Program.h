@@ -1,7 +1,7 @@
 // Program.h
 //
-#ifndef PROGRAM_H
-#define PROGRAM_H
+#ifndef S2_RENDERCORE_PROGRAM_H
+#define S2_RENDERCORE_PROGRAM_H
 
 #include "s2Engine_API.h"
 
@@ -14,6 +14,7 @@
 #include <memory>
 #include <vector>
 
+namespace s2 {
 namespace RenderCore {
 
 /************************************************************************************************/
@@ -104,5 +105,6 @@ private:
 	friend class ShaderCompiler;
 };
 
-}
-#endif
+} // namespace RenderCore
+} // namespace s2
+#endif // !S2_RENDERCORE_PROGRAM_H

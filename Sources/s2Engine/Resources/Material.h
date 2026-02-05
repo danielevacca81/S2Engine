@@ -1,9 +1,11 @@
 // Material.h
 //
-#ifndef RENDERER_MATERIAL_H
-#define RENDERER_MATERIAL_H
+#ifndef S2_RESOURCES_MATERIAL_H
+#define S2_RESOURCES_MATERIAL_H
 
 #include "s2Engine_API.h"
+
+#include "Math/Math.h"
 
 #include "Texture.h"
 #include "Graphics/Color.h"
@@ -12,7 +14,8 @@
 #include <string>
 #include <unordered_map>
 
-namespace Renderer {
+namespace s2 {
+namespace Resources {
 
 /************************************************************************************************/
 /*                                          Material                                            */
@@ -114,4 +117,6 @@ S2ENGINE_API const char* textureTypeToString( Material::TextureType type );
 
 }
 
-#endif // RENDERER_MATERIAL_H
+}
+
+#endif // !S2_RESOURCES_MATERIAL_H

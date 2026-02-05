@@ -1,13 +1,14 @@
 // RenderCore.h
 //
-#ifndef RENDERCORE_H
-#define RENDERCORE_H
+#ifndef S2_RENDERCORE_RENDERCORE_H
+#define S2_RENDERCORE_RENDERCORE_H
 
 #include "s2Engine_API.h"
 
 #include "Program.h"
 #include "Sampler.h"
 
+namespace s2 {
 namespace RenderCore {
 
 bool S2ENGINE_API init();
@@ -35,6 +36,6 @@ struct Samplers
 extern S2ENGINE_API Samplers DefaultSamplers;
 
 
-}
-#endif // !RENDERCORE_H
-
+} // namespace RenderCore
+} // namespace s2
+#endif // !S2_RENDERCORE_RENDERCORE_H

@@ -5,7 +5,7 @@
 #include "OpenGL.h"
 
 
-using namespace RenderCore;
+using namespace s2::RenderCore;
 
 // -------------------------------------------------------------------------------------------------
 VertexBuffer::VertexBuffer( int sizeInBytes, const BufferObject::UsageHint &usageHint )

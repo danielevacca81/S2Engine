@@ -1,13 +1,14 @@
 // ViewState.h
 // 
-#ifndef VIEWSTATE_H
-#define VIEWSTATE_H
+#ifndef S2_RENDERCORE_VIEWSTATE_H
+#define S2_RENDERCORE_VIEWSTATE_H
 
 #include "s2Engine_API.h"
 
 #include "Math/Math.h"
 #include "Math/Rectangle.h"
 
+namespace s2 {
 namespace RenderCore  {
 
 class S2ENGINE_API ViewState
@@ -59,6 +60,6 @@ public:
 
 };
 
-}
-
-#endif
+} // namespace RenderCore
+} // namespace s2
+#endif // !S2_RENDERCORE_VIEWSTATE_H

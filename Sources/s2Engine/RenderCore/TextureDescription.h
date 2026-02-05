@@ -1,10 +1,11 @@
 // TextureDescription.h
 //
-#ifndef TEXTUREDESCRIPTION_H
-#define TEXTUREDESCRIPTION_H
+#ifndef S2_RENDERCORE_TEXTUREDESCRIPTION_H
+#define S2_RENDERCORE_TEXTUREDESCRIPTION_H
 
 #include "s2Engine_API.h"
 
+namespace s2 {
 namespace RenderCore {
 
 /************************************************************************************************/
@@ -97,5 +98,6 @@ private:
 
 
 
-}
-#endif
+} // namespace RenderCore
+} // namespace s2
+#endif // !S2_RENDERCORE_TEXTUREDESCRIPTION_H

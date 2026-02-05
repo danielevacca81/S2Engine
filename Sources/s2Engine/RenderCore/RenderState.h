@@ -1,13 +1,14 @@
 // RenderState.h
 // 
-#ifndef RENDERSTATE_H
-#define RENDERSTATE_H
+#ifndef S2_RENDERCORE_RENDERSTATE_H
+#define S2_RENDERCORE_RENDERSTATE_H
 
 #include "Graphics/Color.h"
 #include "Math/Rectangle.h"
 
 #include <array>
 
+namespace s2 {
 namespace RenderCore {
 	
 static constexpr int kMaxRenderTargets = 2;
@@ -319,5 +320,6 @@ struct RenderState
 	StencilMask       stencilMask { ~0u,~0u };
 };
 
-}
-#endif
+} // namespace RenderCore
+} // namespace s2
+#endif // !S2_RENDERCORE_RENDERSTATE_H

@@ -11,7 +11,7 @@
 
 #include <iostream>
 
-using namespace RenderCore;
+using namespace s2::RenderCore;
 
 
 // -------------------------------------------------------------------------------------------------
@@ -105,8 +105,10 @@ void VertexArray::bind() const
 
 	
 	glBindVertexArray( _objectID );
+#if 0 // uncomment to debug 
 	while( glGetError() != GL_NO_ERROR )
 		std::cout << "Invalid VAO name" << _objectID << '\n';
+#endif
 	glCheck;
 
 	if( _indexBuffer.isValid() )

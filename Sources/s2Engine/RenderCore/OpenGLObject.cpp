@@ -7,7 +7,7 @@
 
 #include "Context.h"
 
-using namespace RenderCore;
+using namespace s2::RenderCore;
 
 //#define ASSERT_ON_CHECKGLCONTEXT
 #define ALLOW_CONTEXT_RESOURCE_SHARING

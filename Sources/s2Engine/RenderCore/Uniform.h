@@ -1,44 +1,16 @@
 // Uniform.h
 // 
-#ifndef UNIFORM_H
-#define UNIFORM_H
+#ifndef S2_RENDERCORE_UNIFORM_H
+#define S2_RENDERCORE_UNIFORM_H
 
 #include "s2Engine_API.h"
 
+#include "Math/Math.h"
 
 #include <string>
 
+namespace s2 {
 namespace RenderCore {
-
-/*
-class GLUL_API Uniform
-{
-public:
-    Uniform();
-    Uniform(GLuint location);
-    ~Uniform();
-
-    GLuint getLocation() const;
-            
-    void setSampler(GLint value) const;
-
-public:
-    template<typename T> void operator=(const T& value) const;
-
-    template<typename T> void set(T v0) const;
-    template<typename T> void set(T v0, T v1) const;
-    template<typename T> void set(T v0, T v1, T v2) const;
-    template<typename T> void set(T v0, T v1, T v2, T v3) const;
-            
-    template<typename T> void setVec(const T& value, GLsizei count = 1) const;
-    template<typename T> void setMatrix(const T& value, GLsizei count = 1, GLboolean transpose = GL_FALSE) const;
-
-private:
-    GLint _location;
-};
-*/
-
-
 
 // ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------
@@ -102,9 +74,148 @@ protected:
 protected:
 	T            _value;
 };
-// ------------------------------------------------------------------------------------------------
-// ------------------------------------------------------------------------------------------------
-// ------------------------------------------------------------------------------------------------
 
-}
-#endif
+
+// ------------------------------------------------------------------------------------------------
+class S2ENGINE_API UniformSampler : public UniformValue<int>
+{
+public:
+	UniformSampler( int location, const std::string& name ) : UniformValue<int>( location, name ) {}
+	void set();
+};
+
+// ------------------------------------------------------------------------------------------------
+class S2ENGINE_API UniformBool : public UniformValue<bool>
+{
+public: 
+	UniformBool( int location, const std::string& name ) : UniformValue<bool>( location, name ) {}
+	void set();
+};
+
+// ------------------------------------------------------------------------------------------------
+class S2ENGINE_API UniformInt : public UniformValue<int>
+{
+public:
+	UniformInt( int location, const std::string& name ) : UniformValue<int>( location, name ) {}
+	void set();
+};
+
+// ------------------------------------------------------------------------------------------------
+class S2ENGINE_API UniformFloat : public UniformValue<float>
+{
+public:
+	UniformFloat( int location, const std::string& name ) : UniformValue<float>( location, name ) {}
+	void set();
+};
+
+// ------------------------------------------------------------------------------------------------
+class S2ENGINE_API UniformFloatVector2 : public UniformValue<Math::vec2>
+{
+public:
+	UniformFloatVector2( int location, const std::string& name ) : UniformValue<Math::vec2>( location, name ) {}
+	void set();
+};
+
+// ------------------------------------------------------------------------------------------------
+class S2ENGINE_API UniformFloatVector3 : public UniformValue<Math::vec3>
+{
+public:
+	UniformFloatVector3( int location, const std::string& name ) : UniformValue<Math::vec3>( location, name ) {}
+	void set();
+};
+
+// ------------------------------------------------------------------------------------------------
+class S2ENGINE_API UniformFloatVector4 : public UniformValue<Math::vec4>
+{
+public:
+	UniformFloatVector4( int location, const std::string& name ) : UniformValue<Math::vec4>( location, name ) {}
+	void set();
+};
+
+
+// ------------------------------------------------------------------------------------------------
+class S2ENGINE_API UniformFloatMatrix22 : public UniformValue<Math::mat2>
+{
+public:
+	UniformFloatMatrix22( int location, const std::string& name ) : UniformValue<Math::mat2>( location, name ) { _value = Math::mat2( 1.f ); }
+	void set();
+};
+
+// ------------------------------------------------------------------------------------------------
+class S2ENGINE_API UniformFloatMatrix33 : public UniformValue<Math::mat3>
+{
+public:
+	UniformFloatMatrix33( int location, const std::string& name ) : UniformValue<Math::mat3>( location, name ) { _value = Math::mat3( 1.f ); }
+	void set();
+};
+
+// ------------------------------------------------------------------------------------------------
+class S2ENGINE_API UniformFloatMatrix44 : public UniformValue<Math::mat4>
+{
+public:
+	UniformFloatMatrix44( int location, const std::string& name ) : UniformValue<Math::mat4>( location, name ) { _value = Math::mat4( 1.f ); }
+	void set();
+};
+
+
+// ------------------------------------------------------------------------------------------------
+class S2ENGINE_API UniformDouble : public UniformValue<double>
+{
+public:
+	UniformDouble( int location, const std::string& name ) : UniformValue<double>( location, name ) {}
+	void set();
+};
+
+// ------------------------------------------------------------------------------------------------
+class S2ENGINE_API UniformDoubleVector2 : public UniformValue<Math::dvec2>
+{
+public:
+	UniformDoubleVector2( int location, const std::string& name ) : UniformValue<Math::dvec2>( location, name ) {}
+	void set();
+};
+
+// ------------------------------------------------------------------------------------------------
+class S2ENGINE_API UniformDoubleVector3 : public UniformValue<Math::dvec3>
+{
+public:
+	UniformDoubleVector3( int location, const std::string& name ) : UniformValue<Math::dvec3>( location, name ) {}
+	void set();
+};
+
+
+// ------------------------------------------------------------------------------------------------
+class S2ENGINE_API UniformDoubleVector4 : public UniformValue<Math::dvec4>
+{
+public:
+	UniformDoubleVector4( int location, const std::string& name ) : UniformValue<Math::dvec4>( location, name ) {}
+	void set();
+};
+
+// ------------------------------------------------------------------------------------------------
+class S2ENGINE_API UniformDoubleMatrix22 : public UniformValue<Math::dmat2>
+{
+public:
+	UniformDoubleMatrix22( int location, const std::string& name ) : UniformValue<Math::dmat2>( location, name ) { _value = Math::dmat2( 1.0 ); }
+	void set();
+};
+
+// ------------------------------------------------------------------------------------------------
+class S2ENGINE_API UniformDoubleMatrix33 : public UniformValue<Math::dmat3>
+{
+public:
+	UniformDoubleMatrix33( int location, const std::string& name ) : UniformValue<Math::dmat3>( location, name ) { _value = Math::dmat3( 1.0 ); }
+	void set();
+};
+
+// ------------------------------------------------------------------------------------------------
+class S2ENGINE_API UniformDoubleMatrix44 : public UniformValue<Math::dmat4>
+{
+public:
+	UniformDoubleMatrix44( int location, const std::string& name ) : UniformValue<Math::dmat4>( location, name ) { _value = Math::dmat4( 1.0 ); }
+	void set();
+};
+
+
+} // namespace RenderCore
+} // namespace s2
+#endif // !S2_RENDERCORE_UNIFORM_H

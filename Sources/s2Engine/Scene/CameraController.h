@@ -13,7 +13,8 @@
 #include <functional>
 #include <vector>
 
-namespace Graphics {
+namespace s2 {
+namespace Scene {
 
 // ------------------------------------------------------------------------------------------------
 class S2ENGINE_API AnimatedController
@@ -45,6 +46,7 @@ public:
 	static void  zoomToBeFilledBy( Camera& c, const Math::dbox3& b );
 };
 
+}
 }
 
 #endif // !GRAPHICS_CAMERACONTROLLER_H

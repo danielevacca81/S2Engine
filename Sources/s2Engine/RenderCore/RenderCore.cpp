@@ -6,6 +6,7 @@
 #include "Shader.h"
 #include "ShaderCompiler.h"
 
+namespace s2 {
 namespace RenderCore {
 static bool gInitialized { false }; // Flag to check if the resources have been initialized. @todo: once per context
 
@@ -272,6 +273,8 @@ void destroy()
 	DefaultSamplers.LinearClamp   = nullptr;
 	DefaultSamplers.NearestRepeat = nullptr;
 	DefaultSamplers.LinearRepeat  = nullptr;
+}
+
 }
 
 }

@@ -10,7 +10,7 @@
 
 #include "Math/Rectangle.h"
 
-using namespace RenderCore;
+using namespace s2::RenderCore;
 
 //#define OPENGL_DEPRECATED
 #define CHECK_SHADOWING

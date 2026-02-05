@@ -1,7 +1,7 @@
 // VertexData.h
 //
-#ifndef VERTEXDATA_H
-#define VERTEXDATA_H
+#ifndef S2_RENDERCORE_VERTEXDATA_H
+#define S2_RENDERCORE_VERTEXDATA_H
 
 #include "s2Engine_API.h"
 
@@ -17,17 +17,12 @@
 #include <memory>
 
 
+namespace s2 {
 namespace RenderCore {
 
 class VertexData;
 typedef std::shared_ptr<VertexData>   VertexDataPtr;
 
-// ------------------------------------------------------------------------------------------------
-// VertexData Attribute location:
-//	 (0) vertices
-//   (1) colors
-//   (2) normals
-//   (3) texture coords
 class S2ENGINE_API VertexData
 {
 public:
@@ -66,6 +61,6 @@ private:
 	//friend class Context;
 };
 
-}
-
-#endif
+} // namespace RenderCore
+} // namespace s2
+#endif // !S2_RENDERCORE_VERTEXDATA_H

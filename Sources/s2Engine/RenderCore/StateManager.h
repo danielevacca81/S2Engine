@@ -1,7 +1,7 @@
 // StateManager.h
 //
-#ifndef STATEMANAGER_H
-#define STATEMANAGER_H
+#ifndef S2_RENDERCORE_STATEMANAGER_H
+#define S2_RENDERCORE_STATEMANAGER_H
 
 #include "s2Engine_API.h"
 
@@ -14,6 +14,7 @@
 #include "Program.h"
 #include "FrameBuffer.h"
 
+namespace s2 {
 namespace RenderCore {
 
 /* There shall be only one state manager per context.
@@ -66,6 +67,6 @@ private:
 };
 
 
-}
-
-#endif
+} // namespace RenderCore
+} // namespace s2
+#endif // !S2_RENDERCORE_STATEMANAGER_H

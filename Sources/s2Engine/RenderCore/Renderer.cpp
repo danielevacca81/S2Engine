@@ -7,7 +7,7 @@
 #include "OpenGLWrap.h"
 #include "Context.h"
 
-using namespace RenderCore;
+using namespace s2::RenderCore;
 
 // -------------------------------------------------------------------------------------------------
 static inline void draw( const PrimitiveType& primitive, const VertexArrayPtr& va )

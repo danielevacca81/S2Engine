@@ -1,10 +1,11 @@
 // ImageFormat.h
 //
-#ifndef IMAGEFORMAT_H
-#define IMAGEFORMAT_H
+#ifndef S2_RENDERCORE_IMAGEFORMAT_H
+#define S2_RENDERCORE_IMAGEFORMAT_H
 
 #include "s2Engine_API.h"
 
+namespace s2 {
 namespace RenderCore {
 
 /************************************************************************************************/
@@ -68,5 +69,7 @@ int numberOfChannels( const ImageFormat &format );
 int sizeInBytes( const ImageDataType &dataType );
 int computeRequiredSizeInBytes( int width, int height, const ImageFormat &format, const ImageDataType &dataType, int rowAlignment );
 
-}
-#endif
+} // namespace RenderCore
+} // namespace s2
+
+#endif // !S2_RENDERCORE_IMAGEFORMAT_H

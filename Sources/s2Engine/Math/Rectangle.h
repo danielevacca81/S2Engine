@@ -3,7 +3,7 @@
 #ifndef MATH_RECTANGLE_H
 #define MATH_RECTANGLE_H
 
-#include "Math.h"
+#include "Math/Math.h"
 
 namespace glm {
 namespace detail {
@@ -18,40 +18,43 @@ public:
 
 	// ------------------------------------------------------------------------------------------------
 	trect( T l, T b, T w, T h )
-		: _left( l ), _bottom( b ), _width( w ), _height( h )
+		: _left( l )
+		, _bottom( b )
+		, _width( w )
+		, _height( h )
 	{}
 
 	// ------------------------------------------------------------------------------------------------
 	trect( const tvec2<T, P>& p0, const tvec2<T, P>& p1 )
 	{
-		_left = p0.x < p1.x ? p0.x : p1.x;
+		_left   = p0.x < p1.x ? p0.x : p1.x;
 		_bottom = p0.y < p1.y ? p0.y : p1.y;
-		_width = glm::abs( p1.x - p0.x );
-		_height = glm::abs( p1.y - p0.y );
+		_width  = abs( p1.x - p0.x );
+		_height = abs( p1.y - p0.y );
 	}
 
 	// ------------------------------------------------------------------------------------------------
 	bool operator==( const trect& other ) const
 	{
-		return _left == other._left &&
-			_bottom == other._bottom &&
-			_width == other._width &&
-			_height == other._height;
+		return _left   == other._left
+			&& _bottom == other._bottom
+			&& _width  == other._width
+			&& _height == other._height;
 	}
 
 	// ------------------------------------------------------------------------------------------------
 	bool operator!=( const trect& other ) const
 	{
-		return !(*this == other);
+		return !( *this == other );
 	}
 
 	// ------------------------------------------------------------------------------------------------
 	bool isEmpty() const
 	{
-		return _left <= 0 &&
-			_bottom <= 0 &&
-			_width <= 0 &&
-			_height <= 0;
+		return _left   <= T( 0 )
+			&& _bottom <= T( 0 )
+			&& _width  <= T( 0 )
+			&& _height <= T( 0 );
 	}
 
 	// ------------------------------------------------------------------------------------------------
@@ -76,7 +79,7 @@ public:
 		const T r = glm::max( right(), ptX );
 		const T b = glm::min( bottom(), ptY );
 		const T t = glm::max( top(), ptY );
-		return Rectangle( l, b, r - l, t - b );
+		return trect( l, b, r - l, t - b );
 	}
 
 	// ------------------------------------------------------------------------------------------------
@@ -92,7 +95,7 @@ public:
 			const T r = glm::max( right(), rect2.right() );
 			const T b = glm::min( bottom(), rect2.bottom() );
 			const T t = glm::max( top(), rect2.top() );
-			return Rectangle( l, b, r - l, t - b );
+			return trect( l, b, r - l, t - b );
 		}
 	}
 
@@ -123,10 +126,10 @@ public:
 	}
 
 private:
-	T _left = 0;
-	T _bottom = 0;
-	T _width = 0;
-	T _height = 0;
+	T _left   = T( 0 );
+	T _bottom = T( 0 );
+	T _width  = T( 0 );
+	T _height = T( 0 );
 };
 }
 

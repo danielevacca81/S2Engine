@@ -1,8 +1,7 @@
-.\Sources\s2Engine\Renderer\CubemapTexture.h
 // CubemapTexture.h
 //
-#ifndef RENDERER_CUBEMAP_TEXTURE_H
-#define RENDERER_CUBEMAP_TEXTURE_H
+#ifndef S2_RESOURCES_CUBEMAP_TEXTURE_H
+#define S2_RESOURCES_CUBEMAP_TEXTURE_H
 
 #include "s2Engine_API.h"
 
@@ -12,7 +11,8 @@
 #include <memory>
 #include <string>
 
-namespace Renderer {
+namespace s2 {
+namespace Resources {
 
 /************************************************************************************************/
 /*                                      CubemapTexture                                          */
@@ -79,4 +79,5 @@ private:
 
 }
 
-#endif // RENDERER_CUBEMAP_TEXTURE_H
+}
+#endif // !S2_RESOURCES_CUBEMAP_TEXTURE_H

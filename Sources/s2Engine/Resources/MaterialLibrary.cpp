@@ -4,7 +4,7 @@
 
 #include <algorithm>
 
-using namespace Renderer;
+using namespace s2::Resources;
 
 static constexpr const char* kDefaultMaterialName = "__default__";
 
@@ -249,70 +249,70 @@ void MaterialLibrary::forEachTexture( const std::function<void( TexturePtr )>& f
 		func( texture );
 }
 
-// -------------------------------------------------------------------------------------------------
-SkyboxPtr MaterialLibrary::createSkybox( const std::string& name )
-{
-	if( hasSkybox( name ) )
-		return nullptr;
-
-	auto skybox = Skybox::New( name );
-	_skyboxes[name] = skybox;
-	return skybox;
-}
-
-// -------------------------------------------------------------------------------------------------
-SkyboxPtr MaterialLibrary::createSkyboxSolidColor( const std::string& name, const Color& color )
-{
-	if( hasSkybox( name ) )
-		return nullptr;
-
-	auto skybox = Skybox::NewSolidColor( name, color );
-	_skyboxes[name] = skybox;
-	return skybox;
-}
-
-// -------------------------------------------------------------------------------------------------
-SkyboxPtr MaterialLibrary::createSkyboxGradient( const std::string& name,
-                                                 const Color& topColor,
-                                                 const Color& bottomColor )
-{
-	if( hasSkybox( name ) )
-		return nullptr;
-
-	auto skybox = Skybox::NewGradient( name, topColor, bottomColor );
-	_skyboxes[name] = skybox;
-	return skybox;
-}
-
-// -------------------------------------------------------------------------------------------------
-SkyboxPtr MaterialLibrary::createSkyboxCubemap( const std::string& name, CubemapTexturePtr cubemap )
-{
-	if( hasSkybox( name ) )
-		return nullptr;
-
-	auto skybox = Skybox::NewCubemap( name, cubemap );
-	_skyboxes[name] = skybox;
-	return skybox;
-}
-
-// -------------------------------------------------------------------------------------------------
-SkyboxPtr MaterialLibrary::getSkybox( const std::string& name ) const
-{
-	auto it = _skyboxes.find( name );
-	return ( it != _skyboxes.end() ) ? it->second : nullptr;
-}
-
-// -------------------------------------------------------------------------------------------------
-bool MaterialLibrary::hasSkybox( const std::string& name ) const
-{
-	return _skyboxes.find( name ) != _skyboxes.end();
-}
-
-// -------------------------------------------------------------------------------------------------
-void MaterialLibrary::removeSkybox( const std::string& name )
-{
-	_skyboxes.erase( name );
-}
+//// -------------------------------------------------------------------------------------------------
+//SkyboxPtr MaterialLibrary::createSkybox( const std::string& name )
+//{
+//	if( hasSkybox( name ) )
+//		return nullptr;
+//
+//	auto skybox = Skybox::New( name );
+//	_skyboxes[name] = skybox;
+//	return skybox;
+//}
+//
+//// -------------------------------------------------------------------------------------------------
+//SkyboxPtr MaterialLibrary::createSkyboxSolidColor( const std::string& name, const Color& color )
+//{
+//	if( hasSkybox( name ) )
+//		return nullptr;
+//
+//	auto skybox = Skybox::NewSolidColor( name, color );
+//	_skyboxes[name] = skybox;
+//	return skybox;
+//}
+//
+//// -------------------------------------------------------------------------------------------------
+//SkyboxPtr MaterialLibrary::createSkyboxGradient( const std::string& name,
+//                                                 const Color& topColor,
+//                                                 const Color& bottomColor )
+//{
+//	if( hasSkybox( name ) )
+//		return nullptr;
+//
+//	auto skybox = Skybox::NewGradient( name, topColor, bottomColor );
+//	_skyboxes[name] = skybox;
+//	return skybox;
+//}
+//
+//// -------------------------------------------------------------------------------------------------
+//SkyboxPtr MaterialLibrary::createSkyboxCubemap( const std::string& name, CubemapTexturePtr cubemap )
+//{
+//	if( hasSkybox( name ) )
+//		return nullptr;
+//
+//	auto skybox = Skybox::NewCubemap( name, cubemap );
+//	_skyboxes[name] = skybox;
+//	return skybox;
+//}
+//
+//// -------------------------------------------------------------------------------------------------
+//SkyboxPtr MaterialLibrary::getSkybox( const std::string& name ) const
+//{
+//	auto it = _skyboxes.find( name );
+//	return ( it != _skyboxes.end() ) ? it->second : nullptr;
+//}
+//
+//// -------------------------------------------------------------------------------------------------
+//bool MaterialLibrary::hasSkybox( const std::string& name ) const
+//{
+//	return _skyboxes.find( name ) != _skyboxes.end();
+//}
+//
+//// -------------------------------------------------------------------------------------------------
+//void MaterialLibrary::removeSkybox( const std::string& name )
+//{
+//	_skyboxes.erase( name );
+//}
 
 // -------------------------------------------------------------------------------------------------
 CubemapTexturePtr MaterialLibrary::createCubemap( const std::string& name, 

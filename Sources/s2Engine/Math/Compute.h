@@ -5,7 +5,7 @@
 
 #include "s2Engine_API.h"
 
-#include "Math.h"
+#include "Math/Math.h"
 #include "Box.h"
 
 namespace glm {

@@ -2,7 +2,7 @@
 // 
 #include "TrackBall.h"
 
-using namespace Graphics;
+using namespace s2::Scene;
 
 // ------------------------------------------------------------------------------------------------
 void TrackBall::resize( int pixelWidth, int pixelHeight )

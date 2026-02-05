@@ -6,7 +6,7 @@
 #include "OpenGLWrap.h"
 #include "OpenGLCheck.h"
 
-using namespace RenderCore;
+using namespace s2::RenderCore;
 
 // ------------------------------------------------------------------------------------------------
 SamplerPtr Sampler::New(const MinificationFilter &minFilter, const MagnificationFilter &magFilter, const Wrap &wrapS, const Wrap &wrapT, float maxAnisotropy)

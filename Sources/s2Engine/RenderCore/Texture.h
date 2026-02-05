@@ -1,7 +1,7 @@
 // Texture.h
 //
-#ifndef TEXTURE_H
-#define TEXTURE_H
+#ifndef S2_RENDERCORE_TEXTURE_H
+#define S2_RENDERCORE_TEXTURE_H
 
 #include "s2Engine_API.h"
 
@@ -15,6 +15,7 @@
 
 #include <memory>
 
+namespace s2 {
 namespace RenderCore {
 
 /************************************************************************************************/
@@ -84,6 +85,6 @@ private:
 private:
 	TextureDescription _description;
 };
-
-}
-#endif
+} // namespace RenderCore
+} // namespace s2
+#endif // !S2_RENDERCORE_TEXTURE_H

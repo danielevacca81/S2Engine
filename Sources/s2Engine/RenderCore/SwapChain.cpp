@@ -8,7 +8,7 @@
 #include <chrono>
 #include <iostream>
 
-using namespace RenderCore;
+using namespace s2::RenderCore;
 
 
 // ------------------------------------------------------------------------------------------------

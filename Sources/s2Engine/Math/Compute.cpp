@@ -71,7 +71,7 @@ bool lineIntersection( const dvec2& a1, const dvec2& a2, const dvec2& b1, const 
 	//return false;
 }
 
-//-------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 bool lineBoxIntersection(const dvec3& p0,const dvec3& p1,const dbox3& b )
 {
 	// test p0-p1 against box edges
@@ -89,7 +89,7 @@ bool lineBoxIntersection(const dvec3& p0,const dvec3& p1,const dbox3& b )
 	return intersect;
 }
 
-//-------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Check if two points p1, p1 are on the same side of line a-b (in 2D)
 bool pointsOnSameSideOfLine(const dvec2& p1,const dvec2& p2,const dvec2& a,const dvec2& b)
 {
@@ -105,7 +105,7 @@ bool pointsOnSameSideOfLine(const dvec2& p1,const dvec2& p2,const dvec2& a,const
 	return ( cp1 >= 0.0 && cp2 >= 0.0 ) || ( cp1 < 0.0 && cp2 < 0.0 );
 }
 
-//-------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Check a point belongs to triangle in 2D
 bool pointBelongsToTriangle(const dvec2& p,const dvec2& a1,const dvec2& a2,const dvec2& a3)
 {
@@ -118,7 +118,7 @@ bool pointBelongsToTriangle(const dvec2& p,const dvec2& a1,const dvec2& a2,const
 	return false;
 }
 
-//-------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Check 2 triangles intersects in 2D
 bool triangles2DIntersection( const dvec2& a1,const dvec2& a2,const dvec2& a3,
 							  const dvec2& b1, const dvec2& b2, const dvec2& b3 )
@@ -153,7 +153,7 @@ bool triangles2DIntersection( const dvec2& a1,const dvec2& a2,const dvec2& a3,
 	return false;
 }
 
-//-------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Check if a triangle intersects a box in 2D (even if box3 is 3D)
 bool triangleBox2DIntersection(const dvec2& a1,const dvec2& a2,const dvec2& a3,const dbox3& b)
 {

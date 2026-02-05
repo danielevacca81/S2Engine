@@ -1,7 +1,7 @@
 // PrimitiveBatch.h
 //
-#ifndef PRIMITIVEBATCH_H
-#define PRIMITIVEBATCH_H
+#ifndef S2_RENDERCORE_PRIMITIVEBATCH_H
+#define S2_RENDERCORE_PRIMITIVEBATCH_H
 
 #include "s2Engine_API.h"
 
@@ -13,6 +13,7 @@
 #include <vector>
 
 
+namespace s2 {
 namespace RenderCore {
 
 class S2ENGINE_API PrimitiveBatch
@@ -56,5 +57,6 @@ private:
 	uint32_t _primitiveRestartIndex { kDefaultPrimitiveRestartIndex };
 	Batch    _batch;
 };
-}
-#endif
+} // namespace RenderCore
+} // namespace s2
+#endif // !S2_RENDERCORE_PRIMITIVEBATCH_H

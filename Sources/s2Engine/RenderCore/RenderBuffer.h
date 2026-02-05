@@ -1,7 +1,7 @@
 // RenderBuffer.h
 //
-#ifndef RENDERBUFFER_H
-#define RENDERBUFFER_H
+#ifndef S2_RENDERCORE_RENDERBUFFER_H
+#define S2_RENDERCORE_RENDERBUFFER_H
 
 #include "s2Engine_API.h"
 
@@ -9,6 +9,7 @@
 
 #include <memory>
 
+namespace s2 {
 namespace RenderCore {
 
 /************************************************************************************************/
@@ -129,5 +130,6 @@ private:
 };
 
 
-}
-#endif
+} // namespace RenderCore
+} // namespace s2
+#endif // !S2_RENDERCORE_RENDERBUFFER_H

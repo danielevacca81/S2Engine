@@ -4,7 +4,7 @@
 
 #include "Math/Math.h"
 
-using namespace Renderer;
+using namespace s2::Scene;
 
 // -------------------------------------------------------------------------------------------------
 SkyboxPtr Skybox::New( const std::string& name )
@@ -31,7 +31,7 @@ SkyboxPtr Skybox::NewGradient( const std::string& name,
 }
 
 // -------------------------------------------------------------------------------------------------
-SkyboxPtr Skybox::NewCubemap( const std::string& name, CubemapTexturePtr cubemap )
+SkyboxPtr Skybox::NewCubemap( const std::string& name, Resources::CubemapTexturePtr cubemap )
 {
 	auto skybox = std::make_shared<Skybox>( name );
 	skybox->setCubemap( cubemap );
@@ -62,7 +62,7 @@ void Skybox::setGradient( const Color& topColor, const Color& bottomColor )
 }
 
 // -------------------------------------------------------------------------------------------------
-void Skybox::setCubemap( CubemapTexturePtr cubemap )
+void Skybox::setCubemap( Resources::CubemapTexturePtr cubemap )
 {
 	if( !cubemap || !cubemap->isValid() )
 	{

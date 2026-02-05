@@ -1,12 +1,13 @@
 // OpenGLObject.h
 //
-#ifndef OPENGLOBJECT_H
-#define OPENGLOBJECT_H
+#ifndef S2_RENDERCORE_OPENGLOBJECT_H
+#define S2_RENDERCORE_OPENGLOBJECT_H
 
 #include "s2Engine_API.h"
 
 #include <string>
 
+namespace s2 {
 namespace RenderCore {
 
 class Context;
@@ -55,5 +56,6 @@ protected:
 	std::string  _label;
 };
 
-}
-#endif
+} // namespace RenderCore
+} // namespace s2
+#endif //! S2_RENDERCORE_OPENGLOBJECT_H

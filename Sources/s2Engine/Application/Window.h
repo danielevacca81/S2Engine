@@ -12,12 +12,13 @@
 #include <vector>
 #include <memory>
 
+
+namespace s2 {
+
 namespace RenderCore {
 class Context;
 class RenderTarget;
 }
-
-namespace s2 {
 
 namespace Input { class InputWrapper; }
 

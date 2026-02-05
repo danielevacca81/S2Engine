@@ -3,7 +3,7 @@
 #include "PrimitiveBatch.h"
 
 
-using namespace RenderCore;
+using namespace s2::RenderCore;
 
 // ------------------------------------------------------------------------------------------------
 PrimitiveBatch::PrimitiveBatch( const PrimitiveType &type, const uint32_t &restartIndex )

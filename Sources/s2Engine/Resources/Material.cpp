@@ -4,7 +4,7 @@
 
 #include "Math/Math.h"
 
-using namespace Renderer;
+using namespace s2::Resources;
 
 // -------------------------------------------------------------------------------------------------
 MaterialPtr Material::New( const std::string& name )
@@ -105,24 +105,24 @@ bool Material::operator==( const Material& other ) const
 	return true;
 }
 
-// -------------------------------------------------------------------------------------------------
-const char* Renderer::textureTypeToString( Material::TextureType type )
-{
-	switch( type )
-	{
-	case Material::TextureType::Diffuse:           return "Diffuse";
-	case Material::TextureType::Normal:            return "Normal";
-	case Material::TextureType::Specular:          return "Specular";
-	case Material::TextureType::Roughness:         return "Roughness";
-	case Material::TextureType::Metallic:          return "Metallic";
-	case Material::TextureType::AmbientOcclusion:  return "AmbientOcclusion";
-	case Material::TextureType::Emissive:          return "Emissive";
-	case Material::TextureType::Opacity:           return "Opacity";
-	case Material::TextureType::Height:            return "Height";
-	case Material::TextureType::Custom0:           return "Custom0";
-	case Material::TextureType::Custom1:           return "Custom1";
-	case Material::TextureType::Custom2:           return "Custom2";
-	case Material::TextureType::Custom3:           return "Custom3";
-	default:                                       return "Unknown";
-	}
-}
+//// -------------------------------------------------------------------------------------------------
+//const char* Renderer::textureTypeToString( Material::TextureType type )
+//{
+//	switch( type )
+//	{
+//	case Material::TextureType::Diffuse:           return "Diffuse";
+//	case Material::TextureType::Normal:            return "Normal";
+//	case Material::TextureType::Specular:          return "Specular";
+//	case Material::TextureType::Roughness:         return "Roughness";
+//	case Material::TextureType::Metallic:          return "Metallic";
+//	case Material::TextureType::AmbientOcclusion:  return "AmbientOcclusion";
+//	case Material::TextureType::Emissive:          return "Emissive";
+//	case Material::TextureType::Opacity:           return "Opacity";
+//	case Material::TextureType::Height:            return "Height";
+//	case Material::TextureType::Custom0:           return "Custom0";
+//	case Material::TextureType::Custom1:           return "Custom1";
+//	case Material::TextureType::Custom2:           return "Custom2";
+//	case Material::TextureType::Custom3:           return "Custom3";
+//	default:                                       return "Unknown";
+//	}
+//}

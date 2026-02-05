@@ -1,12 +1,13 @@
 // AttributeBuffer.h
 // 
-#ifndef ATTRIBUTEBUFFER_H
-#define ATTRIBUTEBUFFER_H
+#ifndef S2_RENDERCORE_ATTRIBUTEBUFFER_H
+#define S2_RENDERCORE_ATTRIBUTEBUFFER_H
 
 #include "VertexBuffer.h"
 
 #include "s2Engine_API.h"
 
+namespace s2 {
 namespace RenderCore {
 
 /************************************************************************************************/
@@ -67,4 +68,5 @@ private:
 };
 
 } // namespace RenderCore
-#endif
+}
+#endif // !S2_RENDERCORE_ATTRIBUTEBUFFER_H

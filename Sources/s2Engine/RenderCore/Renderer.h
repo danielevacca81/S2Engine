@@ -1,7 +1,7 @@
 // Renderer.h
 //
-#ifndef RENDERER_H
-#define RENDERER_H
+#ifndef S2_RENDERCORE_RENDERER_H
+#define S2_RENDERCORE_RENDERER_H
 
 #include "s2Engine_API.h"
 
@@ -16,6 +16,7 @@
 #include "FrameBuffer.h"
 #include "RenderTarget.h"
 
+namespace s2 {
 namespace RenderCore {
 
 // ------------------------------------------------------------------------------------------------
@@ -38,6 +39,7 @@ public:
 					  const Math::irect& dstRect = {} );
 };
 
-}
+} // namespace RenderCore
+} // namespace s2
 
-#endif // !RENDERER_H
+#endif // !S2_RENDERCORE_RENDERER_H

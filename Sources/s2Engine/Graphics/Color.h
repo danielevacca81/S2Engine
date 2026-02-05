@@ -40,16 +40,16 @@ public:
 	explicit Color( float R, float G, float B );
 		
 	// ------------------------------------------------------------------------------------------------
-	float r() const;
-	float g() const;
-	float b() const;
-	float a() const;
-	const float *rgba() const;
+	float r()           const noexcept;
+	float g()           const noexcept;
+	float b()           const noexcept;
+	float a()           const noexcept;
+	const float *rgba() const noexcept;
 
 	// ------------------------------------------------------------------------------------------------
-	float luminance()  const;
-	float brightness() const;
-	float hue() const;
+	float luminance()  const noexcept;
+	float brightness() const noexcept;
+	float hue()        const noexcept;
 	
 	// ------------------------------------------------------------------------------------------------
 	Color lighter( float b = 0.5f ) const;
@@ -67,18 +67,17 @@ public:
 
 	// ------------------------------------------------------------------------------------------------
 	// Colors by name
-	static constexpr Color white()   noexcept { return Color(1.f,1.f,1.f,1.f); }
-	static constexpr Color black()   noexcept { return Color(0.f,0.f,0.f,1.f); }
-	static constexpr Color red()     noexcept { return Color(1.f,0.f,0.f,1.f); }
-	static constexpr Color green()   noexcept { return Color(0.f,1.f,0.f,1.f); }
-	static constexpr Color blue()    noexcept { return Color(0.f,0.f,1.f,1.f); }
-	static constexpr Color yellow()  noexcept { return Color(1.f,1.f,0.f,1.f); }
-	static constexpr Color cyan()    noexcept { return Color(0.f,1.f,1.f,1.f); }
-	static constexpr Color magenta() noexcept { return Color(1.f,0.f,1.f,1.f); }
-	static constexpr Color gray()    noexcept { return Color(.5f,.5f,.5f,1.f); }
-	static constexpr Color orange()  noexcept { return Color(1.f,.6f,.0f,1.f); }
+	static Color white()   noexcept { return Color( 1.f, 1.f, 1.f, 1.f ); }
+	static Color black()   noexcept { return Color( 0.f, 0.f, 0.f, 1.f ); }
+	static Color red()     noexcept { return Color( 1.f, 0.f, 0.f, 1.f ); }
+	static Color green()   noexcept { return Color( 0.f, 1.f, 0.f, 1.f ); }
+	static Color blue()    noexcept { return Color( 0.f, 0.f, 1.f, 1.f ); }
+	static Color yellow()  noexcept { return Color( 1.f, 1.f, 0.f, 1.f ); }
+	static Color cyan()    noexcept { return Color( 0.f, 1.f, 1.f, 1.f ); }
+	static Color magenta() noexcept { return Color( 1.f, 0.f, 1.f, 1.f ); }
+	static Color gray()    noexcept { return Color( .5f, .5f, .5f, 1.f ); }
+	static Color orange()  noexcept { return Color( 1.f, .6f, .0f, 1.f ); }
 	static Color random();
-
 
 	// ------------------------------------------------------------------------------------------------
 	// Cast Operator

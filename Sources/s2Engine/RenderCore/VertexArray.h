@@ -1,7 +1,7 @@
 // VertexArray.h
 // 
-#ifndef VERTEXARRAY_H
-#define VERTEXARRAY_H
+#ifndef S2_RENDERCORE_VERTEXARRAY_H
+#define S2_RENDERCORE_VERTEXARRAY_H
 
 #include "s2Engine_API.h"
 
@@ -12,6 +12,7 @@
 
 #include <vector>
 
+namespace s2 {
 namespace RenderCore {
 
 
@@ -56,4 +57,5 @@ private:
 };
 
 } // namespace RenderCore
-#endif
+} // namespace s2
+#endif // !S2_RENDERCORE_VERTEXARRAY_H

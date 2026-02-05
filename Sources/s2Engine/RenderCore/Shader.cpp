@@ -6,7 +6,7 @@
 #include "OpenGLCheck.h"
 #include "OpenGLWrap.h"
 
-using namespace RenderCore;
+using namespace s2::RenderCore;
 
 // -------------------------------------------------------------------------------------------------
 ShaderPtr Shader::New( const ShaderType& type ) { return std::make_shared<Shader>( type ); }

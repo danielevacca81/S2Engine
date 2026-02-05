@@ -74,7 +74,8 @@ public:
 		, _duration_sec( duration_sec )
 		, _easingCurve( curve )
 		, _mode( mode )
-	{}
+	{
+	}
 
 	GLM_FUNC_DECL T valueAt( double time_sec ) const
 	{

@@ -1,8 +1,9 @@
 // VertexAttributeLocation.h
 //
-#ifndef VERTEXATTRIBUTELOCATION_H
-#define VERTEXATTRIBUTELOCATION_H
+#ifndef S2_RENDERCORE_VERTEXATTRIBUTELOCATION_H
+#define S2_RENDERCORE_VERTEXATTRIBUTELOCATION_H
 
+namespace s2 {
 namespace RenderCore {
 
 enum VertexAttributeLocation: uint8_t
@@ -22,4 +23,5 @@ enum VertexAttributeLocation: uint8_t
 };
 
 }
-#endif
+}
+#endif // !S2_RENDERCORE_VERTEXATTRIBUTELOCATION_H

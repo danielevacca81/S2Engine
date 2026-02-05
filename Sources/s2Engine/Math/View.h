@@ -5,8 +5,7 @@
 
 #include "s2Engine_API.h"
 
-//#include "Frustum.h"
-#include "Math.h"
+#include "Math/Math.h"
 #include "Rectangle.h"
 #include "Plane.h"
 
@@ -60,55 +59,6 @@ public:
 			    
 	bool        equals( const View &otherView ) const;
 
-
-
-/*
-const T pixelSizeAtPosition(const Foundation::Vector3<T>& v) const
-		{
-			T factor;
-			if(flags(Ortho))
-			{
-				Foundation::Vector2<T> scrPixels((T)mSize.x, (T)mSize.y);//TBD: len() does not compile with int32 on vc10
-				factor = mOrthoSize.len() / scrPixels.len();
-			}
-			else
-			{
-				Foundation::Vector3<T> pointToCamera;
-				Foundation::Vector3<T>::sub(mFrom, v, pointToCamera);
-				factor = pointToCamera.len() * mPerspectiveScale;
-			}
-			return factor;
-		}
-
-		const T pixelSizeAtPosition(const Foundation::Vector3<T>& v, Foundation::Vector2<T>& s) const
-		{
-			T factor;
-			if(flags(Ortho))
-			{
-				Foundation::Vector2<T> scrPixels((T)mSize.x, (T)mSize.y);
-				factor = mOrthoSize.len() / ((T) scrPixels.len());
-				T v = mOrthoSize.x * mOrthoSize.x;
-				if (v)
-					v = sqrt(v);
-				s.x = v / (T) mSize.x;
-				v = mOrthoSize.y * mOrthoSize.y;
-				if (v)
-					v = sqrt(v);
-				s.y = v / (T) mSize.y;
-			}
-			else
-			{
-				Foundation::Vector3<T> pointToCamera;
-				Foundation::Vector3<T>::sub(mFrom, v, pointToCamera);
-				factor = pointToCamera.len()* mPerspectiveScale;
-			}
-			return factor;
-		}
-
-
-*/
-
-
 private:
 	void update();
 
@@ -121,58 +71,7 @@ private:
 	Math::dvec4 _cameraEye;
 	
 	std::array<Math::dplane, 6> _frustumPlanes;
-	//Frustum     _frustum;
 };
-
-/****
-	enum ProjectionMode { Perspective,Orthographic };
-
-	// ------------------------------------------------------------------------------------------------
-	double      pixelSize( const Math::dvec3 &p ) const;
-	Math::dray  rayAt( int pxlX, int pxlY )       const;
-	Math::dvec3 worldPoint( int pxlX, int pxlY )  const;
-
-
-	Math::dmat4 perspectiveMatrix()                       const { return Math::perspective( view.fieldOfViewY(), view.aspectRatio(), view.perspectiveNearPlaneDistance(), view.perspectiveFarPlaneDistance() ); }
-
-	// ------------------------------------------------------------------------------------------------
-	static Math::dmat4 computeViewportOrthographicMatrix( const Math::Rectangle &vp )
-	{
-		return Math::ortho<double>( vp.left(), vp.right(), vp.bottom(), vp.top(), 0.0, 1.0 );
-	}
-
-	// ------------------------------------------------------------------------------------------------
-	static Math::dmat4 computeViewportTransformationMatrix( const Math::Rectangle &viewport, double nearDepthRange, double farDepthRange)
-	{
-		const double halfWidth  = viewport.width() * 0.5;
-		const double halfHeight = viewport.height() * 0.5;
-		const double halfDepth  = (farDepthRange - nearDepthRange) * 0.5;
-
-		// Bottom and top swapped:  MS -> OpenGL
-		//
-		return Math::dmat4(
-			halfWidth, 0.0,        0.0,       viewport.left() + halfWidth,
-			0.0,       halfHeight, 0.0,       viewport.top() + halfHeight,
-			0.0,       0.0,        halfDepth, nearDepthRange + halfDepth,
-			0.0,       0.0,        0.0,       1.0);	
-	}
-	
-	// ------------------------------------------------------------------------------------------------
-	bool        isOrthographic()                          const { return _projectionMode == Orthographic; }
-	bool        isPerspective()                           const { return _projectionMode == Perspective; }
-
-	// ------------------------------------------------------------------------------------------------
-	Math::dmat4 orthographicMatrix()                      const 
-	{
-		return Math::ortho( view.orthographicLeft(), 
-		view.orthographicRight(), 
-		view.orthographicTop(), 
-		view.orthographicBottom(), 
-		view.orthographicNearPlaneDistance(), 
-		view.orthographicFarPlaneDistance()); 
-	}
-
-	*/
 
 }
 

@@ -1,7 +1,7 @@
 // ShaderCompiler.h
 //
-#ifndef SHADERCOMPILER_H
-#define SHADERCOMPILER_H
+#ifndef S2_RENDERCORE_SHADERCOMPILER_H
+#define S2_RENDERCORE_SHADERCOMPILER_H
 
 #include "s2Engine_API.h"
 
@@ -12,6 +12,7 @@
 #include <vector>
 #include <filesystem>
 
+namespace s2 {
 namespace RenderCore {
 
 // ------------------------------------------------------------------------------------------------
@@ -58,14 +59,8 @@ public:
 
     /// Get program info log
     static std::string getProgramInfoLog( const ProgramPtr &program );
-
-
-
-
-//private:
-//    std::vector<unsigned int> _compiledShaders;  // Track for cleanup
 };
 
-}
-
-#endif // !SHADERCOMPILER_H
+} // namespace RenderCore
+} // namespace s2
+#endif // !S2_RENDERCORE_SHADERCOMPILER_H

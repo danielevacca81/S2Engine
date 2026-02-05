@@ -3,18 +3,17 @@
 #include "ProjectionTransform.h"
 
 
-namespace glm
-{
+using namespace glm;
 
 // ------------------------------------------------------------------------------------------------
 ProjectionTransform ProjectionTransform::createPerspective( double aspectRatio, double fovY, double nearPlane, double farPlane )
 {
 	ProjectionTransform pt;		
 	{
-		pt._matrix       = Math::perspective( Math::radians( fovY ), aspectRatio, nearPlane, farPlane );
+		pt._matrix       = glm::perspective( glm::radians( fovY ), aspectRatio, nearPlane, farPlane );
 		pt._aspectRatio  = aspectRatio;
 		pt._fov          = fovY;
-		pt._fovHorizonal = Math::degrees( 2.0 * Math::atan( Math::tan( Math::radians( fovY ) * 0.5 ) * aspectRatio ) );
+		pt._fovHorizonal = glm::degrees( 2.0 * glm::atan( glm::tan( glm::radians( fovY ) * 0.5 ) * aspectRatio ) );
 		pt._nearPlane    = nearPlane;
 		pt._farPlane     = farPlane;
 	};
@@ -26,9 +25,9 @@ ProjectionTransform ProjectionTransform::createPerspectiveByFovHorizontal( doubl
 {
 	ProjectionTransform pt;
 	{
-		pt._matrix       = Math::perspective( Math::radians( fovX ), aspectRatio, nearPlane, farPlane );
+		pt._matrix       = glm::perspective( glm::radians( fovX ), aspectRatio, nearPlane, farPlane );
 		pt._aspectRatio  = aspectRatio;
-		pt._fov          = Math::degrees( 2.0 * Math::atan( Math::tan( Math::radians( fovX ) * 0.5 ) / aspectRatio ) );
+		pt._fov          = glm::degrees( 2.0 * glm::atan( glm::tan( glm::radians( fovX ) * 0.5 ) / aspectRatio ) );
 		pt._fovHorizonal = fovX;
 		pt._nearPlane    = nearPlane;
 		pt._farPlane     = farPlane;
@@ -41,7 +40,7 @@ ProjectionTransform ProjectionTransform::createOrthographic( double left, double
 {
 	ProjectionTransform pt;
 	{
-		pt._matrix       = Math::ortho( left, right, bottom, top, nearPlane, farPlane );
+		pt._matrix       = glm::ortho( left, right, bottom, top, nearPlane, farPlane );
 		pt._aspectRatio  = ( right - left ) / ( top - bottom );
 		pt._fov          = 90.0; // orthographic projection does not have a field of view, but we set it to 90 degrees.
 		pt._fovHorizonal = 90.0; // orthographic projection does not have a field of view, but we set it to 90 degrees.
@@ -69,7 +68,7 @@ ProjectionTransform ProjectionTransform::createOrthographic( int w, int h, doubl
 	ProjectionTransform pt;
 	{
 		// @todo: some terms can be computed from the matrix itself (i.e. fov, aspect).
-		pt._matrix       = Math::ortho( left, right, bottom, top, nearPlane, farPlane );
+		pt._matrix       = glm::ortho( left, right, bottom, top, nearPlane, farPlane );
 		pt._aspectRatio  = ( right - left ) / ( top - bottom );
 		pt._fov          = 90.0; // orthographic projection does not have a field of view, but we set it to 90 degrees.
 		pt._fovHorizonal = 90.0; // orthographic projection does not have a field of view, but we set it to 90 degrees.
@@ -104,13 +103,11 @@ Math::dmat4 ProjectionTransform::matrix()                const { return _matrix;
 // ------------------------------------------------------------------------------------------------
 bool ProjectionTransform::isOrthographic() const 
 {
-	return Math::all( Math::equal( _matrix[3], Math::dvec4( 0.0, 0.0, 0.0, 1.0 ) ) );
+	return Math::all( Math::equal( _matrix[3], glm::dvec4( 0.0, 0.0, 0.0, 1.0 ) ) );
 }
 
 // ------------------------------------------------------------------------------------------------
 bool ProjectionTransform::isPerspective() const 
 {
 	return !isOrthographic();
-}
-
 }

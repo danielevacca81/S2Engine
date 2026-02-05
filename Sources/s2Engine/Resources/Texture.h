@@ -1,7 +1,7 @@
 // Texture.h
 //
-#ifndef RENDERER_TEXTURE_H
-#define RENDERER_TEXTURE_H
+#ifndef S2_RESOURCES_TEXTURE_H
+#define S2_RESOURCES_TEXTURE_H
 
 #include "s2Engine_API.h"
 
@@ -10,7 +10,8 @@
 #include <memory>
 #include <string>
 
-namespace Renderer {
+namespace s2 {
+namespace Resources {
 
 class Texture;
 typedef std::shared_ptr<Texture> TexturePtr;
@@ -65,5 +66,6 @@ private:
 };
 
 }
+}
 
-#endif // RENDERER_TEXTURE_H
+#endif // !S2_RESOURCES_TEXTURE_H

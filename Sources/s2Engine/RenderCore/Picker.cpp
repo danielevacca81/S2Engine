@@ -9,7 +9,7 @@
 
 #include <cassert>
 
-using namespace RenderCore;
+using namespace s2::RenderCore;
 
 // ------------------------------------------------------------------------------------------------
 const Math::ivec4 gClearColor( PickerConstants::kClearValue );

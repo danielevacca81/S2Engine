@@ -8,7 +8,7 @@
 #include <fstream>
 #include <string>
 
-using namespace RenderCore;
+using namespace s2::RenderCore;
 
 // ------------------------------------------------------------------------------------------------
 ShaderCompilationResult ShaderCompiler::compile( ShaderType type, const std::string& source )

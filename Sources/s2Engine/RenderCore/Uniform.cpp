@@ -7,22 +7,8 @@
 
 #include "Math/Math.h"
 
-#include "UniformInt.h"
-#include "UniformBool.h"
-#include "UniformFloat.h"
-#include "UniformSampler.h"
 
-#include "UniformFloatVector2.h"
-#include "UniformFloatVector3.h"
-#include "UniformFloatVector4.h"
-
-#include "UniformFloatMatrix22.h"
-#include "UniformFloatMatrix33.h"
-#include "UniformFloatMatrix44.h"
-
-
-
-using namespace RenderCore;
+using namespace s2::RenderCore;
 // with variant we could rely on std::visit here ?
 										    
 void UniformBool::set()          { if(!_changed)return; _changed = false; glUniform1i( _location, _value ); glCheck; }

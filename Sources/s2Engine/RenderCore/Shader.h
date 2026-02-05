@@ -1,7 +1,7 @@
 // Shader.h
 //
-#ifndef SHADER_H
-#define SHADER_H
+#ifndef S2_RENDERCORE_SHADER_H
+#define S2_RENDERCORE_SHADER_H
 
 #include "s2Engine_API.h"
 
@@ -10,6 +10,7 @@
 #include <string>
 #include <memory>
 
+namespace s2 {
 namespace RenderCore {
 
 enum class ShaderType
@@ -53,6 +54,6 @@ private:
 	friend class ShaderCompiler;
 };
 
-}
-
-#endif // !SHADER_H
+} // namespace RenderCore
+} // namespace s2
+#endif // !S2_RENDERCORE_SHADER_H

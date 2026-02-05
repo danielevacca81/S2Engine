@@ -1,12 +1,13 @@
 // IndexBuffer.h
 // 
-#ifndef INDEXBUFFER_H
-#define INDEXBUFFER_H
+#ifndef S2_RENDERCORE_INDEXBUFFER_H
+#define S2_RENDERCORE_INDEXBUFFER_H
 
 #include "s2Engine_API.h"
 
 #include "BufferObject.h"
 
+namespace s2 {
 namespace RenderCore {
 
 /************************************************************************************************/
@@ -53,4 +54,5 @@ private:
 };
 
 } // namespace RenderCore
-#endif
+} // namespace s2
+#endif // !S2_RENDERCORE_INDEXBUFFER_H

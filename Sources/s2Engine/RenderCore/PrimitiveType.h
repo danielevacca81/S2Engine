@@ -1,8 +1,9 @@
 // PrimitiveType.h
 //
-#ifndef PRIMITIVETYPE_H
-#define PRIMITIVETYPE_H
+#ifndef S2_RENDERCORE_PRIMITIVETYPE_H
+#define S2_RENDERCORE_PRIMITIVETYPE_H
 
+namespace s2 {
 namespace RenderCore {
 
 enum class PrimitiveType
@@ -21,9 +22,10 @@ enum class PrimitiveType
 enum class WindingOrder
 {
 	Clockwise,
-	Counterclockwise	
+	Counterclockwise
 };
 
 
-}
-#endif // !PRIMITIVETYPE_H
+} // namespace RenderCore
+} // namespace s2
+#endif // !S2_RENDERCORE_PRIMITIVETYPE_H

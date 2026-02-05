@@ -1,7 +1,7 @@
 // RenderTarget.h
 //
-#ifndef RENDERCORE_RENDERTARGET_H
-#define RENDERCORE_RENDERTARGET_H
+#ifndef S2_RENDERCORE_RENDERTARGET_H
+#define S2_RENDERCORE_RENDERTARGET_H
 
 #include "s2Engine_API.h"
 
@@ -20,6 +20,7 @@
 
 #include <initializer_list>
 
+namespace s2 {
 namespace RenderCore {
 
 // CANNOT BE SHARED BETWEEN CONTEXTS
@@ -80,6 +81,6 @@ private:
 	friend class Context;
 };
 
-}
-
-#endif // !RENDERCORE_RENDERTARGET_H
+} // namespace RenderCore
+} // namespace s2
+#endif // !S2_RENDERCORE_RENDERTARGET_H

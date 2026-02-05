@@ -2,7 +2,7 @@
 //
 #include "Camera.h"
 
-using namespace Graphics;
+using namespace s2::Scene;
 
 // ------------------------------------------------------------------------------------------------
 void Camera::set( const Math::dvec3& eye, const Math::dvec3& target, const Math::dvec3& up )

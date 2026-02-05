@@ -3,7 +3,7 @@
 #ifndef MATH_BOX_H
 #define MATH_BOX_H
 
-#include "Math.h"
+#include "Math/Math.h"
 
 
 namespace glm {
@@ -61,10 +61,10 @@ public:
 	bool isEmpty() const { return _minPoint == _maxPoint; }
 
 	// -----------------------------------------------------------------------------------------------
-	tvec3<T,P> center() const { return isNull() ? tvec3<T,P>( 0 ) : ( ( _minPoint + _maxPoint ) * 0.5 ); }
+	tvec3<T,P> center() const { return isNull() ? tvec3<T,P>( 0 ) : ( ( _minPoint + _maxPoint ) * T(0.5) ); }
 
 	// -----------------------------------------------------------------------------------------------
-	T diag() const { return isNull() ? 0 : distance( _maxPoint, _minPoint ); }
+	T diag() const { return isNull() ? T(0) : distance( _maxPoint, _minPoint ); }
 
 	// -----------------------------------------------------------------------------------------------
 	tbox3<T,P>& extend( const tvec3<T,P>& point )
@@ -330,7 +330,6 @@ private:
 
 typedef detail::tbox3<float,  defaultp> fbox3;
 typedef detail::tbox3<double, defaultp> dbox3;
-
 
 }
 

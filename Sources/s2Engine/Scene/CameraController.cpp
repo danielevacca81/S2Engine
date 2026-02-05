@@ -5,4 +5,4 @@
 #include "Math/Plane.h"
 #include "Math/Ray.h"
 
-using namespace Graphics;
+using namespace s2::Scene;

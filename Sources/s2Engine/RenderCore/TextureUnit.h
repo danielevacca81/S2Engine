@@ -1,7 +1,7 @@
 // TextureUnit.h
 //
-#ifndef TEXTUREUNIT_H
-#define TEXTUREUNIT_H
+#ifndef S2_RENDERCORE_TEXTUREUNIT_H
+#define S2_RENDERCORE_TEXTUREUNIT_H
 
 #include "s2Engine_API.h"
 
@@ -10,6 +10,7 @@
 
 #include <vector>
 
+namespace s2 {
 namespace RenderCore {
 
 // ------------------------------------------------------------------------------------------------
@@ -72,5 +73,6 @@ private:
 	mutable std::vector<TextureUnit> _units;
 };
 
-}
-#endif // !TEXTUREUNIT_H
+} // namespace RenderCore
+} // namespace s2
+#endif // !S2_RENDERCORE_TEXTUREUNIT_H

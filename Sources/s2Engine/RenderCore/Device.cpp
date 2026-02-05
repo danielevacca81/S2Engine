@@ -12,7 +12,7 @@
 // comment this to have static a MaxVertexAttrib value
 //#define QUERY_GL_MAX_VERTEX_ATTRIBS
 
-using namespace RenderCore;
+using namespace s2::RenderCore;
 
 // ------------------------------------------------------------------------------------------------
 Device::Vendor Device::vendor()

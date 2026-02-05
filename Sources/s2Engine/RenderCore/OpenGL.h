@@ -1,8 +1,8 @@
 // OpenGL.h
 //
-#ifndef OPENGL_H
-#define OPENGL_H
+#ifndef S2_RENDERCORE_OPENGL_H
+#define S2_RENDERCORE_OPENGL_H
 
 #include <GL/glew.h>
 
-#endif
+#endif // !S2_RENDERCORE_OPENGL_H

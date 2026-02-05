@@ -33,13 +33,13 @@ public:
 	double topPlane()    const;
 	
 	bool isOrthographic() const;
-	bool isPerspective() const;
+	bool isPerspective()  const;
 
 	Math::dmat4 matrix() const;
 
 
 private:
-	Math::dmat4 _matrix = Math::dmat4(1.0); // the actual projection matrix
+	Math::dmat4 _matrix = Math::dmat4( 1.0 ); // the actual projection matrix
 
 	double      _fov          { 90.0 }; // in degrees. in case of orthographic projection is set to 90 degrees, as orthographic projection does not have a field of view.
 	double      _fovHorizonal { 90.0 }; // in degrees. in case of orthographic projection is set to 90 degrees, as orthographic projection does not have a field of view.

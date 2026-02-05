@@ -4,6 +4,7 @@
 
 #include "OpenGL.h"
 
+namespace s2 {
 namespace RenderCore {
 
 /************************************************************************************************/
@@ -744,4 +745,5 @@ uint32_t glWrap( const ShaderType &shaderType )
 }
 #pragma endregion
 
+}
 }
