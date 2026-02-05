@@ -7,6 +7,8 @@
 
 #include <cstdint>
 
+namespace s2 {
+
 class S2ENGINE_API Color
 {
 
@@ -99,4 +101,5 @@ private:
 // Non-member operator for scalar pre-multiplication
 inline Color operator*( float v, const Color& c ) { return c * v; }
 
+}
 #endif

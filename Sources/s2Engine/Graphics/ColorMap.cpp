@@ -2,6 +2,8 @@
 //
 #include "ColorMap.h"
 
+using namespace s2;
+
 // ------------------------------------------------------------------------------------------------
 ColorMap::ColorMap( const std::vector< Color > &colors )
 : _colors( colors )

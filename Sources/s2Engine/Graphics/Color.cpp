@@ -5,6 +5,8 @@
 #include <algorithm>
 #include <cmath>
 
+using namespace s2;
+
 // ------------------------------------------------------------------------------------------------
 Color Color::fromHex( uint32_t hexValue )
 {

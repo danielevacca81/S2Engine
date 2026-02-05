@@ -9,6 +9,8 @@
 
 namespace s2 {
 
+namespace Input {
+
 class S2ENGINE_API  KeyboardState
 {
 public:
@@ -40,6 +42,7 @@ private:
 	uint32_t _modifiers;
 };
 
+}
 
 }
 #endif

@@ -9,6 +9,8 @@
 
 #include <vector>
 
+namespace s2 {
+
 class S2ENGINE_API ColorMap
 {
 public:
@@ -43,5 +45,7 @@ public:
 private:
 	std::vector< Color > _colors;
 };
+
+}
 
 #endif

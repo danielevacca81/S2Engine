@@ -20,10 +20,6 @@ private:
 	typename T::time_point _startTime = T::now();
 };
 
-// ================================================================================================
-// TYPE ALIASES
-// ================================================================================================
-
 /// High-resolution timer (WARNING: May alias to system_clock on some platforms)
 /// Use SteadyTimePoint for performance measurements
 using HighResTimePoint = TimePoint<std::chrono::high_resolution_clock>;

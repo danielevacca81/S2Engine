@@ -2,6 +2,8 @@
 //
 #include "ColorGradient.h"
 
+using namespace s2;
+
 // ------------------------------------------------------------------------------------------------
 ColorGradient::ColorGradient( const Color &startColor, const Color &endColor, const Type &t )
 : ColorGradient( t )

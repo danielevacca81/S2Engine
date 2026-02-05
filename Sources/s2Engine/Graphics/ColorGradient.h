@@ -9,6 +9,8 @@
 
 #include <map>
 
+namespace s2 {
+
 class S2ENGINE_API ColorGradient
 {
 public:
@@ -35,6 +37,8 @@ protected:
 	Type                  _type { GradientLinear };
 	std::map<float,Color> _keyColors;
 };
+
+}
 
 #endif // !CORE_GRADIENT_H
 
