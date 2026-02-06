@@ -6,9 +6,9 @@
 #include "Application/Window.h"
 #include "Application/MouseState.h"
 
-#include "RenderCore/PrimitiveBuffer.h"
-#include "Renderer/Camera.h"
-#include "Renderer/TrackBall.h"
+#include "RenderCore/VertexData.h"
+#include "Scene/Camera.h"
+#include "Scene/TrackBall.h"
 
 class MainWindow : public s2::Window
 {
@@ -30,11 +30,18 @@ public:
 	void onResizeEvent( uint32_t width, uint32_t height ) override;
 
 private:
-	RenderCore::PrimitiveBufferPtr _planeXZ;
-	RenderCore::PrimitiveBufferPtr _torus;
-	Graphics::Camera               _camera;
-	Graphics::TrackBall            _trackball;
-	Graphics::TrackBall            _trackballLight;
+	s2::RenderCore::VertexDataPtr _planeXZ;
+	s2::RenderCore::VertexDataPtr _torus;
+	s2::RenderCore::VertexDataPtr _cone;
+	s2::RenderCore::VertexDataPtr _cube;
+	s2::RenderCore::VertexDataPtr _sphere;
+	s2::RenderCore::VertexDataPtr _cylinder;
+	s2::RenderCore::VertexDataPtr _teapot;
+
+
+	s2::Scene::Camera               _camera;
+	s2::Scene::TrackBall            _trackball;
+	s2::Scene::TrackBall            _trackballLight;
 };
 
 #endif // !MAINWINDOW_H
