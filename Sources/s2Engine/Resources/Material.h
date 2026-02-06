@@ -113,7 +113,7 @@ private:
 };
 
 // Helper function to convert TextureType to string
-S2ENGINE_API const char* textureTypeToString( Material::TextureType type );
+//S2ENGINE_API const char* textureTypeToString( Material::TextureType type );
 
 }
 

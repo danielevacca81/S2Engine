@@ -54,8 +54,7 @@ public:
 
 
 protected:
-	Math::irect _viewport;
-
+	Math::irect               _viewport;
 	Math::ProjectionTransform _projection;
 
 	Math::dvec3 _position { 0.0, 0.0, 1.0 };     // worldspace coordinates

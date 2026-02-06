@@ -56,16 +56,12 @@ public:
 
 	// Face access
 	TexturePtr getFace( Face face ) const;
-	void setFace( Face face, TexturePtr texture );
+	void setFace( Face face, const TexturePtr &texture );
 	void setFace( Face face, const s2::Pixmap<uint8_t>& pixmap );
 
 	// Validation
 	bool isValid() const;
 	bool hasFace( Face face ) const;
-
-	// Utility
-	static const char* faceToString( Face face );
-	static Face stringToFace( const std::string& str );
 
 private:
 	void validateFaceSize( const s2::Pixmap<uint8_t>& pixmap ) const;
@@ -78,6 +74,5 @@ private:
 };
 
 }
-
 }
 #endif // !S2_RESOURCES_CUBEMAP_TEXTURE_H

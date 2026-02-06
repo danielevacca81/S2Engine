@@ -173,43 +173,6 @@ void MaterialLibrary::removeTexture( const std::string& name )
 }
 
 // -------------------------------------------------------------------------------------------------
-MaterialPtr MaterialLibrary::loadMaterial( const std::string& name, const std::filesystem::path& filepath )
-{
-	// Check if already loaded
-	if( exists( name ) )
-		return get( name );
-
-	// @TODO: Implement material file loading
-	// This would typically parse a material definition file (JSON, XML, custom format)
-	// and load associated textures, then construct the material
-	//
-	// Example structure:
-	// 1. Parse material file
-	// 2. Load referenced textures
-	// 3. Set material properties
-	// 4. Add to library
-
-	return nullptr; // Placeholder
-}
-
-// -------------------------------------------------------------------------------------------------
-TexturePtr MaterialLibrary::loadTexture( const std::string& name, const std::filesystem::path& filepath )
-{
-	// Check if already loaded
-	if( hasTexture( name ) )
-		return getTexture( name );
-
-	// @TODO: Implement texture file loading
-	// Use your preferred image loading library (stb_image, etc.)
-	//
-	// Example:
-	// s2::Pixmap<uint8_t> image = ImageLoader::load( filepath );
-	// return createTexture( name, image );
-
-	return nullptr; // Placeholder
-}
-
-// -------------------------------------------------------------------------------------------------
 std::vector<std::string> MaterialLibrary::materialNames() const
 {
 	std::vector<std::string> result;
@@ -337,24 +300,6 @@ CubemapTexturePtr MaterialLibrary::createCubemap( const std::string& name,
 	auto cubemap = CubemapTexture::New( name, faces );
 	_cubemaps[name] = cubemap;
 	return cubemap;
-}
-
-// -------------------------------------------------------------------------------------------------
-CubemapTexturePtr MaterialLibrary::loadCubemap( const std::string& name,
-                                                const std::array<std::string, 6>& facePaths )
-{
-	if( hasCubemap( name ) )
-		return getCubemap( name );
-
-	// @TODO: Implement cubemap loading from files
-	// Load 6 faces from file paths in order: +X, -X, +Y, -Y, +Z, -Z
-	//
-	// std::array<s2::Pixmap<uint8_t>, 6> faces;
-	// for( int i = 0; i < 6; ++i )
-	//     faces[i] = ImageLoader::load( facePaths[i] );
-	// return createCubemap( name, faces );
-
-	return nullptr; // Placeholder
 }
 
 // -------------------------------------------------------------------------------------------------

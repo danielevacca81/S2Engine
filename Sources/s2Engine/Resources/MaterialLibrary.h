@@ -73,22 +73,14 @@ public:
 	//SkyboxPtr createSkyboxCubemap( const std::string& name, CubemapTexturePtr cubemap );
 
 	//SkyboxPtr getSkybox( const std::string& name ) const;
-	bool hasSkybox( const std::string& name ) const;
-	void removeSkybox( const std::string& name );
+	//bool hasSkybox( const std::string& name ) const;
+	//void removeSkybox( const std::string& name );
 
 	// Cubemap management
 	CubemapTexturePtr createCubemap( const std::string& name, int faceSize, int channels = 4 );
-	CubemapTexturePtr createCubemap( const std::string& name,
-	                                 const std::array<s2::Pixmap<uint8_t>, 6>& faces );
-	CubemapTexturePtr loadCubemap( const std::string& name,
-	                               const std::array<std::string, 6>& facePaths );
-
+	CubemapTexturePtr createCubemap( const std::string& name, const std::array<s2::Pixmap<uint8_t>, 6>& faces );
 	CubemapTexturePtr getCubemap( const std::string& name ) const;
 	bool hasCubemap( const std::string& name ) const;
-
-	// File loading (to be implemented)
-	MaterialPtr loadMaterial( const std::string& name, const std::filesystem::path & filepath );
-	TexturePtr loadTexture( const std::string& name, const std::filesystem::path& filepath );
 
 	// Statistics
 	size_t materialCount() const { return _materials.size(); }

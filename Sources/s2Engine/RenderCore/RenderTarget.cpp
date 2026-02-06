@@ -107,7 +107,7 @@ Texture2DPtr RenderTarget::attachment( const FrameBuffer::AttachmentPoint &a ) c
 // ------------------------------------------------------------------------------------------------
 void RenderTarget::clear( const ClearState &cs ) const
 {
-	Renderer::clear( _fbo, cs );
+	RenderBackend::clear( _fbo, cs );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -133,13 +133,11 @@ void RenderTarget::draw( const PrimitiveBatch& batch, const DrawState& ds )     
 Pixmap<uint8_t> RenderTarget::grabImage() const
 {
 	// @todo: ok for multisample buffers?
-	return Renderer::readPixels( _fbo, _width, _height );
+	return RenderBackend::readPixels( _fbo, _width, _height );
 }
 
 // ------------------------------------------------------------------------------------------------
-/**
-	This is a convenience function
-*/
+//	This is a convenience function
 void RenderTarget::readPixels( const FrameBuffer::AttachmentPoint &attachPoint,
 							   const ImageFormat &pixelFormat, 
 							   const Math::irect &roi, float   *pixels ) const       

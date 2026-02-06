@@ -6,6 +6,36 @@
 
 using namespace s2::Resources;
 
+
+// -------------------------------------------------------------------------------------------------
+static inline const char* faceToString( CubemapTexture::Face face )
+{
+	switch( face )
+	{
+	case CubemapTexture::Face::PositiveX: return "Right";
+	case CubemapTexture::Face::NegativeX: return "Left";
+	case CubemapTexture::Face::PositiveY: return "Top";
+	case CubemapTexture::Face::NegativeY: return "Bottom";
+	case CubemapTexture::Face::PositiveZ: return "Front";
+	case CubemapTexture::Face::NegativeZ: return "Back";
+	default:              return "Unknown";
+	}
+}
+
+// -------------------------------------------------------------------------------------------------
+static inline CubemapTexture::Face stringToFace( const std::string& str )
+{
+	if( str == "Right"  || str == "+X" ) return CubemapTexture::Face::PositiveX;
+	if( str == "Left"   || str == "-X" ) return CubemapTexture::Face::NegativeX;
+	if( str == "Top"    || str == "+Y" ) return CubemapTexture::Face::PositiveY;
+	if( str == "Bottom" || str == "-Y" ) return CubemapTexture::Face::NegativeY;
+	if( str == "Front"  || str == "+Z" ) return CubemapTexture::Face::PositiveZ;
+	if( str == "Back"   || str == "-Z" ) return CubemapTexture::Face::NegativeZ;
+
+	throw std::runtime_error( "Invalid cubemap face name: " + str );
+}
+
+
 // -------------------------------------------------------------------------------------------------
 CubemapTexturePtr CubemapTexture::New( const std::string& name, int faceSize, int channels )
 {
@@ -65,7 +95,7 @@ TexturePtr CubemapTexture::getFace( Face face ) const
 }
 
 // -------------------------------------------------------------------------------------------------
-void CubemapTexture::setFace( Face face, TexturePtr texture )
+void CubemapTexture::setFace( Face face, const TexturePtr &texture )
 {
 	if( !texture )
 		return;
@@ -115,32 +145,4 @@ void CubemapTexture::validateFaceSize( const s2::Pixmap<uint8_t>& pixmap ) const
 
 	if( pixmap.numChannels() != _channels )
 		throw std::runtime_error( "CubemapTexture: Face channels mismatch" );
-}
-
-// -------------------------------------------------------------------------------------------------
-const char* CubemapTexture::faceToString( Face face )
-{
-	switch( face )
-	{
-	case Face::PositiveX: return "Right";
-	case Face::NegativeX: return "Left";
-	case Face::PositiveY: return "Top";
-	case Face::NegativeY: return "Bottom";
-	case Face::PositiveZ: return "Front";
-	case Face::NegativeZ: return "Back";
-	default:              return "Unknown";
-	}
-}
-
-// -------------------------------------------------------------------------------------------------
-CubemapTexture::Face CubemapTexture::stringToFace( const std::string& str )
-{
-	if( str == "Right" || str == "+X" )  return Face::PositiveX;
-	if( str == "Left" || str == "-X" )   return Face::NegativeX;
-	if( str == "Top" || str == "+Y" )    return Face::PositiveY;
-	if( str == "Bottom" || str == "-Y" ) return Face::NegativeY;
-	if( str == "Front" || str == "+Z" )  return Face::PositiveZ;
-	if( str == "Back" || str == "-Z" )   return Face::NegativeZ;
-
-	throw std::runtime_error( "Invalid cubemap face name: " + str );
 }
