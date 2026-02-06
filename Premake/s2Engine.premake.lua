@@ -95,7 +95,8 @@ project "s2Engine"
 		("{COPYDIR} %{sourcedir}/Graphics/*.h*       %{deploydir}/include/Graphics"),
 		("{COPYDIR} %{sourcedir}/Math/*.h*           %{deploydir}/include/Math"),
 		("{COPYDIR} %{sourcedir}/RenderCore/*.h*     %{deploydir}/include/RenderCore"),
-		("{COPYDIR} %{sourcedir}/Renderer/*.h*       %{deploydir}/include/Renderer"),
+		("{COPYDIR} %{sourcedir}/Resources/*.h*      %{deploydir}/include/Resources"),
+		("{COPYDIR} %{sourcedir}/Scene/*.h*          %{deploydir}/include/Scene"),
 	}
     
 	
