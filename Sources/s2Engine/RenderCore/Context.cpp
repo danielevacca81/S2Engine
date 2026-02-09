@@ -1,20 +1,14 @@
 // Context.cpp
 //
 #include "Context.h"
+#include "RenderCommands.h"
 
 #include "OpenGL.h"
-#include "OpenGLCheck.h"
-#include "OpenGLWrap.h"
 #include "Device.h"
-// #include "VertexArray.h"
-// #include "DrawState.h"
 
 #if defined(_WIN32) || defined(_WIN64)
 #include <windows.h>
-#else
 #endif
-
-
 
 #include <map>
 #include <iostream>
@@ -32,25 +26,15 @@ Context *Context::current()
 #else
 	uint32_t handle = glXGetCurrentContext();
 #endif
-	if( !handle )
+	if( handle == 0x0 )
 		return nullptr; // no context? maybe assert?
 
-	//  @todo: mutex?
-	//		   also: avoid find in getCurrent and just return current context pointer
-	Context* c = nullptr;
 	auto found = gRegistry.find(handle);
 	if( found == gRegistry.end() )
-	{
-		c = new Context;
-		gRegistry.emplace( std::make_pair( handle, c ) );
-		RenderCore::init();
-	}
-	else
-	{
-		c = found->second;
-	}
+		return nullptr; // not found, maybe assert?
 
-	return c;
+	// 
+	return found->second;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -65,42 +49,43 @@ Context::Context()
 		throw std::runtime_error( "GLEW initialization failed!" );
 
 	_info.init();
+	RenderCore::init(); // initialize shaders and samplers for this context
+
+	// Create command buffer
+	_commands = std::make_unique<RenderCommands>( *this );
 
 	std::cout
-		<< "Registering Context:" << std::hex << (uint32_t) _nativeHandle << '\n'
+		<< "Registering Context: 0x" << std::hex << (uint32_t) _nativeHandle << '\n'
 		<< _info.toString()
 		<< std::endl
 		;
+
+	// add this context to registry for lookup in Context::current()
+	gRegistry.emplace( std::make_pair( _nativeHandle, this ) );
 }
 
 // ------------------------------------------------------------------------------------------------
 Context::~Context()
 {
-	//if( current() == this )
-	//	gCurrent = nullptr;
-	std::cout << "Contexts: "<< '\n';
-	for( auto& i : gRegistry )
-		std::cout << "   handle " << std::hex << (uint32_t) i.first << " ContextPtr " <<  i.second << '\n';
-	
-	std::cout << "Destroying context: " << std::hex << (uint32_t) _nativeHandle << '\n';
+	std::cout << "Destroying context: 0x" << std::hex << (uint32_t) _nativeHandle << '\n';
 	gRegistry.erase( _nativeHandle );
 
 	if( gRegistry.empty() )
 	{
-		std::cout << "Destroying Resources" << '\n';
+		std::cout << "No more Contexts. Destroying resources" << '\n';
 		RenderCore::destroy();
 	}
 	else
 	{
 		std::cout << "Contexts: " << '\n';
 		for( auto& i : gRegistry )
-		std::cout << "   handle " << std::hex << (uint32_t) i.first << " ContextPtr " << i.second << '\n';
+			std::cout << "   handle " << std::hex << (uint32_t) i.first << " ContextPtr " << i.second << '\n';
 	}
 }
 
 // ------------------------------------------------------------------------------------------------
-void Context::beginRendering() { _stateManager.disableShadowingOneShot(); }
-void Context::endRendering()   
+void Context::beginFrame() { _stateManager.disableShadowingOneShot(); }
+void Context::endFrame()   
 { 
 	if( Device::vendor() != Device::Vendor::Nvidia )
 		glFinish(); 

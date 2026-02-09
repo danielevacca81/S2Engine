@@ -26,12 +26,8 @@ public:
 	};
 
 public:
-	//OBJECT_DECLARE_MOVEABLE( WritePixelBuffer )
-	//OBJECT_DISABLE_COPY( WritePixelBuffer )
-
 	WritePixelBuffer( int sizeInBytes, const UsageHint &usageHint );
 	~WritePixelBuffer();
-	//void set( int sizeInBytes, const UsageHint &usageHint);
 
 	int  sizeInBytes() const;
 
@@ -61,9 +57,6 @@ public:
 	};
 
 public:
-	//OBJECT_DECLARE_MOVEABLE( ReadPixelBuffer )
-	//OBJECT_DISABLE_COPY( ReadPixelBuffer )
-
 	ReadPixelBuffer( int sizeInBytes, const UsageHint &usageHint );
 	~ReadPixelBuffer();
 

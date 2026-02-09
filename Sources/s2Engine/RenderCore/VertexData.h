@@ -57,7 +57,7 @@ public:
 private:
 	VertexArrayPtr _vao;
 
-	friend class RenderBackend;
+	friend class RenderCommands; // Allow RenderCommands to access _vao
 };
 
 } // namespace RenderCore

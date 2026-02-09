@@ -4,15 +4,16 @@
 
 #include "Context.h"
 #include "Texture.h"
-#include "RenderBackend.h"
 
 
 using namespace s2::RenderCore;
 
 // ------------------------------------------------------------------------------------------------
 RenderTarget::RenderTarget()
-	: RenderTarget( { {FrameBuffer::ColorAttachment0,TextureFormat::RedGreenBlueAlpha8}, 
-			     {FrameBuffer::DepthAttachment, TextureFormat::Depth24} } )
+	: RenderTarget( {
+		{ FrameBuffer::ColorAttachment0,TextureFormat::RedGreenBlueAlpha8 },
+		{ FrameBuffer::DepthAttachment, TextureFormat::Depth24 }
+					} )
 {
 	assert( Context::current() );
 }
@@ -105,12 +106,6 @@ Texture2DPtr RenderTarget::attachment( const FrameBuffer::AttachmentPoint &a ) c
 }
 
 // ------------------------------------------------------------------------------------------------
-void RenderTarget::clear( const ClearState &cs ) const
-{
-	RenderBackend::clear( _fbo, cs );
-}
-
-// ------------------------------------------------------------------------------------------------
 static inline DrawState sanitizeDrawState( const DrawState& ds, RenderTarget const* s )
 {
 	DrawState out( ds );
@@ -123,50 +118,6 @@ static inline DrawState sanitizeDrawState( const DrawState& ds, RenderTarget con
 
 	return out;
 }
-
-// ------------------------------------------------------------------------------------------------
-void RenderTarget::draw( const PrimitiveType &primitiveType, const VertexArrayPtr &vao, const DrawState &ds )      const { RenderBackend::draw( _fbo, primitiveType , vao, sanitizeDrawState( ds, this ) );}
-void RenderTarget::draw( const PrimitiveType &primitiveType, const VertexDataPtr &primitive, const DrawState &ds ) const { RenderBackend::draw( _fbo, primitiveType, primitive, sanitizeDrawState( ds, this ) ); }
-void RenderTarget::draw( const PrimitiveBatch& batch, const DrawState& ds )                                        const { RenderBackend::draw( _fbo, batch, sanitizeDrawState( ds, this ) );}
-
-// ------------------------------------------------------------------------------------------------
-Pixmap<uint8_t> RenderTarget::grabImage() const
-{
-	// @todo: ok for multisample buffers?
-	return RenderBackend::readPixels( _fbo, _width, _height );
-}
-
-// ------------------------------------------------------------------------------------------------
-//	This is a convenience function
-void RenderTarget::readPixels( const FrameBuffer::AttachmentPoint &attachPoint,
-							   const ImageFormat &pixelFormat, 
-							   const Math::irect &roi, float   *pixels ) const       
-
-{ 
-	_fbo->bind();
-	_fbo->readPixels( attachPoint, pixelFormat, roi, pixels );
-} 
-
-// ------------------------------------------------------------------------------------------------
-// This is a convenience function
-void RenderTarget::readPixels(const FrameBuffer::AttachmentPoint &attachPoint,
-							  const ImageFormat &pixelFormat,
-							  const Math::irect &roi, uint8_t *pixels) const
-{
-	_fbo->bind();
-	_fbo->readPixels( attachPoint, pixelFormat, roi, pixels );
-}
-
-// ------------------------------------------------------------------------------------------------
-void RenderTarget::readPixels(const FrameBuffer::AttachmentPoint &attachPoint,
-							  const ImageFormat &pixelFormat,
-							  const ImageDataType &pixelType,
-							  const Math::irect &roi, void *pixels)
-{
-	_fbo->bind();
-	_fbo->readPixels( attachPoint, pixelFormat, pixelType, roi, pixels );
-}
-
 // ------------------------------------------------------------------------------------------------
 inline std::string RenderTarget::genLabelAttachment( const FrameBuffer::AttachmentPoint &attachPoint ) const
 {

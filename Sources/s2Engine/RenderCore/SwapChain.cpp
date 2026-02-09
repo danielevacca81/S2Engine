@@ -3,17 +3,22 @@
 #include "SwapChain.h"
 
 #include "RenderTarget.h"
-#include "RenderBackend.h"
+#include "Context.h"
+#include "RenderCommands.h"
 
 using namespace s2::RenderCore;
-
 
 // ------------------------------------------------------------------------------------------------
 void SwapChain::swapToScreen( const RenderTarget& renderTarget )
 {
-	// RenderBackend::blit is slightly faster than RenderBackend::drawFullscreenQuad
-	RenderBackend::blit( renderTarget.fbo(),
-						 nullptr,                                                         // default FBO, which is the screen
-						 Math::irect( 0, 0, renderTarget.width(), renderTarget.height() ) // whole size
+	// Get current context and use its command buffer
+	Context* ctx = Context::current();
+	if( !ctx )
+		return; // No active context
+
+	// Blit is slightly faster than drawFullscreenQuad
+	ctx->commands().blit( renderTarget.fbo(),
+	                      nullptr,                                                         // default FBO, which is the screen
+	                      Math::irect( 0, 0, renderTarget.width(), renderTarget.height() ) // whole size
 	);
 }

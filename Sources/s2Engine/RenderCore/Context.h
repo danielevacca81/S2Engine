@@ -7,14 +7,13 @@
 
 #include "ContextInfo.h"
 #include "StateManager.h"
-// #include "FrameBuffer.h"
-// #include "PrimitiveType.h"
-// #include "VertexArray.h"
+
+#include <memory>
 
 namespace s2 {
 namespace RenderCore {
 
-struct DrawState;
+class RenderCommands;
 
 class S2ENGINE_API Context
 {
@@ -22,38 +21,37 @@ public:
 	static Context* current();
 
 public:
+	Context();
 	~Context();
+
+	// Context cannot be copied
+	Context( const Context& ) = delete;
+	Context& operator=( const Context& ) = delete;
 
 	const ContextInfo& info() const { return _info; }
 
 	bool operator==( const Context& o ) const { return _nativeHandle == o._nativeHandle; }
 	bool operator!=( const Context& o ) const { return _nativeHandle != o._nativeHandle; }
 
-	virtual void beginRendering();
-	virtual void endRendering();
+	// Rendering lifecycle
+	void beginFrame();
+	void endFrame();
 
-	//virtual void makeCurrent() { /*todo*/}
-	//virtual void doneCurrent() { /*todo*/}
+	// Access to render commands (primary interface for rendering)
+	RenderCommands& commands() { return *_commands; }
+	const RenderCommands& commands() const { return *_commands; }
 
-	// virtual void            clear( const FrameBufferPtr& fbo, const ClearState& cs );
-	// virtual void            draw( const FrameBufferPtr& fbo, const PrimitiveType& primitiveType, const VertexArrayPtr& va, const DrawState& ds );
-	// virtual Pixmap<uint8_t> readPixels( const FrameBufferPtr& fbo, uint32_t width, uint32_t height );
-
-
-protected:
-	Context();
-
-protected:
-	//std::string  _name;
+private:
 	uint64_t  _nativeHandle { 0 };
 
-	ContextInfo  _info;
-	StateManager _stateManager;
+	ContextInfo                     _info;
+	StateManager                    _stateManager;
+	std::unique_ptr<RenderCommands> _commands;
 
-	friend class RenderBackend;
+	friend class RenderCommands; // RenderCommands needs access to _stateManager
 };
 
 } // namespace RenderCore
 } // namespace s2
 
-#endif //! S2_RENDERCORE_CONTEXT_H
+#endif // !S2_RENDERCORE_CONTEXT_H

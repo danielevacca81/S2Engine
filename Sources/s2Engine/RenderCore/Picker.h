@@ -28,9 +28,7 @@ public:
 	void      detach();
 	bool	  clear();
 	
-	//RenderTarget*				 renderTarget()    const { return _target; }
 	FrameBuffer::AttachmentPoint attachmentPoint() const { return _attachmentPoint; }
-	//bool                         isAttached()      const { return _surface != nullptr; }
 	PickerConstants::Value       pickValueAt( int32_t x, int32_t y ) const; 
 
 private:
