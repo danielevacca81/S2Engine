@@ -1,7 +1,7 @@
-// ViewState.h
+// TransformState.h
 // 
-#ifndef S2_RENDERCORE_VIEWSTATE_H
-#define S2_RENDERCORE_VIEWSTATE_H
+#ifndef S2_RENDERCORE_TRANSFORMSTATE_H
+#define S2_RENDERCORE_TRANSFORMSTATE_H
 
 #include "s2Engine_API.h"
 
@@ -11,14 +11,12 @@
 namespace s2 {
 namespace RenderCore  {
 
-class S2ENGINE_API ViewState
+class S2ENGINE_API TransformState
 {
 public:
-	Math::dmat4 modelMatrix;
-	Math::dmat4 viewMatrix;
-	Math::dmat4 projectionMatrix;
-
-	Math::irect viewport;
+	Math::dmat4 modelMatrix      = Math::dmat4( 1.0 );
+	Math::dmat4 viewMatrix       = Math::dmat4( 1.0 );
+	Math::dmat4 projectionMatrix = Math::dmat4( 1.0 );
 
 	// shortcuts to frequently used matrices
 	inline Math::dmat3 normalMatrix()              const { return Math::inverseTranspose( modelViewMatrix() ); }
@@ -45,15 +43,15 @@ public:
 
 	inline Math::dmat4 modelViewMatrixProjectionRelatveToEye() const { return projectionMatrix * modelViewMatrixRelativeToEye(); }
 
-	inline bool operator==( const ViewState& other ) const
+	inline bool operator==( const TransformState& other ) const
 	{
-		return modelMatrix == other.modelMatrix &&
-			   viewMatrix == other.viewMatrix &&
-			   projectionMatrix == other.projectionMatrix &&
-			   viewport == other.viewport;
+		return modelMatrix == other.modelMatrix 
+			&& viewMatrix == other.viewMatrix 
+			&& projectionMatrix == other.projectionMatrix
+			;
 	}
 
-	inline bool operator!=( const ViewState& other ) const
+	inline bool operator!=( const TransformState& other ) const
 	{
 		return !(*this == other);
 	}

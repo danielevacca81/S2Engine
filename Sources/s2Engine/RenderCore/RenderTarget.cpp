@@ -106,19 +106,6 @@ Texture2DPtr RenderTarget::attachment( const FrameBuffer::AttachmentPoint &a ) c
 }
 
 // ------------------------------------------------------------------------------------------------
-static inline DrawState sanitizeDrawState( const DrawState& ds, RenderTarget const* s )
-{
-	DrawState out( ds );
-
-	// sanitize Viewport
-	if( out.viewState.viewport.isEmpty() )
-		out.viewState.viewport = Math::irect ( 0, 0, s->width(), s->height() );
-
-	// ...
-
-	return out;
-}
-// ------------------------------------------------------------------------------------------------
 inline std::string RenderTarget::genLabelAttachment( const FrameBuffer::AttachmentPoint &attachPoint ) const
 {
 	std::string label;

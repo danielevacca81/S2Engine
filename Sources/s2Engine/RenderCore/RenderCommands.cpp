@@ -199,11 +199,12 @@ void RenderCommands::drawFullscreenQuad( const Texture2DPtr& srcTexture )
 		return;
 
 	DrawState fullscreenQuadDrawState;
-	fullscreenQuadDrawState.shader = DefaultShaders.FullscreenQuad;
-	fullscreenQuadDrawState.renderState.depthTest.enabled = false;
+	fullscreenQuadDrawState.shader                          = DefaultShaders.FullscreenQuad;
+	fullscreenQuadDrawState.renderState.depthTest.enabled   = false;
 	fullscreenQuadDrawState.renderState.faceCulling.enabled = false;
-	fullscreenQuadDrawState.viewState.viewport = Math::irect( 0, 0, srcTexture->description().width(),
-															  srcTexture->description().height() );
+	fullscreenQuadDrawState.viewport.rect                   = Math::irect( 0, 0, 
+																		   srcTexture->description().width(),
+																		   srcTexture->description().height() );
 	fullscreenQuadDrawState.textureUnits[0].set( srcTexture, DefaultSamplers.LinearClamp );
 
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
@@ -244,8 +245,8 @@ DrawState RenderCommands::sanitizeDrawState( const DrawState& ds, const RenderTa
 	DrawState out( ds );
 
 	// Sanitize viewport
-	if( out.viewState.viewport.isEmpty() )
-		out.viewState.viewport = Math::irect( 0, 0, target.width(), target.height() );
+	if( out.viewport.rect.isEmpty() )
+		out.viewport.rect = Math::irect( 0, 0, target.width(), target.height() );
 
 	return out;
 }

@@ -1,85 +1,141 @@
-// Renderer.h
+// Renderer.h - Updated
 //
 #ifndef S2_RENDERER_RENDERER_H
 #define S2_RENDERER_RENDERER_H
 
 #include "s2Engine_API.h"
 
-#include "RenderCommand.h"
-#include "MaterialBinder.h"
+#include "RenderPipeline.h"
+#include "CommandBuffer.h"
+#include "FrameData.h"
 
 #include <memory>
-#include <vector>
 
 namespace s2 {
+
+namespace RenderCore 
+{
+    class Context;
+    class RenderTarget;
+}
+
 namespace Renderer {
 
-/**
- * High-level mesh rendering abstraction.
- * Renders to a Surface.
- * Handles transformation, material binding, and submission to RenderCore.
- */
+
+/*
+
+Renderer/
+|-- Renderer.h/cpp              # High-level renderer
+|-- RenderPipeline.h/cpp        # Manages render passes
+|-- RenderPass.h/cpp            # Base class for passes
+|-- FrameData.h                 # Shared context between passes
+|-- CommandBuffer.h/cpp         # Command storage and sorting
+|-- GBuffer.h/cpp               # G-Buffer for deferred rendering (future)
+|
+|-- Passes/                     # Concrete render pass implementations
+|   |-- ForwardPass.h/cpp       # Forward rendering pass
+|   |-- GeometryPass.h/cpp      # G-Buffer geometry pass
+|   |-- LightingPass.h/cpp      # Deferred lighting pass
+|   |-- SkyboxPass.h/cpp        # Skybox rendering
+|   |-- PostProcessPass.h/cpp   # Post-processing effects
+|
+!-- RenderCommand.h/cpp         # Draw commands
+
+graph TB
+    subgraph "Application Layer"
+        App["Application/Game"]
+    end
+
+    subgraph "High-Level Renderer"
+        Renderer["Renderer<br/>(Frontend)"]
+        Pipeline["RenderPipeline<br/>(Technique)"]
+        CmdBuffer["CommandBuffer<br/>(Queue)"]
+    end
+
+    subgraph "Render Passes"
+        Pass1["GeometryPass"]
+        Pass2["LightingPass"]
+        Pass3["PostProcessPass"]
+        PassN["ShadowPass"]
+    end
+
+    subgraph "Low-Level Renderer"
+        Backend["RenderBackend<br/>(GPU Commands)"]
+        Context["RenderCore::Context"]
+        Driver["GPU Driver<br/>(OpenGL/Vulkan/DX12)"]
+    end
+
+    App -->|"submit(drawCmd)"| Renderer
+    Renderer -->|"stores"| CmdBuffer
+    Renderer -->|"uses"| Pipeline
+    Pipeline -->|"contains"| Pass1
+    Pipeline -->|"contains"| Pass2
+    Pipeline -->|"contains"| Pass3
+    Pipeline -->|"contains"| PassN
+
+    Renderer -->|"endFrame()"| Pipeline
+    Pipeline -->|"execute()"| Pass1
+    Pass1 -->|"translate to"| Backend
+    Backend -->|"low-level calls"| Context
+    Context --> Driver
+*/
+
+struct RenderCommand;
+struct ClearCommand;
+
 class S2ENGINE_API Renderer
 {
 public:
-	Renderer();
-	~Renderer() = default;
+    // Statistics for the current frame
+    struct Stats
+    {
+        size_t drawCalls = 0;
+        size_t triangles = 0;
+        size_t vertices = 0;
+    };
 
-	///**
-	// * Set the default shader program for rendering.
-	// */
-	//void setDefaultProgram( RenderCore::ProgramPtr program );
+    explicit Renderer( const RenderCore::Context* gpuContext, 
+                       const RenderPipeline& pipeline = RenderPipeline::createForwardPipeline() );
 
-	/**
-	 * Set the render target to draw into.
-	 */
-	void setSurface( /**/ );
+    // Non-copyable, non-movable
+    Renderer( const Renderer& ) = delete;
+    Renderer& operator=( const Renderer& ) = delete;
+    Renderer( Renderer&& ) = delete;
+    Renderer& operator=( Renderer&& ) = delete;
 
-	/**
-	 * Submit a render command to be executed.
-	 */
-	void submit( const RenderCommand& command );
+    void beginFrame( const FrameData &frameData );
+    void submit( const ClearCommand& command );
+    void submit( const RenderCommand& command );
+    void endFrame();
+    
+    const Stats& statistics() const { return _stats; }
 
-	/**
-	 * Execute all submitted commands in optimal order.
-	 * Renders to the active RenderTarget.
-	 */
-	void flush();
+private:
+    enum class State
+    {
+        Ready,
+        FrameStarted,
+    };
 
-	/**
-	 * Clear all pending commands.
-	 */
-	void clear();
+private:
+    void resetStats()
+    {
+        _stats = Stats {};
+    }
 
-	/**
-	 * Get rendering statistics.
-	 */
-	struct Stats
-	{
-		size_t drawCalls = 0;
-		size_t triangles = 0;
-		size_t vertices = 0;
-		size_t materialSwitches = 0;
-	};
 
-	Stats statistics() const { return _stats; }
-	void resetStatistics();
+private:
+    const RenderCore::Context* _gpuContext { nullptr };
 
-//private:
-//	void applyTransforms( const RenderCommand& cmd, RenderCore::DrawState& drawState );
-//	void sortCommands();
-//
-//private:
-//	RenderCore::ProgramPtr  _defaultProgram;
-//	RenderCore::RenderTarget* _renderTarget = nullptr;
-//
-	MaterialBinder _materialBinder;
-	std::vector<RenderCommand> _commands;
-
-	Stats _stats;
+    State 		   _state { State::Ready };
+    
+    Stats          _stats;
+	CommandBuffer  _commandBuffer; // Stores submitted commands for the current frame
+	FrameData      _frameData;     // shared data for the current frame, passed to render passes
+	RenderPipeline _pipeline;      // Render pipeline with configured render passes 
 };
 
-}
-}
+} // namespace Renderer
+} // namespace s2
 
-#endif // S2_RENDERER_MESHRENDERER_H
+#endif // !S2_RENDERER_RENDERER_H

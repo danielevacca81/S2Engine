@@ -49,21 +49,23 @@ private:
 	void applyDepthMask         ( const DepthMask& depthMask );
 	void applyStencilMask       ( const StencilMask &stencilMask );
 	void applyShaderProgram     ( const ProgramPtr  &program );
-	void applyViewState         ( const ViewState &vs);
+	void applyViewportAndScissor( const ViewportState &vs);
 	void applyClearColorSeparate( const ClearColorSeparate &clearColorSeparate );
 
 private:
 	bool         _disableDrawStateShadowingOneShot;
 	bool         _disableClearStateShadowingOneShot;
 	bool         _shadowingCurrentlyEnabled;
-				 
+
+	// shadowed clear state to avoid redundant state changes. 
 	Color        _clearColor;
 	float        _clearDepth;
 	int          _clearStencil;
-				 
-	RenderState  _renderState;
-	ViewState    _viewState;
-	ProgramPtr   _currentShaderProgram;
+
+	// shadowed state to avoid redundant state changes.
+	RenderState   _renderState;
+	ViewportState _viewportState;
+	ProgramPtr    _currentShaderProgram;
 };
 
 

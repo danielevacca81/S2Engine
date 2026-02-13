@@ -5,8 +5,8 @@
 #include "InputWrapper.h"
 
 #include "RenderCore/Context.h"
-#include "RenderCore/SwapChain.h"
 #include "RenderCore/RenderTarget.h"
+#include "RenderCore/RenderCommands.h"
 
 #include "glfwpp/glfwpp.h"
 #include "glfwpp/window.h"
@@ -108,7 +108,7 @@ Window::Window( const std::string& name, int width, int height, const WindowPara
         std::cout << "Current GLFW Context: " << std::hex << ctx << '\n';
     }
 
-    _renderingContext = RenderCore::Context::current();
+    _renderingContext = std::make_unique<RenderCore::Context>();
     _renderTarget     = std::make_unique<RenderCore::RenderTarget>();
 }
 
@@ -117,7 +117,7 @@ Window::~Window()
 {
     makeCurrent();
 	_renderTarget.reset();
-	delete _renderingContext;
+	_renderingContext.reset();
     delete _inputWrapper;
 
     delete static_cast<glfw::Window*>( _handle );   
@@ -136,13 +136,14 @@ void Window::paint()
 {
     makeCurrent();
 
-    _renderingContext->beginRendering();
+    _renderingContext->beginFrame();
     {
         onPaintEvent();
     }
-    _renderingContext->endRendering();
+    _renderingContext->endFrame();
 
-	RenderCore::SwapChain::swapToScreen( *_renderTarget );
+	// Blit the rendered frame to the default framebuffer (nullptr == screen)
+    _renderingContext->commands().blitToScreen( *_renderTarget );
 }
 
 // ------------------------------------------------------------------------------------------------

@@ -38,9 +38,10 @@ public:
 	void setLabel( const std::string& label );
 
 	// Dimensions
-	uint32_t width()  const { return _width; }
-	uint32_t height() const { return _height; }
-	void resize( int32_t width, int32_t height );
+	Math::irect size() const { return Math::irect( 0, 0, _width, _height ); }
+	uint32_t    width()  const { return _width; }
+	uint32_t    height() const { return _height; }
+	void        resize( int32_t width, int32_t height );
 
 	// Attachment management
 	void attach( const FrameBuffer::AttachmentPoint& attachPoint, const Texture2DPtr& texture );

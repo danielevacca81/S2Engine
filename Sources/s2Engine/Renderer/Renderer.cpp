@@ -1,141 +1,104 @@
-// MeshRenderer.cpp
+// Renderer.cpp
 //
-#include "MeshRenderer.h"
+#include "Renderer.h"
+#include "RenderCommand.h"
+#include "RenderCore/RenderCommands.h"
+#include "RenderCore/ClearState.h"
+#include "RenderCore/DrawState.h"
+#include "RenderCore/PrimitiveType.h"
+#include "RenderCore/VertexData.h"
+
+#include <vector>
 
 namespace s2 {
 namespace Renderer {
 
-MeshRenderer::MeshRenderer()
+
+
+// ------------------------------------------------------------------------------------------------
+Renderer::Renderer( const RenderCore::Context* ctx, const RenderPipeline& pipeline )
+	: _gpuContext( ctx )
 {
+	if( !ctx )
+		throw std::runtime_error( "Renderer initialization failed: GPU context is null" );
+
+	// Initialize render pipeline
+	_pipeline = pipeline;
+	_pipeline.initialize();
 }
 
-void MeshRenderer::setDefaultProgram( RenderCore::ProgramPtr program )
+// ------------------------------------------------------------------------------------------------
+void Renderer::beginFrame( const FrameData& frameData )
 {
-	_defaultProgram = program;
-	_materialBinder.reset();
-}
-
-void MeshRenderer::setRenderTarget( RenderCore::RenderTarget* renderTarget )
-{
-	_renderTarget = renderTarget;
-}
-
-void MeshRenderer::submit( const RenderCommand& command )
-{
-	_commands.push_back( command );
-}
-
-void MeshRenderer::flush()
-{
-	if( !_renderTarget )
-		return;
-
-	// Optional: sort commands for optimization
-	// sortCommands();
-
-	for( auto& cmd : _commands )
+	if( _state == State::FrameStarted )
 	{
-		// Use command's DrawState or create one with default program
-		auto& drawState = cmd.drawState;
-
-		// If no shader is set in command, use default
-		if( !drawState.shader && _defaultProgram )
-		{
-			drawState.shader = _defaultProgram;
-		}
-
-		if( !drawState.shader )
-			continue;
-
-		// 1. Apply transformations to ViewState
-		applyTransforms( cmd, drawState );
-
-		// 2. Bind material (updates DrawState's shader uniforms and texture units)
-		if( cmd.material )
-		{
-			_materialBinder.bind( *cmd.material, drawState );
-		}
-
-		// 3. Apply custom uniforms if provided
-		if( cmd.customUniformSetter )
-		{
-			cmd.customUniformSetter( drawState );
-		}
-
-		// 4. Draw using RenderTarget
-		if( cmd.vertexData )
-		{
-			_renderTarget->draw( cmd.primitiveType, cmd.vertexData, drawState );
-			_stats.drawCalls++;
-		}
+		throw std::runtime_error(
+			"Renderer::beginFrame() called twice without endFrame(). "
+			"Call endFrame() before starting a new frame."
+		);
 	}
 
-	clear();
+	// check frameData validity (e.g., mainTarget not null)
+	if( !frameData.mainTarget )
+		throw std::runtime_error( "Renderer::beginFrame failed: main render target is null" );
+
+
+	_frameData = frameData;
+
+	_state = State::FrameStarted;
 }
 
-void MeshRenderer::clear()
+// ------------------------------------------------------------------------------------------------
+void Renderer::submit( const ClearCommand& command )
 {
-	_commands.clear();
-}
-
-void MeshRenderer::resetStatistics()
-{
-	_stats = Stats {};
-	_materialBinder.resetStatistics();
-}
-
-void MeshRenderer::applyTransforms( const RenderCommand& cmd, RenderCore::DrawState& drawState )
-{
-	// Update ViewState in DrawState
-	drawState.viewState.modelMatrix = Math::dmat4( cmd.modelMatrix );
-	drawState.viewState.viewMatrix = Math::dmat4( cmd.viewMatrix );
-	drawState.viewState.projectionMatrix = Math::dmat4( cmd.projectionMatrix );
-
-	// Set viewport if render target is available
-	if( _renderTarget )
+	if( _state != State::FrameStarted )
 	{
-		drawState.viewState.viewport = Math::irect( 0, 0, _renderTarget->width(), _renderTarget->height() );
+		throw std::runtime_error(
+			"Renderer::submit() called outside beginFrame/endFrame. "
+			"Call beginFrame() first."
+		);
 	}
 
-	// Set commonly used matrix uniforms
-	if( drawState.shader )
-	{
-		auto& program = drawState.shader;
-
-		// Compute derived matrices
-		auto mvp = drawState.viewState.modelViewProjectionMatrix();
-		auto mv = drawState.viewState.modelViewMatrix();
-		auto normalMatrix = drawState.viewState.normalMatrix();
-
-		// Set uniforms
-		program->setUniformValue( "u_ModelMatrix", cmd.modelMatrix );
-		program->setUniformValue( "u_ViewMatrix", cmd.viewMatrix );
-		program->setUniformValue( "u_ProjectionMatrix", cmd.projectionMatrix );
-		program->setUniformValue( "u_MVP", Math::mat4( mvp ) );
-		program->setUniformValue( "u_ModelViewMatrix", Math::mat4( mv ) );
-		program->setUniformValue( "u_NormalMatrix", Math::mat3( normalMatrix ) );
-	}
+	// Store command for batched execution in endFrame()
+	 _commandBuffer.addClear( command );
 }
 
-void MeshRenderer::sortCommands()
+// ------------------------------------------------------------------------------------------------
+void Renderer::submit( const RenderCommand& command )
 {
-	// Sort by shader first, then material, then depth
-	// This minimizes state changes
-	std::sort( _commands.begin(), _commands.end(),
-			   [] ( const RenderCommand& a, const RenderCommand& b )
+	// TODO: Validate command (e.g., material and mesh data not null)
+	if( _state != State::FrameStarted )
 	{
-		// Sort by shader pointer first
-		if( a.drawState.shader.get() != b.drawState.shader.get() )
-			return a.drawState.shader.get() < b.drawState.shader.get();
-
-		// Then by material pointer
-		if( a.material.get() != b.material.get() )
-			return a.material.get() < b.material.get();
-
-		// Then by sort key (typically depth)
-		return a.sortKey < b.sortKey;
+		throw std::runtime_error(
+			"Renderer::submit() called outside beginFrame/endFrame. "
+			"Call beginFrame() first."
+		);
 	}
-	);
+
+
+	// Store command for batched execution in endFrame()
+	_commandBuffer.addRender( command );
+}
+
+// ------------------------------------------------------------------------------------------------
+void Renderer::endFrame()
+{
+	if( _state != State::FrameStarted )
+	{
+		throw std::runtime_error(
+			"Renderer::endFrame() called without matching beginFrame(). "
+			"Call beginFrame() before endFrame()."
+		);
+	}
+	_commandBuffer.sort(); // Sort commands for optimal rendering (e.g., by material, depth, etc.)
+	
+	_pipeline.execute( _commandBuffer, _frameData /*, *_gpuContext */); // Execute render passes in the pipeline with the current frame data and command buffer
+
+
+	_commandBuffer.clear(); // Clear command buffer for next frame
+	_stats = Stats {}; // Reset statistics for next frame
+	
+	_state = State::Ready;
 }
 
 }

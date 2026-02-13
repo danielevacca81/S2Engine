@@ -4,11 +4,10 @@
 #define S2_RENDERER_RENDERCOMMAND_H
 
 #include "s2Engine_API.h"
-#include "Math/Math.h"
+
 #include "Resources/Material.h"
-#include "RenderCore/VertexData.h"
-#include "RenderCore/DrawState.h"
-#include "RenderCore/PrimitiveType.h"
+#include "Geometry/MeshData.h"
+#include "Graphics/Color.h"
 
 #include <memory>
 #include <functional>
@@ -17,36 +16,53 @@ namespace s2 {
 namespace Renderer {
 
 /**
+* Represents a clear command with specified clear color and buffers to clear.
+* Will be processed by the renderer and translated into ClearState for the render pass.
+*/
+struct S2ENGINE_API ClearCommand
+{
+	enum class ClearMode
+	{
+		ColorOnly,
+		DepthOnly,
+		ColorAndDepth,
+		StencilOnly,
+		DepthAndStencil,
+		AllBuffers
+	};
+	
+	ClearMode mode  = ClearMode::ColorAndDepth;
+	Color     color = Color::blue();
+	float     depth = 1.0f;
+	uint32_t  stencil = 0;
+};
+
+
+/**
  * Represents a single draw call with all necessary state.
- * Decouples high-level rendering logic from OpenGL specifics.
- * Uses RenderCore::DrawState for encapsulating render state and shader.
+ * Will be processed by the renderer and translated into DrawState for the render pass.
  */
 struct S2ENGINE_API RenderCommand
 {
-	// Material & Resources
+	enum class DrawMode
+	{
+		Points,
+		Lines,
+		Triangles,
+	};
+	DrawMode drawMode = DrawMode::Triangles;
+
+	// Material provides shader + textures + pipeline state
 	Resources::MaterialPtr material = nullptr;
 
-	// Geometry
-	MeshData3D	   meshData;    // Optional mesh data (for dynamic meshes)
+	Resources::ModelPtr model = nullptr;
 	
-	// Primitive type for drawing
-	RenderCore::PrimitiveType primitiveType = RenderCore::PrimitiveType::Triangles;
+	// per object transform (model matrix)
+	Math::dmat4 modelMatrix = Math::dmat4( 1.0 );
 
-	// Draw state (encapsulates shader, render state, view state, textures)
-	RenderCore::DrawState drawState;
 
-	// Sorting and filtering
-	uint32_t layerMask = 0;
-	float    sortKey   = 0.0f;  // For sorting (depth, material, etc.)
-
-	// Shadow flags
-	bool castsShadows    = true;
-	bool receiveShadows  = true;
-
-	// Custom uniform setter (optional)
-	// Allows entities to set custom uniforms before drawing
-	// Takes DrawState instead of Program directly
-	std::function<void(RenderCore::DrawState&)> customUniformSetter = nullptr;
+	// Geometry
+	MeshData3D	   meshData;
 
 	// User data for custom rendering logic
 	void* userData = nullptr;
@@ -55,4 +71,4 @@ struct S2ENGINE_API RenderCommand
 }
 }
 
-#endif // S2_RENDERER_RENDERCOMMAND_H
+#endif // !S2_RENDERER_RENDERCOMMAND_H

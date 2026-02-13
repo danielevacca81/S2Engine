@@ -7,7 +7,9 @@
 #include "Application/Application.h"
 
 #include "RenderCore/RenderTarget.h"
-#include "RenderCore/RenderCore.h"
+#include "RenderCore/Context.h"
+#include "RenderCore/RenderCommands.h"
+
 #include "Core/VectorCast.h"
 
 #include "Geometry/GeometryFactory3D.h"
@@ -19,6 +21,9 @@
 // ------------------------------------------------------------------------------------------------
 void MainWindow::onInitializeEvent()
 {
+	// Initialize renderer with the current rendering context and default render pipeline
+	_renderer = std::make_unique<s2::Renderer::Renderer>( _renderingContext.get(), s2::Renderer::RenderPipeline::createForwardPipeline() );
+
 	_planeXZ = RenderCore::VertexData::New();
 	_planeXZ->setVertices( std::vector<Math::vec3> {
 		    { -2.5f, -2.5f, 0.f },
@@ -30,9 +35,7 @@ void MainWindow::onInitializeEvent()
 	_planeXZ->setIndices( { 0, 1, 2, 0, 2, 3 } );
 	_planeXZ->setColors( std::vector<Color>( 4, Color::gray() ) );
 
-	const auto torus = s2::GeometryFactory3D::createTorus( 1.0, 0.5, 64, 16 );
-	_torus = RenderCore::VertexData::New( torus );
-	_torus->setColors( std::vector<Color>( torus.vertices.size(), Color::red()) );
+	_torus = s2::GeometryFactory3D::createTorus( 1.0, 0.5, 64, 16 );
 
 	const auto cube = s2::GeometryFactory3D::createCube( {5.0, 0.0, 0.0}, 2.0 );
 	_cube = RenderCore::VertexData::New( cube );
@@ -98,10 +101,81 @@ void MainWindow::onPaintEvent()
 	const auto scale = app->scaleFactor;
 	const auto lightPosition = app->lightPosition;
 
-	{
-		using namespace RenderCore;
+	using namespace s2::Renderer;
 
-		_renderTarget->clear( { .color = Color{ 0.3f, 0.1f, 0.4f, 1.0f } } );
+	_renderer->beginFrame( {
+		.mainTarget             = _renderTarget.get(),
+		.cameraViewMatrix       = _camera.worldToCameraMatrix(),
+		.cameraProjectionMatrix = _camera.projectionMatrix(),
+						   } );
+	{
+		_renderer->submit( { .color = Color{ 0.3f, 0.5f, 0.4f, 1.0f } } );
+		_renderer->submit(
+			{
+			.drawMode    = RenderCommand::DrawMode::Triangles,
+			.material    = nullptr, // use default material,
+			.modelMatrix = Math::scale( Math::dvec3( scale ) ) * _trackball.matrix(),
+			.meshData    = _torus
+			} );
+
+		//s2::Renderer::DrawState ds( s2::Renderer::DefaultShaders::BlinnPhong );
+		//{
+		//	ds.viewState.projectionMatrix = _camera.projectionMatrix();
+		//	ds.viewState.modelMatrix      = Math::scale( Math::dvec3( scale ) ) *_trackball.matrix();
+		//	ds.viewState.viewMatrix       = _camera.worldToCameraMatrix();
+		//	ds.viewState.viewport         = _camera.viewport();
+		//	ds.shader->setUniformValue<Math::mat4>( "projectionMatrix"         , ds.viewState.projectionMatrix );
+		//	ds.shader->setUniformValue<Math::mat4>( "modelViewProjectionMatrix", ds.viewState.modelViewProjectionMatrix() );
+		//	ds.shader->setUniformValue<Math::mat4>( "modelViewMatrix"          , ds.viewState.modelViewMatrix() );
+		//	ds.shader->setUniformValue<Math::mat3>( "normalMatrix"             , ds.viewState.normalMatrix() );
+		//	ds.shader->setUniformValue<Math::vec4>( "u_LightPosition"          , _trackballLight.matrix() * lightPosition );
+		//	ds.shader->setUniformValue<Math::vec4>( "u_LightAmbient"           , { .01f,.01f,.01f,1.f } );
+		//	ds.shader->setUniformValue<Math::vec4>( "u_LightDiffuse"           , { 1.f,1.f,1.f,1.f } );
+		//	ds.shader->setUniformValue<Math::vec4>( "u_LightSpecular"          , { 1.f,1.f,1.f,1.f } );
+		//	ds.shader->setUniformValue<float>(      "u_LightShininess"         , 60.f );
+		//}
+		
+		//_renderer->submit( RenderCommand{ .drawMode = s2::Renderer::PrimitiveType::Triangles, .vertexData = _torus,    .drawState = ds } );
+		//_renderer->submit( s2::Renderer::DrawCommand{ .drawMode = s2::Renderer::PrimitiveType::Triangles, .vertexData = _cone,     .drawState = ds } );
+		//_renderer->submit( s2::Renderer::DrawCommand { .drawMode = s2::Renderer::PrimitiveType::Triangles, .vertexData =
+	}
+	_renderer->endFrame();
+}
+
+// ------------------------------------------------------------------------------------------------
+void MainWindow::onPaintEventold()
+{
+#if 0
+	// Scene.draw
+	auto app = static_cast<MyApplication*>( s2::Application::instance() );
+
+	const auto scale = app->scaleFactor;
+	const auto lightPosition = app->lightPosition;
+
+
+	/*
+	*  note for future self:
+	*  - consider using a render queue to manage draw calls
+	*  - implement frustum culling to optimize rendering
+	*  - explore instancing for repeated geometry
+	* 
+	* Renderer r ( forwardRenderingtech );
+	* r.initializeResources();
+	* 
+	* ...
+	* r.beginFrame( renderTarget, view );
+	* r.submit( clearcommand{.color = blue} );
+	* r.submit( drawcommand{ .drawmode = triangles, .vertexData = torus, .material = defaultMaterial } );
+	* r.endFrame();
+	*/
+
+
+	{
+		using namespace s2::RenderCore;
+
+		auto& cmd = _renderingContext->commands();
+
+		cmd.clear( *_renderTarget, { .color = Color{ 0.3f, 0.1f, 0.4f, 1.0f } } );
 
 		DrawState ds( DefaultShaders.BlinnPhong );
 		{
@@ -116,18 +190,18 @@ void MainWindow::onPaintEvent()
 			ds.shader->setUniformValue<Math::mat3>( "normalMatrix"             , ds.viewState.normalMatrix() );
 
 			ds.shader->setUniformValue<Math::vec4>( "u_LightPosition"          , _trackballLight.matrix() * lightPosition );
-			ds.shader->setUniformValue<Math::vec4>( "u_LightAmbient"           , { .1f,.1f,.1f,1.f } );
+			ds.shader->setUniformValue<Math::vec4>( "u_LightAmbient"           , { .01f,.01f,.01f,1.f } );
 			ds.shader->setUniformValue<Math::vec4>( "u_LightDiffuse"           , { 1.f,1.f,1.f,1.f } );
 			ds.shader->setUniformValue<Math::vec4>( "u_LightSpecular"          , { 1.f,1.f,1.f,1.f } );
-			ds.shader->setUniformValue<float>(      "u_LightShininess"         , 160.f );
+			ds.shader->setUniformValue<float>(      "u_LightShininess"         , 60.f );
 
 		}		
 		
-		_renderTarget->draw( PrimitiveType::Triangles, _torus,    ds );
-		_renderTarget->draw( PrimitiveType::Triangles, _cone,     ds );
-		_renderTarget->draw( PrimitiveType::Triangles, _cube,     ds );
-		_renderTarget->draw( PrimitiveType::Triangles, _sphere,   ds );
-		_renderTarget->draw( PrimitiveType::Triangles, _cylinder, ds );
+		cmd.draw( *_renderTarget, PrimitiveType::Triangles, _torus,    ds );
+		cmd.draw( *_renderTarget, PrimitiveType::Triangles, _cone,     ds );
+		cmd.draw( *_renderTarget, PrimitiveType::Triangles, _cube,     ds );
+		cmd.draw( *_renderTarget, PrimitiveType::Triangles, _sphere,   ds );
+		cmd.draw( *_renderTarget, PrimitiveType::Triangles, _cylinder, ds );
 		//_renderTarget->draw( PrimitiveType::Triangles, _teapot, ds );
 
 		DrawState ds2 = ds;
@@ -144,8 +218,7 @@ void MainWindow::onPaintEvent()
 		//					  ds2 );
 	}
 
-	{
-	}
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------

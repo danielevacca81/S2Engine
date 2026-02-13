@@ -104,16 +104,16 @@ void StateManager::setDrawState( const DrawState &ds )
 {
 	_shadowingCurrentlyEnabled = !( gShadowingAlwaysDisabled || _disableDrawStateShadowingOneShot || !ds.shadowingEnabled );
 
-	// @todo: automatically set uniforms from viewstate.view?
-	//   like viewport, modelview, modelViewProjection, projection, cameraPosition, etc.
-	//   so that the user can fill only the viewState and the shader will be automatically set.
-	//
-	// note: not every shader has these uniforms and their names may vary, so it is not done automatically yet.
-	// 
-	// ds.shader->setUniformValue<Math::mat4>( "modelViewProjectionMatrix", ds.viewState.view.modelViewProjectionMatrix() );
-	// ds.shader->setUniformValue<Math::mat3>( "normalMatrix", ds.viewState.view.normalMatrix() );
+	// automatically set uniforms from draw state transform.
+	// This is a convenient feature but it may cause redundant uniform updates 
+	// if the shader does not use these uniforms or if the shader uses different names for them.
+	ds.shader->setUniformValue<Math::mat4>( "projectionMatrix"         , ds.transform.projectionMatrix );
+	ds.shader->setUniformValue<Math::mat4>( "modelViewProjectionMatrix", ds.transform.modelViewProjectionMatrix() );
+	ds.shader->setUniformValue<Math::mat4>( "modelViewMatrix"          , ds.transform.modelViewMatrix() );
+	ds.shader->setUniformValue<Math::mat3>( "normalMatrix"             , ds.transform.normalMatrix() );
 
-	applyViewState( ds.viewState );
+
+	applyViewportAndScissor( ds.viewport );
 	applyRenderState( ds.renderState );
 	applyShaderProgram( ds.shader );
 	ds.textureUnits.set();
@@ -135,7 +135,6 @@ inline void StateManager::applyRenderState( const RenderState &rs )
 	applyProgramPointSize ( rs.programPointSize );
 	applyRasterizationMode( rs.rasterizationMode );
 	applyLineWidth        ( rs.lineWidth );
-	applyScissorTest      ( rs.scissorTest );
 	applyStencilTest      ( rs.stencilTest );
 	applyDepthTest        ( rs.depthTest );
 	applyDepthRange       ( rs.depthRange );
@@ -244,20 +243,20 @@ inline void StateManager::applyScissorTest( const ScissorTest &scissorTest )
 	const bool enabled = scissorTest.enabled && 
 			   		     !rectangle.isEmpty() && rectangle.width()>0 && rectangle.height()>0;
 
-	if(  _renderState.scissorTest.enabled != enabled ||
+	if(  _viewportState.scissorTest.enabled != enabled ||
 		!_shadowingCurrentlyEnabled )
 	{
 		enable( GL_SCISSOR_TEST, enabled );
 		glCheck;
-		_renderState.scissorTest.enabled = enabled;
+		_viewportState.scissorTest.enabled = enabled;
 	}
 
-	if( enabled && _renderState.scissorTest.rect != scissorTest.rect ||
+	if( enabled && _viewportState.scissorTest.rect != scissorTest.rect ||
 		!_shadowingCurrentlyEnabled )
 	{
 		glScissor( rectangle.left(), rectangle.bottom(), rectangle.width(), rectangle.height() );
 		glCheck;
-		_renderState.scissorTest.rect = scissorTest.rect;
+		_viewportState.scissorTest.rect = scissorTest.rect;
 	}
 }
 
@@ -523,17 +522,17 @@ inline void StateManager::applyClearColorSeparate( const ClearColorSeparate& cle
 }
 
 // ------------------------------------------------------------------------------------------------
-inline void StateManager::applyViewState( const ViewState &vs )
+inline void StateManager::applyViewportAndScissor( const ViewportState &vs )
 {
-	if( vs.viewport != _viewState.viewport ||
+	if( vs.rect != _viewportState.rect ||
 		!_shadowingCurrentlyEnabled )
 	{
-		glViewport( vs.viewport.left(), vs.viewport.bottom(), vs.viewport.width(), vs.viewport.height() );
+		glViewport( vs.rect.left(), vs.rect.bottom(), vs.rect.width(), vs.rect.height() );
 		glCheck;
-		_viewState.viewport = vs.viewport;
+		_viewportState.rect = vs.rect;
 	}
 
-	// @todo: apply view matrices from vs to the shader program as uniforms
+	applyScissorTest( vs.scissorTest );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -633,19 +632,19 @@ void StateManager::debugState( const bool drawStateCheck , const bool clearState
 
 
 		glGetIntegerv( GL_VIEWPORT, val );
-		assert( val[0] == _viewState.viewport.left()   );
-		assert( val[1] == _viewState.viewport.bottom() );
-		assert( val[2] == _viewState.viewport.width()  );
-		assert( val[3] == _viewState.viewport.height() );
+		assert( val[0] == _viewportState.rect.left()   );
+		assert( val[1] == _viewportState.rect.bottom() );
+		assert( val[2] == _viewportState.rect.width()  );
+		assert( val[3] == _viewportState.rect.height() );
 	}
 	if( drawStateCheck || clearStateCheck )
 	{
-		assert( bool(glIsEnabled( GL_SCISSOR_TEST )       ) == _renderState.scissorTest.enabled );
+		assert( bool(glIsEnabled( GL_SCISSOR_TEST )       ) == _viewportState.scissorTest.enabled );
 		glGetFloatv( GL_SCISSOR_BOX, valf );
-		assert( valf[0] == _renderState.scissorTest.rect.left()   );
-		assert( valf[1] == _renderState.scissorTest.rect.bottom() );
-		assert( valf[2] == _renderState.scissorTest.rect.width()  );
-		assert( valf[3] == _renderState.scissorTest.rect.height() );
+		assert( valf[0] == _viewportState.scissorTest.rect.left()   );
+		assert( valf[1] == _viewportState.scissorTest.rect.bottom() );
+		assert( valf[2] == _viewportState.scissorTest.rect.width()  );
+		assert( valf[3] == _viewportState.scissorTest.rect.height() );
 
 
 		glGetFloatv( GL_BLEND_COLOR, valf );

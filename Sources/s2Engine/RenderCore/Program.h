@@ -28,14 +28,10 @@ class S2ENGINE_API Program : public OpenGLObject
 public:
 	static ProgramPtr New();
 
-	//OBJECT_DECLARE_MOVEABLE( Program )
-	//OBJECT_DISABLE_COPY( Program )
-
 public:
 	Program();
 	~Program();
 
-	// @todo: return this for concatenation
 	bool attachVertexShader( const ShaderPtr &shader );
 	bool attachFragmentShader( const ShaderPtr &shader );
 	bool attachGeometryShader( const ShaderPtr &shader );

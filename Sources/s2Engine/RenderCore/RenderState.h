@@ -74,18 +74,11 @@ struct ScissorTest
 ///************************************************************************/
 ///*                             VIEWPORT                                 */
 ///************************************************************************/
-//struct Viewport
-//{
-//	Viewport()
-//	: Viewport( 0,0,0,0 )
-//	{}
-//
-//	Viewport( int x, int y, int width, int height )
-//	: rect( x, y, width, height )
-//	{}
-//
-//	Math::irect rect { 0,0,0,0 };
-//};
+struct ViewportState
+{
+	Math::irect rect { 0,0,0,0 };
+	ScissorTest scissorTest;
+};
 
 /************************************************************************/
 /*                              STENCILTEST                             */
@@ -130,7 +123,10 @@ struct StencilTest
 	bool            enabled { false };    // todo: scissor test can be enabled/disabled individually for each viewport. 
 								          // other notes:
 								          // see https://www.khronos.org/opengl/wiki/Scissor_Test
-								          // the maximum number of simultaneous viewports that are supported is implementation dependent and can be queried by calling glGet with the argument GL_MAX_VIEWPORTS. The value must be at least 16
+								          // the maximum number of simultaneous viewports that are supported 
+										  // is implementation dependent and can be queried 
+										  // by calling glGet with the argument GL_MAX_VIEWPORTS.
+										  // The value must be at least 16
 								          // (Ivan: is ARB_viewport_array extension needed? )
 	StencilTestFace frontFace;
 	StencilTestFace backFace;
@@ -296,6 +292,7 @@ enum class ClearBuffers
 /************************************************************************/
 /*                             RENDERSTATE                              */
 /************************************************************************/
+// actual GPU state applied before drawing.
 struct RenderState
 {
 	enum class RasterizationMode
@@ -310,7 +307,6 @@ struct RenderState
 	ProgramPointSize  programPointSize;
 	RasterizationMode rasterizationMode { RasterizationMode::Fill };
 	float             lineWidth {1.0};
-	ScissorTest       scissorTest;
 	StencilTest       stencilTest;
 	DepthTest         depthTest;
 	DepthRange        depthRange;
