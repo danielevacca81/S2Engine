@@ -52,17 +52,14 @@ struct S2ENGINE_API RenderCommand
 	};
 	DrawMode drawMode = DrawMode::Triangles;
 
-	// Material provides shader + textures + pipeline state
-	Resources::MaterialPtr material = nullptr;
-
-	Resources::ModelPtr model = nullptr;
-	
 	// per object transform (model matrix)
 	Math::dmat4 modelMatrix = Math::dmat4( 1.0 );
 
-
-	// Geometry
-	MeshData3D	   meshData;
+	// @todo: add geometry and material for this drawcall.
+	// use resources ID, not actual data, to decouple renderer from resource management.
+	// maybe, for backward compatibility, add a different RenderCommand type that contains actual data
+	// [deprecated] Resources::MaterialPtr material = nullptr;
+	// [deprecated] MeshData3D meshData;
 
 	// User data for custom rendering logic
 	void* userData = nullptr;

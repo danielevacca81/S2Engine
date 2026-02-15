@@ -70,7 +70,7 @@ static inline RenderCore::DrawState translateRenderCommand( const s2::Renderer::
 	ds.transform.projectionMatrix   = frameData.cameraProjectionMatrix;
 	ds.viewport.rect                = frameData.mainTarget->size();
 	ds.viewport.scissorTest.enabled = false; // @todo: add scissor rect to RenderCommand if needed
-
+    
 
 	// todo: set render state (face culling, depth test, blending, etc.) based on material or command properties
 	// For now, use default render state. In a real implementation, this would be determined by the material or command properties.
@@ -100,20 +100,20 @@ static inline RenderCore::PrimitiveType translateDrawMode( s2::Renderer::RenderC
 }
 
 
-// ------------------------------------------------------------------------------------------------
-static inline RenderCore::VertexDataPtr createVertexData( const MeshData3D& meshData )
-{
-    auto vertexData = RenderCore::VertexData::New();
+// // ------------------------------------------------------------------------------------------------
+// static inline RenderCore::VertexDataPtr createVertexData( const MeshData3D& meshData )
+// {
+//     auto vertexData = RenderCore::VertexData::New();
 
-    // Set vertex attributes (positions, normals, UVs, etc.)
-     vertexData->setVertices     ( vector_cast<Math::dvec3,Math::vec3>( meshData.vertices ) );
-     vertexData->setNormals      ( vector_cast<Math::dvec3,Math::vec3>( meshData.normals  ) );
-     vertexData->setTextureCoords( vector_cast<Math::dvec2,Math::vec2>( meshData.uvCoords ) );
-     vertexData->setIndices      ( meshData.indices );
-     vertexData->setColors       ( std::vector<Color>( meshData.vertices.size(), Color::red() ) );
+//     // Set vertex attributes (positions, normals, UVs, etc.)
+//      vertexData->setVertices     ( vector_cast<Math::dvec3,Math::vec3>( meshData.vertices ) );
+//      vertexData->setNormals      ( vector_cast<Math::dvec3,Math::vec3>( meshData.normals  ) );
+//      vertexData->setTextureCoords( vector_cast<Math::dvec2,Math::vec2>( meshData.uvCoords ) );
+//      vertexData->setIndices      ( meshData.indices );
+//      vertexData->setColors       ( std::vector<Color>( meshData.vertices.size(), Color::red() ) );
 
-    return vertexData;
-}
+//     return vertexData;
+// }
 #pragma endregion
 
 namespace s2 {
@@ -159,11 +159,13 @@ void ForwardPass::execute( const CommandBuffer& queue, FrameData& frameData )
         // Determine primitive type
         RenderCore::PrimitiveType primitiveType = translateDrawMode( renderCmd.drawMode );
 
-        // Create vertex data from mesh data
-        auto vertexData = createVertexData( renderCmd.meshData );
+        // @todo: retrieve vertex data from resourcepool by resourceID in RenderCommand
 
-        // Execute draw call
-        renderCommands.draw( *frameData.mainTarget, primitiveType, vertexData, ds );
+        // // Create vertex data from mesh data
+        // auto vertexData = createVertexData( renderCmd.meshData );
+
+        // // Execute draw call
+        // renderCommands.draw( *frameData.mainTarget, primitiveType, vertexData, ds );
 
         // Update statistics
         // context.stats.drawCalls++;

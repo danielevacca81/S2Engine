@@ -8,17 +8,12 @@
 #include "RenderPipeline.h"
 #include "CommandBuffer.h"
 #include "FrameData.h"
+#include "ResourceManager.h"
 
 #include <memory>
 
 namespace s2 {
-
-namespace RenderCore 
-{
-    class Context;
-    class RenderTarget;
-}
-
+namespace RenderCore { class Context; }
 namespace Renderer {
 
 
@@ -39,7 +34,8 @@ Renderer/
 |   |-- SkyboxPass.h/cpp        # Skybox rendering
 |   |-- PostProcessPass.h/cpp   # Post-processing effects
 |
-!-- RenderCommand.h/cpp         # Draw commands
+|-- RenderCommand.h/cpp         # Draw commands
+!-- ResourceManager.h/cpp       # Manages GPU resources (textures, buffers, shaders)
 
 graph TB
     subgraph "Application Layer"
@@ -110,6 +106,8 @@ public:
     
     const Stats& statistics() const { return _stats; }
 
+    ResourceManager& resources() { return _resourceManager; }
+
 private:
     enum class State
     {
@@ -129,10 +127,11 @@ private:
 
     State 		   _state { State::Ready };
     
-    Stats          _stats;
-	CommandBuffer  _commandBuffer; // Stores submitted commands for the current frame
-	FrameData      _frameData;     // shared data for the current frame, passed to render passes
-	RenderPipeline _pipeline;      // Render pipeline with configured render passes 
+    Stats           _stats;
+	CommandBuffer   _commandBuffer; // Stores submitted commands for the current frame
+	FrameData       _frameData;     // shared data for the current frame, passed to render passes
+	RenderPipeline  _pipeline;      // Render pipeline with configured render passes 
+    ResourceManager _resourceManager; // Manages GPU resources (textures, buffers, shaders)
 };
 
 } // namespace Renderer
