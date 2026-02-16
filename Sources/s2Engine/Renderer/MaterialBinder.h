@@ -1,5 +1,6 @@
 // MaterialBinder.h
 //
+#if 0
 #ifndef S2_RENDERER_MATERIALBINDER_H
 #define S2_RENDERER_MATERIALBINDER_H
 
@@ -53,3 +54,4 @@ private:
 }
 
 #endif // S2_RENDERER_MATERIALBINDER_H
+#endif

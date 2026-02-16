@@ -80,6 +80,11 @@ public:
 	float opacity() const { return _opacity; }
 	void setOpacity( float value ) { _opacity = Math::clamp( value, 0.0f, 1.0f ); }
 
+	//BlendMode blendMode() const { return _blendMode; }
+	//CullMode cullMode() const { return _cullMode; }
+ 	//bool depthWrite() const { return _depthWrite; }
+ 	//bool depthTest() const { return _depthTest; }
+
 	// Texture management
 	void setTexture( TextureType type, TexturePtr texture );
 	TexturePtr getTexture( TextureType type ) const;
@@ -100,7 +105,7 @@ private:
 	std::string _name;
 
 	// Color properties
-	Color _baseColor { Color::white() };
+	Color _baseColor { Color::blue() };
 	Color _emissiveColor { Color::black() };
 
 	// Material properties
@@ -108,12 +113,16 @@ private:
 	float _metallic = 0.0f;
 	float _opacity = 1.0f;
 
+	// // Render state properties
+	// BlendMode _blendMode = BlendMode::Opaque;
+	// CullMode _cullMode = CullMode::Back;
+	// bool _depthWrite = true;
+	// bool _depthTest = true;
+
+
 	// Texture slots
 	std::unordered_map<TextureType, TexturePtr> _textures;
 };
-
-// Helper function to convert TextureType to string
-//S2ENGINE_API const char* textureTypeToString( Material::TextureType type );
 
 }
 

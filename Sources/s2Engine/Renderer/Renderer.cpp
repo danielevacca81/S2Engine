@@ -49,12 +49,12 @@ void Renderer::beginFrame( const FrameData& frameData )
 }
 
 // ------------------------------------------------------------------------------------------------
-void Renderer::submit( const ClearCommand& command )
+void Renderer::clear( const ClearCommand& command )
 {
 	if( _state != State::FrameStarted )
 	{
 		throw std::runtime_error(
-			"Renderer::submit() called outside beginFrame/endFrame. "
+			"Renderer::clear() called outside beginFrame/endFrame. "
 			"Call beginFrame() first."
 		);
 	}
@@ -64,13 +64,13 @@ void Renderer::submit( const ClearCommand& command )
 }
 
 // ------------------------------------------------------------------------------------------------
-void Renderer::submit( const RenderCommand& command )
+void Renderer::render( const RenderCommand& command )
 {
 	// TODO: Validate command (e.g., material and mesh data not null)
 	if( _state != State::FrameStarted )
 	{
 		throw std::runtime_error(
-			"Renderer::submit() called outside beginFrame/endFrame. "
+			"Renderer::render() called outside beginFrame/endFrame. "
 			"Call beginFrame() first."
 		);
 	}
@@ -90,14 +90,15 @@ void Renderer::endFrame()
 			"Call beginFrame() before endFrame()."
 		);
 	}
+
 	_commandBuffer.sort(); // Sort commands for optimal rendering (e.g., by material, depth, etc.)
 	
 	_pipeline.execute( _commandBuffer, _frameData /*, *_gpuContext */); // Execute render passes in the pipeline with the current frame data and command buffer
 
-
 	_commandBuffer.clear(); // Clear command buffer for next frame
+
+
 	_stats = Stats {}; // Reset statistics for next frame
-	
 	_state = State::Ready;
 }
 

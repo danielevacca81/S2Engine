@@ -109,8 +109,8 @@ void MainWindow::onPaintEvent()
 		.cameraProjectionMatrix = _camera.projectionMatrix(),
 						   } );
 	{
-		_renderer->submit( { .color = Color{ 0.3f, 0.5f, 0.4f, 1.0f } } );
-		_renderer->submit(
+		_renderer->clear( { .color = Color{ 0.3f, 0.5f, 0.4f, 1.0f } } );
+		_renderer->clear(
 			{
 			.drawMode    = RenderCommand::DrawMode::Triangles,
 			.material    = nullptr, // use default material,

@@ -4,6 +4,7 @@
 #include "CommandBuffer.h"
 #include "FrameData.h"
 #include "RenderCommand.h"
+#include "GPUStateMapper.h"
 
 #include "Core/VectorCast.h"
 
@@ -15,91 +16,6 @@
 #include "RenderCore/VertexData.h"
 
 #pragma region Helper Functions
-// ------------------------------------------------------------------------------------------------
-static inline RenderCore::ClearState translateClearCommand( const s2::Renderer::ClearCommand& cmd )
-{
-    RenderCore::ClearState cs;
-
-    switch( cmd.mode )
-    {
-    case s2::Renderer::ClearCommand::ClearMode::ColorOnly:
-        cs.buffers = RenderCore::ClearBuffers::ColorBuffer;
-        cs.color = cmd.color;
-        break;
-
-    case s2::Renderer::ClearCommand::ClearMode::DepthOnly:
-        cs.buffers = RenderCore::ClearBuffers::DepthBuffer;
-        cs.depth = cmd.depth;
-        break;
-
-    case s2::Renderer::ClearCommand::ClearMode::ColorAndDepth:
-        cs.buffers = RenderCore::ClearBuffers::ColorAndDepthBuffer;
-        cs.color = cmd.color;
-        cs.depth = cmd.depth;
-        break;
-
-    case s2::Renderer::ClearCommand::ClearMode::StencilOnly:
-        cs.buffers = RenderCore::ClearBuffers::StencilBuffer;
-        cs.stencil = cmd.stencil;
-        break;
-
-    case s2::Renderer::ClearCommand::ClearMode::DepthAndStencil:
-        cs.buffers = RenderCore::ClearBuffers::StencilAndDepthBuffer;
-        cs.depth = cmd.depth;
-        cs.stencil = cmd.stencil;
-        break;
-
-    case s2::Renderer::ClearCommand::ClearMode::AllBuffers:
-        cs.buffers = RenderCore::ClearBuffers::All;
-        cs.color = cmd.color;
-        cs.depth = cmd.depth;
-        cs.stencil = cmd.stencil;
-        break;
-    }
-
-    return cs;
-}
-
-// ------------------------------------------------------------------------------------------------
-static inline RenderCore::DrawState translateRenderCommand( const s2::Renderer::RenderCommand& cmd, s2::Renderer::FrameData& frameData )
-{
-    RenderCore::DrawState ds;
-
-	ds.transform.modelMatrix        = cmd.modelMatrix;
-	ds.transform.viewMatrix         = frameData.cameraViewMatrix;
-	ds.transform.projectionMatrix   = frameData.cameraProjectionMatrix;
-	ds.viewport.rect                = frameData.mainTarget->size();
-	ds.viewport.scissorTest.enabled = false; // @todo: add scissor rect to RenderCommand if needed
-    
-
-	// todo: set render state (face culling, depth test, blending, etc.) based on material or command properties
-	// For now, use default render state. In a real implementation, this would be determined by the material or command properties.
-    ds.shader                       = RenderCore::DefaultShaders.BlinnPhong;
-    ds.shader->setUniformValue<Math::vec4>( "u_LightPosition"          , { 0.f, 0.f, 1.f, 1.f } );
-    ds.shader->setUniformValue<Math::vec4>( "u_LightAmbient"           , { .01f,.01f,.01f,1.f } );
-    ds.shader->setUniformValue<Math::vec4>( "u_LightDiffuse"           , { 1.f,1.f,1.f,1.f } );
-    ds.shader->setUniformValue<Math::vec4>( "u_LightSpecular"          , { 1.f,1.f,1.f,1.f } );
-    ds.shader->setUniformValue<float>(      "u_LightShininess"         , 160.f );
-   
-    // Merge with context draw state (camera matrices, etc.)
-    // ds.uniforms.merge( context.drawState.uniforms );
-
-    return ds;
-}
-
-// ------------------------------------------------------------------------------------------------
-static inline RenderCore::PrimitiveType translateDrawMode( s2::Renderer::RenderCommand::DrawMode mode )
-{
-    switch( mode )
-    {
-    case s2::Renderer::RenderCommand::DrawMode::Points:     return RenderCore::PrimitiveType::Points;
-    case s2::Renderer::RenderCommand::DrawMode::Lines:      return RenderCore::PrimitiveType::Lines;
-    case s2::Renderer::RenderCommand::DrawMode::Triangles:
-    default:                                                return RenderCore::PrimitiveType::Triangles;
-    }
-}
-
-
 // // ------------------------------------------------------------------------------------------------
 // static inline RenderCore::VertexDataPtr createVertexData( const MeshData3D& meshData )
 // {
@@ -119,10 +35,9 @@ static inline RenderCore::PrimitiveType translateDrawMode( s2::Renderer::RenderC
 namespace s2 {
 namespace Renderer {
 
-// ================================================================================================
+// ------------------------------------------------------------------------------------------------
 // ForwardPass Implementation
-// ================================================================================================
-
+// ------------------------------------------------------------------------------------------------
 void ForwardPass::initialize()
 {
     // Initialize any resources needed for forward rendering
@@ -145,20 +60,42 @@ void ForwardPass::execute( const CommandBuffer& queue, FrameData& frameData )
 
     // 1. Execute clear commands
     for( const auto& clearCmd : queue.clearCommands() )
-    {
-        RenderCore::ClearState cs = translateClearCommand( clearCmd );
-        renderCommands.clear( *frameData.mainTarget, cs );
-    }
+        renderCommands.clear( *frameData.mainTarget, GPUStateMapper::map( clearCmd ) );
 
     // 2. Execute render commands
     for( const auto& renderCmd : queue.renderCommands() )
     {
         // Translate high-level RenderCommand to low-level DrawState
-        RenderCore::DrawState ds = translateRenderCommand( renderCmd, frameData );
+        RenderCore::DrawState ds;
+        ds.transform.modelMatrix        = renderCmd.modelMatrix;
+        ds.transform.viewMatrix         = frameData.cameraViewMatrix;
+        ds.transform.projectionMatrix   = frameData.cameraProjectionMatrix;
+        ds.viewport.rect                = frameData.mainTarget->size();
+        ds.viewport.scissorTest.enabled = false; // @todo: add scissor rect to RenderCommand if needed
 
+        ds.renderState = GPUStateMapper::map( renderCmd );
+        
+        // For simplicity, use a default shader. In a real implementation, this would be determined by the material and render command.
+        ds.shader                       = RenderCore::DefaultShaders.BlinnPhong;        
+        ds.shader->setUniformValue<Math::vec4>( "u_LightPosition"          , { 0.f, 0.f, 1.f, 1.f } );
+        ds.shader->setUniformValue<Math::vec4>( "u_LightAmbient"           , { .01f,.01f,.01f,1.f } );
+        ds.shader->setUniformValue<Math::vec4>( "u_LightDiffuse"           , { 1.f,1.f,1.f,1.f } );
+        ds.shader->setUniformValue<Math::vec4>( "u_LightSpecular"          , { 1.f,1.f,1.f,1.f } );
+        ds.shader->setUniformValue<float>(      "u_LightShininess"         , 160.f );
+   
         // Determine primitive type
-        RenderCore::PrimitiveType primitiveType = translateDrawMode( renderCmd.drawMode );
-
+        RenderCore::PrimitiveType primitiveType = [renderCmd]
+         {
+            switch( renderCmd.renderMode )
+            {
+            case s2::Renderer::RenderMode::Points:    return RenderCore::PrimitiveType::Points;
+            case s2::Renderer::RenderMode::Lines:     return RenderCore::PrimitiveType::Lines;
+            case s2::Renderer::RenderMode::Triangles: return RenderCore::PrimitiveType::Triangles;
+            default:                                  return RenderCore::PrimitiveType::Triangles; // Fallback
+            }
+        }();
+        
+        
         // @todo: retrieve vertex data from resourcepool by resourceID in RenderCommand
 
         // // Create vertex data from mesh data

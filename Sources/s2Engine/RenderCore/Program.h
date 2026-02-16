@@ -23,7 +23,7 @@ namespace RenderCore {
 class Program;
 typedef std::shared_ptr<Program>   ProgramPtr;
 
-class S2ENGINE_API Program : public OpenGLObject
+class S2ENGINE_API Program : public OpenGLObject // rename in shader?
 {
 public:
 	static ProgramPtr New();

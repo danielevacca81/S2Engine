@@ -28,7 +28,7 @@ class Shader;
 typedef std::shared_ptr<Shader> ShaderPtr;
 
 // ------------------------------------------------------------------------------------------------
-class S2ENGINE_API Shader : public OpenGLObject
+class S2ENGINE_API Shader : public OpenGLObject // rename in shadermodule?
 {
 public:
 	static ShaderPtr New( const ShaderType& type );

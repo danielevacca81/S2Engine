@@ -90,6 +90,7 @@ public:
         size_t vertices = 0;
     };
 
+public:
     explicit Renderer( const RenderCore::Context* gpuContext, 
                        const RenderPipeline& pipeline = RenderPipeline::createForwardPipeline() );
 
@@ -100,8 +101,8 @@ public:
     Renderer& operator=( Renderer&& ) = delete;
 
     void beginFrame( const FrameData &frameData );
-    void submit( const ClearCommand& command );
-    void submit( const RenderCommand& command );
+    void clear( const ClearCommand& command );
+    void render( const RenderCommand& command );
     void endFrame();
     
     const Stats& statistics() const { return _stats; }

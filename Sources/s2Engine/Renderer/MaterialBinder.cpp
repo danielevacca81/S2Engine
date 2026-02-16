@@ -1,5 +1,6 @@
 // MaterialBinder.cpp
 //
+#if 0
 #include "MaterialBinder.h"
 
 namespace s2 {
@@ -29,8 +30,8 @@ void MaterialBinder::bindMaterialProperties( const Resources::Material& material
 	auto& program = drawState.shader;
 
 	// Bind material color properties
-	program->setUniformValue( "u_Material.baseColor", material.baseColor().toVec4() );
-	program->setUniformValue( "u_Material.emissiveColor", material.emissiveColor().toVec4() );
+	program->setUniformValue( "u_Material.baseColor", material.baseColor() );
+	program->setUniformValue( "u_Material.emissiveColor", material.emissiveColor() );
 	program->setUniformValue( "u_Material.roughness", material.roughness() );
 	program->setUniformValue( "u_Material.metallic", material.metallic() );
 	program->setUniformValue( "u_Material.opacity", material.opacity() );
@@ -179,3 +180,4 @@ void MaterialBinder::reset()
 
 }
 }
+#endif

@@ -311,7 +311,8 @@
  *        bool depthWrite() const { return _depthWrite; }
  *        bool depthTest() const { return _depthTest; }
  *
- *    privateBlendMode _blendMode = BlendMode::Opaque;
+ *    private
+ *        BlendMode _blendMode = BlendMode::Opaque;
  *        CullMode _cullMode = CullMode::Back;
  *        bool _depthWrite = true;
  *        bool _depthTest = true;
@@ -396,4 +397,4 @@
  *    commandBuffer.draw(...);
  */
 
-} // namespace pseudo_documentation
+//} // namespace pseudo_documentation

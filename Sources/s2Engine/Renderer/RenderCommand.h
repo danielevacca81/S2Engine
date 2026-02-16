@@ -5,9 +5,9 @@
 
 #include "s2Engine_API.h"
 
-#include "Resources/Material.h"
 #include "Geometry/MeshData.h"
-#include "Graphics/Color.h"
+
+#include "RenderMaterial.h"
 
 #include <memory>
 #include <functional>
@@ -15,22 +15,30 @@
 namespace s2 {
 namespace Renderer {
 
+enum class RenderMode
+{
+	Points,
+	Lines,
+	Triangles,
+};
+
+enum class ClearMode
+{
+	ColorOnly,
+	DepthOnly,
+	ColorAndDepth,
+	StencilOnly,
+	DepthAndStencil,
+	AllBuffers
+};
+
+
 /**
 * Represents a clear command with specified clear color and buffers to clear.
 * Will be processed by the renderer and translated into ClearState for the render pass.
 */
 struct S2ENGINE_API ClearCommand
 {
-	enum class ClearMode
-	{
-		ColorOnly,
-		DepthOnly,
-		ColorAndDepth,
-		StencilOnly,
-		DepthAndStencil,
-		AllBuffers
-	};
-	
 	ClearMode mode  = ClearMode::ColorAndDepth;
 	Color     color = Color::blue();
 	float     depth = 1.0f;
@@ -44,22 +52,13 @@ struct S2ENGINE_API ClearCommand
  */
 struct S2ENGINE_API RenderCommand
 {
-	enum class DrawMode
-	{
-		Points,
-		Lines,
-		Triangles,
-	};
-	DrawMode drawMode = DrawMode::Triangles;
+	RenderMode     renderMode { RenderMode::Triangles };
+	RenderMaterial material;
+	RenderCore::ShaderPtr shader; // Optional: specify a shader for this command, otherwise use default from material
+	//RenderObject   object;   // @todo: add geometry and material for this drawcall
 
 	// per object transform (model matrix)
 	Math::dmat4 modelMatrix = Math::dmat4( 1.0 );
-
-	// @todo: add geometry and material for this drawcall.
-	// use resources ID, not actual data, to decouple renderer from resource management.
-	// maybe, for backward compatibility, add a different RenderCommand type that contains actual data
-	// [deprecated] Resources::MaterialPtr material = nullptr;
-	// [deprecated] MeshData3D meshData;
 
 	// User data for custom rendering logic
 	void* userData = nullptr;
