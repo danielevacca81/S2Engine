@@ -7,6 +7,7 @@
 #include "RenderCommand.h"
 
 #include <vector>
+#include <functional>
 
 namespace s2 {
 namespace Renderer {

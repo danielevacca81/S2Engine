@@ -44,35 +44,16 @@ public:
 
 	void bind()    const override;
 	void unbind()  const override;
-	void applyUniforms() const;
+	void applyUniforms();
 
 	// shortcut for setting uniforms value by name.
 	// it will search for uniform by name and set its value.
 	// warning: if uniform is not found, it will do nothing.
-	// @todo: throw exception or assert if uniform not found?
-	template< typename T >
-	inline void setUniformValue( const std::string& uniformName, const T&value )
-	{
-		auto it = _uniforms.find( uniformName );
-		if( it == _uniforms.end() )
-			return;
-
-		if( auto u = dynamic_cast<UniformValue<T>*>( it->second ) )
-			u->set( value );
-	}
+	void setUniformValue( const std::string& uniformName, const UniformValue& value );
 
 	// used to get uniform by name
-	// warning: returns nullptr if not found. check before using it!
-	template< typename T >
-	inline UniformValue<T>* uniform( const std::string& name )
-	{
-		auto it = _uniforms.find( name );
-
-		if( it == _uniforms.end() )
-			return nullptr;
-
-		return dynamic_cast<UniformValue<T> *>( it->second );
-	}
+	// warning: returns nullptr if not found. check before use!
+	Uniform* uniform( const std::string& name );
 
 private:
 	void create()  override;
@@ -94,8 +75,8 @@ private:
 	bool         _linked { false };
 	std::string  _name;
 
-	std::map< std::string, unsigned int >  _attributes;
-	std::map< std::string, Uniform*>       _uniforms;
+	std::map< std::string, unsigned int > _attributes;
+	std::map< std::string, Uniform*>      _uniforms;
 
 
 	friend class ShaderCompiler;

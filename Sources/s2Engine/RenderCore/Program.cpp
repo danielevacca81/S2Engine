@@ -32,45 +32,39 @@ static inline Uniform* createUniform( const std::string& name, unsigned int loc,
 {
 	switch( type )
 	{
-	case GL_FLOAT:           return new UniformFloat( loc, name );
-	case GL_FLOAT_VEC2:	     return new UniformFloatVector2( loc, name );
-	case GL_FLOAT_VEC3:      return new UniformFloatVector3( loc, name );
-	case GL_FLOAT_VEC4:      return new UniformFloatVector4( loc, name );
+	case GL_FLOAT:           return new Uniform( loc, name, float{0.f} );
+	case GL_FLOAT_VEC2:	     return new Uniform( loc, name, Math::fvec2{0.f, 0.f} );
+	case GL_FLOAT_VEC3:      return new Uniform( loc, name, Math::fvec3{0.f, 0.f, 0.f} );
+	case GL_FLOAT_VEC4:      return new Uniform( loc, name, Math::fvec4{0.f, 0.f, 0.f, 0.f} );
 
-		// OpenGL 4.0 or above
-	case GL_DOUBLE:           return new UniformDouble( loc, name );
-	case GL_DOUBLE_VEC2:	  return new UniformDoubleVector2( loc, name );
-	case GL_DOUBLE_VEC3:      return new UniformDoubleVector3( loc, name );
-	case GL_DOUBLE_VEC4:      return new UniformDoubleVector4( loc, name );
+	case GL_INT:             return new Uniform( loc, name, int { 0 } );
+	case GL_INT_VEC2:        assert( false ); break;
+	case GL_INT_VEC3:        assert( false ); break;
+	case GL_INT_VEC4:        assert( false ); break;
 
-	case GL_INT:             return new UniformInt( loc, name );
-	case GL_INT_VEC2:        assert( false ); break; //return new UniformIntVector2GL3x(name, location, this);
-	case GL_INT_VEC3:        assert( false ); break; //return new UniformIntVector3GL3x(name, location, this);
-	case GL_INT_VEC4:        assert( false ); break; //return new UniformIntVector4GL3x(name, location, this);
+	case GL_BOOL:            return new Uniform( loc, name, bool { false } );
+	case GL_BOOL_VEC2:       assert( false ); break;
+	case GL_BOOL_VEC3:       assert( false ); break;
+	case GL_BOOL_VEC4:       assert( false ); break;
 
-		//case GL_UNSIGNED_INT:             return new UniformUInt( loc, name );
-		//case GL_UNSIGNED_INT_VEC2:        assert( false ); break; //return new UniformIntVector2GL3x(name, location, this);
-		//case GL_UNSIGNED_INT_VEC3:        assert( false ); break; //return new UniformIntVector3GL3x(name, location, this);
-		//case GL_UNSIGNED_INT_VEC4:        assert( false ); break; //return new UniformIntVector4GL3x(name, location, this);
-
-	case GL_BOOL:            return new UniformBool( loc, name );
-	case GL_BOOL_VEC2:       assert( false ); break; //return new UniformBoolGL3x(name, location, this);
-	case GL_BOOL_VEC3:       assert( false ); break; //return new UniformBoolGL3x(name, location, this);
-	case GL_BOOL_VEC4:       assert( false ); break; //return new UniformBoolGL3x(name, location, this);
-
-
-	case GL_FLOAT_MAT2:      return new UniformFloatMatrix22( loc, name );
-	case GL_FLOAT_MAT3:      return new UniformFloatMatrix33( loc, name );
-	case GL_FLOAT_MAT4:      return new UniformFloatMatrix44( loc, name );
-
-		// OpenGL 4.0 or above
-	case GL_DOUBLE_MAT2:      return new UniformDoubleMatrix22( loc, name );
-	case GL_DOUBLE_MAT3:      return new UniformDoubleMatrix33( loc, name );
-	case GL_DOUBLE_MAT4:      return new UniformDoubleMatrix44( loc, name );
+	case GL_FLOAT_MAT2:      return new Uniform( loc, name, Math::fmat2( 1.f ) );
+	case GL_FLOAT_MAT3:      return new Uniform( loc, name, Math::fmat3( 1.f ) );
+	case GL_FLOAT_MAT4:      return new Uniform( loc, name, Math::fmat4( 1.f ) );
 
 	case GL_SAMPLER_2D:
 	case GL_INT_SAMPLER_2D:
-	case GL_SAMPLER_CUBE:    return new UniformSampler( loc, name );
+	case GL_SAMPLER_CUBE:    return new Uniform( loc, name, int{0} );
+
+	
+	// OpenGL 4.0 or above
+	case GL_DOUBLE:           return new Uniform( loc, name, double{0.0} );
+	case GL_DOUBLE_VEC2:	  return new Uniform( loc, name, Math::dvec2{0.0, 0.0} );
+	case GL_DOUBLE_VEC3:      return new Uniform( loc, name, Math::dvec3{0.0, 0.0, 0.0} );
+	case GL_DOUBLE_VEC4:      return new Uniform( loc, name, Math::dvec4{0.0, 0.0, 0.0, 0.0} );
+
+	case GL_DOUBLE_MAT2:      return new Uniform( loc, name, Math::dmat2(1.0) );
+	case GL_DOUBLE_MAT3:      return new Uniform( loc, name, Math::dmat3(1.0) );
+	case GL_DOUBLE_MAT4:      return new Uniform( loc, name, Math::dmat4(1.0) );
 
 	default:
 		assert( false && "Uniform type not supported" );
@@ -78,8 +72,6 @@ static inline Uniform* createUniform( const std::string& name, unsigned int loc,
 	}
 
 	return nullptr;
-	// A new Uniform derived class needs to be added to support this uniform type.
-	//throw new NotSupportedException("An implementation for uniform type " + type.ToString() + " does not exist.");
 }
 #pragma endregion
 
@@ -289,10 +281,33 @@ void Program::unbind() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void Program::applyUniforms() const
+void Program::applyUniforms()
 {
-	for( auto &it : _uniforms )
-		it.second->set();
+	// send uniform values to GPU if they have been changed
+	for( auto &[name, uniform] : _uniforms )
+		uniform->set();
+}
+
+// ------------------------------------------------------------------------------------------------
+void Program::setUniformValue( const std::string& uniformName, const UniformValue& value )
+{
+	// store the value in the uniform object, 
+	// it will be sent to GPU when applyUniforms() is called
+	auto it = _uniforms.find( uniformName );
+	if( it == _uniforms.end() )
+		return;
+
+	it->second->setValue( value );
+}
+
+// ------------------------------------------------------------------------------------------------
+Uniform* Program::uniform( const std::string& name )
+{
+	auto it = _uniforms.find( name );
+	if( it == _uniforms.end() )
+		return nullptr;
+
+	return it->second;
 }
 
 // ------------------------------------------------------------------------------------------------

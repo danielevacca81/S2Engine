@@ -15,23 +15,6 @@
 #include "RenderCore/PrimitiveType.h"
 #include "RenderCore/VertexData.h"
 
-#pragma region Helper Functions
-// // ------------------------------------------------------------------------------------------------
-// static inline RenderCore::VertexDataPtr createVertexData( const MeshData3D& meshData )
-// {
-//     auto vertexData = RenderCore::VertexData::New();
-
-//     // Set vertex attributes (positions, normals, UVs, etc.)
-//      vertexData->setVertices     ( vector_cast<Math::dvec3,Math::vec3>( meshData.vertices ) );
-//      vertexData->setNormals      ( vector_cast<Math::dvec3,Math::vec3>( meshData.normals  ) );
-//      vertexData->setTextureCoords( vector_cast<Math::dvec2,Math::vec2>( meshData.uvCoords ) );
-//      vertexData->setIndices      ( meshData.indices );
-//      vertexData->setColors       ( std::vector<Color>( meshData.vertices.size(), Color::red() ) );
-
-//     return vertexData;
-// }
-#pragma endregion
-
 namespace s2 {
 namespace Renderer {
 
@@ -58,9 +41,9 @@ void ForwardPass::execute( const CommandBuffer& queue, FrameData& frameData )
 
     auto& renderCommands = gpuContext->commands();
 
-    // 1. Execute clear commands
+    // 1. Execute all clear commands
     for( const auto& clearCmd : queue.clearCommands() )
-        renderCommands.clear( *frameData.mainTarget, GPUStateMapper::map( clearCmd ) );
+        renderCommands.clear( *frameData.mainTarget, getClearState( clearCmd ) );
 
     // 2. Execute render commands
     for( const auto& renderCmd : queue.renderCommands() )
@@ -73,16 +56,15 @@ void ForwardPass::execute( const CommandBuffer& queue, FrameData& frameData )
         ds.viewport.rect                = frameData.mainTarget->size();
         ds.viewport.scissorTest.enabled = false; // @todo: add scissor rect to RenderCommand if needed
 
-        ds.renderState = GPUStateMapper::map( renderCmd );
-        
-        // For simplicity, use a default shader. In a real implementation, this would be determined by the material and render command.
-        ds.shader                       = RenderCore::DefaultShaders.BlinnPhong;        
-        ds.shader->setUniformValue<Math::vec4>( "u_LightPosition"          , { 0.f, 0.f, 1.f, 1.f } );
-        ds.shader->setUniformValue<Math::vec4>( "u_LightAmbient"           , { .01f,.01f,.01f,1.f } );
-        ds.shader->setUniformValue<Math::vec4>( "u_LightDiffuse"           , { 1.f,1.f,1.f,1.f } );
-        ds.shader->setUniformValue<Math::vec4>( "u_LightSpecular"          , { 1.f,1.f,1.f,1.f } );
-        ds.shader->setUniformValue<float>(      "u_LightShininess"         , 160.f );
-   
+		// set material properties and shader uniforms
+        ds.renderState = getRenderState( renderCmd );
+		ds.shader      = renderCmd.material.shader 
+            ? renderCmd.material.shader 
+			: RenderCore::DefaultShaders.Simple; // Fallback shader if material doesn't specify one
+
+		for( auto& [name, value] : renderCmd.material.properties )
+            ds.shader->setUniformValue( name, value );
+          
         // Determine primitive type
         RenderCore::PrimitiveType primitiveType = [renderCmd]
          {
@@ -94,16 +76,13 @@ void ForwardPass::execute( const CommandBuffer& queue, FrameData& frameData )
             default:                                  return RenderCore::PrimitiveType::Triangles; // Fallback
             }
         }();
+
+        // @todo: retrieve vertex data from resourcepool by resourceID in RenderCommand ?
         
         
-        // @todo: retrieve vertex data from resourcepool by resourceID in RenderCommand
-
-        // // Create vertex data from mesh data
-        // auto vertexData = createVertexData( renderCmd.meshData );
-
-        // // Execute draw call
-        // renderCommands.draw( *frameData.mainTarget, primitiveType, vertexData, ds );
-
+        // Execute draw call
+        renderCommands.draw( *frameData.mainTarget, primitiveType, renderCmd.model.vertexData, ds );
+        
         // Update statistics
         // context.stats.drawCalls++;
         // context.stats.vertices += renderCmd.meshData.vertices.size();

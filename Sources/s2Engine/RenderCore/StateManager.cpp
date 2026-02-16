@@ -107,15 +107,15 @@ void StateManager::setDrawState( const DrawState &ds )
 	// automatically set uniforms from draw state transform.
 	// This is a convenient feature but it may cause redundant uniform updates 
 	// if the shader does not use these uniforms or if the shader uses different names for them.
-	ds.shader->setUniformValue<Math::mat4>( "projectionMatrix"         , ds.transform.projectionMatrix );
-	ds.shader->setUniformValue<Math::mat4>( "modelViewProjectionMatrix", ds.transform.modelViewProjectionMatrix() );
-	ds.shader->setUniformValue<Math::mat4>( "modelViewMatrix"          , ds.transform.modelViewMatrix() );
-	ds.shader->setUniformValue<Math::mat3>( "normalMatrix"             , ds.transform.normalMatrix() );
+	ds.shader->setUniformValue( "projectionMatrix"         , ds.transform.projectionMatrix );
+	ds.shader->setUniformValue( "modelViewProjectionMatrix", ds.transform.modelViewProjectionMatrix() );
+	ds.shader->setUniformValue( "modelViewMatrix"          , ds.transform.modelViewMatrix() );
+	ds.shader->setUniformValue( "normalMatrix"             , ds.transform.normalMatrix() );
+	applyShaderProgram( ds.shader );
 
 
 	applyViewportAndScissor( ds.viewport );
 	applyRenderState( ds.renderState );
-	applyShaderProgram( ds.shader );
 	ds.textureUnits.set();
 
 	// add: apply texture units

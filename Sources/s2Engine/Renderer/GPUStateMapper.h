@@ -11,18 +11,9 @@
 namespace s2 {
 namespace Renderer {
 
-class RenderCommand;
-class ClearCommand;
+RenderCore::ClearState   getClearState ( const ClearCommand &clearCmd );
+RenderCore::RenderState  getRenderState( const RenderCommand &renderCmd );
 
-class GPUStateMapper
-{
-public:
-    GPUStateMapper() = delete;
-
-    static RenderCore::ClearState   map( const ClearCommand &clearCmd );
-    static RenderCore::RenderState  map( const RenderCommand &renderCmd );
-
-};
 
 } // namespace Renderer
 } // namespace s2

@@ -9,6 +9,7 @@
 #include "RenderCore/RenderTarget.h"
 #include "RenderCore/Context.h"
 #include "RenderCore/RenderCommands.h"
+#include "Renderer/RenderMaterial.h"
 
 #include "Core/VectorCast.h"
 
@@ -110,12 +111,25 @@ void MainWindow::onPaintEvent()
 						   } );
 	{
 		_renderer->clear( { .color = Color{ 0.3f, 0.5f, 0.4f, 1.0f } } );
-		_renderer->clear(
+		
+		// setup material properties and shader
+		// note: no need to do this every frame if the material properties are static.
+		// we can create a material instance once and reuse it for multiple draw calls and update it only when properties change.
+		s2::Renderer::RenderMaterial material;
+		material.shader = s2::RenderCore::DefaultShaders.BlinnPhong;
+		material.properties["u_LightPosition"]  = Math::vec4(_trackballLight.matrix() * lightPosition);
+		material.properties["u_LightAmbient"]   = Math::vec4{ .01f,.01f,.01f,1.f };
+		material.properties["u_LightDiffuse"]   = Math::vec4{ 1.f,1.f,1.f,1.f };
+		material.properties["u_LightSpecular"]  = Math::vec4{ 1.f,1.f,1.f,1.f };
+		material.properties["u_LightShininess"] = 60.f;
+
+		
+		_renderer->render(
 			{
-			.drawMode    = RenderCommand::DrawMode::Triangles,
-			.material    = nullptr, // use default material,
+			.renderMode  = s2::Renderer::RenderMode::Triangles,
+			.material    = material,
+			.model       = _sphere,
 			.modelMatrix = Math::scale( Math::dvec3( scale ) ) * _trackball.matrix(),
-			.meshData    = _torus
 			} );
 
 		//s2::Renderer::DrawState ds( s2::Renderer::DefaultShaders::BlinnPhong );

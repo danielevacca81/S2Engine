@@ -5,12 +5,13 @@
 
 #include "s2Engine_API.h"
 
+#include "RenderMaterial.h"
+#include "RenderModel.h"
+
+#include "RenderCore/RenderState.h"
+#include "RenderCore/ClearState.h"
 #include "Geometry/MeshData.h"
 
-#include "RenderMaterial.h"
-
-#include <memory>
-#include <functional>
 
 namespace s2 {
 namespace Renderer {
@@ -54,15 +55,20 @@ struct S2ENGINE_API RenderCommand
 {
 	RenderMode     renderMode { RenderMode::Triangles };
 	RenderMaterial material;
-	RenderCore::ShaderPtr shader; // Optional: specify a shader for this command, otherwise use default from material
-	//RenderObject   object;   // @todo: add geometry and material for this drawcall
-
+	RenderModel    model;
+	
 	// per object transform (model matrix)
 	Math::dmat4 modelMatrix = Math::dmat4( 1.0 );
 
 	// User data for custom rendering logic
 	void* userData = nullptr;
 };
+
+
+// Helper functions to translate high-level commands to low-level GPU states
+RenderCore::ClearState  S2ENGINE_API getClearState ( const ClearCommand& clearCmd );
+RenderCore::RenderState S2ENGINE_API getRenderState( const RenderCommand& renderCmd );
+
 
 }
 }
