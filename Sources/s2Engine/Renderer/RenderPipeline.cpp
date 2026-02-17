@@ -68,10 +68,10 @@ void RenderPipeline::execute( const CommandBuffer& queue, FrameData& frameData )
 }
 
 // ------------------------------------------------------------------------------------------------
-void RenderPipeline::initialize()
+void RenderPipeline::initialize( ResourceManager& resourceManager )
 {
     for( auto& pass : _passes )
-        pass->initialize();
+        pass->initialize( resourceManager );
 }
 
 // ------------------------------------------------------------------------------------------------

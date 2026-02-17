@@ -53,6 +53,8 @@ public:
 	void setAttribute( VertexAttributeLocation loc, const std::vector<Math::fvec3>& attrib );
 	void setAttribute( VertexAttributeLocation loc, const std::vector<Math::fvec4>& attrib );
 
+	size_t vertexCount() const;
+	size_t indexCount() const;
 
 private:
 	VertexArrayPtr _vao;

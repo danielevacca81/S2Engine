@@ -1,12 +1,11 @@
 // RenderPass.cpp
 //
 #include "RenderPass.h"
+
 #include "CommandBuffer.h"
 #include "FrameData.h"
 #include "RenderCommand.h"
 #include "GPUStateMapper.h"
-
-#include "Core/VectorCast.h"
 
 #include "RenderCore/RenderCommands.h"
 #include "RenderCore/Context.h"
@@ -15,16 +14,17 @@
 #include "RenderCore/PrimitiveType.h"
 #include "RenderCore/VertexData.h"
 
-namespace s2 {
-namespace Renderer {
+#include <iostream>
+
+using namespace s2::Renderer;
 
 // ------------------------------------------------------------------------------------------------
-// ForwardPass Implementation
-// ------------------------------------------------------------------------------------------------
-void ForwardPass::initialize()
+void ForwardPass::initialize( ResourceManager& resourceManager )
 {
     // Initialize any resources needed for forward rendering
     // (e.g., default materials, fullscreen quad, etc.)
+    _resourceManager = &resourceManager;
+	assert( _resourceManager && "ForwardPass initialization failed: ResourceManager is null" );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -58,12 +58,27 @@ void ForwardPass::execute( const CommandBuffer& queue, FrameData& frameData )
 
 		// set material properties and shader uniforms
         ds.renderState = getRenderState( renderCmd );
-		ds.shader      = renderCmd.material.shader 
-            ? renderCmd.material.shader 
-			: RenderCore::DefaultShaders.Simple; // Fallback shader if material doesn't specify one
 
+		// Retrieve shader from resource manager or use default when not specified or not valid
+        ds.shader      = [&]
+        {
+            if( renderCmd.material.shader == InvalidHandle )
+                return RenderCore::DefaultShaders.Simple;
+
+            auto s = _resourceManager->getShader( renderCmd.material.shader );
+            return s == nullptr
+                ? RenderCore::DefaultShaders.Simple
+                : s;
+        }();
+
+		// Set shader uniforms based on material properties
+		// @todo: too many lookups here, consider caching shader/material combinations or using a more efficient system for setting uniforms
 		for( auto& [name, value] : renderCmd.material.properties )
             ds.shader->setUniformValue( name, value );
+
+		// Retrieve mesh from resource manager
+		auto mesh = _resourceManager->getMesh( renderCmd.mesh );
+
           
         // Determine primitive type
         RenderCore::PrimitiveType primitiveType = [renderCmd]
@@ -77,17 +92,22 @@ void ForwardPass::execute( const CommandBuffer& queue, FrameData& frameData )
             }
         }();
 
-        // @todo: retrieve vertex data from resourcepool by resourceID in RenderCommand ?
-        
         
         // Execute draw call
-        renderCommands.draw( *frameData.mainTarget, primitiveType, renderCmd.model.vertexData, ds );
-        
+        renderCommands.draw( *frameData.mainTarget, primitiveType, mesh, ds );
+
         // Update statistics
-        // context.stats.drawCalls++;
-        // context.stats.vertices += renderCmd.meshData.vertices.size();
-        // context.stats.triangles += renderCmd.meshData.indices.size() / 3;
+        _stats.drawCalls++;
+        _stats.vertices +=  mesh->vertexCount();
+        _stats.triangles += mesh->indexCount() / 3;
     }
+
+	std::cout << "ForwardPass executed: "
+        << _stats.drawCalls << " draw calls, "
+        << _stats.triangles << " triangles, "
+		<< _stats.vertices << " vertices." << std::endl;
+
+	_stats = Stats {}; // Reset stats for the next frame
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -95,6 +115,3 @@ const std::string& ForwardPass::name() const
 {
     return _name;
 }
-
-} // namespace Renderer
-} // namespace s2

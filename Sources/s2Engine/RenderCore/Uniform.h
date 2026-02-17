@@ -52,12 +52,12 @@ public:
 
 	void setValue( const UniformValue& val )
 	{
-		// do not allow change the value type
-		if( _value.index() != val.index() )
-		{
-			assert( false && "Uniform value type cannot be changed after initialization." );
-			return;
-		}
+		//// do not allow change the value type
+		//if( _value.index() != val.index() )
+		//{
+		//	assert( false && "Uniform value type cannot be changed after initialization." );
+		//	return;
+		//}
 
 		if( _value != val )
 		{

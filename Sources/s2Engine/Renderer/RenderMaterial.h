@@ -5,6 +5,8 @@
 
 #include "s2Engine_API.h"
 
+#include "ResourceManager.h"
+
 #include "Graphics/Color.h"
 #include "RenderCore/Program.h"
 #include "RenderCore/Texture.h"
@@ -41,7 +43,7 @@ struct S2ENGINE_API RenderMaterial
 	// colorMask { true, true, true, true }
 
 
-	RenderCore::ProgramPtr shader;
+	ResourceHandle shader { InvalidHandle };
 	
 	// instead of public properties variant, use:
 	// setFloat("roughness", 0.5f);
@@ -53,6 +55,15 @@ struct S2ENGINE_API RenderMaterial
 	// ... etc.
 	// 
 	// with corresponding getters.
+
+	//void setBool   ( const std::string& name, bool value )               { properties[name] = value; }
+	//void setFloat  ( const std::string& name, float value )              { properties[name] = value; }
+	//void setInt    ( const std::string& name, int value )                { properties[name] = value; }
+	//void setColor  ( const std::string& name, const Color& value )       { properties[name] = value; }
+	//void setVec2   ( const std::string& name, const Math::fvec2& value ) { properties[name] = value; }
+	//void setVec3   ( const std::string& name, const Math::fvec3& value ) { properties[name] = value; }
+	//void setVec4   ( const std::string& name, const Math::fvec4& value ) { properties[name] = value; }
+	//void setTexture( const std::string& name, TextureHandle texture )    { textures[name]   = texture; }
 
 	using Property = std::variant<
 		bool,
@@ -74,7 +85,7 @@ struct S2ENGINE_API RenderMaterial
 		Math::dmat4>;
 	std::unordered_map<std::string, Property> properties;
 
-	std::unordered_map<uint32_t, RenderCore::Texture2DPtr> textures;
+	std::unordered_map<std::string, ResourceHandle> textures;
 
 	bool operator<( const RenderMaterial& other ) const
 	{

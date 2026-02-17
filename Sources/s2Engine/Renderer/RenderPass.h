@@ -13,6 +13,7 @@ namespace Renderer {
 
 class CommandBuffer;
 struct FrameData;
+class ResourceManager;
 
 /**
  * Abstract base class for render passes.
@@ -25,7 +26,7 @@ class S2ENGINE_API RenderPass
 {
 public:
     virtual ~RenderPass() = default;
-    virtual void initialize() = 0;
+    virtual void initialize( ResourceManager& resourceManager ) = 0;
 
     virtual void execute( const CommandBuffer& queue, FrameData& frameData ) = 0;
 
@@ -46,11 +47,21 @@ protected:
 class S2ENGINE_API ForwardPass : public RenderPass
 {
 public:
-    void initialize() override;
+    void initialize( ResourceManager& resourceManager ) override;
     void execute( const CommandBuffer& queue, FrameData& context ) override;
     const std::string& name() const override;
 
 private:
+	ResourceManager* _resourceManager { nullptr };
+    // Statistics for the current frame
+    struct Stats
+    {
+        size_t drawCalls = 0;
+        size_t triangles = 0;
+        size_t vertices = 0;
+    } _stats;
+
+
     std::string _name = "ForwardPass";
 };
 

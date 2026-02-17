@@ -132,3 +132,6 @@ void VertexData::setAttribute( VertexAttributeLocation loc, const std::vector<fl
 void VertexData::setAttribute( VertexAttributeLocation loc, const std::vector<Math::fvec2>& attrib ) { detail::setAttribute( _vao, loc, attrib);}
 void VertexData::setAttribute( VertexAttributeLocation loc, const std::vector<Math::fvec3>& attrib ) { detail::setAttribute( _vao, loc, attrib);}
 void VertexData::setAttribute( VertexAttributeLocation loc, const std::vector<Math::fvec4>& attrib ) { detail::setAttribute( _vao, loc, attrib);}
+
+size_t VertexData::vertexCount() const { return _vao->attribute( VertexAttributeLocation::VA_Position ).numberOfVertices(); }
+size_t VertexData::indexCount() const { return _vao->indexBuffer().count() / sizeof(uint32_t); }

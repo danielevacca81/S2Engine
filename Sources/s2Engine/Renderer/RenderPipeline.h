@@ -4,6 +4,7 @@
 #define S2_RENDERER_RENDERPIPELINE_H
 
 #include "s2Engine_API.h"
+
 #include "RenderPass.h"
 
 #include <vector>
@@ -14,6 +15,7 @@ namespace Renderer {
 
 class CommandBuffer;
 struct FrameData;
+class ResourceManager;
 
 /*
 EXAMPLE: FORWARD RENDERING PIPELINE
@@ -62,7 +64,7 @@ public:
     //RenderPipeline( const RenderPipeline& ) = delete;
     //RenderPipeline& operator=( const RenderPipeline& ) = delete;
 
-    void initialize();
+    void initialize( ResourceManager& resourceManager );
     void clear();
 
 

@@ -26,7 +26,6 @@ public:
 
 	void onInitializeEvent() override;
 	void onPaintEvent() override;
-	void onPaintEventold() ;
 	void onCloseEvent() override;
 
 	void onMouseMoveEvent( const s2::Input::MouseState& ms ) override;
@@ -40,14 +39,16 @@ private:
 	// s2::Renderer renderer; // forward rendering, deferred rendering, etc.
 	std::unique_ptr<s2::Renderer::Renderer> _renderer;
 
-	s2::MeshData3D _torus;
+	s2::Renderer::ResourceHandle _torus;
+	s2::Renderer::ResourceHandle _cone;
+	s2::Renderer::ResourceHandle _cube;
+	s2::Renderer::ResourceHandle _sphere;
+	s2::Renderer::ResourceHandle _cylinder;
+	s2::Renderer::ResourceHandle _teapot;
 
-	s2::RenderCore::VertexDataPtr _planeXZ;
-	s2::RenderCore::VertexDataPtr _cone;
-	s2::RenderCore::VertexDataPtr _cube;
-	s2::RenderCore::VertexDataPtr _sphere;
-	s2::RenderCore::VertexDataPtr _cylinder;
-	s2::RenderCore::VertexDataPtr _teapot;
+	s2::Renderer::ResourceHandle _blinnPhong;
+
+	s2::Renderer::RenderMaterial _material;
 
 
 	s2::Scene::Camera               _camera;

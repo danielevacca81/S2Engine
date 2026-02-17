@@ -22,9 +22,9 @@ Renderer::Renderer( const RenderCore::Context* ctx, const RenderPipeline& pipeli
 	if( !ctx )
 		throw std::runtime_error( "Renderer initialization failed: GPU context is null" );
 
-	// Initialize render pipeline
+	// Initialize render pipeline and pass it the resource manager for loading resources needed by the passes
 	_pipeline = pipeline;
-	_pipeline.initialize();
+	_pipeline.initialize( _resourceManager );
 }
 
 // ------------------------------------------------------------------------------------------------

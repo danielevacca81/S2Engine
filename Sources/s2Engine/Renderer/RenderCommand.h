@@ -6,7 +6,6 @@
 #include "s2Engine_API.h"
 
 #include "RenderMaterial.h"
-#include "RenderModel.h"
 
 #include "RenderCore/RenderState.h"
 #include "RenderCore/ClearState.h"
@@ -55,8 +54,8 @@ struct S2ENGINE_API RenderCommand
 {
 	RenderMode     renderMode { RenderMode::Triangles };
 	RenderMaterial material;
-	RenderModel    model;
-	
+	ResourceHandle mesh { InvalidHandle };
+
 	// per object transform (model matrix)
 	Math::dmat4 modelMatrix = Math::dmat4( 1.0 );
 
