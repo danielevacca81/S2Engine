@@ -19,7 +19,7 @@ uint32_t glWrap( const IndexBuffer::IndexDataType &datatype )
 	case IndexBuffer::UnsignedInt:    return GL_UNSIGNED_INT;
 	case IndexBuffer::UnsignedShort:  return GL_UNSIGNED_SHORT;
 	}
-	assert( ( "Unknown IndexBuffer::IndexDataType", 0 ) );
+	assert( false && "Unknown IndexBuffer::IndexDataType" );
 	return -1;
 }
 #pragma endregion
@@ -45,7 +45,7 @@ uint32_t glWrap( const AttributeBuffer::ComponentDatatype &datatype )
 	case AttributeBuffer::Double:        return GL_DOUBLE;
 	}
 
-	assert( ( "Unknown AttributeBuffer::ComponentDatatype", 0 ) );
+	assert( false && "Unknown AttributeBuffer::ComponentDatatype" );
 	return -1;
 }
 #pragma endregion
@@ -70,7 +70,7 @@ uint32_t glWrap( const BufferObject::UsageHint &hint )
 	case BufferObject::UsageHint::DynamicCopy: return GL_DYNAMIC_COPY;
 	}
 
-	assert( ( "Unknown BufferObject::UsageHint", 0 ) );
+	assert( false && "Unknown BufferObject::UsageHint" );
 	return -1;
 }
 
@@ -85,7 +85,7 @@ uint32_t glWrap( const BufferObject::Type &type )
 	case BufferObject::Type::PixelUnpackBuffer: return GL_PIXEL_UNPACK_BUFFER;
 	}
 
-	assert( ( "Unknown BufferObject::Type", 0 ) );
+	assert( ( false && "Unknown BufferObject::Type" ) );
 	return -1;
 }
 
@@ -99,7 +99,7 @@ uint32_t glWrap( const BufferObject::MapMode &mode )
 	case BufferObject::MapMode::ReadWrite: return GL_READ_WRITE;
 	}
 
-	assert( ( "Unknown BufferObject::MapMode", 0 ) );
+	assert( false && "Unknown BufferObject::MapMode" );
 	return -1;
 }
 #pragma endregion
@@ -170,7 +170,7 @@ uint32_t glWrap(const TextureFormat &format)
 	case TextureFormat::RedGreenBlue8i:        return GL_RGB8I;
 	}
 
-	assert( ( "Unknown TextureFormat", 0 ) );
+	assert( false && "Unknown TextureFormat" );
 	return -1;
 }
 
@@ -236,7 +236,7 @@ uint32_t glWrapTextureFormatToPixelType( const TextureFormat &f )
 	case TextureFormat::RedGreenBlue8i:       return GL_UNSIGNED_BYTE;
 	}
 
-	assert( ( "Unknown TextureFormat", 0 ) );
+	assert( false && "Unknown TextureFormat" );
 	return -1;
 }
 
@@ -309,7 +309,7 @@ uint32_t glWrapTextureFormatToPixelFormat(const TextureFormat &f)
 	case TextureFormat::RedGreenBlueAlpha8i:  return GL_RGBA_INTEGER;
 	case TextureFormat::RedGreenBlue8i:       return GL_RGB_INTEGER;
 	}
-	assert( ( "Unknown TextureFormat", 0 ) );
+	assert( false && "Unknown TextureFormat" );
 	return -1;
 }
 
@@ -326,7 +326,7 @@ uint32_t glWrap( const Sampler::MinificationFilter &filter )
 	case Sampler::MinificationFilter::LinearMipmapLinear:   return GL_LINEAR_MIPMAP_LINEAR;
 	}
 
-	assert( ( "Unknown Sampler::MinificationFilter", 0 ) );
+	assert( false && "Unknown Sampler::MinificationFilter" );
 	return -1;
 }
 
@@ -339,7 +339,7 @@ uint32_t glWrap( const Sampler::MagnificationFilter &filter )
 	case Sampler::MagnificationFilter::Linear:   return GL_LINEAR;
 	}
 
-	assert( ( "Unknown Sampler::MagnificationFilter", 0 ) );
+	assert( false && "Unknown Sampler::MagnificationFilter" );
 	return -1;
 }
 
@@ -353,7 +353,7 @@ uint32_t glWrap( const Sampler::Wrap &wrap )
 	case Sampler::Wrap::MirroredRepeat:  return GL_MIRRORED_REPEAT;
 	}
 
-	assert( ( "Unknown Sampler::Wrap", 0 ) );
+	assert( false && "Unknown Sampler::Wrap" );
 	return -1;
 }
 #pragma endregion
@@ -381,7 +381,7 @@ uint32_t glWrap( const FrameBuffer::AttachmentPoint &attachment )
 	case FrameBuffer::DepthStencilAttachment: return GL_DEPTH_STENCIL_ATTACHMENT;
 	}
 
-	assert( ( "Unknown FrameBuffer::AttachmentPoint", 0 ) );
+	assert( false && "Unknown FrameBuffer::AttachmentPoint" );
 	return -1;
 }
 #pragma endregion
@@ -416,7 +416,7 @@ uint32_t glWrap( const ImageFormat &imgFormat )
 	case ImageFormat::BlueGreenRedAlphaInteger: return GL_BGRA_INTEGER;
 	}
 
-	assert( ( "Unknown ImageFormat", 0 ) );
+	assert( false && "Unknown ImageFormat" );
 	return -1;
 }
 
@@ -451,7 +451,7 @@ uint32_t glWrap( const ImageDataType &imgDataType )
 	case ImageDataType::Float32UnsignedInt248Reversed: return GL_FLOAT_32_UNSIGNED_INT_24_8_REV;
 	}
 
-	assert( ( "Unknown ImageDataType", 0 ) );
+	assert( false && "Unknown ImageDataType" );
 	return -1;
 }
 #pragma endregion
@@ -541,7 +541,7 @@ uint32_t glWrap( const RenderBuffer::Format &format )
     case RenderBuffer::Format::StencilIndex16:    return GL_STENCIL_INDEX16;
 	}
 
-	assert( ( "Unknown RenderBuffer", 0 ) );
+	assert( false && "Unknown RenderBuffer" );
 	return -1;
 }
 #pragma endregion
@@ -559,7 +559,7 @@ uint32_t glWrap( const FaceCulling::Face &face )
 	case FaceCulling::Face::Back:         return GL_BACK;
 	case FaceCulling::Face::FrontAndBack: return GL_FRONT_AND_BACK;
 	}
-	assert( ( "Unknown FaceCulling::Face", 0 ) );
+	assert( false && "Unknown FaceCulling::Face" );
 	return -1;
 }
 
@@ -571,7 +571,7 @@ uint32_t glWrap( const FaceCulling::WindingOrder &winding )
 	case FaceCulling::WindingOrder::ClockWise:        return GL_CW;
 	case FaceCulling::WindingOrder::CounterClockWise: return GL_CCW;
 	}
-	assert( ( "Unknown FaceCulling::WindingOrder", 0 ) );
+	assert( false && "Unknown FaceCulling::WindingOrder" );
 	return -1;
 }
 
@@ -589,7 +589,7 @@ uint32_t glWrap( const StencilTestFace::StencilOperation &op )
 	case StencilTestFace::StencilOperation::IncrementWrap: return GL_INCR_WRAP;
 	case StencilTestFace::StencilOperation::DecrementWrap: return GL_DECR_WRAP;
 	}
-	assert( ( "Unknown StencilTestFace::StencilOperation", 0 ) );
+	assert( false && "Unknown StencilTestFace::StencilOperation" );
 	return -1;
 }
 
@@ -607,7 +607,7 @@ uint32_t glWrap( const StencilTestFace::StencilTestFunction &fun )
 	case StencilTestFace::StencilTestFunction::GreaterThanOrEqual: return GL_GEQUAL;
 	case StencilTestFace::StencilTestFunction::Always:             return GL_ALWAYS;
 	}
-	assert( ( "Unknown StencilTestFace::StencilTestFunction", 0 ) );
+	assert( false && "Unknown StencilTestFace::StencilTestFunction" );
 	return -1;
 }
 
@@ -625,7 +625,7 @@ uint32_t glWrap( const DepthTest::DepthTestFunction &fun )
 	case DepthTest::DepthTestFunction::GreaterThanOrEqual: return GL_GEQUAL;
 	case DepthTest::DepthTestFunction::Always:             return GL_ALWAYS;
 	}
-	assert( ( "Unknown DepthTest::DepthTestFunction", 0 ) );
+	assert( false && "Unknown DepthTest::DepthTestFunction" );
 	return -1;
 }
 
@@ -650,7 +650,7 @@ uint32_t glWrap( const Blending::Factor &factor )
 	case Blending::Factor::ConstantAlpha:            return GL_CONSTANT_ALPHA;
 	case Blending::Factor::OneMinusConstantAlpha:    return GL_ONE_MINUS_CONSTANT_ALPHA;
 	}
-	assert( ( "Unknown Blending::Factor", 0 ) );
+	assert( false && "Unknown Blending::Factor" );
 	return -1;
 }
 
@@ -665,7 +665,7 @@ uint32_t glWrap( const Blending::Equation &equation )
 	case Blending::Equation::Subtract:        return GL_FUNC_SUBTRACT;
 	case Blending::Equation::ReverseSubtract: return GL_FUNC_REVERSE_SUBTRACT;
 	}
-	assert( ( "Unknown Blending::BlendEquation", 0 ) );
+	assert( false && "Unknown Blending::BlendEquation" );
 	return -1;
 }
 
@@ -682,7 +682,7 @@ uint32_t glWrap( const ClearBuffers &buffers )
 	case ClearBuffers::StencilAndDepthBuffer: return GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT;
 	case ClearBuffers::All:                   return GL_COLOR_BUFFER_BIT   | GL_DEPTH_BUFFER_BIT |  GL_STENCIL_BUFFER_BIT;
 	}
-	assert( ( "Unknown ClearBuffers", 0 ) );
+	assert( false && "Unknown ClearBuffers" );
 	return -1;
 }
 
@@ -695,7 +695,7 @@ uint32_t glWrap( const RenderState::RasterizationMode &mode )
 	case RenderState::RasterizationMode::Line:  return GL_LINE;
 	case RenderState::RasterizationMode::Fill:  return GL_FILL;
 	}
-	assert( ( "Unknown RenderState::RasterizationMode", 0 ) );
+	assert( false && "Unknown RenderState::RasterizationMode" );
 	return -1;
 }
 
@@ -719,7 +719,7 @@ uint32_t glWrap( const PrimitiveType &primitive )
 	case PrimitiveType::Quads:         return GL_QUADS;
 	case PrimitiveType::QuadStrip:     return GL_QUAD_STRIP;
 	}
-	assert( ( "Unknown PrimitiveType", 0 ) );
+	assert( false && "Unknown PrimitiveType" );
 	return -1;
 }
 
@@ -729,18 +729,18 @@ uint32_t glWrap( const PrimitiveType &primitive )
 /*                                         ShaderType                                          */
 /************************************************************************************************/
 #pragma region ShaderType
-uint32_t glWrap( const ShaderType &shaderType )
+uint32_t glWrap( const ShaderStageType &shaderType )
 {
 	switch( shaderType )
 	{
-	case ShaderType::Vertex:                  return GL_VERTEX_SHADER;
-	case ShaderType::Fragment:                return GL_FRAGMENT_SHADER;
-	case ShaderType::Geometry:                return GL_GEOMETRY_SHADER;
-	case ShaderType::TessellationControl:     return GL_TESS_CONTROL_SHADER;
-	case ShaderType::TessellationEvaluation:  return GL_TESS_EVALUATION_SHADER;
-	case ShaderType::Compute:                 return GL_COMPUTE_SHADER;
+	case ShaderStageType::Vertex:                  return GL_VERTEX_SHADER;
+	case ShaderStageType::Fragment:                return GL_FRAGMENT_SHADER;
+	case ShaderStageType::Geometry:                return GL_GEOMETRY_SHADER;
+	case ShaderStageType::TessellationControl:     return GL_TESS_CONTROL_SHADER;
+	case ShaderStageType::TessellationEvaluation:  return GL_TESS_EVALUATION_SHADER;
+	case ShaderStageType::Compute:                 return GL_COMPUTE_SHADER;
 	}
-	assert( ( "Unknown ShaderType", 0 ) );
+	assert( false && "Unknown ShaderStageType" );
 	return -1;
 }
 #pragma endregion

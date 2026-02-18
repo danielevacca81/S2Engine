@@ -11,37 +11,37 @@
 using namespace s2::RenderCore;
 
 // ------------------------------------------------------------------------------------------------
-ShaderCompilationResult ShaderCompiler::compile( ShaderType type, const std::string& source )
+ShaderStageCompilationResult ShaderCompiler::compile( ShaderStageType type, const std::string& source )
 {
-	ShaderPtr shader = Shader::New( type );
+	ShaderStagePtr stage = ShaderStage::New( type );
 
-	if( !shader )
-		return ShaderCompilationResult { false, "Failed to create shader object" ,nullptr };
+	if( !stage )
+		return ShaderStageCompilationResult { false, "Failed to create shader object" ,nullptr };
 
 	const char* sourcePtr = source.c_str();
-	glShaderSource( shader->id(), 1, &sourcePtr, nullptr );
-	glCompileShader( shader->id() );
+	glShaderSource( stage->id(), 1, &sourcePtr, nullptr );
+	glCompileShader( stage->id() );
 
 	GLint isCompiled = 0;
-	glGetShaderiv( shader->id(), GL_COMPILE_STATUS, &isCompiled );
+	glGetShaderiv( stage->id(), GL_COMPILE_STATUS, &isCompiled );
 
 	if( isCompiled == GL_FALSE )
 	{
-		const std::string errorLog = ShaderCompiler::getShaderInfoLog( shader );
-		shader = nullptr; // release shader object, resources will be freed by shared_ptr destructor
+		const std::string errorLog = ShaderCompiler::getShaderStageInfoLog( stage );
+		stage = nullptr; // release shader object, resources will be freed by shared_ptr destructor
 
-		return ShaderCompilationResult { false, errorLog, nullptr };
+		return ShaderStageCompilationResult { false, errorLog, nullptr };
 	}
 
-	return ShaderCompilationResult { true, "", std::move( shader ) };
+	return ShaderStageCompilationResult { true, "", std::move( stage ) };
 }
 
 // ------------------------------------------------------------------------------------------------
-ShaderCompilationResult ShaderCompiler::compileFromFile( ShaderType type, const std::filesystem::path& filepath )
+ShaderStageCompilationResult ShaderCompiler::compileFromFile( ShaderStageType type, const std::filesystem::path& filepath )
 {
 	std::ifstream file( filepath );
 	if( !file.is_open() )
-		return ShaderCompilationResult { false,"Failed to open file: " + filepath.string(),nullptr };
+		return ShaderStageCompilationResult { false,"Failed to open file: " + filepath.string(),nullptr };
 
 	const std::string content(
 		(std::istreambuf_iterator<char>( file )),
@@ -60,7 +60,7 @@ ProgramLinkResult ShaderCompiler::linkProgram( const ProgramPtr& program, const 
 	if( program->isLinked() )
 		return ProgramLinkResult { true,"Already linked" };
 
-	// find uniforms before linking to support shader subroutines (if any).
+	// find uniforms before linking to support shader subroutines (if any)?
 	// see https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glGetActiveUniform.xhtml
 	//program->findUniforms(); // needed???
 
@@ -105,16 +105,16 @@ ProgramLinkResult ShaderCompiler::validateProgram( const ProgramPtr& program )
 }
 
 // ------------------------------------------------------------------------------------------------
-std::string ShaderCompiler::getShaderInfoLog( const ShaderPtr& shader )
+std::string ShaderCompiler::getShaderStageInfoLog( const ShaderStagePtr& stage )
 {
 	GLint maxLength = 0;
-	glGetShaderiv( shader->id(), GL_INFO_LOG_LENGTH, &maxLength );
+	glGetShaderiv( stage->id(), GL_INFO_LOG_LENGTH, &maxLength );
 
 	if( maxLength == 0 )
 		return "";
 
 	std::vector<GLchar> infoLog( maxLength );
-	glGetShaderInfoLog( shader->id(), maxLength, &maxLength, infoLog.data() );
+	glGetShaderInfoLog( stage->id(), maxLength, &maxLength, infoLog.data() );
 
 	return std::string( infoLog.begin(), infoLog.end() );
 }
@@ -231,16 +231,16 @@ std::string ShaderCompiler::getProgramInfo( const ProgramPtr& program, bool verb
 		msg << program->name() << " info" << std::endl
 			<< "--------------------" << std::endl;
 
-		auto shaderLog = [] ( const ShaderPtr& shader )
+		auto shaderLog = [] ( const ShaderStagePtr& stage )
 		{
 			int isCompiled = 0;
-			glGetShaderiv( shader->id(), GL_COMPILE_STATUS, &isCompiled );
+			glGetShaderiv( stage->id(), GL_COMPILE_STATUS, &isCompiled );
 
 			int len = 0;
-			glGetShaderiv( shader->id(), GL_INFO_LOG_LENGTH, &len );
+			glGetShaderiv( stage->id(), GL_INFO_LOG_LENGTH, &len );
 
 			std::vector<GLchar> errorLog( len + 1 );
-			glGetShaderInfoLog( shader->id(), len, &len, errorLog.data() );
+			glGetShaderInfoLog( stage->id(), len, &len, errorLog.data() );
 
 			return std::string( errorLog.begin(), errorLog.end() );
 		};

@@ -1,13 +1,13 @@
-// Program.h
+// Shader.h
 //
-#ifndef S2_RENDERCORE_PROGRAM_H
-#define S2_RENDERCORE_PROGRAM_H
+#ifndef S2_RENDERCORE_SHADER_H
+#define S2_RENDERCORE_SHADER_H
 
 #include "s2Engine_API.h"
 
 #include "OpenGLObject.h"
 #include "Uniform.h"
-#include "Shader.h"
+#include "ShaderStage.h"
 
 #include <map>
 #include <string>
@@ -18,26 +18,26 @@ namespace s2 {
 namespace RenderCore {
 
 /************************************************************************************************/
-/*                                           Program                                            */
+/*                                           Shader                                             */
 /************************************************************************************************/
-class Program;
-typedef std::shared_ptr<Program>   ProgramPtr;
+class Shader;
+typedef std::shared_ptr<Shader>   ShaderPtr;
 
-class S2ENGINE_API Program : public OpenGLObject // rename in shader?
+class S2ENGINE_API Shader : public OpenGLObject
 {
 public:
-	static ProgramPtr New();
+	static ShaderPtr New();
 
 public:
-	Program();
-	~Program();
+	Shader();
+	~Shader();
 
-	bool attachVertexShader( const ShaderPtr &shader );
-	bool attachFragmentShader( const ShaderPtr &shader );
-	bool attachGeometryShader( const ShaderPtr &shader );
-	bool attachComputeShader( const ShaderPtr& shader );
-	bool attachTessellationControlShader( const ShaderPtr& shader );
-	bool attachTessellationEvaluationShader( const ShaderPtr& shader );
+	bool attachVertexShaderStage( const ShaderStagePtr& shader );
+	bool attachFragmentShaderStage( const ShaderStagePtr& shader );
+	bool attachGeometryShaderStage( const ShaderStagePtr& shader );
+	bool attachComputeShaderStage( const ShaderStagePtr& shader );
+	bool attachTessellationControlShaderStage( const ShaderStagePtr& shader );
+	bool attachTessellationEvaluationShaderStage( const ShaderStagePtr& shader );
 
 	bool        isLinked()    const;
 	std::string name() const;
@@ -63,13 +63,13 @@ private:
 
 	void findUniforms();
 private:
-	ShaderPtr _vshd;
-	ShaderPtr _fshd;
-	ShaderPtr _gshd;
-	
-	ShaderPtr _cshd; // compute shader
-	ShaderPtr _tshd; // tessellation shader
-	ShaderPtr _teshd;// tessellation evaluation shader
+	ShaderStagePtr _vshd;
+	ShaderStagePtr _fshd;
+	ShaderStagePtr _gshd;
+
+	ShaderStagePtr _cshd; // compute shader
+	ShaderStagePtr _tshd; // tessellation shader
+	ShaderStagePtr _teshd;// tessellation evaluation shader
 
 
 	bool         _linked { false };
@@ -84,4 +84,4 @@ private:
 
 } // namespace RenderCore
 } // namespace s2
-#endif // !S2_RENDERCORE_PROGRAM_H
+#endif // !S2_RENDERCORE_SHADER_H

@@ -12,7 +12,7 @@
 #include "RenderState.h"
 #include "RenderBuffer.h"
 #include "PrimitiveType.h"
-#include "Shader.h"
+#include "ShaderStage.h"
 
 #define DATA_PTR(i) ((void*)(i))
 
@@ -85,7 +85,7 @@ uint32_t glWrap( const PrimitiveType &primitive );
 /************************************************************************************************/
 /*                                            ShaderType                                        */
 /************************************************************************************************/
-uint32_t glWrap( const ShaderType& shaderType );
+uint32_t glWrap( const ShaderStageType& shaderType );
 
 } // namespace RenderCore
 } // namespace s2

@@ -5,7 +5,7 @@
 
 #include "s2Engine_API.h"
 
-#include "Shader.h"
+#include "ShaderStage.h"
 #include "Program.h"
 
 #include <string>
@@ -16,11 +16,11 @@ namespace s2 {
 namespace RenderCore {
 
 // ------------------------------------------------------------------------------------------------
-struct ShaderCompilationResult
+struct ShaderStageCompilationResult
 {
-    bool        success;
-    std::string errorLog;
-    ShaderPtr   shader;  // nullptr if failed
+    bool           success;
+    std::string    errorLog;
+    ShaderStagePtr stage;  // nullptr if failed
 
     explicit operator bool() const { return success; }
 };
@@ -40,13 +40,13 @@ class S2ENGINE_API ShaderCompiler
 public:
     /// Compile a shader from source code
     /// Returns compilation result with error log if failed
-    static ShaderCompilationResult compile( ShaderType type, const std::string& source );
+    static ShaderStageCompilationResult compile( ShaderStageType type, const std::string& source );
 
     /// Compile shader from file
-    static ShaderCompilationResult compileFromFile( ShaderType type, const std::filesystem::path &filepath );
+    static ShaderStageCompilationResult compileFromFile( ShaderStageType type, const std::filesystem::path &filepath );
 
     /// Get shader info log
-    static std::string getShaderInfoLog( const ShaderPtr &shader );
+    static std::string getShaderStageInfoLog( const ShaderStagePtr &stage );
 
     /// Link the program with all attached shaders
     static ProgramLinkResult linkProgram( const ProgramPtr& program, const std::string& name = "" );

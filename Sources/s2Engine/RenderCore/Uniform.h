@@ -77,7 +77,7 @@ protected:
 	UniformValue   _value;
 	bool           _changed;
 
-	friend class Program;
+	friend class Shader;
 };
 
 } // namespace RenderCore

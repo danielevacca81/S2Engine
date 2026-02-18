@@ -1,4 +1,4 @@
-// Program.cpp
+// Shader.cpp
 //
 #include "Program.h"
 
@@ -14,7 +14,7 @@ using namespace s2::RenderCore;
 
 #pragma region Helpers
 // ------------------------------------------------------------------------------------------------
-static inline bool attach( GLenum shaderAttachType, unsigned int objID, unsigned int shaderHandle, ShaderType shaderType )
+static inline bool attach( GLenum shaderAttachType, unsigned int objID, unsigned int shaderHandle, ShaderStageType shaderType )
 {
 	if( objID == 0 || shaderHandle == 0 )
 		return false;
@@ -32,10 +32,10 @@ static inline Uniform* createUniform( const std::string& name, unsigned int loc,
 {
 	switch( type )
 	{
-	case GL_FLOAT:           return new Uniform( loc, name, float{0.f} );
-	case GL_FLOAT_VEC2:	     return new Uniform( loc, name, Math::fvec2{0.f, 0.f} );
-	case GL_FLOAT_VEC3:      return new Uniform( loc, name, Math::fvec3{0.f, 0.f, 0.f} );
-	case GL_FLOAT_VEC4:      return new Uniform( loc, name, Math::fvec4{0.f, 0.f, 0.f, 0.f} );
+	case GL_FLOAT:           return new Uniform( loc, name, float { 0.f } );
+	case GL_FLOAT_VEC2:	     return new Uniform( loc, name, Math::fvec2 { 0.f, 0.f } );
+	case GL_FLOAT_VEC3:      return new Uniform( loc, name, Math::fvec3 { 0.f, 0.f, 0.f } );
+	case GL_FLOAT_VEC4:      return new Uniform( loc, name, Math::fvec4 { 0.f, 0.f, 0.f, 0.f } );
 
 	case GL_INT:             return new Uniform( loc, name, int { 0 } );
 	case GL_INT_VEC2:        assert( false ); break;
@@ -53,18 +53,18 @@ static inline Uniform* createUniform( const std::string& name, unsigned int loc,
 
 	case GL_SAMPLER_2D:
 	case GL_INT_SAMPLER_2D:
-	case GL_SAMPLER_CUBE:    return new Uniform( loc, name, int{0} );
+	case GL_SAMPLER_CUBE:    return new Uniform( loc, name, int { 0 } );
 
-	
-	// OpenGL 4.0 or above
-	case GL_DOUBLE:           return new Uniform( loc, name, double{0.0} );
-	case GL_DOUBLE_VEC2:	  return new Uniform( loc, name, Math::dvec2{0.0, 0.0} );
-	case GL_DOUBLE_VEC3:      return new Uniform( loc, name, Math::dvec3{0.0, 0.0, 0.0} );
-	case GL_DOUBLE_VEC4:      return new Uniform( loc, name, Math::dvec4{0.0, 0.0, 0.0, 0.0} );
 
-	case GL_DOUBLE_MAT2:      return new Uniform( loc, name, Math::dmat2(1.0) );
-	case GL_DOUBLE_MAT3:      return new Uniform( loc, name, Math::dmat3(1.0) );
-	case GL_DOUBLE_MAT4:      return new Uniform( loc, name, Math::dmat4(1.0) );
+		// OpenGL 4.0 or above
+	case GL_DOUBLE:           return new Uniform( loc, name, double { 0.0 } );
+	case GL_DOUBLE_VEC2:	  return new Uniform( loc, name, Math::dvec2 { 0.0, 0.0 } );
+	case GL_DOUBLE_VEC3:      return new Uniform( loc, name, Math::dvec3 { 0.0, 0.0, 0.0 } );
+	case GL_DOUBLE_VEC4:      return new Uniform( loc, name, Math::dvec4 { 0.0, 0.0, 0.0, 0.0 } );
+
+	case GL_DOUBLE_MAT2:      return new Uniform( loc, name, Math::dmat2( 1.0 ) );
+	case GL_DOUBLE_MAT3:      return new Uniform( loc, name, Math::dmat3( 1.0 ) );
+	case GL_DOUBLE_MAT4:      return new Uniform( loc, name, Math::dmat4( 1.0 ) );
 
 	default:
 		assert( false && "Uniform type not supported" );
@@ -76,32 +76,32 @@ static inline Uniform* createUniform( const std::string& name, unsigned int loc,
 #pragma endregion
 
 // ------------------------------------------------------------------------------------------------
-ProgramPtr Program::New()
+ShaderPtr Shader::New()
 {
-	return std::make_shared<Program>();
+	return std::make_shared<Shader>();
 }
 
 // ------------------------------------------------------------------------------------------------
-Program::Program()
+Shader::Shader()
 {
 	create();
 }
 
 // ------------------------------------------------------------------------------------------------
-Program::~Program()
+Shader::~Shader()
 {
 	destroy();
 }
 
 // -------------------------------------------------------------------------------------------------
-void Program::reset()
+void Shader::reset()
 {
 	OpenGLObject::reset();
 
 	_linked = false;
-	_name   = "";
+	_name = "";
 
-	for( auto &it : _uniforms )
+	for( auto& it : _uniforms )
 		delete it.second;
 
 	_uniforms.clear();
@@ -109,13 +109,13 @@ void Program::reset()
 }
 
 // ------------------------------------------------------------------------------------------------
-void Program::create()
+void Shader::create()
 {
 	destroy();
 	OpenGLObject::create();
 
 	//if( isSupported() )
-	
+
 	_objectID = glCreateProgram();
 	glCheck;
 
@@ -126,13 +126,13 @@ void Program::create()
 }
 
 // ------------------------------------------------------------------------------------------------
-void Program::destroy()
+void Shader::destroy()
 {
 	if( !isCreated() )
 		return;
 
 	//glCheck;
-	
+
 	_vshd = nullptr;
 	_fshd = nullptr;
 	_gshd = nullptr;
@@ -147,17 +147,17 @@ void Program::destroy()
 }
 
 // ------------------------------------------------------------------------------------------------
-std::string Program::name() const
+std::string Shader::name() const
 {
 	return _name;
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Program::attachVertexShader( const ShaderPtr &shader )
+bool Shader::attachVertexShaderStage( const ShaderStagePtr& shader )
 {
 	if( !isCreated() )
 		return false;
-	
+
 	if( !shader )
 		return false;
 
@@ -169,7 +169,7 @@ bool Program::attachVertexShader( const ShaderPtr &shader )
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Program::attachFragmentShader( const ShaderPtr &shader )
+bool Shader::attachFragmentShaderStage( const ShaderStagePtr& shader )
 {
 	if( !isCreated() )
 		return false;
@@ -185,7 +185,7 @@ bool Program::attachFragmentShader( const ShaderPtr &shader )
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Program::attachGeometryShader( const ShaderPtr &shader )
+bool Shader::attachGeometryShaderStage( const ShaderStagePtr& shader )
 {
 	if( !isCreated() )
 		return false;
@@ -201,7 +201,7 @@ bool Program::attachGeometryShader( const ShaderPtr &shader )
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Program::attachComputeShader( const ShaderPtr &shader )
+bool Shader::attachComputeShaderStage( const ShaderStagePtr& shader )
 {
 	if( !isCreated() )
 		return false;
@@ -209,7 +209,7 @@ bool Program::attachComputeShader( const ShaderPtr &shader )
 	if( !shader )
 		return false;
 
-	if( shader->type() != ShaderType::Compute )
+	if( shader->type() != ShaderStageType::Compute )
 		return false; // assert ?
 
 	if( !attach( GL_COMPUTE_SHADER, _objectID, shader->id(), shader->type() ) )
@@ -220,7 +220,7 @@ bool Program::attachComputeShader( const ShaderPtr &shader )
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Program::attachTessellationControlShader( const ShaderPtr &shader )
+bool Shader::attachTessellationControlShaderStage( const ShaderStagePtr& shader )
 {
 	if( !isCreated() )
 		return false;
@@ -228,7 +228,7 @@ bool Program::attachTessellationControlShader( const ShaderPtr &shader )
 	if( !shader )
 		return false;
 
-	if( shader->type() != ShaderType::TessellationControl )
+	if( shader->type() != ShaderStageType::TessellationControl )
 		return false; // assert ?
 
 	if( !attach( GL_TESS_CONTROL_SHADER, _objectID, shader->id(), shader->type() ) )
@@ -239,7 +239,7 @@ bool Program::attachTessellationControlShader( const ShaderPtr &shader )
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Program::attachTessellationEvaluationShader( const ShaderPtr &shader )
+bool Shader::attachTessellationEvaluationShaderStage( const ShaderStagePtr& shader )
 {
 	if( !isCreated() )
 		return false;
@@ -247,7 +247,7 @@ bool Program::attachTessellationEvaluationShader( const ShaderPtr &shader )
 	if( !shader )
 		return false;
 
-	if( shader->type() != ShaderType::TessellationEvaluation )
+	if( shader->type() != ShaderStageType::TessellationEvaluation )
 		return false; // assert ?
 
 	if( !attach( GL_TESS_EVALUATION_SHADER, _objectID, shader->id(), shader->type() ) )
@@ -258,22 +258,22 @@ bool Program::attachTessellationEvaluationShader( const ShaderPtr &shader )
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Program::isLinked() const { return _linked; }
+bool Shader::isLinked() const { return _linked; }
 
 // ------------------------------------------------------------------------------------------------
-void Program::bind() const
+void Shader::bind() const
 {
 	glUseProgram( _objectID );
 	glCheck;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Program::unbind() const
-{	
+void Shader::unbind() const
+{
 	glUseProgram( 0 );
 	glCheck;
 
-	for( auto &it : _attributes )
+	for( auto& it : _attributes )
 		glDisableVertexAttribArray( it.second );
 	//glVertexAttribPointer(location,size,type,normalized,stride,ptr);
 	glCheck;
@@ -281,15 +281,15 @@ void Program::unbind() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void Program::applyUniforms()
+void Shader::applyUniforms()
 {
 	// send uniform values to GPU if they have been changed
-	for( auto &[name, uniform] : _uniforms )
+	for( auto& [name, uniform] : _uniforms )
 		uniform->set();
 }
 
 // ------------------------------------------------------------------------------------------------
-void Program::setUniformValue( const std::string& uniformName, const UniformValue& value )
+void Shader::setUniformValue( const std::string& uniformName, const UniformValue& value )
 {
 	// store the value in the uniform object, 
 	// it will be sent to GPU when applyUniforms() is called
@@ -301,7 +301,7 @@ void Program::setUniformValue( const std::string& uniformName, const UniformValu
 }
 
 // ------------------------------------------------------------------------------------------------
-Uniform* Program::uniform( const std::string& name )
+Uniform* Shader::uniform( const std::string& name )
 {
 	auto it = _uniforms.find( name );
 	if( it == _uniforms.end() )
@@ -311,10 +311,10 @@ Uniform* Program::uniform( const std::string& name )
 }
 
 // ------------------------------------------------------------------------------------------------
-void Program::findUniforms()
+void Shader::findUniforms()
 {
 	// clear previous found uniforms
-	for( auto &it : _uniforms )
+	for( auto& it : _uniforms )
 		delete it.second;
 
 	int numberOfUniforms;
@@ -366,7 +366,7 @@ void Program::findUniforms()
 }
 
 // -------------------------------------------------------------------------------------------------
-int Program::objectLabelIdentifier() const 
+int Shader::objectLabelIdentifier() const
 {
 	return GL_PROGRAM;
 }

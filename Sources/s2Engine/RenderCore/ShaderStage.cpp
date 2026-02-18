@@ -1,6 +1,6 @@
-// Shader.cpp
+// ShaderStage.cpp
 //
-#include "Shader.h"
+#include "ShaderStage.h"
 
 #include "OpenGL.h"
 #include "OpenGLCheck.h"
@@ -9,24 +9,24 @@
 using namespace s2::RenderCore;
 
 // -------------------------------------------------------------------------------------------------
-ShaderPtr Shader::New( const ShaderType& type ) { return std::make_shared<Shader>( type ); }
+ShaderStagePtr ShaderStage::New( const ShaderStageType& type ) { return std::make_shared<ShaderStage>( type ); }
 
 // -------------------------------------------------------------------------------------------------
-Shader::Shader( const ShaderType& type )
+ShaderStage::ShaderStage( const ShaderStageType& type )
     : _type( type )
 {
 	create();
 }
 
 // -------------------------------------------------------------------------------------------------
-Shader::~Shader()
+ShaderStage::~ShaderStage()
 {
 	destroy();
 }
 
 
 // -------------------------------------------------------------------------------------------------
-void Shader::create()
+void ShaderStage::create()
 {
 	OpenGLObject::create();
 
@@ -37,7 +37,7 @@ void Shader::create()
 }
 
 // -------------------------------------------------------------------------------------------------
-void Shader::destroy()
+void ShaderStage::destroy()
 {
 	glDeleteShader( _objectID );
 	glCheck;
@@ -46,7 +46,7 @@ void Shader::destroy()
 }
 
 // -------------------------------------------------------------------------------------------------
-int Shader::objectLabelIdentifier() const
+int ShaderStage::objectLabelIdentifier() const
 {
 	return GL_SHADER;
 }
