@@ -5,9 +5,12 @@
 
 #include "s2Engine_API.h"
 
+
+#include "Geometry/MeshData.h"
+
 #include "RenderCore/VertexData.h"
 #include "RenderCore/Texture.h"
-#include "RenderCore/Program.h"
+#include "RenderCore/Shader.h"
 
 #include <unordered_map>
 #include <string>
@@ -27,12 +30,14 @@ class S2ENGINE_API ResourceManager
 {
 public:
     ResourceHandle registerMesh( const std::string& name,    const RenderCore::VertexDataPtr &mesh );
+    ResourceHandle registerMesh( const std::string& name,    const MeshData3D &mesh );
+    //ResourceHandle registerMesh( const std::string& name,    const MeshData2D &mesh );
     ResourceHandle registerTexture( const std::string& name, const RenderCore::Texture2DPtr  &texture );
-    ResourceHandle registerShader( const std::string& name,  const RenderCore::ProgramPtr    &shader );
+    ResourceHandle registerShader( const std::string& name,  const RenderCore::ShaderPtr    &shader );
 
     RenderCore::VertexDataPtr getMesh( const ResourceHandle &handle ) const;
     RenderCore::Texture2DPtr  getTexture( const ResourceHandle &handle ) const;
-    RenderCore::ProgramPtr    getShader( const ResourceHandle &handle ) const;
+    RenderCore::ShaderPtr     getShader( const ResourceHandle &handle ) const;
 
 
 private:
@@ -41,7 +46,7 @@ private:
     std::unordered_map<std::string, ResourceHandle> _nameToHandle;
     std::unordered_map<ResourceHandle, RenderCore::VertexDataPtr> _meshes;
     std::unordered_map<ResourceHandle, RenderCore::Texture2DPtr> _textures;
-    std::unordered_map<ResourceHandle, RenderCore::ProgramPtr> _shaders;
+    std::unordered_map<ResourceHandle, RenderCore::ShaderPtr> _shaders;
 };
 
 } // namespace Renderer

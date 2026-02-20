@@ -5,7 +5,7 @@
 
 #include "s2Engine_API.h"
 
-#include "Program.h"
+#include "Shader.h"
 #include "Sampler.h"
 
 namespace s2 {
@@ -16,11 +16,13 @@ void S2ENGINE_API destroy();
 
 struct Shaders
 {
-	ProgramPtr FullscreenQuad;
-	ProgramPtr Simple;
-	ProgramPtr Phong;
-	ProgramPtr BlinnPhong;
-	//ProgramPtr Debug;
+	ShaderPtr FullscreenQuad;
+	ShaderPtr Simple;
+	ShaderPtr Phong;
+	ShaderPtr BlinnPhong;
+	//ShaderPtr Wireframe;
+	//ShaderPtr Picking;
+	//ShaderPtr Debug;
 	// ...
 };
 extern S2ENGINE_API Shaders  DefaultShaders;

@@ -393,6 +393,47 @@ MeshData3D GeometryFactory3D::createCube( const Math::dvec3& center, double size
 		Math::dvec3(  0.0, -1.0,  0.0 ),
 	};
 
+	// Sostituisci solo la sezione uvCoords in createCube():
+
+	cube.uvCoords =
+	{
+		// Front face (Z+)
+		Math::dvec2( 0.0, 0.0 ), // Bottom-left
+		Math::dvec2( 1.0, 0.0 ), // Bottom-right
+		Math::dvec2( 1.0, 1.0 ), // Top-right
+		Math::dvec2( 0.0, 1.0 ), // Top-left
+
+		// Right face (X+)
+		Math::dvec2( 0.0, 0.0 ),
+		Math::dvec2( 1.0, 0.0 ),
+		Math::dvec2( 1.0, 1.0 ),
+		Math::dvec2( 0.0, 1.0 ),
+
+		// Back face (Z-)
+		Math::dvec2( 0.0, 0.0 ),
+		Math::dvec2( 1.0, 0.0 ),
+		Math::dvec2( 1.0, 1.0 ),
+		Math::dvec2( 0.0, 1.0 ),
+
+		// Left face (X-)
+		Math::dvec2( 0.0, 0.0 ),
+		Math::dvec2( 1.0, 0.0 ),
+		Math::dvec2( 1.0, 1.0 ),
+		Math::dvec2( 0.0, 1.0 ),
+
+		// Top face (Y+)
+		Math::dvec2( 0.0, 0.0 ),
+		Math::dvec2( 1.0, 0.0 ),
+		Math::dvec2( 1.0, 1.0 ),
+		Math::dvec2( 0.0, 1.0 ),
+
+		// Bottom face (Y-)
+		Math::dvec2( 0.0, 0.0 ),
+		Math::dvec2( 1.0, 0.0 ),
+		Math::dvec2( 1.0, 1.0 ),
+		Math::dvec2( 0.0, 1.0 ),
+	};
+
 	// Indices (2 triangles per face)
 	cube.indices =
 	{

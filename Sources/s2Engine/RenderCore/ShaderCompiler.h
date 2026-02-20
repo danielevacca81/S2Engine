@@ -6,7 +6,7 @@
 #include "s2Engine_API.h"
 
 #include "ShaderStage.h"
-#include "Program.h"
+#include "Shader.h"
 
 #include <string>
 #include <vector>
@@ -26,7 +26,7 @@ struct ShaderStageCompilationResult
 };
 
 // ------------------------------------------------------------------------------------------------
-struct ProgramLinkResult
+struct ShaderLinkResult
 {
     bool        success;
     std::string errorLog;
@@ -48,17 +48,17 @@ public:
     /// Get shader info log
     static std::string getShaderStageInfoLog( const ShaderStagePtr &stage );
 
-    /// Link the program with all attached shaders
-    static ProgramLinkResult linkProgram( const ProgramPtr& program, const std::string& name = "" );
+    /// Link the shader with all attached shader stages
+    static ShaderLinkResult linkShader( const ShaderPtr& shader, const std::string& name = "" );
 
-    /// Validate the program (check if it can execute given current OpenGL state)
-    static ProgramLinkResult validateProgram( const ProgramPtr& program );
+    /// Validate the shader (check if it can execute given current OpenGL state)
+    static ShaderLinkResult validateShader( const ShaderPtr& shader );
 
     /// Get detailed info about a program (attributes, uniforms, etc.)
-    static std::string getProgramInfo( const ProgramPtr &program, bool verbose = false );
+    static std::string getShaderInfo( const ShaderPtr &shader, bool verbose = false );
 
-    /// Get program info log
-    static std::string getProgramInfoLog( const ProgramPtr &program );
+    /// Get shader info log
+    static std::string getShaderInfoLog( const ShaderPtr &shader );
 };
 
 } // namespace RenderCore

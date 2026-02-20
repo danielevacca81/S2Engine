@@ -6,6 +6,7 @@
 #include "OpenGLWrap.h"
 #include "OpenGLCheck.h"
 #include "Device.h"
+#include "Shader.h"
 
 
 #include "Math/Rectangle.h"
@@ -472,11 +473,11 @@ inline void StateManager::applyStencilMask( const StencilMask &stencilMask )
 }
 
 // ------------------------------------------------------------------------------------------------
-inline void StateManager::applyShaderProgram( const ProgramPtr &program )
+inline void StateManager::applyShaderProgram( const ShaderPtr &shader )
 {
-	auto doApplyProgram = []( const ProgramPtr & p ){
-		if( p )
-			p->bind();
+	auto doApplyShader = []( const ShaderPtr & s ){
+		if( s )
+			s->bind();
 		else
 		{
 			glUseProgram( 0 );
@@ -484,18 +485,18 @@ inline void StateManager::applyShaderProgram( const ProgramPtr &program )
 		}
 	};
 
-	ProgramPtr newProgram = (!program || program->isCreated()) ? program : _currentShaderProgram;
-	assert( newProgram == program );
+	ShaderPtr newShader = (!shader || shader->isCreated()) ? shader : _currentShader;
+	assert( newShader == shader );
 
-	if( newProgram != _currentShaderProgram ||
+	if( newShader != _currentShader ||
 		!_shadowingCurrentlyEnabled )
 	{
-		doApplyProgram( newProgram );
-		_currentShaderProgram = newProgram;
+		doApplyShader( newShader );
+		_currentShader = newShader;
 	}
 
-	if( _currentShaderProgram )
-		_currentShaderProgram->applyUniforms();
+	if( _currentShader )
+		_currentShader->applyUniforms();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -625,8 +626,8 @@ void StateManager::debugState( const bool drawStateCheck , const bool clearState
 
 
 		glGetIntegerv( GL_CURRENT_PROGRAM, val );
-		if( _currentShaderProgram )
-			assert( val[0] == _currentShaderProgram->id() );
+		if( _currentShader )
+			assert( val[0] == _currentShader->id() );
 		else
 			assert( val[0] == 0 );
 

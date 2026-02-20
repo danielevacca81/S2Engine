@@ -1,6 +1,6 @@
 // Shader.cpp
 //
-#include "Program.h"
+#include "Shader.h"
 
 #include "OpenGL.h"
 #include "OpenGLCheck.h"

@@ -11,28 +11,54 @@
 #include "RenderCore/RenderCommands.h"
 #include "Renderer/RenderMaterial.h"
 
-#include "Core/VectorCast.h"
-
 #include "Geometry/GeometryFactory3D.h"
+
+#include <iostream>
 
 ////// TODO:
 // - add keyboard handling
 // - computeshaders and opengl 4.6
 
+
+/* memo:
+* 
+* resourceManager::registerMesh accept meshdata instead of vertexdata, and create vertexdata internally.
+* dynamic mesh
+* static mesh
+* 
+* set uniform value bugged?
+*
+*
+*/
+
+// ------------------------------------------------------------------------------------------------
+void MainWindow::loadResources()
+{
+	_texture = s2::Resources::ImageLoader::loadFromFile( "F:/Sviluppo/Projects/S2Engine/Examples/test/x64/Debug/assets/PNG/Light/texture_11.png" ).value_or( s2::Resources::ImageData {} );
+
+	if( _texture.pixmap.isEmpty() )
+	{
+		std::cout << "Failed to load texture" << std::endl;
+		return;
+	}
+}
+
 // ------------------------------------------------------------------------------------------------
 void MainWindow::onInitializeEvent()
 {
+	loadResources();
+
 	// Initialize renderer with the current rendering context and default render pipeline
 	_renderer = std::make_unique<s2::Renderer::Renderer>( _renderingContext.get(), s2::Renderer::RenderPipeline::createForwardPipeline() );
 
-
+	auto& resources = _renderer->resources();
 
 	// register torus mesh
 	{
 		const auto mesh = s2::GeometryFactory3D::createTorus( 1.0, 0.5, 64, 16 );
 		auto vtx = RenderCore::VertexData::New( mesh );
 		vtx->setColors( std::vector<Color>( mesh.vertices.size(), Color::red() ) );
-		_torus = _renderer->resources().registerMesh( "torus", vtx );
+		_torus = resources.registerMesh( "torus", vtx );
 	}
 	
 	// register cube mesh
@@ -40,7 +66,7 @@ void MainWindow::onInitializeEvent()
 		const auto mesh = s2::GeometryFactory3D::createCube( { 5.0, 0.0, 0.0 }, 2.0 );
 		auto vtx = RenderCore::VertexData::New( mesh );
 		vtx->setColors( std::vector<Color>( mesh.vertices.size(), Color::green() ) );
-		_cube = _renderer->resources().registerMesh( "cube", vtx );
+		_cube = resources.registerMesh( "cube", vtx );
 	}
 
 	// register cone mesh
@@ -48,7 +74,7 @@ void MainWindow::onInitializeEvent()
 		const auto mesh = s2::GeometryFactory3D::createCone( Math::dvec3(2.5,0.0,0.0), Math::dvec3(2.5, 0.0, 3.0), 1, true, 32 );
 		auto vtx = RenderCore::VertexData::New( mesh );
 		vtx->setColors( std::vector<Color>( mesh.vertices.size(), Color::yellow() ) );
-		_cone = _renderer->resources().registerMesh( "cone", vtx );
+		_cone = resources.registerMesh( "cone", vtx );
 	}
 
 	// register sphere mesh
@@ -56,7 +82,7 @@ void MainWindow::onInitializeEvent()
 		const auto mesh = s2::GeometryFactory3D::createSphere( Math::dvec3( -2.5, 0.0, 0.0 ), 1.0, 32 );
 		auto vtx = RenderCore::VertexData::New( mesh );
 		vtx->setColors( std::vector<Color>( mesh.vertices.size(), Color::blue().lighter() ) );
-		_sphere = _renderer->resources().registerMesh( "sphere", vtx );
+		_sphere = resources.registerMesh( "sphere", vtx );
 	}
 
 	// register cylinder mesh
@@ -64,11 +90,18 @@ void MainWindow::onInitializeEvent()
 		const auto mesh = s2::GeometryFactory3D::createCylinder( Math::dvec3( -5.0, 0.0, 0.0 ), Math::dvec3( -5.0, 0.0, 2.0 ), 1.0, true, true, 32 );
 		auto vtx = RenderCore::VertexData::New( mesh );
 		vtx->setColors( std::vector<Color>( mesh.vertices.size(), Color::cyan() ) );
-		_cylinder = _renderer->resources().registerMesh( "cylinder", vtx );
+		_cylinder = resources.registerMesh( "cylinder", vtx );
 	}
 
-	_blinnPhong = _renderer->resources().registerShader( "blinnPhong", s2::RenderCore::DefaultShaders.BlinnPhong );
-	_material.shader = _blinnPhong;
+	_material.shader = resources.registerShader( "blinnPhong", s2::RenderCore::DefaultShaders.BlinnPhong );
+	_material.textures[0] = (int) resources.registerTexture( "orange",
+															 s2::RenderCore::Texture2D::New(
+															 s2::RenderCore::TextureDescription(
+															 _texture.pixmap.width(),
+															 _texture.pixmap.height(),
+															 s2::RenderCore::TextureFormat::RedGreenBlue8 ),
+															 (void*) _texture.pixmap.pixels() ) );
+	_material.properties["u_UseDiffuseMap"] = false;
 
 	//const auto teapot = s2::GeometryFactory3D::createTeapot( 10,10 );
 	//_teapot = RenderCore::VertexData::New();
@@ -77,10 +110,10 @@ void MainWindow::onInitializeEvent()
 	//_teapot->setIndices( teapot.indices );
 	//_teapot->setColors( std::vector<Color>( teapot.vertices.size(), Color::orange()) );
 
-			
 	_camera.set( Math::dvec3( 0.0, 0.0, 8.0 ),
 				 Math::dvec3( 0.0, 0.0, 0.0 ),
-				 Math::dvec3( 0.0, 1.0, 0.0) );
+				 Math::dvec3( 0.0, 1.0, 0.0 )
+	);
 
 	//_trackball.setRadius( 1.0 );
 	_trackball.setCenter( Math::ivec2( width() / 2, height() / 2 ) );
@@ -163,13 +196,17 @@ void MainWindow::onPaintEvent()
 			.modelMatrix = modelMatrix,
 			} );
 
-		_renderer->render(
+		{	
+			s2::Renderer::RenderCommand cmd
 			{
-			.renderMode  = s2::Renderer::RenderMode::Triangles,
-			.material    = _material,
-			.mesh        = _cube,
-			.modelMatrix = modelMatrix,
-			} );
+				.renderMode = s2::Renderer::RenderMode::Triangles,
+				.material = _material,
+				.mesh = _cube,
+				.modelMatrix = modelMatrix,
+			};
+			cmd.material.properties["u_UseDiffuseMap"] = true;
+			_renderer->render( cmd );
+		}
 
 		_renderer->render(
 			{

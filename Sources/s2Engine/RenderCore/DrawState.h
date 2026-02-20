@@ -11,7 +11,7 @@
 
 #include "RenderState.h"
 #include "TransformState.h"
-#include "Program.h"
+#include "Shader.h"
 #include "RenderCore.h"
 #include "TextureUnit.h"
 
@@ -29,13 +29,13 @@ struct DrawState
 	TransformState transform;
 	
 	// shader program and texture units
-	ProgramPtr     shader;
+	ShaderPtr      shader;
 	TextureUnits   textureUnits;
 
 	// viewport and scissor state
 	ViewportState  viewport;
 
-	DrawState( const ProgramPtr &s = DefaultShaders.Simple, const RenderState &renderState = {} )
+	DrawState( const ShaderPtr&s = DefaultShaders.Simple, const RenderState &renderState = {} )
 	: shadowingEnabled( true )
 	, shader( s )
 	, renderState( renderState )

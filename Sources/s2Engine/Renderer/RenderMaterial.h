@@ -8,14 +8,13 @@
 #include "ResourceManager.h"
 
 #include "Graphics/Color.h"
-#include "RenderCore/Program.h"
-#include "RenderCore/Texture.h"
 
 #include <unordered_map>
 #include <string>
 #include <variant>
 
 namespace s2 {
+namespace RenderCore { class Shader;}
 namespace Renderer {
 
 enum class BlendMode
@@ -83,9 +82,9 @@ struct S2ENGINE_API RenderMaterial
 		Math::dmat2,
 		Math::dmat3,
 		Math::dmat4>;
-	std::unordered_map<std::string, Property> properties;
+	std::unordered_map<std::string, Property> properties; // uniform name -> value
 
-	std::unordered_map<std::string, ResourceHandle> textures;
+	std::unordered_map<uint16_t, ResourceHandle> textures; // texture unit -> texture handle
 
 	bool operator<( const RenderMaterial& other ) const
 	{
@@ -94,6 +93,9 @@ struct S2ENGINE_API RenderMaterial
 		return blendMode == BlendMode::Opaque
 			&& other.blendMode == BlendMode::AlphaBlend;
 	}
+
+	// Applies the material properties to the shader uniforms based on matching names and compatible types
+	void applyPropertiesToShader( RenderCore::Shader& shader ) const;
 };
 
 } // namespace Renderer

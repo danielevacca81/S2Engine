@@ -5,7 +5,6 @@
 #include "CommandBuffer.h"
 #include "FrameData.h"
 #include "RenderCommand.h"
-#include "GPUStateMapper.h"
 
 #include "RenderCore/RenderCommands.h"
 #include "RenderCore/Context.h"
@@ -71,13 +70,22 @@ void ForwardPass::execute( const CommandBuffer& queue, FrameData& frameData )
                 : s;
         }();
 
-		// Set shader uniforms based on material properties
-		// @todo: too many lookups here, consider caching shader/material combinations or using a more efficient system for setting uniforms
-		for( auto& [name, value] : renderCmd.material.properties )
-            ds.shader->setUniformValue( name, value );
+		// Apply material properties to shader uniforms
+		// @note: performance optimization - we could cache the mapping of material properties
+        // to shader uniforms for each shader to avoid redundant lookups and conversions every frame
+		renderCmd.material.applyPropertiesToShader( *ds.shader );
 
 		// Retrieve mesh from resource manager
 		auto mesh = _resourceManager->getMesh( renderCmd.mesh );
+
+		// bind textures to drawstate texture units
+        for( const auto& [unit, textureHandle] : renderCmd.material.textures )
+        {
+            auto texture = _resourceManager->getTexture( textureHandle );
+            if( texture )
+				ds.textureUnits[unit].set( texture, RenderCore::DefaultSamplers.LinearClamp );
+        }
+        
 
           
         // Determine primitive type
@@ -101,11 +109,12 @@ void ForwardPass::execute( const CommandBuffer& queue, FrameData& frameData )
         _stats.vertices +=  mesh->vertexCount();
         _stats.triangles += mesh->indexCount() / 3;
     }
-
+#if 0
 	std::cout << "ForwardPass executed: "
         << _stats.drawCalls << " draw calls, "
         << _stats.triangles << " triangles, "
 		<< _stats.vertices << " vertices." << std::endl;
+#endif
 
 	_stats = Stats {}; // Reset stats for the next frame
 }

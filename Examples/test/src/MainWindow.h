@@ -6,10 +6,8 @@
 #include "Application/Window.h"
 #include "Application/MouseState.h"
 
-#include "RenderCore/VertexData.h" // deprecated, use MeshData instead
-
 #include "Geometry/MeshData.h"
-
+#include "Resources/ImageLoader.h"
 
 #include "Scene/Camera.h"
 #include "Scene/TrackBall.h"
@@ -36,24 +34,25 @@ public:
 	void onResizeEvent( uint32_t width, uint32_t height ) override;
 
 private:
+	void loadResources();
+
+private:
 	// s2::Renderer renderer; // forward rendering, deferred rendering, etc.
 	std::unique_ptr<s2::Renderer::Renderer> _renderer;
 
-	s2::Renderer::ResourceHandle _torus;
-	s2::Renderer::ResourceHandle _cone;
-	s2::Renderer::ResourceHandle _cube;
-	s2::Renderer::ResourceHandle _sphere;
-	s2::Renderer::ResourceHandle _cylinder;
-	s2::Renderer::ResourceHandle _teapot;
-
-	s2::Renderer::ResourceHandle _blinnPhong;
+	s2::Renderer::ResourceHandle _torus    { s2::Renderer::InvalidHandle };
+	s2::Renderer::ResourceHandle _cone     { s2::Renderer::InvalidHandle };
+	s2::Renderer::ResourceHandle _cube     { s2::Renderer::InvalidHandle };
+	s2::Renderer::ResourceHandle _sphere   { s2::Renderer::InvalidHandle };
+	s2::Renderer::ResourceHandle _cylinder { s2::Renderer::InvalidHandle };
+	s2::Renderer::ResourceHandle _teapot   { s2::Renderer::InvalidHandle };
 
 	s2::Renderer::RenderMaterial _material;
+	s2::Resources::ImageData _texture;
 
-
-	s2::Scene::Camera               _camera;
-	s2::Scene::TrackBall            _trackball;
-	s2::Scene::TrackBall            _trackballLight;
+	s2::Scene::Camera    _camera;
+	s2::Scene::TrackBall _trackball;
+	s2::Scene::TrackBall _trackballLight;
 };
 
 #endif // !MAINWINDOW_H

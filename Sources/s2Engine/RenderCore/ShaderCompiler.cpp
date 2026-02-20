@@ -52,56 +52,56 @@ ShaderStageCompilationResult ShaderCompiler::compileFromFile( ShaderStageType ty
 }
 
 // ------------------------------------------------------------------------------------------------
-ProgramLinkResult ShaderCompiler::linkProgram( const ProgramPtr& program, const std::string& name )
+ShaderLinkResult ShaderCompiler::linkShader( const ShaderPtr& shader, const std::string& name )
 {
-	if( !program || !program->isCreated() )
-		return ProgramLinkResult { false,"Invalid program" };
+	if( !shader || !shader->isCreated() )
+		return ShaderLinkResult { false,"Invalid shader" };
 
-	if( program->isLinked() )
-		return ProgramLinkResult { true,"Already linked" };
+	if( shader->isLinked() )
+		return ShaderLinkResult { true,"Already linked" };
 
 	// find uniforms before linking to support shader subroutines (if any)?
 	// see https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glGetActiveUniform.xhtml
 	//program->findUniforms(); // needed???
 
-	glLinkProgram( program->id() );
+	glLinkProgram( shader->id() );
 
 	GLint linkStatus = GL_FALSE;
-	glGetProgramiv( program->id(), GL_LINK_STATUS, &linkStatus );
+	glGetProgramiv( shader->id(), GL_LINK_STATUS, &linkStatus );
 	glCheck;
 
 	if( linkStatus == GL_FALSE )
 	{
-		const std::string errorLog = getProgramInfoLog( program );
-		return ProgramLinkResult { false,errorLog };
+		const std::string errorLog = getShaderInfoLog( shader );
+		return ShaderLinkResult { false,errorLog };
 	}
 
-	program->_linked = true;
-	program->setLabel( name );
-	program->findUniforms();
+	shader->_linked = true;
+	shader->setLabel( name );
+	shader->findUniforms();
 
-	return ProgramLinkResult { true,"" };
+	return ShaderLinkResult { true,"" };
 }
 
 // ------------------------------------------------------------------------------------------------
-ProgramLinkResult ShaderCompiler::validateProgram( const ProgramPtr& program )
+ShaderLinkResult ShaderCompiler::validateShader( const ShaderPtr& shader )
 {
-	if( !program )
-		return ProgramLinkResult { false,"Invalid program" };
+	if( !shader )
+		return ShaderLinkResult { false,"Invalid shader" };
 
-	glValidateProgram( program->id() );
+	glValidateProgram( shader->id() );
 
 	GLint validateStatus = GL_FALSE;
-	glGetProgramiv( program->id(), GL_VALIDATE_STATUS, &validateStatus );
+	glGetProgramiv( shader->id(), GL_VALIDATE_STATUS, &validateStatus );
 	glCheck;
 
 	if( validateStatus == GL_FALSE )
 	{
-		const std::string errorLog = getProgramInfoLog( program );
-		return ProgramLinkResult { false,errorLog };
+		const std::string errorLog = getShaderInfoLog( shader );
+		return ShaderLinkResult { false,errorLog };
 	}
 
-	return ProgramLinkResult { true,"" };
+	return ShaderLinkResult { true,"" };
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -120,24 +120,24 @@ std::string ShaderCompiler::getShaderStageInfoLog( const ShaderStagePtr& stage )
 }
 
 // ------------------------------------------------------------------------------------------------
-std::string ShaderCompiler::getProgramInfoLog( const ProgramPtr& program )
+std::string ShaderCompiler::getShaderInfoLog( const ShaderPtr& shader )
 {
 	GLint maxLength = 0;
-	glGetProgramiv( program->id(), GL_INFO_LOG_LENGTH, &maxLength );
+	glGetShaderiv( shader->id(), GL_INFO_LOG_LENGTH, &maxLength );
 
 	if( maxLength == 0 )
 		return "";
 
 	std::vector<GLchar> infoLog( maxLength );
-	glGetProgramInfoLog( program->id(), maxLength, &maxLength, infoLog.data() );
+	glGetShaderInfoLog( shader->id(), maxLength, &maxLength, infoLog.data() );
 
 	return std::string( infoLog.begin(), infoLog.end() );
 }
 
 // ------------------------------------------------------------------------------------------------
-std::string ShaderCompiler::getProgramInfo( const ProgramPtr& program, bool verbose )
+std::string ShaderCompiler::getShaderInfo( const ShaderPtr& shader, bool verbose )
 {
-	auto extraInfo = [] ( int programID, bool attrib )
+	auto extraInfo = [] ( int shaderID, bool attrib )
 	{
 		auto GL_type_to_string = [] ( GLenum type ) -> std::string
 		{
@@ -163,8 +163,8 @@ std::string ShaderCompiler::getProgramInfo( const ProgramPtr& program, bool verb
 
 		int params = -1;
 
-		if( attrib ) glGetProgramiv( programID, GL_ACTIVE_ATTRIBUTES, &params );
-		else         glGetProgramiv( programID, GL_ACTIVE_UNIFORMS, &params );
+		if( attrib ) glGetProgramiv( shaderID, GL_ACTIVE_ATTRIBUTES, &params );
+		else         glGetProgramiv( shaderID, GL_ACTIVE_UNIFORMS, &params );
 		glCheck;
 
 		std::stringstream msg;
@@ -176,8 +176,8 @@ std::string ShaderCompiler::getProgramInfo( const ProgramPtr& program, bool verb
 			int size = 0;
 
 			GLenum type;
-			if( attrib )  glGetActiveAttrib( programID, i, max_length, &actual_length, &size, &type, name );
-			else          glGetActiveUniform( programID, i, max_length, &actual_length, &size, &type, name );
+			if( attrib )  glGetActiveAttrib( shaderID, i, max_length, &actual_length, &size, &type, name );
+			else          glGetActiveUniform( shaderID, i, max_length, &actual_length, &size, &type, name );
 			glCheck;
 
 			if( size > 1 )
@@ -186,8 +186,8 @@ std::string ShaderCompiler::getProgramInfo( const ProgramPtr& program, bool verb
 				{
 					std::string longName = "[" + std::to_string( j ) + "]";
 					int location = 0;
-					if( attrib ) location = glGetAttribLocation( programID, longName.c_str() );
-					else         location = glGetUniformLocation( programID, longName.c_str() );
+					if( attrib ) location = glGetAttribLocation( shaderID, longName.c_str() );
+					else         location = glGetUniformLocation( shaderID, longName.c_str() );
 					glCheck;
 					msg << "  loc " << location << "] "
 						<< GL_type_to_string( type )
@@ -199,8 +199,8 @@ std::string ShaderCompiler::getProgramInfo( const ProgramPtr& program, bool verb
 			else
 			{
 				int location = 0;
-				if( attrib ) location = glGetAttribLocation( programID, name );
-				else         location = glGetUniformLocation( programID, name );
+				if( attrib ) location = glGetAttribLocation( shaderID, name );
+				else         location = glGetUniformLocation( shaderID, name );
 				glCheck;
 
 				msg << "  loc " << location << "] "
@@ -218,17 +218,17 @@ std::string ShaderCompiler::getProgramInfo( const ProgramPtr& program, bool verb
 	if( !verbose )
 	{
 		GLint len = 0;
-		glGetProgramiv( program->id(), GL_INFO_LOG_LENGTH, &len );
+		glGetShaderiv( shader->id(), GL_INFO_LOG_LENGTH, &len );
 
 		std::vector<GLchar> errorLog( len + 1 );
-		glGetProgramInfoLog( program->id(), len, &len, errorLog.data() );
+		glGetShaderInfoLog( shader->id(), len, &len, errorLog.data() );
 
-		msg << program->name() << " info:" << std::endl
+		msg << shader->name() << " info:" << std::endl
 			<< std::string( errorLog.begin(), errorLog.end() ) << std::endl;
 	}
 	else
 	{
-		msg << program->name() << " info" << std::endl
+		msg << shader->name() << " info" << std::endl
 			<< "--------------------" << std::endl;
 
 		auto shaderLog = [] ( const ShaderStagePtr& stage )
@@ -245,27 +245,27 @@ std::string ShaderCompiler::getProgramInfo( const ProgramPtr& program, bool verb
 			return std::string( errorLog.begin(), errorLog.end() );
 		};
 
-		if( program->_vshd->isValid() ) msg << "Vertex Shader Log:" << shaderLog( program->_vshd ) << std::endl;
-		if( program->_fshd->isValid() ) msg << "Fragment Shader Log:" << shaderLog( program->_fshd ) << std::endl;
-		if( program->_gshd->isValid() ) msg << "Geometry Shader Log:" << shaderLog( program->_gshd ) << std::endl;
-		if( program->_cshd->isValid() ) msg << "Compute Shader Log:" << shaderLog( program->_cshd ) << std::endl;
-		if( program->_tshd->isValid() ) msg << "Tessellation Control Shader Log:" << shaderLog( program->_tshd ) << std::endl;
-		if( program->_teshd->isValid() ) msg << "Tessellation Evaluation Shader Log:" << shaderLog( program->_teshd ) << std::endl;
+		if( shader->_vshd->isValid() )  msg << "Vertex Shader Log:" <<                  shaderLog( shader->_vshd ) << std::endl;
+		if( shader->_fshd->isValid() )  msg << "Fragment Shader Log:" <<                shaderLog( shader->_fshd ) << std::endl;
+		if( shader->_gshd->isValid() )  msg << "Geometry Shader Log:" <<                shaderLog( shader->_gshd ) << std::endl;
+		if( shader->_cshd->isValid() )  msg << "Compute Shader Log:" <<                 shaderLog( shader->_cshd ) << std::endl;
+		if( shader->_tshd->isValid() )  msg << "Tessellation Control Shader Log:" <<    shaderLog( shader->_tshd ) << std::endl;
+		if( shader->_teshd->isValid() ) msg << "Tessellation Evaluation Shader Log:" << shaderLog( shader->_teshd ) << std::endl;
 
 		int params = -1;
-		glGetProgramiv( program->id(), GL_LINK_STATUS, &params );
+		glGetProgramiv( shader->id(), GL_LINK_STATUS, &params );
 		msg << "GL_LINK_STATUS = " << params << std::endl;
 
-		glGetProgramiv( program->id(), GL_ATTACHED_SHADERS, &params );
+		glGetProgramiv( shader->id(), GL_ATTACHED_SHADERS, &params );
 		msg << "GL_ATTACHED_SHADERS = " << params << std::endl;
 
-		glGetProgramiv( program->id(), GL_ACTIVE_ATTRIBUTES, &params );
+		glGetProgramiv( shader->id(), GL_ACTIVE_ATTRIBUTES, &params );
 		msg << "GL_ACTIVE_ATTRIBUTES = " << params << std::endl;
-		msg << extraInfo( program->id(), true ) << std::endl;
+		msg << extraInfo( shader->id(), true ) << std::endl;
 
-		glGetProgramiv( program->id(), GL_ACTIVE_UNIFORMS, &params );
+		glGetProgramiv( shader->id(), GL_ACTIVE_UNIFORMS, &params );
 		msg << "GL_ACTIVE_UNIFORMS = " << params << std::endl;
-		msg << extraInfo( program->id(), false ) << std::endl;
+		msg << extraInfo( shader->id(), false ) << std::endl;
 	}
 
 	glCheck;

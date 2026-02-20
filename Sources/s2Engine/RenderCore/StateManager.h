@@ -11,8 +11,7 @@
 
 #include "Graphics/Color.h"
 
-#include "Program.h"
-#include "FrameBuffer.h"
+#include "Shader.h"
 
 namespace s2 {
 namespace RenderCore {
@@ -48,7 +47,7 @@ private:
 	void applyColorMask         ( const ColorMask &colorMask );
 	void applyDepthMask         ( const DepthMask& depthMask );
 	void applyStencilMask       ( const StencilMask &stencilMask );
-	void applyShaderProgram     ( const ProgramPtr  &program );
+	void applyShaderProgram     ( const ShaderPtr  &shader);
 	void applyViewportAndScissor( const ViewportState &vs);
 	void applyClearColorSeparate( const ClearColorSeparate &clearColorSeparate );
 
@@ -65,7 +64,7 @@ private:
 	// shadowed state to avoid redundant state changes.
 	RenderState   _renderState;
 	ViewportState _viewportState;
-	ProgramPtr    _currentShaderProgram;
+	ShaderPtr     _currentShader;
 };
 
 
