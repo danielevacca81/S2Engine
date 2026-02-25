@@ -5,7 +5,7 @@
 
 #include "s2Engine_API.h"
 
-#include "BufferObject.h"
+#include "GPUBufferObject.h"
 
 namespace s2 {
 namespace RenderCore {
@@ -16,14 +16,11 @@ namespace RenderCore {
 class S2ENGINE_API VertexBuffer
 {
 public:
-	//OBJECT_DECLARE_MOVEABLE( VertexBuffer )
-	//OBJECT_DISABLE_COPY( VertexBuffer )
-
 	VertexBuffer() = default;
-	VertexBuffer( int sizeInBytes, const BufferObject::UsageHint &usageHint );
-	VertexBuffer( void *data, int sizeInBytes, const BufferObject::UsageHint &usageHint );
+	VertexBuffer( int sizeInBytes, const GPUBufferObject::UsageHint &usageHint );
+	VertexBuffer( void *data, int sizeInBytes, const GPUBufferObject::UsageHint &usageHint );
 
-	void set( int sizeInBytes, const BufferObject::UsageHint &usageHint );
+	void set( int sizeInBytes, const GPUBufferObject::UsageHint &usageHint );
 
 	bool isValid()     const { return _bufferObject->id() !=  0; }
 	int  sizeInBytes() const { return _bufferObject->size(); }
@@ -33,11 +30,11 @@ public:
 
 	void  sendData( void *data, int length, int offset = 0 );
 	void* receiveData( int length, int offset = 0 );
-	void* mapData( const BufferObject::MapMode &mode );
+	void* mapData( const GPUBufferObject::MapMode &mode );
 	bool  unmapData();
 
 private:
-	BufferObjectPtr _bufferObject;
+	GPUBufferObjectPtr _bufferObject;
 };
 
 

@@ -84,8 +84,14 @@ Context::~Context()
 }
 
 // ------------------------------------------------------------------------------------------------
-void Context::beginFrame() { _stateManager.disableShadowingOneShot(); }
-void Context::endFrame()   
+void Context::beginFrame() 
+{
+	_stateManager.disableClearStateShadowing();
+	_stateManager.disableDrawStateShadowing();
+}
+
+// ------------------------------------------------------------------------------------------------
+void Context::endFrame()
 { 
 	if( Device::vendor() != Device::Vendor::Nvidia )
 		glFinish(); 

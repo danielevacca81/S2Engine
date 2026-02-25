@@ -17,7 +17,7 @@ void SwapChain::swapToScreen( const RenderTarget& renderTarget )
 		return; // No active context
 
 	// Blit is slightly faster than drawFullscreenQuad
-	ctx->commands().blit( renderTarget.fbo(),
+	ctx->commands().blit( renderTarget.framebuffer(),
 	                      nullptr,                                                         // default FBO, which is the screen
 	                      Math::irect( 0, 0, renderTarget.width(), renderTarget.height() ) // whole size
 	);

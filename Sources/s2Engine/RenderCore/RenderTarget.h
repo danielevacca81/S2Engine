@@ -10,57 +10,84 @@
 
 #include <initializer_list>
 #include <string>
+#include <cstdint>
 
 namespace s2 {
 namespace RenderCore {
 
 // ------------------------------------------------------------------------------------------------
-// RenderTarget: Manages framebuffer attachments and dimensions
-// Does NOT perform rendering operations (delegated to CommandBuffer)
+// RenderTarget: High-level wrapper for FrameBuffer with automatic texture management
+// 100% DSA - No binding required for setup
+// Does NOT perform rendering operations (delegated to RenderCommands)
 // ------------------------------------------------------------------------------------------------
 class S2ENGINE_API RenderTarget
 {
 public:
-	struct AttachmentDescription
-	{
-		FrameBuffer::AttachmentPoint attachPoint;
-		TextureFormat                textureFormat;
+    struct AttachmentDescription
+    {
+        FrameBuffer::AttachmentPoint attachPoint;
+        TextureFormat                textureFormat;
 
-		AttachmentDescription( const FrameBuffer::AttachmentPoint ap, const TextureFormat tf )
-			: attachPoint( ap ), textureFormat( tf ) {}
-	};
+        AttachmentDescription( FrameBuffer::AttachmentPoint ap, TextureFormat tf )
+            : attachPoint( ap ), textureFormat( tf ) {}
+    };
 
 public:
-	RenderTarget();
-	explicit RenderTarget( const std::initializer_list<AttachmentDescription>& init );
+    // Default constructor (RGBA8 color + Depth24)
+    RenderTarget();
+    
+    // Custom attachments
+    explicit RenderTarget( const std::initializer_list<AttachmentDescription>& attachments );
 
-	// Label for debugging
-	void setLabel( const std::string& label );
+    // Label for debugging (OpenGL 4.3+)
+    void setObjectLabel( const std::string& label );
 
-	// Dimensions
-	Math::irect size() const { return Math::irect( 0, 0, _width, _height ); }
-	uint32_t    width()  const { return _width; }
-	uint32_t    height() const { return _height; }
-	void        resize( int32_t width, int32_t height );
+    // ===== Dimensions Management =====
+    
+    Math::irect size()   const { return Math::irect( 0, 0, _width, _height ); }
+    uint32_t    width()  const { return _width; }
+    uint32_t    height() const { return _height; }
+    
+    // Resize all attachments (DSA)
+    void resize( int32_t width, int32_t height );
 
-	// Attachment management
-	void attach( const FrameBuffer::AttachmentPoint& attachPoint, const Texture2DPtr& texture );
-	void createAttachment( const FrameBuffer::AttachmentPoint& attachPoint, const TextureFormat& textureFormat );
-	void removeAttachment( const FrameBuffer::AttachmentPoint& attachPoint );
+    // ===== Attachment Management (DSA) =====
+    
+    // Attach existing texture (DSA)
+    void attach( FrameBuffer::AttachmentPoint attachPoint, const Texture2DPtr& texture );
+    
+    // Create and attach new texture (DSA)
+    void createAttachment( FrameBuffer::AttachmentPoint attachPoint, TextureFormat textureFormat );
+    
+    // Remove attachment (DSA)
+    void removeAttachment( FrameBuffer::AttachmentPoint attachPoint );
 
-	Texture2DPtr attachment( const FrameBuffer::AttachmentPoint& a ) const;
-	uint32_t     colorAttachmentDrawBufferIndex( const FrameBuffer::AttachmentPoint& attachPoint ) const;
+    // Get attachment texture
+    Texture2DPtr attachment( FrameBuffer::AttachmentPoint attachPoint ) const;
+    
+    // Get color attachment draw buffer index
+    uint32_t colorAttachmentDrawBufferIndex( FrameBuffer::AttachmentPoint attachPoint ) const;
 
-	// Direct FBO access (use with caution)
-	const FrameBufferPtr& fbo() const { return _fbo; }
+    // ===== Validation =====
+    
+    // Check if framebuffer is complete (DSA)
+    bool isComplete() const;
+    
+    // Get status info
+    std::string statusInfo() const;
+
+    // ===== Direct FBO Access =====
+    
+    // Get underlying framebuffer (use for advanced operations)
+    const FrameBufferPtr& framebuffer() const { return _fbo; }
 
 private:
-	std::string genLabelAttachment( const FrameBuffer::AttachmentPoint& attachPoint ) const;
+    std::string genLabelAttachment( FrameBuffer::AttachmentPoint attachPoint ) const;
 
 private:
-	uint32_t       _width  { 0 };
-	uint32_t       _height { 0 };
-	FrameBufferPtr _fbo;
+    uint32_t       _width  { 64 };
+    uint32_t       _height { 64 };
+    FrameBufferPtr _fbo;
 };
 
 } // namespace RenderCore

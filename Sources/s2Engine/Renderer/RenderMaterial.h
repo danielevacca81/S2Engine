@@ -8,99 +8,157 @@
 #include "ResourceManager.h"
 
 #include "Graphics/Color.h"
+#include "Math/Math.h"
 
 #include <unordered_map>
 #include <string>
 #include <variant>
 
 namespace s2 {
-namespace RenderCore { class Shader;}
+namespace RenderCore { class Shader; }
 namespace Renderer {
 
+// ------------------------------------------------------------------------------------------------
 enum class BlendMode
 {
     Opaque,
     AlphaBlend,
+    Additive,
+    Multiply
 };
 
+// ------------------------------------------------------------------------------------------------
 enum class CullMode
 {
     Back,
     Front,
-    None,
+    None
 };
 
-
+// ------------------------------------------------------------------------------------------------
 struct S2ENGINE_API RenderMaterial
 {
-	// Render state properties
-	BlendMode blendMode    { BlendMode::Opaque };
-	CullMode  cullMode     { CullMode::Back };
-	bool      depthWrite   { true };
-	bool      depthTest    { true };
-	bool      shadowCaster { false };
-	// colorMask { true, true, true, true }
+    // ===== Render State Properties =====
+    
+    BlendMode blendMode    { BlendMode::Opaque };
+    CullMode  cullMode     { CullMode::Back };
+    bool      depthWrite   { true };
+    bool      depthTest    { true };
+    bool      shadowCaster { false };
 
+    // Shader handle
+    ResourceHandle shader { InvalidHandle };
 
-	ResourceHandle shader { InvalidHandle };
-	
-	// instead of public properties variant, use:
-	// setFloat("roughness", 0.5f);
-	// setColor("baseColor", Color::red());
-	// setVec3("emissiveColor", Math::vec3(1.f, 0.f, 0.f));
-	// setVec4("lightPosition", Math::vec4(1.f, 0.f, 0.f));
-	// setTexture("albedoMap", texturePtr);
-	// 
-	// ... etc.
-	// 
-	// with corresponding getters.
+    // ===== Material Properties (Uniforms) =====
+    
+    using Property = std::variant<
+        bool,
+        int,
+        float,
+        double,
+        uint64_t,
+        Color,
+        Math::fvec2,
+        Math::fvec3,
+        Math::fvec4,
+        Math::fmat2,
+        Math::fmat3,
+        Math::fmat4,
+        Math::dvec2,
+        Math::dvec3,
+        Math::dvec4,
+        Math::dmat2,
+        Math::dmat3,
+        Math::dmat4
+    >;
 
-	//void setBool   ( const std::string& name, bool value )               { properties[name] = value; }
-	//void setFloat  ( const std::string& name, float value )              { properties[name] = value; }
-	//void setInt    ( const std::string& name, int value )                { properties[name] = value; }
-	//void setColor  ( const std::string& name, const Color& value )       { properties[name] = value; }
-	//void setVec2   ( const std::string& name, const Math::fvec2& value ) { properties[name] = value; }
-	//void setVec3   ( const std::string& name, const Math::fvec3& value ) { properties[name] = value; }
-	//void setVec4   ( const std::string& name, const Math::fvec4& value ) { properties[name] = value; }
-	//void setTexture( const std::string& name, TextureHandle texture )    { textures[name]   = texture; }
+    std::unordered_map<std::string, Property> properties;     // uniform name -> value
+    std::unordered_map<std::string, ResourceHandle> textures; // uniform name -> texture handle
 
-	using Property = std::variant<
-		bool,
-		int,
-		float,
-		double,
-		Color,
-		Math::fvec2,
-		Math::fvec3,
-		Math::fvec4,
-		Math::fmat2,
-		Math::fmat3,
-		Math::fmat4,
-		Math::dvec2,
-		Math::dvec3,
-		Math::dvec4,
-		Math::dmat2,
-		Math::dmat3,
-		Math::dmat4>;
-	std::unordered_map<std::string, Property> properties; // uniform name -> value
+    // ===== Sorting for Render Order =====
+    
+    bool operator<( const RenderMaterial& other ) const
+    {
+        // Opaque materials rendered before transparent (front-to-back)
+        if( blendMode != other.blendMode )
+            return blendMode == BlendMode::Opaque && other.blendMode != BlendMode::Opaque;
+        
+        // Then sort by shader (minimize shader switches)
+        if( shader != other.shader )
+            return shader < other.shader;
+        
+        // Then by material properties (arbitrary but consistent)
+        return properties.size() < other.properties.size();
+    }
 
-	std::unordered_map<uint16_t, ResourceHandle> textures; // texture unit -> texture handle
+    // ===== Setters (Convenience API) =====
+    
+    void setProperty( const std::string& name, const Property& value )
+    {
+        properties[name] = value;
+    }
 
-	bool operator<( const RenderMaterial& other ) const
-	{
-		// if this material is opaque and the other is transparent
-		// this material should be rendered before the other
-		return blendMode == BlendMode::Opaque
-			&& other.blendMode == BlendMode::AlphaBlend;
-	}
+    void setBool( const std::string& name, bool value )
+    {
+        properties[name] = value;
+    }
 
-	// Applies the material properties to the shader uniforms based on matching names and compatible types
-	void applyPropertiesToShader( RenderCore::Shader& shader ) const;
+    void setInt( const std::string& name, int value )
+    {
+        properties[name] = value;
+    }
+
+    void setFloat( const std::string& name, float value )
+    {
+        properties[name] = value;
+    }
+
+    void setColor( const std::string& name, const Color& value )
+    {
+        properties[name] = value;
+    }
+
+    void setVec2( const std::string& name, const Math::fvec2& value )
+    {
+        properties[name] = value;
+    }
+
+    void setVec3( const std::string& name, const Math::fvec3& value )
+    {
+        properties[name] = value;
+    }
+
+    void setVec4( const std::string& name, const Math::fvec4& value )
+    {
+        properties[name] = value;
+    }
+
+    void setMatrix3( const std::string& name, const Math::fmat3& value )
+    {
+        properties[name] = value;
+    }
+
+    void setMatrix4( const std::string& name, const Math::fmat4& value )
+    {
+        properties[name] = value;
+    }
+
+    // Set texture by uniform name (not unit index!)
+    void setTexture( const std::string& uniformName, ResourceHandle textureHandle )
+    {
+        textures[uniformName] = textureHandle;
+    }
+
+    // ===== Apply to Shader (DSA) =====
+    
+    // Apply all material properties to shader uniforms (DSA - no binding required)
+    void applyPropertiesToShader( RenderCore::Shader& shader ) const;
+    
+    // Apply textures to shader (Bindless)
+    void applyTexturesToShader( RenderCore::Shader& shader, const ResourceManager& resourceManager ) const;
 };
 
 } // namespace Renderer
 } // namespace s2
-
-
 
 #endif // !S2_RENDERER_RENDERMATERIAL_H

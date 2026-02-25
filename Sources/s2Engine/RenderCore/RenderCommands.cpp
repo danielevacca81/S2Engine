@@ -8,185 +8,314 @@
 #include "OpenGLCheck.h"
 #include "OpenGLWrap.h"
 
+#include <cassert>
+
 using namespace s2::RenderCore;
 
 // ------------------------------------------------------------------------------------------------
 RenderCommands::RenderCommands( Context& context )
-	: _context( context )
+    : _context( context )
 {
 }
 
 // ================================================================================================
-// CLEAR OPERATIONS
+// CLEAR OPERATIONS (DSA-ready)
 // ================================================================================================
 
 void RenderCommands::clear( const RenderTarget& target, const ClearState& cs )
 {
-	clear( target.fbo(), cs );
+    clear( target.framebuffer(), cs );
 }
 
 // ------------------------------------------------------------------------------------------------
 void RenderCommands::clear( const FrameBufferPtr& fbo, const ClearState& cs )
 {
-	if( !fbo )
-		return;
+    if( !fbo )
+        return;
 
-	fbo->bind();
-	_context._stateManager.setClearState( cs );
+    // Bind FBO (required for clear operations)
+    fbo->bind();
+    
+    // Apply clear state and perform clear
+    _context._stateManager.setClearState( cs );
+    
+    fbo->unbind();
 }
 
 // ================================================================================================
-// DRAW OPERATIONS
+// DRAW OPERATIONS (DSA-ready)
 // ================================================================================================
 
-void RenderCommands::draw( const RenderTarget& target, const PrimitiveType& primitiveType,
-						  const VertexArrayPtr& va, const DrawState& ds )
+void RenderCommands::draw( 
+    const RenderTarget& target, 
+    const PrimitiveType& primitiveType,
+    const VertexArrayPtr& va, 
+    const DrawState& ds )
 {
-	draw( target.fbo(), primitiveType, va, sanitizeDrawState( ds, target ) );
+    draw( target.framebuffer(), primitiveType, va, sanitizeDrawState( ds, target ) );
 }
 
 // ------------------------------------------------------------------------------------------------
-void RenderCommands::draw( const RenderTarget& target, const PrimitiveType& primitiveType,
-						  const VertexDataPtr& primitive, const DrawState& ds )
+void RenderCommands::draw( 
+    const RenderTarget& target, 
+    const PrimitiveType& primitiveType,
+    const VertexDataPtr& primitive, 
+    const DrawState& ds )
 {
-	draw( target.fbo(), primitiveType, primitive, sanitizeDrawState( ds, target ) );
+    draw( target.framebuffer(), primitiveType, primitive, sanitizeDrawState( ds, target ) );
 }
 
 // ------------------------------------------------------------------------------------------------
-void RenderCommands::draw( const RenderTarget& target, const PrimitiveBatch& batch, const DrawState& ds )
+void RenderCommands::draw( 
+    const RenderTarget& target, 
+    const PrimitiveBatch& batch, 
+    const DrawState& ds )
 {
-	if( !target.fbo() )
-		return;
+    if( !target.framebuffer() )
+        return;
 
-	auto &b = batch.batch();
+    const auto& b = batch.batch();
 
-	auto pBuffer = VertexData::New();
-	pBuffer->setVertices( b.vertices );
-	pBuffer->setTextureCoords( b.textureCoords );
-	pBuffer->setColors( b.colors );
-	pBuffer->setNormals( b.normals );
-	pBuffer->setIndices( b.indices );
+    // Create vertex data from batch (DSA)
+    auto vertexData = VertexData::New();
+    vertexData->setVertices( b.vertices );
+    vertexData->setTextureCoords( b.textureCoords );
+    vertexData->setColors( b.colors );
+    vertexData->setNormals( b.normals );
+    vertexData->setIndices( b.indices );
 
-	auto ds2 = sanitizeDrawState( ds, target );
-	ds2.renderState.primitiveRestart.enabled = true;
-	ds2.renderState.primitiveRestart.index = batch.primitiveRestartIndex();
+    // Setup draw state with primitive restart
+    DrawState batchDrawState = sanitizeDrawState( ds, target );
+    batchDrawState.renderState.primitiveRestart.enabled = true;
+    batchDrawState.renderState.primitiveRestart.index = batch.primitiveRestartIndex();
 
-	draw( target.fbo(), batch.primitiveType(), pBuffer, ds2 );
+    draw( target.framebuffer(), batch.primitiveType(), vertexData, batchDrawState );
 }
 
 // ------------------------------------------------------------------------------------------------
-void RenderCommands::draw( const FrameBufferPtr& fbo, const PrimitiveType& primitiveType,
-						  const VertexArrayPtr& va, const DrawState& ds )
+void RenderCommands::draw( 
+    const FrameBufferPtr& fbo, 
+    const PrimitiveType& primitiveType,
+    const VertexArrayPtr& va, 
+    const DrawState& ds )
 {
-	if( !fbo || !va )
-		return;
+    if( !fbo || !va )
+        return;
 
-	fbo->bind();
-	_context._stateManager.setDrawState( ds );
-	executeDrawCall( primitiveType, va );
+    assert( ds.shader && "DrawState must have a valid shader" );
+
+    // Bind FBO (required for rendering)
+    fbo->bind();
+
+    // Apply draw state (DSA-aware: no binding for uniforms)
+    _context._stateManager.setDrawState( ds );
+
+    // Execute draw call
+    executeDrawCall( primitiveType, va );
+
+    fbo->unbind();
 }
 
 // ------------------------------------------------------------------------------------------------
-void RenderCommands::draw( const FrameBufferPtr& fbo, const PrimitiveType& primitiveType,
-						  const VertexDataPtr& primitive, const DrawState& ds )
+void RenderCommands::draw( 
+    const FrameBufferPtr& fbo, 
+    const PrimitiveType& primitiveType,
+    const VertexDataPtr& primitive, 
+    const DrawState& ds )
 {
-	if( !fbo || !primitive )
-		return;
+    if( !fbo || !primitive )
+        return;
 
-	fbo->bind();
-	_context._stateManager.setDrawState( ds );
-	executeDrawCall( primitiveType, primitive->_vao );
+    assert( ds.shader && "DrawState must have a valid shader" );
+
+    // Bind FBO (required for rendering)
+    fbo->bind();
+
+    // Apply draw state (DSA-aware)
+    _context._stateManager.setDrawState( ds );
+
+    // Execute draw call using VertexData's VAO
+    executeDrawCall( primitiveType, primitive->vao() );
+
+    fbo->unbind();
 }
 
 // ================================================================================================
-// READ OPERATIONS
+// READ OPERATIONS (DSA where possible)
 // ================================================================================================
 
 Pixmap<uint8_t> RenderCommands::readPixels( const RenderTarget& target )
 {
-	return readPixels( target.fbo(), target.width(), target.height() );
+    return readPixels( target.framebuffer(), target.width(), target.height() );
 }
 
 // ------------------------------------------------------------------------------------------------
-Pixmap<uint8_t> RenderCommands::readPixels( const FrameBufferPtr& fbo, uint32_t width, uint32_t height )
+Pixmap<uint8_t> RenderCommands::readPixels( 
+    const FrameBufferPtr& fbo, 
+    uint32_t width, 
+    uint32_t height )
 {
-	if( !fbo || width == 0 || height == 0 )
-		return {};
+    if( !fbo || width == 0 || height == 0 )
+        return {};
 
-	const int rowAlignment = 4;
-	const ImageFormat format = ImageFormat::RedGreenBlueAlpha;
-	const ImageDataType dataType = ImageDataType::UnsignedByte;
-	const int sizeInBytes = computeRequiredSizeInBytes( width, height, format, dataType, rowAlignment );
+    constexpr int rowAlignment = 4;
+    constexpr ImageFormat format = ImageFormat::RedGreenBlueAlpha;
+    constexpr ImageDataType dataType = ImageDataType::UnsignedByte;
+    
+    const int64_t sizeInBytes = computeRequiredSizeInBytes( 
+        width, height, format, dataType, rowAlignment 
+    );
 
-	fbo->bind();
+    // Bind FBO (required for glReadPixels)
+    fbo->bind();
 
-	ReadPixelBuffer pixelBuffer( sizeInBytes, ReadPixelBuffer::UsageHint::Static );
-	pixelBuffer.bind();
+    // Create PBO for async readback (DSA)
+    auto pixelBuffer = GPUBufferObject::New(
+        sizeInBytes,
+        GPUBufferObject::Type::PixelPackBuffer,
+        GPUBufferObject::UsageHint::StreamRead
+    );
 
-	glReadBuffer( FrameBuffer::ColorAttachment0 );
-	glReadPixels( 0, 0, width, height, glWrap( format ), glWrap( dataType ), DATA_PTR( 0 ) );
-	glCheck;
+    // Bind PBO and read pixels
+    glBindBuffer( GL_PIXEL_PACK_BUFFER, pixelBuffer->id() );
+    glCheck;
 
-	Pixmap<uint8_t> img( width, height, 4, (uint8_t*) pixelBuffer.mapData() );
-	pixelBuffer.unmapData();
-	pixelBuffer.unbind();
-	fbo->unbind();
+    glReadBuffer( GL_COLOR_ATTACHMENT0 );
+    glCheck;
 
-	return img;
+    glReadPixels( 
+        0, 0, 
+        width, height, 
+        glWrap( format ), 
+        glWrap( dataType ), 
+        nullptr  // Read into PBO
+    );
+    glCheck;
+
+    // Map PBO to read data (DSA)
+    void* mappedData = pixelBuffer->mapRange( 
+        0, 
+        sizeInBytes, 
+        static_cast<uint32_t>( GPUBufferObject::MapAccess::Read )
+    );
+
+    // Copy to pixmap
+    Pixmap<uint8_t> img( width, height, 4, static_cast<uint8_t*>( mappedData ) );
+
+    // Unmap and cleanup
+    pixelBuffer->unmap();
+    
+    glBindBuffer( GL_PIXEL_PACK_BUFFER, 0 );
+    glCheck;
+
+    fbo->unbind();
+
+    return img;
 }
 
 // ------------------------------------------------------------------------------------------------
-void RenderCommands::readPixels( const RenderTarget& target,
-								const FrameBuffer::AttachmentPoint& attachPoint,
-								const ImageFormat& pixelFormat,
-								const Math::irect& roi,
-								void* pixels )
+void RenderCommands::readPixels( 
+    const RenderTarget& target,
+    const FrameBuffer::AttachmentPoint& attachPoint,
+    const ImageFormat& pixelFormat,
+    const Math::irect& roi,
+    void* pixels )
 {
-	target.fbo()->bind();
-	target.fbo()->readPixels( attachPoint, pixelFormat, ImageDataType::UnsignedByte, roi, pixels );
+    assert( pixels && "Pixel buffer cannot be null" );
+
+    // Bind FBO and read pixels (DSA)
+    target.framebuffer()->bind();
+    target.framebuffer()->readPixels( 
+        attachPoint, 
+        pixelFormat, 
+        ImageDataType::UnsignedByte, 
+        roi, 
+        pixels 
+    );
+    target.framebuffer()->unbind();
 }
 
 // ================================================================================================
-// BLIT OPERATIONS
+// BLIT OPERATIONS (DSA-ready)
 // ================================================================================================
-// ---------------------------------------------------------------------------------
-// Blit from source to destination render target. If srcRect or dstRect are empty, the entire source/destination is used.
-void RenderCommands::blit( const RenderTarget& source, const RenderTarget& destination,
-						  const Math::irect& srcRect, const Math::irect& dstRect )
-{
-	Math::irect src = srcRect.isEmpty() ? Math::irect( 0, 0, source.width(), source.height() ) : srcRect;
-	Math::irect dst = dstRect.isEmpty() ? Math::irect( 0, 0, destination.width(), destination.height() ) : dstRect;
 
-	blit( source.fbo(), destination.fbo(), src, dst );
+void RenderCommands::blit( 
+    const RenderTarget& source, 
+    const RenderTarget& destination,
+    const Math::irect& srcRect, 
+    const Math::irect& dstRect )
+{
+    const Math::irect src = srcRect.isEmpty() 
+        ? Math::irect( 0, 0, source.width(), source.height() ) 
+        : srcRect;
+        
+    const Math::irect dst = dstRect.isEmpty() 
+        ? Math::irect( 0, 0, destination.width(), destination.height() ) 
+        : dstRect;
+
+    // Use DSA blit (FrameBuffer::blitTo)
+    source.framebuffer()->blitTo(
+        destination.framebuffer(),
+        src,
+        dst,
+        static_cast<uint32_t>( FrameBuffer::BufferBit::Color ),
+        FrameBuffer::BlitFilter::Nearest
+    );
 }
 
 // ------------------------------------------------------------------------------------------------
-// Blit from source FBO to destination FBO. If srcRect or dstRect are empty, the entire source/destination is used.
-void RenderCommands::blit( const FrameBufferPtr& srcFBO, const FrameBufferPtr& dstFBO,
-						  const Math::irect& srcRect, const Math::irect& dstRect )
+void RenderCommands::blit( 
+    const FrameBufferPtr& srcFBO, 
+    const FrameBufferPtr& dstFBO,
+    const Math::irect& srcRect, 
+    const Math::irect& dstRect )
 {
-	if( !srcFBO )
-		return;
+    if( !srcFBO )
+        return;
 
-	const uint32_t srcFBOId = srcFBO->id();
-	const uint32_t dstFBOId = dstFBO ? dstFBO->id() : 0; // 0 = default FBO
-	const auto destRect = dstRect.isEmpty() ? srcRect : dstRect;
+    const Math::irect destRect = dstRect.isEmpty() ? srcRect : dstRect;
 
-	glBindFramebuffer( GL_READ_FRAMEBUFFER, srcFBOId );
-	glBindFramebuffer( GL_DRAW_FRAMEBUFFER, dstFBOId );
-	glBlitFramebuffer( srcRect.left(), srcRect.bottom(), srcRect.right(), srcRect.top(),
-					   destRect.left(), destRect.bottom(), destRect.right(), destRect.top(),
-					   GL_COLOR_BUFFER_BIT, GL_NEAREST );
-	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
-	glCheck;
+    // Use DSA blit if both FBOs are valid
+    if( dstFBO )
+    {
+        srcFBO->blitTo(
+            dstFBO,
+            srcRect,
+            destRect,
+            static_cast<uint32_t>( FrameBuffer::BufferBit::Color ),
+            FrameBuffer::BlitFilter::Nearest
+        );
+    }
+    else
+    {
+        // Blit to default framebuffer (screen) - requires legacy binding
+        const uint32_t srcFBOId = srcFBO->id();
+
+        glBindFramebuffer( GL_READ_FRAMEBUFFER, srcFBOId );
+        glBindFramebuffer( GL_DRAW_FRAMEBUFFER, 0 );  // Default FBO
+        glCheck;
+
+        glBlitFramebuffer( 
+            srcRect.left(), srcRect.bottom(), srcRect.right(), srcRect.top(),
+            destRect.left(), destRect.bottom(), destRect.right(), destRect.top(),
+            GL_COLOR_BUFFER_BIT, 
+            GL_NEAREST 
+        );
+        glCheck;
+
+        glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+        glCheck;
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
-// Blit from source render target to the default framebuffer (screen). If srcRect is empty, the entire source is used.
 void RenderCommands::blitToScreen( const RenderTarget& source, const Math::irect& srcRect )
 {
-	const Math::irect src = srcRect.isEmpty() ? Math::irect( 0, 0, source.width(), source.height() ) : srcRect;
-	blit( source.fbo(), nullptr, src, {} );
+    const Math::irect src = srcRect.isEmpty() 
+        ? Math::irect( 0, 0, source.width(), source.height() ) 
+        : srcRect;
+
+    blit( source.framebuffer(), nullptr, src, {} );
 }
 
 // ================================================================================================
@@ -195,23 +324,38 @@ void RenderCommands::blitToScreen( const RenderTarget& source, const Math::irect
 
 void RenderCommands::drawFullscreenQuad( const Texture2DPtr& srcTexture )
 {
-	if( !srcTexture )
-		return;
+    if( !srcTexture )
+        return;
 
-	DrawState fullscreenQuadDrawState;
-	fullscreenQuadDrawState.shader                          = DefaultShaders.FullscreenQuad;
-	fullscreenQuadDrawState.renderState.depthTest.enabled   = false;
-	fullscreenQuadDrawState.renderState.faceCulling.enabled = false;
-	fullscreenQuadDrawState.viewport.rect                   = Math::irect( 0, 0, 
-																		   srcTexture->description().width(),
-																		   srcTexture->description().height() );
-	fullscreenQuadDrawState.textureUnits[0].set( srcTexture, DefaultSamplers.LinearClamp );
+    assert( DefaultShaders.FullscreenQuad && "DefaultShaders.FullscreenQuad must be initialized" );
 
-	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
-	glCheck;
+    // Setup draw state
+    DrawState drawState;
+    drawState.shader = DefaultShaders.FullscreenQuad;
+    drawState.renderState.depthTest.enabled = false;
+    drawState.renderState.faceCulling.enabled = false;
+    drawState.viewport.rect = Math::irect( 
+        0, 0, 
+        srcTexture->description().width(),
+        srcTexture->description().height() 
+    );
 
-	_context._stateManager.setDrawState( fullscreenQuadDrawState );
-	glDrawArrays( GL_TRIANGLE_STRIP, 0, 4 );
+    // Set texture using bindless (DSA)
+    drawState.shader->setTexture( "screenTexture", srcTexture );
+
+    // Bind default framebuffer (screen)
+    glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+    glCheck;
+
+    // Apply draw state and render fullscreen quad
+    _context._stateManager.setDrawState( drawState );
+    
+    // Draw fullscreen quad (no VAO needed - vertex shader generates positions)
+    glDrawArrays( GL_TRIANGLE_STRIP, 0, 4 );
+    glCheck;
+
+    glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+    glCheck;
 }
 
 // ================================================================================================
@@ -220,33 +364,46 @@ void RenderCommands::drawFullscreenQuad( const Texture2DPtr& srcTexture )
 
 void RenderCommands::executeDrawCall( const PrimitiveType& primitive, const VertexArrayPtr& va )
 {
-	va->bind();
+    assert( va && va->isCreated() && "VertexArray must be valid" );
 
-	if( va->isIndexed() )
-	{
-		glDrawRangeElements( glWrap( primitive ),
-							 0,
-							 va->maxArrayIndex(),
-							 va->indexBuffer().count(),
-							 glWrap( va->indexBuffer().dataType() ),
-							 DATA_PTR( 0 ) );
-		glCheck;
-	}
-	else
-	{
-		glDrawArrays( glWrap( primitive ), 0, va->maxArrayIndex() + 1 );
-		glCheck;
-	}
+    // Bind VAO (required for rendering)
+    va->bind();
+
+    const GLenum primType = glWrap( primitive );
+
+    if( va->isIndexed() )
+    {
+        const auto& indexBuffer = va->indexBuffer();
+        
+        // Indexed draw call
+        glDrawRangeElements( 
+            primType,
+            0,
+            va->maxArrayIndex(),
+            indexBuffer.count(),
+            glWrap( indexBuffer.dataType() ),
+            nullptr  // Indices in bound element buffer
+        );
+        glCheck;
+    }
+    else
+    {
+        // Non-indexed draw call
+        glDrawArrays( primType, 0, va->maxArrayIndex() + 1 );
+        glCheck;
+    }
+
+    va->unbind();
 }
 
 // ------------------------------------------------------------------------------------------------
 DrawState RenderCommands::sanitizeDrawState( const DrawState& ds, const RenderTarget& target ) const
 {
-	DrawState out( ds );
+    DrawState out( ds );
 
-	// Sanitize viewport
-	if( out.viewport.rect.isEmpty() )
-		out.viewport.rect = Math::irect( 0, 0, target.width(), target.height() );
+    // Set viewport to render target size if not specified
+    if( out.viewport.rect.isEmpty() )
+        out.viewport.rect = Math::irect( 0, 0, target.width(), target.height() );
 
-	return out;
+    return out;
 }

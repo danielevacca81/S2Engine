@@ -11,18 +11,7 @@ namespace s2 {
 namespace RenderCore {
 static bool gInitialized { false }; // Flag to check if the resources have been initialized. @todo: once per context
 
-Samplers DefaultSamplers; // Default samplers
 Shaders  DefaultShaders; // Default shaders
-
-// ------------------------------------------------------------------------------------------------
-static inline bool initSamplers()
-{
-	DefaultSamplers.NearestClamp  = Sampler::New( Sampler::MinificationFilter::Nearest, Sampler::MagnificationFilter::Nearest, Sampler::Wrap::Clamp, Sampler::Wrap::Clamp, 1 );
-	DefaultSamplers.LinearClamp   = Sampler::New( Sampler::MinificationFilter::Linear , Sampler::MagnificationFilter::Linear , Sampler::Wrap::Clamp, Sampler::Wrap::Clamp, 1 );
-	DefaultSamplers.NearestRepeat = Sampler::New( Sampler::MinificationFilter::Nearest, Sampler::MagnificationFilter::Nearest, Sampler::Wrap::Repeat, Sampler::Wrap::Repeat, 1 );
-	DefaultSamplers.LinearRepeat  = Sampler::New( Sampler::MinificationFilter::Linear , Sampler::MagnificationFilter::Linear , Sampler::Wrap::Repeat, Sampler::Wrap::Repeat, 1 );
-	return true;
-}
 
 // ------------------------------------------------------------------------------------------------
 static inline bool initShaders()
@@ -265,7 +254,6 @@ bool init()
 
 	bool ok = true;
 	ok &= initShaders();
-	ok &= initSamplers();
 
 	gInitialized = ok;
 	return ok;
@@ -281,11 +269,6 @@ void destroy()
 	DefaultShaders.Phong          = nullptr;
 	DefaultShaders.BlinnPhong     = nullptr;
 	DefaultShaders.FullscreenQuad = nullptr;
-
-	DefaultSamplers.NearestClamp  = nullptr;
-	DefaultSamplers.LinearClamp   = nullptr;
-	DefaultSamplers.NearestRepeat = nullptr;
-	DefaultSamplers.LinearRepeat  = nullptr;
 }
 
 }

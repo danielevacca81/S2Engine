@@ -5,7 +5,7 @@
 
 #include "s2Engine_API.h"
 
-#include "BufferObject.h"
+#include "GPUBufferObject.h"
 #include "VertexArray.h"
 #include "VertexAttributeLocation.h"
 
@@ -16,50 +16,58 @@
 #include <vector>
 #include <memory>
 
-
 namespace s2 {
 namespace RenderCore {
 
 class VertexData;
-typedef std::shared_ptr<VertexData>   VertexDataPtr;
+typedef std::shared_ptr<VertexData> VertexDataPtr;
 
 class S2ENGINE_API VertexData
 {
 public:
-	// CANNOT BE SHARED BETWEEN CONTEXTS
-	static VertexDataPtr New( const BufferObject::UsageHint& hint = BufferObject::UsageHint::StaticDraw );
-	static VertexDataPtr New( const std::vector<Math::vec3>& points, const BufferObject::UsageHint& hint = BufferObject::UsageHint::StaticDraw );
-	static VertexDataPtr New( const s2::MeshData3D& meshData, const BufferObject::UsageHint& hint = BufferObject::UsageHint::StaticDraw );
+    // Factory methods
+    static VertexDataPtr New( const GPUBufferObject::UsageHint& hint = GPUBufferObject::UsageHint::StaticDraw );
+    static VertexDataPtr New( const std::vector<Math::vec3>& points, const GPUBufferObject::UsageHint& hint = GPUBufferObject::UsageHint::StaticDraw );
+    static VertexDataPtr New( const s2::MeshData3D& meshData, const GPUBufferObject::UsageHint& hint = GPUBufferObject::UsageHint::StaticDraw );
 
 public:
-	VertexData( const BufferObject::UsageHint& hint = BufferObject::UsageHint::StaticDraw );
-	VertexData( const std::vector<Math::vec3>& points, const BufferObject::UsageHint& hint = BufferObject::UsageHint::StaticDraw );
-	VertexData( const s2::MeshData3D& meshData, const BufferObject::UsageHint& hint = BufferObject::UsageHint::StaticDraw );
+    VertexData( const GPUBufferObject::UsageHint& hint = GPUBufferObject::UsageHint::StaticDraw );
+    VertexData( const std::vector<Math::vec3>& points, const GPUBufferObject::UsageHint& hint = GPUBufferObject::UsageHint::StaticDraw );
+    VertexData( const s2::MeshData3D& meshData, const GPUBufferObject::UsageHint& hint = GPUBufferObject::UsageHint::StaticDraw );
 
-	void setVertices( const std::vector<Math::fvec3>& points );
-	void setVertices( const std::vector<Math::fvec2>& points2D );
-	void setColors  ( const std::vector<Color>& colors );
-	void setNormals ( const std::vector<Math::fvec3>& normals );
-	void setTextureCoords( const std::vector<Math::fvec2>& texCoords );
-	void setIndices( const std::vector<uint32_t>& indices );
+    // ===== Set Standard Attributes (DSA) =====
 
-	void setAttribute( VertexAttributeLocation loc, const std::vector<uint32_t>& attrib );
-	void setAttribute( VertexAttributeLocation loc, const std::vector<Math::ivec2>& attrib );
-	void setAttribute( VertexAttributeLocation loc, const std::vector<Math::ivec3>& attrib );
-	void setAttribute( VertexAttributeLocation loc, const std::vector<Math::ivec4>& attrib );
+    void setVertices( const std::vector<Math::fvec3>& points );
+    void setVertices( const std::vector<Math::fvec2>& points2D );
+    void setColors( const std::vector<Color>& colors );
+    void setNormals( const std::vector<Math::fvec3>& normals );
+    void setTextureCoords( const std::vector<Math::fvec2>& texCoords );
+    void setIndices( const std::vector<uint32_t>& indices );
 
-	void setAttribute( VertexAttributeLocation loc, const std::vector<float>& attrib );
-	void setAttribute( VertexAttributeLocation loc, const std::vector<Math::fvec2>& attrib );
-	void setAttribute( VertexAttributeLocation loc, const std::vector<Math::fvec3>& attrib );
-	void setAttribute( VertexAttributeLocation loc, const std::vector<Math::fvec4>& attrib );
+    // ===== Set Custom Attributes (DSA) =====
+    
+    void setAttribute( VertexAttributeLocation loc, const std::vector<uint32_t>& attrib );
+    void setAttribute( VertexAttributeLocation loc, const std::vector<Math::ivec2>& attrib );
+    void setAttribute( VertexAttributeLocation loc, const std::vector<Math::ivec3>& attrib );
+    void setAttribute( VertexAttributeLocation loc, const std::vector<Math::ivec4>& attrib );
 
-	size_t vertexCount() const;
-	size_t indexCount() const;
+    void setAttribute( VertexAttributeLocation loc, const std::vector<float>& attrib );
+    void setAttribute( VertexAttributeLocation loc, const std::vector<Math::fvec2>& attrib );
+    void setAttribute( VertexAttributeLocation loc, const std::vector<Math::fvec3>& attrib );
+    void setAttribute( VertexAttributeLocation loc, const std::vector<Math::fvec4>& attrib );
+
+    // ===== Queries =====
+    
+    size_t vertexCount() const;
+    size_t indexCount() const;
+    
+    // Access underlying VAO (read-only for rendering)
+    const VertexArrayPtr& vao() const { return _vao; }
 
 private:
-	VertexArrayPtr _vao;
+    VertexArrayPtr _vao;
 
-	friend class RenderCommands; // Allow RenderCommands to access _vao
+    friend class RenderCommands; // Allow RenderCommands to access _vao
 };
 
 } // namespace RenderCore

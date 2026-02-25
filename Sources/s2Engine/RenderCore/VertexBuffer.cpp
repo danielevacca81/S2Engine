@@ -8,38 +8,22 @@
 using namespace s2::RenderCore;
 
 // -------------------------------------------------------------------------------------------------
-VertexBuffer::VertexBuffer( int sizeInBytes, const BufferObject::UsageHint &usageHint )
+VertexBuffer::VertexBuffer( int sizeInBytes, const GPUBufferObject::UsageHint &usageHint )
 {
 	set( sizeInBytes, usageHint );
 }
 
 // -------------------------------------------------------------------------------------------------
-VertexBuffer::VertexBuffer( void *data, int sizeInBytes, const BufferObject::UsageHint &usageHint )
+VertexBuffer::VertexBuffer( void *data, int sizeInBytes, const GPUBufferObject::UsageHint &usageHint )
 {
 	set( sizeInBytes, usageHint );
 	sendData( data, sizeInBytes, 0 );
 }
 
-
 // -------------------------------------------------------------------------------------------------
-//VertexBuffer::VertexBuffer( VertexBuffer &&other )
-//: VertexBuffer()
-//{
-//	std::swap( _bufferObject, other._bufferObject );
-//}
-//
-//// -------------------------------------------------------------------------------------------------
-//VertexBuffer &VertexBuffer::operator=( VertexBuffer &&other )
-//{
-//	std::swap( _bufferObject, other._bufferObject );
-//	return *this;
-//}
-
-
-// -------------------------------------------------------------------------------------------------
-void VertexBuffer::set( int sizeInBytes, const BufferObject::UsageHint &usageHint )
+void VertexBuffer::set( int sizeInBytes, const GPUBufferObject::UsageHint &usageHint )
 {
-	_bufferObject = BufferObject::New( sizeInBytes, BufferObject::Type::ArrayBuffer, usageHint );
+	_bufferObject = GPUBufferObject::New( sizeInBytes, GPUBufferObject::Type::ArrayBuffer, usageHint );
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -73,7 +57,7 @@ void * VertexBuffer::receiveData( int length, int offset )
 }
 
 // -------------------------------------------------------------------------------------------------
-void * VertexBuffer::mapData( const BufferObject::MapMode &mode )
+void * VertexBuffer::mapData( const GPUBufferObject::MapMode &mode )
 {
 	//if( !_bufferObject )
 	//	return nullptr;

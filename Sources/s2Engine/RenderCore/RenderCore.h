@@ -6,7 +6,6 @@
 #include "s2Engine_API.h"
 
 #include "Shader.h"
-#include "Sampler.h"
 
 namespace s2 {
 namespace RenderCore {
@@ -26,17 +25,6 @@ struct Shaders
 	// ...
 };
 extern S2ENGINE_API Shaders  DefaultShaders;
-
-
-struct Samplers
-{
-	SamplerPtr NearestClamp;
-	SamplerPtr LinearClamp;
-	SamplerPtr NearestRepeat;
-	SamplerPtr LinearRepeat;
-};
-extern S2ENGINE_API Samplers DefaultSamplers;
-
 
 } // namespace RenderCore
 } // namespace s2

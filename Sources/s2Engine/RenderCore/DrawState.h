@@ -13,7 +13,6 @@
 #include "TransformState.h"
 #include "Shader.h"
 #include "RenderCore.h"
-#include "TextureUnit.h"
 
 namespace s2 {
 namespace RenderCore {
@@ -28,12 +27,11 @@ struct DrawState
 	// per draw call transform state (model, view, projection matrices)
 	TransformState transform;
 	
-	// shader program and texture units
-	ShaderPtr      shader;
-	TextureUnits   textureUnits;
-
 	// viewport and scissor state
 	ViewportState  viewport;
+
+	// shader program
+	ShaderPtr      shader;
 
 	DrawState( const ShaderPtr&s = DefaultShaders.Simple, const RenderState &renderState = {} )
 	: shadowingEnabled( true )

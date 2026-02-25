@@ -5,53 +5,47 @@
 #include "OpenGL.h"
 #include "OpenGLCheck.h"
 
-#include "Math/Math.h"
-
 using namespace s2::RenderCore;
 
 // ------------------------------------------------------------------------------------------------
-struct UniformSetter
+// Helper visitor for glProgramUniform* (DSA)
+// ------------------------------------------------------------------------------------------------
+struct UniformSetterDSA
 {
-	int location;
+    unsigned int programID;
+    int location;
 
-	void operator()( bool value )               const { glUniform1i( location, value ); glCheck; }
-	void operator()( int value )                const { glUniform1i( location, value ); glCheck; }
-	void operator()( float value )              const { glUniform1f( location, value ); glCheck; }
-	void operator()( const Math::vec2& value )  const { glUniform2fv( location, 1, Math::value_ptr( value ) ); glCheck; }
-	void operator()( const Math::vec3& value )  const { glUniform3fv( location, 1, Math::value_ptr( value ) ); glCheck; }
-	void operator()( const Math::vec4& value )  const { glUniform4fv( location, 1, Math::value_ptr( value ) ); glCheck; }
-	void operator()( const Math::mat2& value )  const { glUniformMatrix2fv( location, 1, false, Math::value_ptr( value ) ); glCheck; }
-	void operator()( const Math::mat3& value )  const { glUniformMatrix3fv( location, 1, false, Math::value_ptr( value ) ); glCheck; }
-	void operator()( const Math::mat4& value )  const { glUniformMatrix4fv( location, 1, false, Math::value_ptr( value ) ); glCheck; }
-	void operator()( const s2::Color& value )   const { glUniform4fv( location, 1, Math::value_ptr( Math::vec4 (value.r(), value.g(), value.b(), value.a() ) ) ); glCheck; }
-
-	// Double precision uniforms: need to check if supported by the target OpenGL version and hardware.
-	// For now, we can exclude them to maintain wider compatibility.
-#if 0
-	void operator()( double value )             const { glUniform1d( location, value ); glCheck; }
-	void operator()( const Math::dvec2& value ) const { glUniform2dv( location, 1, Math::value_ptr( value ) ); glCheck; }
-	void operator()( const Math::dvec3& value ) const { glUniform3dv( location, 1, Math::value_ptr( value ) ); glCheck; }
-	void operator()( const Math::dvec4& value ) const { glUniform4dv( location, 1, Math::value_ptr( value ) ); glCheck; }
-	void operator()( const Math::dmat2& value ) const { glUniformMatrix2dv( location, 1, false, Math::value_ptr( value ) ); glCheck; }
-	void operator()( const Math::dmat3& value ) const { glUniformMatrix3dv( location, 1, false, Math::value_ptr( value ) ); glCheck; }
-	void operator()( const Math::dmat4& value ) const { glUniformMatrix4dv( location, 1, false, Math::value_ptr( value ) ); glCheck; }
-#else
-	void operator()( double value )             const { glUniform1f( location, float(value) ); glCheck; }
-	void operator()( const Math::dvec2& value ) const { glUniform2fv( location, 1, Math::value_ptr( Math::fvec2( value ) ) ); glCheck; }
-	void operator()( const Math::dvec3& value ) const { glUniform3fv( location, 1, Math::value_ptr( Math::fvec3( value ) ) ); glCheck; }
-	void operator()( const Math::dvec4& value ) const { glUniform4fv( location, 1, Math::value_ptr( Math::fvec4( value ) ) ); glCheck; }
-	void operator()( const Math::dmat2& value ) const { glUniformMatrix2fv( location, 1, false, Math::value_ptr( Math::fmat2( value ) ) ); glCheck; }
-	void operator()( const Math::dmat3& value ) const { glUniformMatrix3fv( location, 1, false, Math::value_ptr( Math::fmat3( value ) ) ); glCheck; }
-	void operator()( const Math::dmat4& value ) const { glUniformMatrix4fv( location, 1, false, Math::value_ptr( Math::fmat4( value ) ) ); glCheck; }
-#endif
+    void operator()( bool value )               const { glProgramUniform1i           ( programID, location, value ? 1 : 0 );             glCheck; }
+    void operator()( int value )                const { glProgramUniform1i           ( programID, location, value );                     glCheck; }
+    void operator()( uint64_t value )           const { glProgramUniformHandleui64ARB( programID, location, value );                     glCheck; }
+    void operator()( float value )              const { glProgramUniform1f           ( programID, location, value );                     glCheck; }
+    void operator()( double value )             const { glProgramUniform1d           ( programID, location, value );                     glCheck; }
+    void operator()( const s2::Color& value )   const { glProgramUniform4fv          ( programID, location, 1, value.rgba() );           glCheck; }
+    void operator()( const Math::ivec2& value ) const { glProgramUniform2iv          ( programID, location, 1, &value.x );               glCheck; }
+    void operator()( const Math::ivec3& value ) const { glProgramUniform3iv          ( programID, location, 1, &value.x );               glCheck; }
+    void operator()( const Math::ivec4& value ) const { glProgramUniform4iv          ( programID, location, 1, &value.x );               glCheck; }
+    void operator()( const Math::fvec2& value ) const { glProgramUniform2fv          ( programID, location, 1, &value.x );               glCheck; }
+    void operator()( const Math::fvec3& value ) const { glProgramUniform3fv          ( programID, location, 1, &value.x );               glCheck; }
+    void operator()( const Math::fvec4& value ) const { glProgramUniform4fv          ( programID, location, 1, &value.x );               glCheck; }
+    void operator()( const Math::fmat2& value ) const { glProgramUniformMatrix2fv    ( programID, location, 1, GL_FALSE, &value[0][0] ); glCheck; }
+    void operator()( const Math::fmat3& value ) const { glProgramUniformMatrix3fv    ( programID, location, 1, GL_FALSE, &value[0][0] ); glCheck; }
+    void operator()( const Math::fmat4& value ) const { glProgramUniformMatrix4fv    ( programID, location, 1, GL_FALSE, &value[0][0] ); glCheck; }
+    void operator()( const Math::dvec2& value ) const { glProgramUniform2dv          ( programID, location, 1, &value.x );               glCheck; }
+    void operator()( const Math::dvec3& value ) const { glProgramUniform3dv          ( programID, location, 1, &value.x );               glCheck; }
+    void operator()( const Math::dvec4& value ) const { glProgramUniform4dv          ( programID, location, 1, &value.x );               glCheck; }
+    void operator()( const Math::dmat2& value ) const { glProgramUniformMatrix2dv    ( programID, location, 1, GL_FALSE, &value[0][0] ); glCheck; }
+    void operator()( const Math::dmat3& value ) const { glProgramUniformMatrix3dv    ( programID, location, 1, GL_FALSE, &value[0][0] ); glCheck; }
+    void operator()( const Math::dmat4& value ) const { glProgramUniformMatrix4dv    ( programID, location, 1, GL_FALSE, &value[0][0] ); glCheck; }
 };
 
 // ------------------------------------------------------------------------------------------------
-void Uniform::set()
+// DSA: Set uniform without binding program (OpenGL 4.1+)
+// ------------------------------------------------------------------------------------------------
+void Uniform::setDSA( unsigned int programID )
 {
-	if( !_changed )
-		return;
-		
-	std::visit( UniformSetter{ _location }, _value );
-	_changed = false;
+    if( !_changed )
+        return;
+
+    std::visit( UniformSetterDSA{ programID, _location }, _value );
+    _changed = false;
 }

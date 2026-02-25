@@ -13,6 +13,7 @@
 #include "RenderCore/PrimitiveType.h"
 #include "RenderCore/VertexData.h"
 
+#include <cassert>
 #include <iostream>
 
 using namespace s2::Renderer;
@@ -20,10 +21,8 @@ using namespace s2::Renderer;
 // ------------------------------------------------------------------------------------------------
 void ForwardPass::initialize( ResourceManager& resourceManager )
 {
-    // Initialize any resources needed for forward rendering
-    // (e.g., default materials, fullscreen quad, etc.)
     _resourceManager = &resourceManager;
-	assert( _resourceManager && "ForwardPass initialization failed: ResourceManager is null" );
+    assert( _resourceManager && "ForwardPass initialization failed: ResourceManager is null" );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -32,95 +31,154 @@ void ForwardPass::execute( const CommandBuffer& queue, FrameData& frameData )
     if( !frameData.mainTarget )
         return; // No render target set
 
-    // Get RenderCore context (assume it's stored somewhere accessible)
-    // For now, use the current context
+    // Get RenderCore context
     auto* gpuContext = RenderCore::Context::current();
     if( !gpuContext )
         return;
 
     auto& renderCommands = gpuContext->commands();
 
-    // 1. Execute all clear commands
+    // ===== 1. Execute Clear Commands =====
     for( const auto& clearCmd : queue.clearCommands() )
         renderCommands.clear( *frameData.mainTarget, getClearState( clearCmd ) );
 
-    // 2. Execute render commands
+    // ===== 2. Execute Render Commands =====
     for( const auto& renderCmd : queue.renderCommands() )
     {
-        // Translate high-level RenderCommand to low-level DrawState
-        RenderCore::DrawState ds;
-        ds.transform.modelMatrix        = renderCmd.modelMatrix;
-        ds.transform.viewMatrix         = frameData.cameraViewMatrix;
-        ds.transform.projectionMatrix   = frameData.cameraProjectionMatrix;
-        ds.viewport.rect                = frameData.mainTarget->size();
-        ds.viewport.scissorTest.enabled = false; // @todo: add scissor rect to RenderCommand if needed
-
-		// set material properties and shader uniforms
-        ds.renderState = getRenderState( renderCmd );
-
-		// Retrieve shader from resource manager or use default when not specified or not valid
-        ds.shader      = [&]
-        {
-            if( renderCmd.material.shader == InvalidHandle )
-                return RenderCore::DefaultShaders.Simple;
-
-            auto s = _resourceManager->getShader( renderCmd.material.shader );
-            return s == nullptr
-                ? RenderCore::DefaultShaders.Simple
-                : s;
-        }();
-
-		// Apply material properties to shader uniforms
-		// @note: performance optimization - we could cache the mapping of material properties
-        // to shader uniforms for each shader to avoid redundant lookups and conversions every frame
-		renderCmd.material.applyPropertiesToShader( *ds.shader );
-
-		// Retrieve mesh from resource manager
-		auto mesh = _resourceManager->getMesh( renderCmd.mesh );
-
-		// bind textures to drawstate texture units
-        for( const auto& [unit, textureHandle] : renderCmd.material.textures )
-        {
-            auto texture = _resourceManager->getTexture( textureHandle );
-            if( texture )
-				ds.textureUnits[unit].set( texture, RenderCore::DefaultSamplers.LinearClamp );
-        }
+        // Setup draw state
+        RenderCore::DrawState drawState = createDrawState( renderCmd, frameData );
         
+        // Get shader (with fallback to default)
+        auto shader = getShader( renderCmd );
+        drawState.shader = shader;
 
-          
+        // ===== DSA: Set uniforms BEFORE drawing =====
+        setupShaderUniforms( shader, renderCmd, frameData );
+        
+        // Apply material properties (DSA - no binding)
+        renderCmd.material.applyPropertiesToShader( *shader );
+        
+        // Apply textures (Bindless - no TextureUnit!)
+        renderCmd.material.applyTexturesToShader( *shader, *_resourceManager );
+
+        // Get mesh
+        auto mesh = _resourceManager->getMesh( renderCmd.mesh );
+        if( !mesh )
+            continue; // Skip if mesh not found
+
         // Determine primitive type
-        RenderCore::PrimitiveType primitiveType = [renderCmd]
-         {
-            switch( renderCmd.renderMode )
-            {
-            case s2::Renderer::RenderMode::Points:    return RenderCore::PrimitiveType::Points;
-            case s2::Renderer::RenderMode::Lines:     return RenderCore::PrimitiveType::Lines;
-            case s2::Renderer::RenderMode::Triangles: return RenderCore::PrimitiveType::Triangles;
-            default:                                  return RenderCore::PrimitiveType::Triangles; // Fallback
-            }
-        }();
+        RenderCore::PrimitiveType primitiveType = getPrimitiveType( renderCmd.renderMode );
 
-        
-        // Execute draw call
-        renderCommands.draw( *frameData.mainTarget, primitiveType, mesh, ds );
+        // Execute draw call (DSA-aware)
+        renderCommands.draw( *frameData.mainTarget, primitiveType, mesh, drawState );
 
         // Update statistics
-        _stats.drawCalls++;
-        _stats.vertices +=  mesh->vertexCount();
-        _stats.triangles += mesh->indexCount() / 3;
+        updateStats( mesh );
     }
-#if 0
-	std::cout << "ForwardPass executed: "
-        << _stats.drawCalls << " draw calls, "
-        << _stats.triangles << " triangles, "
-		<< _stats.vertices << " vertices." << std::endl;
+
+#ifdef _DEBUG
+    printStats();
 #endif
 
-	_stats = Stats {}; // Reset stats for the next frame
+    _stats = {}; // Reset stats for next frame
 }
 
 // ------------------------------------------------------------------------------------------------
 const std::string& ForwardPass::name() const
 {
     return _name;
+}
+
+// ================================================================================================
+// PRIVATE HELPERS
+// ================================================================================================
+
+RenderCore::DrawState ForwardPass::createDrawState( 
+    const RenderCommand& renderCmd, 
+    const FrameData& frameData ) const
+{
+    RenderCore::DrawState drawState;
+
+    // Transform matrices
+    drawState.transform.modelMatrix = renderCmd.modelMatrix;
+    drawState.transform.viewMatrix = frameData.cameraViewMatrix;
+    drawState.transform.projectionMatrix = frameData.cameraProjectionMatrix;
+
+    // Viewport
+    drawState.viewport.rect = frameData.mainTarget->size();
+    drawState.viewport.scissorTest.enabled = false; // TODO: Add scissor support to RenderCommand
+
+    // Render state from material
+    drawState.renderState = getRenderState( renderCmd );
+
+    return drawState;
+}
+
+// ------------------------------------------------------------------------------------------------
+RenderCore::ShaderPtr ForwardPass::getShader( const RenderCommand& renderCmd ) const
+{
+    // Use material shader or fallback to default
+    if( renderCmd.material.shader == InvalidHandle )
+        return RenderCore::DefaultShaders.Simple;
+
+    auto shader = _resourceManager->getShader( renderCmd.material.shader );
+    return shader ? shader : RenderCore::DefaultShaders.Simple;
+}
+
+// ------------------------------------------------------------------------------------------------
+void ForwardPass::setupShaderUniforms( 
+    const RenderCore::ShaderPtr& shader,
+    const RenderCommand& renderCmd,
+    const FrameData& frameData ) const
+{
+    assert( shader && "Shader must be valid" );
+
+    // ===== Standard Transform Uniforms (DSA) =====
+    shader->setUniform( "modelMatrix", renderCmd.modelMatrix );
+    shader->setUniform( "viewMatrix", frameData.cameraViewMatrix );
+    shader->setUniform( "projectionMatrix", frameData.cameraProjectionMatrix );
+    
+    // Derived matrices
+    const auto modelView = frameData.cameraViewMatrix * renderCmd.modelMatrix;
+    const auto modelViewProjection = frameData.cameraProjectionMatrix * modelView;
+    const auto normalMatrix = Math::transpose( Math::inverse( Math::fmat3( modelView ) ) );
+
+    shader->setUniform( "modelViewMatrix", modelView );
+    shader->setUniform( "modelViewProjectionMatrix", modelViewProjection );
+    shader->setUniform( "normalMatrix", normalMatrix );
+
+    // NOTA: Material properties e textures sono applicate separatamente
+    // tramite renderCmd.material.applyPropertiesToShader() e 
+    // renderCmd.material.applyTexturesToShader() nel metodo execute()
+}
+
+// ------------------------------------------------------------------------------------------------
+RenderCore::PrimitiveType ForwardPass::getPrimitiveType( RenderMode mode ) const
+{
+    switch( mode )
+    {
+    case RenderMode::Points:    return RenderCore::PrimitiveType::Points;
+    case RenderMode::Lines:     return RenderCore::PrimitiveType::Lines;
+    case RenderMode::Triangles: return RenderCore::PrimitiveType::Triangles;
+    default:                    return RenderCore::PrimitiveType::Triangles;
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void ForwardPass::updateStats( const RenderCore::VertexDataPtr& mesh )
+{
+    _stats.drawCalls++;
+    _stats.vertices += mesh->vertexCount();
+    _stats.triangles += mesh->indexCount() / 3;
+}
+
+// ------------------------------------------------------------------------------------------------
+void ForwardPass::printStats() const
+{
+#ifdef _DEBUG
+    std::cout << "ForwardPass executed: "
+              << _stats.drawCalls << " draw calls, "
+              << _stats.triangles << " triangles, "
+              << _stats.vertices << " vertices." << std::endl;
+#endif
 }

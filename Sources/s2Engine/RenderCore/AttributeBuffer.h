@@ -3,9 +3,11 @@
 #ifndef S2_RENDERCORE_ATTRIBUTEBUFFER_H
 #define S2_RENDERCORE_ATTRIBUTEBUFFER_H
 
-#include "VertexBuffer.h"
+#include "GPUBufferObject.h"
 
 #include "s2Engine_API.h"
+
+#include <cstdint>
 
 namespace s2 {
 namespace RenderCore {
@@ -16,55 +18,61 @@ namespace RenderCore {
 class S2ENGINE_API AttributeBuffer
 {
 public:
-	enum ComponentDatatype
-	{
-		Byte,
-		UnsignedByte,
-		Short,
-		UnsignedShort,
-		Int,
-		UnsignedInt,
-		Float,
-		HalfFloat,
-		Double,
-	};
+    enum class ComponentDatatype
+    {
+        Byte,
+        UnsignedByte,
+        Short,
+        UnsignedShort,
+        Int,
+        UnsignedInt,
+        Float,
+        HalfFloat,
+        Double,
+    };
 
 public:
-	//OBJECT_DECLARE_MOVEABLE( AttributeBuffer )
-	//OBJECT_DISABLE_COPY( AttributeBuffer )
+    AttributeBuffer() = default;
 
-	//AttributeBuffer();
+    // Configure attribute buffer
+    void set(
+        const GPUBufferObjectPtr&      buffer,
+        ComponentDatatype        componentDatatype,
+        int                      numberOfComponents,
+        bool                     normalize = false,
+        int64_t                  offset = 0,
+        int64_t                  stride = 0 );
 
-	void set(
-		const VertexBuffer      &buffer,
-		const ComponentDatatype &componentDatatype,
-		int                     numberOfComponents,
-		bool normalize = false,
-		int offset     = 0,
-		int stride     = 0 );
 
-	void attach( int loc );
-	void detach();
+    void attach( unsigned int vaoID, int location );  // Attach to VAO using DSA (requires VAO ID)
+    void detach( unsigned int vaoID );                // Detach from VAO using DSA (requires VAO ID)
 
-	ComponentDatatype componentDatatype()  const { return _componentDatatype; }
-	bool              isValid()            const { return _valid; }
-	int               numberOfComponents() const { return _numberOfComponents; }
-	int               offset()             const { return int(_offset); }
-	bool              normalize()          const { return _normalize; }
-	//int               sizeInBytes()        const { return _size;              }
-	int               strideInBytes()      const { return int(_stride); }
-	int               numberOfVertices()   const { return int(_vertexBuffer.sizeInBytes() / _stride); }
+    // Getters
+    ComponentDatatype componentDatatype()  const { return _componentDatatype; }
+    bool              isValid()            const { return _valid; }
+    int               numberOfComponents() const { return _numberOfComponents; }
+    int64_t           offset()             const { return _offset; }
+    bool              normalize()          const { return _normalize; }
+    int64_t           strideInBytes()      const { return _stride; }
+    int               numberOfVertices()   const;
+    int               location()           const { return _location; }
+
+    // Access underlying buffer
+    const GPUBufferObjectPtr& gpuBuffer() const { return _gpuBuffer; }
 
 private:
-	VertexBuffer      _vertexBuffer = VertexBuffer( 0, BufferObject::UsageHint::StaticDraw );
-	ComponentDatatype _componentDatatype { Byte };
+    int64_t calculateStride() const;
 
-	int     _location { -1 };
-	int     _numberOfComponents { 0 };
-	int64_t _offset { 0 };
-	int64_t _stride { 0 };
-	bool    _normalize { false };
-	bool    _valid { false };
+private:
+    GPUBufferObjectPtr _gpuBuffer;
+    ComponentDatatype  _componentDatatype { ComponentDatatype::Float };
+
+    int     _location           { -1 };
+    int     _numberOfComponents { 0 };
+    int64_t _offset             { 0 };
+    int64_t _stride             { 0 };
+    bool    _normalize          { false };
+    bool    _valid              { false };
 };
 
 } // namespace RenderCore
