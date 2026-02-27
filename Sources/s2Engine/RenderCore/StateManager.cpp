@@ -14,6 +14,8 @@
 
 using namespace s2::RenderCore;
 
+static const bool _shadowingCurrentlyEnabled = false;
+
 // ------------------------------------------------------------------------------------------------
 static inline void enable( GLenum cap, bool enabled )
 {
@@ -30,10 +32,10 @@ static inline void enable( GLenum cap, bool enabled, int index )
 
 // ------------------------------------------------------------------------------------------------
 StateManager::StateManager()
-    : _disableDrawStateShadowingOneShot{ true }
-    , _disableClearStateShadowingOneShot{ true }
-    , _shadowingCurrentlyEnabled{ true }
-    , _clearColor( 0.f, 0.f, 0.f, 0.f )
+    //: _disableDrawStateShadowingOneShot{ true }
+    //, _disableClearStateShadowingOneShot{ true }
+    //, _shadowingCurrentlyEnabled{ true }
+    : _clearColor( 0.f, 0.f, 0.f, 0.f )
     , _clearDepth( 1.0f )
     , _clearStencil( 0 )
 {
@@ -44,7 +46,7 @@ StateManager::StateManager()
 // ------------------------------------------------------------------------------------------------
 void StateManager::setClearState( const ClearState& cs )
 {
-    _shadowingCurrentlyEnabled = !( _disableClearStateShadowingOneShot || !cs.shadowingEnabled );
+    //_shadowingCurrentlyEnabled = !( _disableClearStateShadowingOneShot || !cs.shadowingEnabled );
 
     applyScissorTest( cs.scissorTest );
     applyColorMask( cs.colorMask );
@@ -94,41 +96,41 @@ void StateManager::setClearState( const ClearState& cs )
         glCheck;
     }
 
-    _disableClearStateShadowingOneShot = false;
+    //_disableClearStateShadowingOneShot = false;
 }
 
 // ------------------------------------------------------------------------------------------------
 void StateManager::setDrawState( const DrawState& ds )
 {
-    _shadowingCurrentlyEnabled = !( _disableDrawStateShadowingOneShot || !ds.shadowingEnabled );
-
-    // Apply shader program (DSA-aware)
-    applyShaderProgram( ds.shader );
+    //_shadowingCurrentlyEnabled = !( _disableDrawStateShadowingOneShot || !ds.shadowingEnabled );
 
     // Apply viewport and scissor
-    applyViewportAndScissor( ds.viewport );
+    applyViewport( ds.viewport );
 
     // Apply render state
     applyRenderState( ds.renderState );
 
-    _disableDrawStateShadowingOneShot = false;
+    // Apply shader program (DSA-aware)
+    applyShaderProgram( ds.shader );
+
+    //_disableDrawStateShadowingOneShot = false;
 }
 
 // ------------------------------------------------------------------------------------------------
 void StateManager::applyRenderState( const RenderState& rs )
 {
-    applyPrimitiveRestart( rs.primitiveRestart );
-    applyFaceCulling( rs.faceCulling );
-    applyProgramPointSize( rs.programPointSize );
+    applyPrimitiveRestart ( rs.primitiveRestart );
+    applyFaceCulling      ( rs.faceCulling );
+    applyProgramPointSize ( rs.programPointSize );
     applyRasterizationMode( rs.rasterizationMode );
-    applyLineWidth( rs.lineWidth );
-    applyStencilTest( rs.stencilTest );
-    applyDepthTest( rs.depthTest );
-    applyDepthRange( rs.depthRange );
-    applyBlending( rs.blending );
-    applyColorMask( rs.colorMask );
-    applyDepthMask( rs.depthMask );
-    applyStencilMask( rs.stencilMask );
+    applyLineWidth        ( rs.lineWidth );  
+    applyStencilTest      ( rs.stencilTest );
+    applyDepthTest        ( rs.depthTest );
+    applyDepthRange       ( rs.depthRange );
+    applyBlending         ( rs.blending );
+    applyColorMask        ( rs.colorMask );
+    applyDepthMask        ( rs.depthMask );
+    applyStencilMask      ( rs.stencilMask );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -222,19 +224,19 @@ void StateManager::applyScissorTest( const ScissorTest& scissorTest )
                         rectangle.width() > 0 && 
                         rectangle.height() > 0;
 
-    if( _viewportState.scissorTest.enabled != enabled || !_shadowingCurrentlyEnabled )
+    if( _renderState.scissorTest.enabled != enabled || !_shadowingCurrentlyEnabled )
     {
         enable( GL_SCISSOR_TEST, enabled );
         glCheck;
-        _viewportState.scissorTest.enabled = enabled;
+        _renderState.scissorTest.enabled = enabled;
     }
 
     if( enabled && 
-        (_viewportState.scissorTest.rect != scissorTest.rect || !_shadowingCurrentlyEnabled) )
+        ( _renderState.scissorTest.rect != scissorTest.rect || !_shadowingCurrentlyEnabled) )
     {
         glScissor( rectangle.left(), rectangle.bottom(), rectangle.width(), rectangle.height() );
         glCheck;
-        _viewportState.scissorTest.rect = scissorTest.rect;
+        _renderState.scissorTest.rect = scissorTest.rect;
     }
 }
 
@@ -493,16 +495,14 @@ void StateManager::applyClearColorSeparate( const ClearColorSeparate& clearColor
 }
 
 // ------------------------------------------------------------------------------------------------
-void StateManager::applyViewportAndScissor( const ViewportState& vs )
+void StateManager::applyViewport( const ViewportState& vs )
 {
-    if( vs.rect != _viewportState.rect || !_shadowingCurrentlyEnabled )
+    //if( vs.rect != _viewportState.rect || !_shadowingCurrentlyEnabled )
     {
         glViewport( vs.rect.left(), vs.rect.bottom(), vs.rect.width(), vs.rect.height() );
         glCheck;
         _viewportState.rect = vs.rect;
     }
-
-    applyScissorTest( vs.scissorTest );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -552,7 +552,7 @@ void StateManager::validateState( bool drawStateCheck, bool clearStateCheck ) co
 
     if( drawStateCheck || clearStateCheck )
     {
-        assert( static_cast<bool>( glIsEnabled( GL_SCISSOR_TEST ) ) == _viewportState.scissorTest.enabled );
+        assert( static_cast<bool>( glIsEnabled( GL_SCISSOR_TEST ) ) == _renderState.scissorTest.enabled );
         
         glGetIntegerv( GL_DEPTH_WRITEMASK, val );
         assert( static_cast<bool>( val[0] ) == _renderState.depthMask.enabled );

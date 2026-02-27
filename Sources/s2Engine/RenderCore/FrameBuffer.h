@@ -114,6 +114,18 @@ public:
     // Status info
     std::string info() const;
 
+    enum Changes
+    {
+        None = 0,
+        Color = 1,
+        Depth = 2,
+        DepthStencil = 4
+    };
+
+
+    mutable Changes                      _changes;
+
+
 private:
     // DSA support: Apply pending attachment changes without explicit binding
     void applyPendingChanges() const;
@@ -122,13 +134,13 @@ private:
     int  objectLabelIdentifier() const override;
 
 private:
-    enum Changes
-    {
-        None         = 0,
-        Color        = 1,
-        Depth        = 2,
-        DepthStencil = 4
-    };
+    //enum Changes
+    //{
+    //    None         = 0,
+    //    Color        = 1,
+    //    Depth        = 2,
+    //    DepthStencil = 4
+    //};
 
     struct ColorAttachment
     {
@@ -146,7 +158,6 @@ private:
     Texture2DPtr _depthStencilAttachment;
 
     mutable std::vector<ColorAttachment> _colorAttachments;
-    mutable Changes                      _changes;
 };
 
 // Bitwise operators for BufferBit

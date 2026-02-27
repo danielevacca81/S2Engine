@@ -33,10 +33,10 @@ public:
     // ===== State Shadowing Control =====
     
     // Disable shadowing for next draw (forces all state updates)
-    void disableDrawStateShadowing() { _disableDrawStateShadowingOneShot = true; }
+    void disableDrawStateShadowing() { /*_disableDrawStateShadowingOneShot = true; */}
     
     // Disable shadowing for next clear (forces all state updates)
-    void disableClearStateShadowing() { _disableClearStateShadowingOneShot = true; }
+    void disableClearStateShadowing() { /*_disableClearStateShadowingOneShot = true;*/ }
     
     // Get current shader
     const ShaderPtr& currentShader() const { return _currentShader; }
@@ -49,7 +49,7 @@ public:
 private:
     // Apply individual state components
     void applyRenderState( const RenderState& renderState );
-    void applyViewportAndScissor( const ViewportState& viewport );
+    void applyViewport( const ViewportState& viewport );
     void applyShaderProgram( const ShaderPtr& shader );
 
     // Individual state setters
@@ -70,10 +70,10 @@ private:
     void applyClearColorSeparate( const ClearColorSeparate& clearColorSeparate );
 
 private:
-    // Shadowing control
-    bool _disableDrawStateShadowingOneShot { true };
-    bool _disableClearStateShadowingOneShot { true };
-    bool _shadowingCurrentlyEnabled { true };
+    //// Shadowing control
+    //bool _disableDrawStateShadowingOneShot { true };
+    //bool _disableClearStateShadowingOneShot { true };
+    //bool _shadowingCurrentlyEnabled { true };
 
     // Cached state
     RenderState    _renderState;

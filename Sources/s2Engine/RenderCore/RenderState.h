@@ -68,7 +68,7 @@ struct DepthMask
 struct ScissorTest
 {
 	bool        enabled { false };
-	Math::irect rect {0,0,0,0};
+	Math::irect rect    { 0,0,0,0 };
 };
 
 ///************************************************************************/
@@ -77,7 +77,6 @@ struct ScissorTest
 struct ViewportState
 {
 	Math::irect rect { 0,0,0,0 };
-	ScissorTest scissorTest;
 };
 
 /************************************************************************/
@@ -307,6 +306,7 @@ struct RenderState
 	ProgramPointSize  programPointSize;
 	RasterizationMode rasterizationMode { RasterizationMode::Fill };
 	float             lineWidth {1.0};
+	ScissorTest       scissorTest;
 	StencilTest       stencilTest;
 	DepthTest         depthTest;
 	DepthRange        depthRange;

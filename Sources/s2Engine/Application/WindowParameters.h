@@ -9,23 +9,23 @@ namespace s2 {
 
 enum class ContextRobustness
 {
-    NoRobustness,
-    NoResetNotification,
-    LoseContextOnReset
+	NoRobustness,        // Default behavior, no robustness guarantees.
+	NoResetNotification, // The context is not lost, but the application is notified when a reset occurs.
+	LoseContextOnReset   // The context is lost when a reset occurs, and the application must recreate it.
 };
 
 enum class ContextReleaseBehavior
 {
-    Any,
-    Flush,
-    None
+	Any,    // The context release behavior is not specified, and may be determined by the implementation.
+	Flush,  // The context is flushed before being released, ensuring that all pending commands are executed.
+	None    // The context is released without flushing, which may allow for better performance but can lead to undefined behavior if there are pending commands.
 };
 
-enum class OpenGlProfile
+enum class OpenGLProfile
 {
-    Any,
-    Compat,
-    Core
+	Any,    // The OpenGL profile is not specified, and may be determined by the implementation.
+	Compat, // The compatibility profile, which supports both modern and legacy OpenGL features.
+	Core    // The core profile, which only supports modern OpenGL features and removes deprecated functionality.
 };
 
 
@@ -63,13 +63,13 @@ struct WindowParameters
     bool srgbCapable  = false;
     bool doubleBuffer = true;
 
-    uint8_t contextVersionMajor                   = 3;
-    uint8_t contextVersionMinor                   = 3;
+    uint8_t contextVersionMajor                   = 4;
+    uint8_t contextVersionMinor                   = 6;
     ContextRobustness contextRobustness           = ContextRobustness::NoRobustness;
     ContextReleaseBehavior contextReleaseBehavior = ContextReleaseBehavior::Any;
     bool openglForwardCompat                      = false;
     bool openglDebugContext                       = false;
-    OpenGlProfile openglProfile                   = OpenGlProfile::Any;
+    OpenGLProfile openglProfile                   = OpenGLProfile::Any;
 
     //#if GLFW_VERSION_MAJOR >= 3 && GLFW_VERSION_MINOR >= 3
     //    bool cocoaRetinaFramebuffer = true;

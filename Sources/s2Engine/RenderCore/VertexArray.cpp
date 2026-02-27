@@ -36,7 +36,7 @@ void VertexArray::reset()
 {
     OpenGLObject::reset();
     _attributes.clear();
-    _indexBuffer = IndexBuffer();
+    _indexBuffer = std::nullopt;
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -123,7 +123,7 @@ void VertexArray::setAttribute( int location, const AttributeBuffer& attribute )
 // -------------------------------------------------------------------------------------------------
 const IndexBuffer& VertexArray::indexBuffer() const
 {
-    return _indexBuffer;
+    return _indexBuffer.value();
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -132,7 +132,7 @@ const IndexBuffer& VertexArray::indexBuffer() const
 void VertexArray::setIndexBuffer( const IndexBuffer& indexBuffer )
 {
     assert( isCreated() && "VertexArray must be created before setting index buffer" );
-    assert( indexBuffer.isValid() && "IndexBuffer must be valid" );
+    //assert( indexBuffer.isValid() && "IndexBuffer must be valid" );
 
     // Store index buffer
     _indexBuffer = indexBuffer;
@@ -145,7 +145,7 @@ void VertexArray::setIndexBuffer( const IndexBuffer& indexBuffer )
 // -------------------------------------------------------------------------------------------------
 bool VertexArray::isIndexed() const
 {
-    return _indexBuffer.isValid();
+    return _indexBuffer.has_value();
 }
 
 // -------------------------------------------------------------------------------------------------

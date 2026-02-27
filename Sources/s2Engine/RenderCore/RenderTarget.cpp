@@ -76,6 +76,8 @@ void RenderTarget::resize( int32_t width, int32_t height )
         if( texture )
             texture->resize( _width, _height );
     }
+
+	_fbo->_changes = FrameBuffer::Changes( FrameBuffer::Changes::Color | FrameBuffer::Changes::Depth | FrameBuffer::Changes::DepthStencil );
 }
 
 // ------------------------------------------------------------------------------------------------

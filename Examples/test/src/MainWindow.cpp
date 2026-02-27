@@ -53,55 +53,55 @@ void MainWindow::onInitializeEvent()
 
 	auto& resources = _renderer->resources();
 
-	// register torus mesh
-	{
-		const auto mesh = s2::GeometryFactory3D::createTorus( 1.0, 0.5, 64, 16 );
-		auto vtx = RenderCore::VertexData::New( mesh );
-		vtx->setColors( std::vector<Color>( mesh.vertices.size(), Color::red() ) );
-		_torus = resources.registerMesh( "torus", vtx );
-	}
+	//// register torus mesh
+	//{
+	//	const auto mesh = s2::GeometryFactory3D::createTorus( 1.0, 0.5, 64, 16 );
+	//	auto vtx = RenderCore::VertexData::New( mesh );
+	//	vtx->setColors( std::vector<Color>( mesh.vertices.size(), Color::red() ) );
+	//	_torus = resources.registerMesh( "torus", vtx );
+	//}
 	
-	// register cube mesh
-	{
-		const auto mesh = s2::GeometryFactory3D::createCube( { 5.0, 0.0, 0.0 }, 2.0 );
-		auto vtx = RenderCore::VertexData::New( mesh );
-		vtx->setColors( std::vector<Color>( mesh.vertices.size(), Color::green() ) );
-		_cube = resources.registerMesh( "cube", vtx );
-	}
+	//// register cube mesh
+	//{
+	//	const auto mesh = s2::GeometryFactory3D::createCube( { 5.0, 0.0, 0.0 }, 2.0 );
+	//	auto vtx = RenderCore::VertexData::New( mesh );
+	//	vtx->setColors( std::vector<Color>( mesh.vertices.size(), Color::green() ) );
+	//	_cube = resources.registerMesh( "cube", vtx );
+	//}
 
-	// register cone mesh
-	{
-		const auto mesh = s2::GeometryFactory3D::createCone( Math::dvec3(2.5,0.0,0.0), Math::dvec3(2.5, 0.0, 3.0), 1, true, 32 );
-		auto vtx = RenderCore::VertexData::New( mesh );
-		vtx->setColors( std::vector<Color>( mesh.vertices.size(), Color::yellow() ) );
-		_cone = resources.registerMesh( "cone", vtx );
-	}
+	//// register cone mesh
+	//{
+	//	const auto mesh = s2::GeometryFactory3D::createCone( Math::dvec3(2.5,0.0,0.0), Math::dvec3(2.5, 0.0, 3.0), 1, true, 32 );
+	//	auto vtx = RenderCore::VertexData::New( mesh );
+	//	vtx->setColors( std::vector<Color>( mesh.vertices.size(), Color::yellow() ) );
+	//	_cone = resources.registerMesh( "cone", vtx );
+	//}
 
-	// register sphere mesh
-	{
-		const auto mesh = s2::GeometryFactory3D::createSphere( Math::dvec3( -2.5, 0.0, 0.0 ), 1.0, 32 );
-		auto vtx = RenderCore::VertexData::New( mesh );
-		vtx->setColors( std::vector<Color>( mesh.vertices.size(), Color::blue().lighter() ) );
-		_sphere = resources.registerMesh( "sphere", vtx );
-	}
+	//// register sphere mesh
+	//{
+	//	const auto mesh = s2::GeometryFactory3D::createSphere( Math::dvec3( -2.5, 0.0, 0.0 ), 1.0, 32 );
+	//	auto vtx = RenderCore::VertexData::New( mesh );
+	//	vtx->setColors( std::vector<Color>( mesh.vertices.size(), Color::blue().lighter() ) );
+	//	_sphere = resources.registerMesh( "sphere", vtx );
+	//}
 
-	// register cylinder mesh
-	{
-		const auto mesh = s2::GeometryFactory3D::createCylinder( Math::dvec3( -5.0, 0.0, 0.0 ), Math::dvec3( -5.0, 0.0, 2.0 ), 1.0, true, true, 32 );
-		auto vtx = RenderCore::VertexData::New( mesh );
-		vtx->setColors( std::vector<Color>( mesh.vertices.size(), Color::cyan() ) );
-		_cylinder = resources.registerMesh( "cylinder", vtx );
-	}
+	//// register cylinder mesh
+	//{
+	//	const auto mesh = s2::GeometryFactory3D::createCylinder( Math::dvec3( -5.0, 0.0, 0.0 ), Math::dvec3( -5.0, 0.0, 2.0 ), 1.0, true, true, 32 );
+	//	auto vtx = RenderCore::VertexData::New( mesh );
+	//	vtx->setColors( std::vector<Color>( mesh.vertices.size(), Color::cyan() ) );
+	//	_cylinder = resources.registerMesh( "cylinder", vtx );
+	//}
 
-	_material.shader = resources.registerShader( "blinnPhong", s2::RenderCore::DefaultShaders.BlinnPhong );
-	_material.textures[0] = (int) resources.registerTexture( "orange",
-															 s2::RenderCore::Texture2D::New(
-															 s2::RenderCore::TextureDescription(
-															 _texture.pixmap.width(),
-															 _texture.pixmap.height(),
-															 s2::RenderCore::TextureFormat::RedGreenBlue8 ),
-															 (void*) _texture.pixmap.pixels() ) );
-	_material.properties["u_UseDiffuseMap"] = false;
+	//_material.shader = resources.registerShader( "blinnPhong", s2::RenderCore::DefaultShaders.Simple);
+	//_material.textures["u_DiffuseMap"] = (int) resources.registerTexture( "orange",
+	//														 s2::RenderCore::Texture2D::New(
+	//														 s2::RenderCore::TextureDescription(
+	//														 _texture.pixmap.width(),
+	//														 _texture.pixmap.height(),
+	//														 s2::RenderCore::TextureFormat::RedGreenBlue8 ),
+	//														 (void*) _texture.pixmap.pixels() ) );
+	//_material.properties["u_UseDiffuseMap"] = false;
 
 	//const auto teapot = s2::GeometryFactory3D::createTeapot( 10,10 );
 	//_teapot = RenderCore::VertexData::New();
@@ -170,51 +170,51 @@ void MainWindow::onPaintEvent()
 		.cameraProjectionMatrix = _camera.projectionMatrix(),
 						   } );
 	{
-		_renderer->clear( { .color = Color{ 0.3f, 0.5f, 0.4f, 1.0f } } );
+		_renderer->clear( { .color = Color{ 0.5f, float(scale), 0.3f, 1.0f } } );
 			
-		_renderer->render(
-			{
-			.renderMode  = s2::Renderer::RenderMode::Triangles,
-			.material    = _material,
-			.mesh        = _sphere,
-			.modelMatrix = modelMatrix,
-			} );
+		//_renderer->render(
+		//	{
+		//	.renderMode  = s2::Renderer::RenderMode::Triangles,
+		//	.material    = _material,
+		//	.mesh        = _sphere,
+		//	.modelMatrix = modelMatrix,
+		//	} );
 
-		_renderer->render(
-			{
-			.renderMode  = s2::Renderer::RenderMode::Triangles,
-			.material    = _material,
-			.mesh        = _torus,
-			.modelMatrix = modelMatrix,
-			} );
+		//_renderer->render(
+		//	{
+		//	.renderMode  = s2::Renderer::RenderMode::Triangles,
+		//	.material    = _material,
+		//	.mesh        = _torus,
+		//	.modelMatrix = modelMatrix,
+		//	} );
 
-		_renderer->render(
-			{
-			.renderMode  = s2::Renderer::RenderMode::Triangles,
-			.material    = _material,
-			.mesh        = _cone,
-			.modelMatrix = modelMatrix,
-			} );
+		//_renderer->render(
+		//	{
+		//	.renderMode  = s2::Renderer::RenderMode::Triangles,
+		//	.material    = _material,
+		//	.mesh        = _cone,
+		//	.modelMatrix = modelMatrix,
+		//	} );
 
-		{	
-			s2::Renderer::RenderCommand cmd
-			{
-				.renderMode = s2::Renderer::RenderMode::Triangles,
-				.material = _material,
-				.mesh = _cube,
-				.modelMatrix = modelMatrix,
-			};
-			cmd.material.properties["u_UseDiffuseMap"] = true;
-			_renderer->render( cmd );
-		}
+		//{	
+		//	s2::Renderer::RenderCommand cmd
+		//	{
+		//		.renderMode = s2::Renderer::RenderMode::Triangles,
+		//		.material = _material,
+		//		.mesh = _cube,
+		//		.modelMatrix = modelMatrix,
+		//	};
+		//	cmd.material.properties["u_UseDiffuseMap"] = true;
+		//	_renderer->render( cmd );
+		//}
 
-		_renderer->render(
-			{
-			.renderMode  = s2::Renderer::RenderMode::Triangles,
-			.material    = _material,
-			.mesh        = _cylinder,
-			.modelMatrix = modelMatrix,
-			} );
+		//_renderer->render(
+		//	{
+		//	.renderMode  = s2::Renderer::RenderMode::Triangles,
+		//	.material    = _material,
+		//	.mesh        = _cylinder,
+		//	.modelMatrix = modelMatrix,
+		//	} );
 	}
 	_renderer->endFrame();
 }

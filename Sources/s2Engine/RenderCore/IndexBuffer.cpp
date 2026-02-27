@@ -10,14 +10,12 @@ using namespace s2::RenderCore;
 
 // -------------------------------------------------------------------------------------------------
 IndexBuffer::IndexBuffer( int64_t sizeInBytes, IndexDataType dataType, GPUBufferObject::UsageHint usageHint )
-    : IndexBuffer()
 {
     set( sizeInBytes, dataType, usageHint );
 }
 
 // -------------------------------------------------------------------------------------------------
 IndexBuffer::IndexBuffer( const void* data, int64_t sizeInBytes, IndexDataType dataType, GPUBufferObject::UsageHint usageHint )
-	: IndexBuffer()
 {
     set( sizeInBytes, dataType, usageHint );
 	setData( data, sizeInBytes );
@@ -56,7 +54,7 @@ void IndexBuffer::updateCount()
 // -------------------------------------------------------------------------------------------------
 void IndexBuffer::setData( const void* data, int64_t size, int64_t offset )
 {
-    assert( isValid() && "IndexBuffer must be valid before setting data" );
+    //assert( isValid() && "IndexBuffer must be valid before setting data" );
     assert( data && "Index data cannot be null" );
     
     _gpuBuffer->setData( data, size, offset );
@@ -80,7 +78,7 @@ void IndexBuffer::setIndices( const uint32_t* indices, int count )
 // -------------------------------------------------------------------------------------------------
 void IndexBuffer::getData( void* data, int64_t size, int64_t offset ) const
 {
-    assert( isValid() && "IndexBuffer must be valid before getting data" );
+    //assert( isValid() && "IndexBuffer must be valid before getting data" );
     assert( data && "Data buffer cannot be null" );
     
     _gpuBuffer->getData( data, size, offset );
@@ -89,7 +87,7 @@ void IndexBuffer::getData( void* data, int64_t size, int64_t offset ) const
 // -------------------------------------------------------------------------------------------------
 void* IndexBuffer::map( uint32_t accessFlags )
 {
-    assert( isValid() && "IndexBuffer must be valid before mapping" );
+    //assert( isValid() && "IndexBuffer must be valid before mapping" );
     
     return _gpuBuffer->mapRange( 0, _gpuBuffer->size(), accessFlags );
 }
@@ -97,7 +95,7 @@ void* IndexBuffer::map( uint32_t accessFlags )
 // -------------------------------------------------------------------------------------------------
 bool IndexBuffer::unmap()
 {
-    assert( isValid() && "IndexBuffer must be valid before unmapping" );
+    //assert( isValid() && "IndexBuffer must be valid before unmapping" );
     
     return _gpuBuffer->unmap();
 }

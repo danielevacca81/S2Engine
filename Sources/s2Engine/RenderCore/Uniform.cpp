@@ -30,12 +30,14 @@ struct UniformSetterDSA
     void operator()( const Math::fmat2& value ) const { glProgramUniformMatrix2fv    ( programID, location, 1, GL_FALSE, &value[0][0] ); glCheck; }
     void operator()( const Math::fmat3& value ) const { glProgramUniformMatrix3fv    ( programID, location, 1, GL_FALSE, &value[0][0] ); glCheck; }
     void operator()( const Math::fmat4& value ) const { glProgramUniformMatrix4fv    ( programID, location, 1, GL_FALSE, &value[0][0] ); glCheck; }
-    void operator()( const Math::dvec2& value ) const { glProgramUniform2dv          ( programID, location, 1, &value.x );               glCheck; }
-    void operator()( const Math::dvec3& value ) const { glProgramUniform3dv          ( programID, location, 1, &value.x );               glCheck; }
-    void operator()( const Math::dvec4& value ) const { glProgramUniform4dv          ( programID, location, 1, &value.x );               glCheck; }
-    void operator()( const Math::dmat2& value ) const { glProgramUniformMatrix2dv    ( programID, location, 1, GL_FALSE, &value[0][0] ); glCheck; }
-    void operator()( const Math::dmat3& value ) const { glProgramUniformMatrix3dv    ( programID, location, 1, GL_FALSE, &value[0][0] ); glCheck; }
-    void operator()( const Math::dmat4& value ) const { glProgramUniformMatrix4dv    ( programID, location, 1, GL_FALSE, &value[0][0] ); glCheck; }
+    
+	// double-precision variants fallback to single-precision for better compatibility end performance
+    void operator()( const Math::dvec2& value ) const { const Math::fvec2 fValue( value ); glProgramUniform2fv      ( programID, location, 1, &fValue.x ); glCheck; }
+    void operator()( const Math::dvec3& value ) const { const Math::fvec3 fValue( value ); glProgramUniform3fv      ( programID, location, 1, &fValue.x );               glCheck; }
+    void operator()( const Math::dvec4& value ) const { const Math::fvec4 fValue( value ); glProgramUniform4fv      ( programID, location, 1, &fValue.x );               glCheck; }
+    void operator()( const Math::dmat2& value ) const { const Math::fmat2 fValue( value ); glProgramUniformMatrix2fv( programID, location, 1, GL_FALSE, &fValue[0][0] ); glCheck; }
+    void operator()( const Math::dmat3& value ) const { const Math::fmat3 fValue( value ); glProgramUniformMatrix3fv( programID, location, 1, GL_FALSE, &fValue[0][0] ); glCheck; }
+    void operator()( const Math::dmat4& value ) const { const Math::fmat4 fValue( value ); glProgramUniformMatrix4fv( programID, location, 1, GL_FALSE, &fValue[0][0] ); glCheck; }
 };
 
 // ------------------------------------------------------------------------------------------------

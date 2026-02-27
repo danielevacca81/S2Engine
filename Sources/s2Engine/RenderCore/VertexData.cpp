@@ -16,27 +16,27 @@ namespace detail {
 
 // Component count traits
 template<typename T> struct ComponentCount;
-template<> struct ComponentCount<uint32_t> { static constexpr int value = 1; };
+template<> struct ComponentCount<uint32_t>    { static constexpr int value = 1; };
 template<> struct ComponentCount<Math::ivec2> { static constexpr int value = 2; };
 template<> struct ComponentCount<Math::ivec3> { static constexpr int value = 3; };
 template<> struct ComponentCount<Math::ivec4> { static constexpr int value = 4; };
-template<> struct ComponentCount<float> { static constexpr int value = 1; };
+template<> struct ComponentCount<float>       { static constexpr int value = 1; };
 template<> struct ComponentCount<Math::fvec2> { static constexpr int value = 2; };
 template<> struct ComponentCount<Math::fvec3> { static constexpr int value = 3; };
 template<> struct ComponentCount<Math::fvec4> { static constexpr int value = 4; };
-template<> struct ComponentCount<Color> { static constexpr int value = 4; };
+template<> struct ComponentCount<Color>       { static constexpr int value = 4; };
 
 // Component data type traits
 template<typename T> struct ComponentDataType;
-template<> struct ComponentDataType<uint32_t> { static constexpr AttributeBuffer::ComponentDatatype value = AttributeBuffer::ComponentDatatype::UnsignedInt; };
+template<> struct ComponentDataType<uint32_t>    { static constexpr AttributeBuffer::ComponentDatatype value = AttributeBuffer::ComponentDatatype::UnsignedInt; };
 template<> struct ComponentDataType<Math::ivec2> { static constexpr AttributeBuffer::ComponentDatatype value = AttributeBuffer::ComponentDatatype::Int; };
 template<> struct ComponentDataType<Math::ivec3> { static constexpr AttributeBuffer::ComponentDatatype value = AttributeBuffer::ComponentDatatype::Int; };
 template<> struct ComponentDataType<Math::ivec4> { static constexpr AttributeBuffer::ComponentDatatype value = AttributeBuffer::ComponentDatatype::Int; };
-template<> struct ComponentDataType<float> { static constexpr AttributeBuffer::ComponentDatatype value = AttributeBuffer::ComponentDatatype::Float; };
+template<> struct ComponentDataType<float>       { static constexpr AttributeBuffer::ComponentDatatype value = AttributeBuffer::ComponentDatatype::Float; };
 template<> struct ComponentDataType<Math::fvec2> { static constexpr AttributeBuffer::ComponentDatatype value = AttributeBuffer::ComponentDatatype::Float; };
 template<> struct ComponentDataType<Math::fvec3> { static constexpr AttributeBuffer::ComponentDatatype value = AttributeBuffer::ComponentDatatype::Float; };
 template<> struct ComponentDataType<Math::fvec4> { static constexpr AttributeBuffer::ComponentDatatype value = AttributeBuffer::ComponentDatatype::Float; };
-template<> struct ComponentDataType<Color> { static constexpr AttributeBuffer::ComponentDatatype value = AttributeBuffer::ComponentDatatype::Float; };
+template<> struct ComponentDataType<Color>       { static constexpr AttributeBuffer::ComponentDatatype value = AttributeBuffer::ComponentDatatype::Float; };
 
 // ------------------------------------------------------------------------------------------------
 // Generic template method for DSA attribute setup
@@ -71,25 +71,16 @@ static inline void setAttribute(
 
     const int64_t bufferSize = numElements * sizeof( T );
 
-    // Create GPU buffer (DSA)
-    auto gpuBuffer = GPUBufferObject::New(
-        bufferSize,
-        GPUBufferObject::Type::ArrayBuffer,
-        vao->usageHint()
-    );
-
-    // Upload data (DSA)
-    gpuBuffer->setData( data.data(), bufferSize, 0 );
 
     // Create attribute buffer
-    AttributeBuffer attr;
-    attr.set(
-        gpuBuffer,
-        componentType,
-        componentCount,
-        false,  // normalize
-        0,      // offset
-        0       // stride (auto-calculated)
+	AttributeBuffer attr( bufferSize,
+						  GPUBufferObject::Type::ArrayBuffer,
+						  vao->usageHint(),
+						  componentType,
+						  componentCount,
+                          false,  // normalize
+                          0,      // offset
+                          0       // stride (auto-calculated)
     );
 
     // Set attribute using DSA (no VAO binding)
@@ -183,23 +174,13 @@ void VertexData::setIndices( const std::vector<uint32_t>& indices )
 
     const int64_t bufferSize = numIndices * sizeof( uint32_t );
 
-    // Create GPU buffer for indices (DSA)
-    auto indexGPUBuffer = GPUBufferObject::New(
-        bufferSize,
-        GPUBufferObject::Type::ElementBuffer,
-        _vao->usageHint()
-    );
-
-    // Upload index data (DSA)
-    indexGPUBuffer->setData( indices.data(), bufferSize, 0 );
-
     // Create index buffer
-    IndexBuffer idxBuf(
+    IndexBuffer idxBuf( 
+        indices.data(),
         bufferSize,
         IndexBuffer::IndexDataType::UnsignedInt,
         _vao->usageHint()
     );
-    idxBuf.setIndices( indices.data(), static_cast<int>( numIndices ) );
 
     // Set index buffer using DSA (no VAO binding)
     _vao->setIndexBuffer( idxBuf );
@@ -270,7 +251,7 @@ size_t VertexData::vertexCount() const
 size_t VertexData::indexCount() const
 {
     const auto& idxBuf = _vao->indexBuffer();
-    return idxBuf.isValid() ? idxBuf.count() : 0;
+    return idxBuf.count();
 }
 
 }

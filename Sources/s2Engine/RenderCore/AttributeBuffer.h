@@ -33,15 +33,23 @@ public:
 
 public:
     AttributeBuffer() = default;
+	AttributeBuffer( int64_t bufferSize, 
+					 GPUBufferObject::Type bufferType,
+					 GPUBufferObject::UsageHint usageHint,
+                     ComponentDatatype componentDatatype, 
+                     int numberOfComponents, 
+                     bool normalize = false, 
+                     int64_t offset = 0,
+                     int64_t stride = 0 );
 
-    // Configure attribute buffer
-    void set(
-        const GPUBufferObjectPtr&      buffer,
-        ComponentDatatype        componentDatatype,
-        int                      numberOfComponents,
-        bool                     normalize = false,
-        int64_t                  offset = 0,
-        int64_t                  stride = 0 );
+    //// Configure attribute buffer
+    //void set(
+    //    const GPUBufferObjectPtr&      buffer,
+    //    ComponentDatatype        componentDatatype,
+    //    int                      numberOfComponents,
+    //    bool                     normalize = false,
+    //    int64_t                  offset = 0,
+    //    int64_t                  stride = 0 );
 
 
     void attach( unsigned int vaoID, int location );  // Attach to VAO using DSA (requires VAO ID)
@@ -49,7 +57,7 @@ public:
 
     // Getters
     ComponentDatatype componentDatatype()  const { return _componentDatatype; }
-    bool              isValid()            const { return _valid; }
+    bool              isValid()            const { return _gpuBuffer && _gpuBuffer->isCreated(); }
     int               numberOfComponents() const { return _numberOfComponents; }
     int64_t           offset()             const { return _offset; }
     bool              normalize()          const { return _normalize; }
@@ -58,7 +66,7 @@ public:
     int               location()           const { return _location; }
 
     // Access underlying buffer
-    const GPUBufferObjectPtr& gpuBuffer() const { return _gpuBuffer; }
+    //const GPUBufferObjectPtr& gpuBuffer() const { return _gpuBuffer; }
 
 private:
     int64_t calculateStride() const;
@@ -72,7 +80,7 @@ private:
     int64_t _offset             { 0 };
     int64_t _stride             { 0 };
     bool    _normalize          { false };
-    bool    _valid              { false };
+    //bool    _valid              { false };
 };
 
 } // namespace RenderCore

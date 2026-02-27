@@ -63,6 +63,7 @@ protected:
 // ================================================================================================
 // ForwardPass: Standard forward rendering pass (DSA + Bindless)
 // ================================================================================================
+
 class S2ENGINE_API ForwardPass : public RenderPass
 {
 public:
@@ -71,6 +72,9 @@ public:
     const std::string& name() const override;
 
 private:
+    // @todo: move helpers in cpp and make them static/private
+
+
     // Create draw state from render command and frame data
     RenderCore::DrawState createDrawState( 
         const RenderCommand& renderCmd, 

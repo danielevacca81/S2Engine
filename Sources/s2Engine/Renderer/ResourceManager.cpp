@@ -15,6 +15,7 @@ ResourceHandle ResourceManager::registerMesh( const std::string& name, const Mes
     ResourceHandle handle = _nextHandle++;
     _nameToHandle[name] = handle;
     _meshes[handle] = RenderCore::VertexData::New( mesh );
+    return handle;
 }
 
 

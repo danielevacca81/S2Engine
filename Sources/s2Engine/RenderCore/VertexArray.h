@@ -11,6 +11,7 @@
 
 #include <vector>
 #include <memory>
+#include <optional>
 
 namespace s2 {
 namespace RenderCore {
@@ -67,7 +68,7 @@ private:
 private:
     GPUBufferObject::UsageHint      _usageHint;
     std::vector<AttributeBuffer>    _attributes;
-    IndexBuffer                     _indexBuffer;
+    std::optional<IndexBuffer>      _indexBuffer;
 };
 
 } // namespace RenderCore

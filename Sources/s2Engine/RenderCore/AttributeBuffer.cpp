@@ -11,7 +11,7 @@
 using namespace s2::RenderCore;
 
 // -------------------------------------------------------------------------------------------------
-static int64_t dataTypeSize( AttributeBuffer::ComponentDatatype type )
+static inline int64_t dataTypeSize( AttributeBuffer::ComponentDatatype type )
 {
     switch( type )
     {
@@ -34,20 +34,21 @@ static int64_t dataTypeSize( AttributeBuffer::ComponentDatatype type )
 }
 
 // -------------------------------------------------------------------------------------------------
-void AttributeBuffer::set( 
-    const GPUBufferObjectPtr& buffer,
-    ComponentDatatype componentDatatype, 
-    int numberOfComponents, 
-    bool normalize, 
-    int64_t offset, 
-    int64_t stride )
+AttributeBuffer::AttributeBuffer( int64_t bufferSize,
+								  GPUBufferObject::Type bufferType,
+								  GPUBufferObject::UsageHint usageHint,
+								  ComponentDatatype componentDatatype,
+								  int numberOfComponents,
+								  bool normalize,
+								  int64_t offset,
+								  int64_t stride )
 {
-    _gpuBuffer          = buffer;
+    _gpuBuffer          = GPUBufferObject::New( numberOfComponents * dataTypeSize( componentDatatype ), bufferType, usageHint );
     _componentDatatype  = componentDatatype;
     _numberOfComponents = numberOfComponents;
     _offset             = offset;
     _normalize          = normalize;
-    _valid              = true;
+    //_valid              = true;
     
     // Calculate stride: if 0, assume tightly packed
     _stride = (stride == 0) ? calculateStride() : stride;
@@ -62,7 +63,7 @@ int64_t AttributeBuffer::calculateStride() const
 // -------------------------------------------------------------------------------------------------
 int AttributeBuffer::numberOfVertices() const
 {
-    if( !_valid || _stride == 0 )
+    if( _stride == 0 )
         return 0;
 
     return static_cast<int>( _gpuBuffer->size() / _stride );
@@ -73,7 +74,7 @@ int AttributeBuffer::numberOfVertices() const
 // -------------------------------------------------------------------------------------------------
 void AttributeBuffer::attach( unsigned int vaoID, int location )
 {
-    assert( _valid && "AttributeBuffer must be valid before attaching" );
+    //assert( _valid && "AttributeBuffer must be valid before attaching" );
     assert( vaoID != 0 && "VAO ID must be valid" );
 
     _location = location;

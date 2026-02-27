@@ -106,7 +106,6 @@ RenderCore::DrawState ForwardPass::createDrawState(
 
     // Viewport
     drawState.viewport.rect = frameData.mainTarget->size();
-    drawState.viewport.scissorTest.enabled = false; // TODO: Add scissor support to RenderCommand
 
     // Render state from material
     drawState.renderState = getRenderState( renderCmd );

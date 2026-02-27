@@ -59,21 +59,23 @@ static inline bool initShaders()
 	// #####################################
 	DefaultShaders.Simple = Shader::New();
 	{
-		auto vtxOk = ShaderCompiler::compile( ShaderStageType::Vertex, STRINGIFY( #version 330\n
+		auto vtxOk = ShaderCompiler::compile( ShaderStageType::Vertex, STRINGIFY( #version 460 core\n
 		layout( location = 0 ) in vec3 in_Vertex;
 		layout( location = 1 ) in vec4 in_Color;
 
 		uniform mat4 modelViewProjectionMatrix;
 
-		out vec4 color;
+		out VertexData
+		{
+			vec4 color;
+		} vs_out;
 
 		void main()
 		{
 			gl_Position = modelViewProjectionMatrix * vec4( in_Vertex, 1.0 );
-			color = in_Color;
-			//color       = vec4( 1.0, 0.0, 1.0, 1.0 );
+			vs_out.color = in_Color;
 		}
-		) );
+		));
 
 		auto frgOk = ShaderCompiler::compile( ShaderStageType::Fragment, STRINGIFY( #version 330\n
         in vec4 color;
@@ -81,7 +83,8 @@ static inline bool initShaders()
 
 		void main()
 		{
-			fragColor = color;
+			//fragColor = color;
+			fragColor = vec4( 1.0, 0.0, 1.0, 1.0 );
 		}
 		) );
 
