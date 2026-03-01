@@ -60,7 +60,7 @@ ShaderStageCompilationResult ShaderCompiler::compileFromFile(
 // ------------------------------------------------------------------------------------------------
 ShaderLinkResult ShaderCompiler::linkShader( const ShaderPtr& shader, const std::string& name )
 {
-    if( !shader || !shader->isCreated() )
+    if( !shader || !shader->isValid() )
         return ShaderLinkResult { false, "Invalid shader" };
 
     if( shader->isLinked() )
@@ -123,7 +123,7 @@ ShaderLinkResult ShaderCompiler::validateShader( const ShaderPtr& shader )
 
 void ShaderCompiler::setSeparable( const ShaderPtr& shader, bool separable )
 {
-    assert( shader && shader->isCreated() && "Shader must be created" );
+    assert( shader && shader->isValid() && "Shader must be created" );
     assert( !shader->isLinked() && "Must be set before linking" );
 
     // Mark shader as separable (OpenGL 4.1+)
@@ -240,7 +240,7 @@ ShaderLinkResult ShaderCompiler::loadFromBinary(
     const std::vector<uint8_t>& binary,
     uint32_t binaryFormat )
 {
-    assert( shader && shader->isCreated() && "Shader must be created" );
+    assert( shader && shader->isValid() && "Shader must be created" );
     assert( !binary.empty() && "Binary data cannot be empty" );
 
     glProgramBinary( 
@@ -290,7 +290,7 @@ std::string ShaderCompiler::getShaderStageInfoLog( const ShaderStagePtr& stage )
 // ------------------------------------------------------------------------------------------------
 std::string ShaderCompiler::getShaderInfoLog( const ShaderPtr& shader )
 {
-    if( !shader || !shader->isCreated() )
+    if( !shader || !shader->isValid() )
         return "";
 
     GLint maxLength = 0;

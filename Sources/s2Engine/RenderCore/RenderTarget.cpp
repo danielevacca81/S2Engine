@@ -4,6 +4,8 @@
 
 #include "Context.h"
 
+#include "OpenGL.h"
+
 #include <cassert>
 #include <algorithm>
 
@@ -67,17 +69,7 @@ void RenderTarget::resize( int32_t width, int32_t height )
     _width  = width;
     _height = height;
 
-    // Resize all attachments (DSA - textures resize themselves without binding)
-    for( int i = FrameBuffer::ColorAttachment0; i <= FrameBuffer::DepthStencilAttachment; ++i )
-    {
-        const auto attachPoint = static_cast<FrameBuffer::AttachmentPoint>( i );
-        Texture2DPtr texture = _fbo->attachment( attachPoint );
-        
-        if( texture )
-            texture->resize( _width, _height );
-    }
-
-	_fbo->_changes = FrameBuffer::Changes( FrameBuffer::Changes::Color | FrameBuffer::Changes::Depth | FrameBuffer::Changes::DepthStencil );
+    _fbo->resizeAllAttachments( _width, _height );
 }
 
 // ------------------------------------------------------------------------------------------------

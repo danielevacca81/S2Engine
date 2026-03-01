@@ -13,5 +13,5 @@ void MyApplication::updateState()
 													  3.0, // duration in seconds
 													  Math::Easing::Curve::QuadraticIn, 
 													  Math::Easing::Mode::PingPong );
-	scaleFactor = sizeInterpolator.valueAt( elapsedTime_ms() * 1e-3 );
+	//scaleFactor = sizeInterpolator.valueAt( elapsedTime_ms() * 1e-3 );
 }

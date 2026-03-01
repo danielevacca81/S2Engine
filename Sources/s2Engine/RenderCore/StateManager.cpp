@@ -14,7 +14,7 @@
 
 using namespace s2::RenderCore;
 
-static const bool _shadowingCurrentlyEnabled = false;
+static const bool _shadowingCurrentlyEnabled = true;
 
 // ------------------------------------------------------------------------------------------------
 static inline void enable( GLenum cap, bool enabled )
@@ -224,19 +224,19 @@ void StateManager::applyScissorTest( const ScissorTest& scissorTest )
                         rectangle.width() > 0 && 
                         rectangle.height() > 0;
 
-    if( _renderState.scissorTest.enabled != enabled || !_shadowingCurrentlyEnabled )
+    if( _viewportState.scissorTest.enabled != enabled || !_shadowingCurrentlyEnabled )
     {
         enable( GL_SCISSOR_TEST, enabled );
         glCheck;
-        _renderState.scissorTest.enabled = enabled;
+        _viewportState.scissorTest.enabled = enabled;
     }
 
     if( enabled && 
-        ( _renderState.scissorTest.rect != scissorTest.rect || !_shadowingCurrentlyEnabled) )
+        ( _viewportState.scissorTest.rect != scissorTest.rect || !_shadowingCurrentlyEnabled) )
     {
         glScissor( rectangle.left(), rectangle.bottom(), rectangle.width(), rectangle.height() );
         glCheck;
-        _renderState.scissorTest.rect = scissorTest.rect;
+        _viewportState.scissorTest.rect = scissorTest.rect;
     }
 }
 
@@ -448,7 +448,7 @@ void StateManager::applyStencilMask( const StencilMask& stencilMask )
 void StateManager::applyShaderProgram( const ShaderPtr& shader )
 {
     // Validate shader
-    ShaderPtr newShader = (!shader || shader->isCreated()) ? shader : _currentShader;
+    ShaderPtr newShader = (!shader || shader->isValid()) ? shader : _currentShader;
     assert( newShader == shader && "Shader must be created before use" );
 
     // Apply shader if changed or shadowing disabled
@@ -497,7 +497,7 @@ void StateManager::applyClearColorSeparate( const ClearColorSeparate& clearColor
 // ------------------------------------------------------------------------------------------------
 void StateManager::applyViewport( const ViewportState& vs )
 {
-    //if( vs.rect != _viewportState.rect || !_shadowingCurrentlyEnabled )
+    if( vs.rect != _viewportState.rect || !_shadowingCurrentlyEnabled )
     {
         glViewport( vs.rect.left(), vs.rect.bottom(), vs.rect.width(), vs.rect.height() );
         glCheck;
@@ -552,7 +552,7 @@ void StateManager::validateState( bool drawStateCheck, bool clearStateCheck ) co
 
     if( drawStateCheck || clearStateCheck )
     {
-        assert( static_cast<bool>( glIsEnabled( GL_SCISSOR_TEST ) ) == _renderState.scissorTest.enabled );
+        assert( static_cast<bool>( glIsEnabled( GL_SCISSOR_TEST ) ) == _viewportState.scissorTest.enabled );
         
         glGetIntegerv( GL_DEPTH_WRITEMASK, val );
         assert( static_cast<bool>( val[0] ) == _renderState.depthMask.enabled );

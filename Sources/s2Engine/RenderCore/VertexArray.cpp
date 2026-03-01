@@ -48,7 +48,7 @@ int VertexArray::objectLabelIdentifier() const
 // -------------------------------------------------------------------------------------------------
 void VertexArray::create()
 {
-    if( isCreated() )
+    if( isValid() )
         return;
 
     destroy();
@@ -60,14 +60,12 @@ void VertexArray::create()
     // DSA: glCreateVertexArrays (OpenGL 4.5+)
     glCreateVertexArrays( 1, &_objectID );
     glCheck;
-
-    _created = (_objectID != 0);
 }
 
 // -------------------------------------------------------------------------------------------------
 void VertexArray::destroy()
 {
-    if( !isCreated() )
+    if( !isValid() )
         return;
 
     glDeleteVertexArrays( 1, &_objectID );
@@ -79,7 +77,7 @@ void VertexArray::destroy()
 // -------------------------------------------------------------------------------------------------
 void VertexArray::bind() const
 {
-    if( !isCreated() )
+    if( !isValid() )
         return;
 
     assert( _objectID != 0 && "VAO must be valid" );
@@ -109,7 +107,7 @@ const AttributeBuffer& VertexArray::attribute( int index ) const
 // -------------------------------------------------------------------------------------------------
 void VertexArray::setAttribute( int location, const AttributeBuffer& attribute )
 {
-    assert( isCreated() && "VertexArray must be created before setting attributes" );
+    assert( isValid() && "VertexArray must be created before setting attributes" );
     assert( location >= 0 && location < static_cast<int>( _attributes.size() ) );
     assert( attribute.isValid() && "AttributeBuffer must be valid" );
 
@@ -131,7 +129,7 @@ const IndexBuffer& VertexArray::indexBuffer() const
 // -------------------------------------------------------------------------------------------------
 void VertexArray::setIndexBuffer( const IndexBuffer& indexBuffer )
 {
-    assert( isCreated() && "VertexArray must be created before setting index buffer" );
+    assert( isValid() && "VertexArray must be created before setting index buffer" );
     //assert( indexBuffer.isValid() && "IndexBuffer must be valid" );
 
     // Store index buffer

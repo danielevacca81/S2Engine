@@ -83,7 +83,8 @@ public:
     bool hasDepthStencilAttachment() const;
 
     Texture2DPtr attachment( const AttachmentPoint& a ) const;
-    int          colorAttachmentDrawBufferIndex( const AttachmentPoint a ) const;	
+    int          colorAttachmentDrawBufferIndex( const AttachmentPoint a ) const;
+    void         resizeAllAttachments( int width, int height );
 
     // Read pixels - convenience overloads
     void readPixels( const AttachmentPoint attachPoint, const ImageFormat pixelFormat, const Math::irect& roi, float* pixels ) const;
@@ -114,33 +115,21 @@ public:
     // Status info
     std::string info() const;
 
-    enum Changes
-    {
-        None = 0,
-        Color = 1,
-        Depth = 2,
-        DepthStencil = 4
-    };
-
-
-    mutable Changes                      _changes;
-
-
-private:
+    
+ private:   
     // DSA support: Apply pending attachment changes without explicit binding
     void applyPendingChanges() const;
-
     void reset() override;
     int  objectLabelIdentifier() const override;
 
 private:
-    //enum Changes
-    //{
-    //    None         = 0,
-    //    Color        = 1,
-    //    Depth        = 2,
-    //    DepthStencil = 4
-    //};
+    enum Changes
+    {
+       None         = 0,
+       Color        = 1,
+       Depth        = 2,
+       DepthStencil = 4
+    };
 
     struct ColorAttachment
     {
@@ -150,7 +139,7 @@ private:
         ColorAttachment() = default;
     };
 
-private:
+public:
     static constexpr int kMaxColorAttachment = ColorAttachment9 + 1;
 
     int          _colorAttachmentCount;
@@ -158,18 +147,13 @@ private:
     Texture2DPtr _depthStencilAttachment;
 
     mutable std::vector<ColorAttachment> _colorAttachments;
+    mutable Changes                      _changes;
+
 };
 
 // Bitwise operators for BufferBit
-inline uint32_t operator|( FrameBuffer::BufferBit a, FrameBuffer::BufferBit b )
-{
-    return static_cast<uint32_t>(a) | static_cast<uint32_t>(b);
-}
-
-inline uint32_t operator|( uint32_t a, FrameBuffer::BufferBit b )
-{
-    return a | static_cast<uint32_t>(b);
-}
+inline uint32_t operator|( FrameBuffer::BufferBit a, FrameBuffer::BufferBit b ) { return static_cast<uint32_t>(a) | static_cast<uint32_t>(b); }
+inline uint32_t operator|( uint32_t a, FrameBuffer::BufferBit b )               { return a | static_cast<uint32_t>(b);}
 
 } // namespace RenderCore
 } // namespace s2

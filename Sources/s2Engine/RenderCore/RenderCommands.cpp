@@ -364,7 +364,7 @@ void RenderCommands::drawFullscreenQuad( const Texture2DPtr& srcTexture )
 
 void RenderCommands::executeDrawCall( const PrimitiveType& primitive, const VertexArrayPtr& va )
 {
-    assert( va && va->isCreated() && "VertexArray must be valid" );
+    assert( va && va->isValid() && "VertexArray must be valid" );
 
     // Bind VAO (required for rendering)
     va->bind();
@@ -374,7 +374,7 @@ void RenderCommands::executeDrawCall( const PrimitiveType& primitive, const Vert
     if( va->isIndexed() )
     {
         const auto& indexBuffer = va->indexBuffer();
-        
+      
         // Indexed draw call
         glDrawRangeElements( 
             primType,

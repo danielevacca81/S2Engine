@@ -67,7 +67,7 @@ public:
         Unsynchronized   = 0x0020 
     };
 
-    // NEW: Storage flags (OpenGL 4.4+)
+    // Storage flags (OpenGL 4.4+)
     enum class StorageFlags : uint32_t
     {
         None           = 0,
@@ -97,7 +97,7 @@ public:
     static GPUBufferObjectPtr New( int64_t size, Type type, UsageHint usageHint );
 
     // Create with immutable storage (DSA)
-    static GPUBufferObjectPtr NewImmutable( int64_t size, Type type, uint32_t storageFlags,const void* initialData = nullptr );
+    static GPUBufferObjectPtr NewImmutable( int64_t size, Type type, uint32_t storageFlags, const void* initialData = nullptr );
 
 public:
     GPUBufferObject( int64_t size, Type type, UsageHint usageHint );
@@ -167,26 +167,12 @@ private:
 };
 
 // Bitwise operators for MapAccess
-inline uint32_t operator|( GPUBufferObject::MapAccess a, GPUBufferObject::MapAccess b )
-{
-    return static_cast<uint32_t>(a) | static_cast<uint32_t>(b);
-}
-
-inline uint32_t operator|( uint32_t a, GPUBufferObject::MapAccess b )
-{
-    return a | static_cast<uint32_t>(b);
-}
+inline uint32_t operator|( GPUBufferObject::MapAccess a, GPUBufferObject::MapAccess b ) { return static_cast<uint32_t>(a) | static_cast<uint32_t>(b); }
+inline uint32_t operator|( uint32_t a, GPUBufferObject::MapAccess b )                   { return a | static_cast<uint32_t>(b); }
 
 // Bitwise operators for StorageFlags
-inline uint32_t operator|( GPUBufferObject::StorageFlags a, GPUBufferObject::StorageFlags b )
-{
-    return static_cast<uint32_t>(a) | static_cast<uint32_t>(b);
-}
-
-inline uint32_t operator|( uint32_t a, GPUBufferObject::StorageFlags b )
-{
-    return a | static_cast<uint32_t>(b);
-}
+inline uint32_t operator|( GPUBufferObject::StorageFlags a, GPUBufferObject::StorageFlags b ) { return static_cast<uint32_t>(a) | static_cast<uint32_t>(b); }
+inline uint32_t operator|( uint32_t a, GPUBufferObject::StorageFlags b )                      { return a | static_cast<uint32_t>(b); }
 
 } // namespace RenderCore
 } // namespace s2

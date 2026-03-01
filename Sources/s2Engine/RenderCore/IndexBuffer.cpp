@@ -21,16 +21,10 @@ IndexBuffer::IndexBuffer( const void* data, int64_t sizeInBytes, IndexDataType d
 	setData( data, sizeInBytes );
 }
 
-
 // -------------------------------------------------------------------------------------------------
 void IndexBuffer::set( int64_t sizeInBytes, IndexDataType dataType, GPUBufferObject::UsageHint usageHint )
 {
-    _gpuBuffer = GPUBufferObject::New( 
-        sizeInBytes, 
-        GPUBufferObject::Type::ElementBuffer, 
-        usageHint 
-    );
-    
+    _gpuBuffer = GPUBufferObject::New( sizeInBytes, GPUBufferObject::Type::ElementBuffer, usageHint );  
     _dataType = dataType;
     updateCount();
 }
@@ -38,7 +32,7 @@ void IndexBuffer::set( int64_t sizeInBytes, IndexDataType dataType, GPUBufferObj
 // -------------------------------------------------------------------------------------------------
 void IndexBuffer::updateCount()
 {
-    if( !_gpuBuffer || !_gpuBuffer->isCreated() )
+    if( !_gpuBuffer || !_gpuBuffer->isValid() )
     {
         _count = 0;
         return;

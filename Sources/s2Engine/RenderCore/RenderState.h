@@ -77,6 +77,7 @@ struct ScissorTest
 struct ViewportState
 {
 	Math::irect rect { 0,0,0,0 };
+	ScissorTest scissorTest;
 };
 
 /************************************************************************/
@@ -306,7 +307,6 @@ struct RenderState
 	ProgramPointSize  programPointSize;
 	RasterizationMode rasterizationMode { RasterizationMode::Fill };
 	float             lineWidth {1.0};
-	ScissorTest       scissorTest;
 	StencilTest       stencilTest;
 	DepthTest         depthTest;
 	DepthRange        depthRange;

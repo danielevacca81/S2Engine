@@ -40,7 +40,9 @@ Texture2D::~Texture2D()
 // ------------------------------------------------------------------------------------------------
 void Texture2D::create()
 {
-    if( isCreated() )
+    OpenGLObject::create();
+
+    if( isValid() )
         return;
 
     // DSA: glCreateTextures (OpenGL 4.5+)
@@ -53,8 +55,6 @@ void Texture2D::create()
         return;
     }
 
-    _created = true;
-
     // Allocate immutable storage (DSA)
     allocateStorage();
 
@@ -66,7 +66,7 @@ void Texture2D::create()
 // ------------------------------------------------------------------------------------------------
 void Texture2D::destroy()
 {
-    if( !isCreated() )
+    if( !isValid() )
         return;
 
     // Make non-resident if bindless
@@ -90,7 +90,7 @@ void Texture2D::reset()
 // ------------------------------------------------------------------------------------------------
 void Texture2D::allocateStorage()
 {
-    assert( isCreated() && "Texture must be created before allocating storage" );
+    assert( isValid() && "Texture must be created before allocating storage" );
 
     const GLenum internalFormat = glWrap( _description.textureFormat() );
     
@@ -114,7 +114,7 @@ void Texture2D::allocateStorage()
 // ------------------------------------------------------------------------------------------------
 void Texture2D::setData( void* pixels )
 {
-    assert( isCreated() && "Texture must be created before uploading data" );
+    assert( isValid() && "Texture must be created before uploading data" );
 
     if( !pixels )
         return;
@@ -145,11 +145,13 @@ void Texture2D::resize( int width, int height )
     if( width == _description.width() && height == _description.height() )
         return;
 
+    // Update description (DSA - texture is recreated with new dimensions keeping other properties)
     _description = TextureDescription( width, height, 
                                        _description.textureFormat(), 
-                                       _description.isGenerateMipmapsEnabled() );
+                                       _description.isGenerateMipmapsEnabled(),
+                                       _description.name() );
 
-    // With immutable storage, we need to recreate the texture
+    // with immutable storage, we have to destroy and recreate the texture
     destroy();
     create();
 }
@@ -162,7 +164,7 @@ void Texture2D::update(
     const ImageDataType& imgDataType,
     void* pixels )
 {
-    assert( isCreated() && "Texture must be created before updating" );
+    assert( isValid() && "Texture must be created before updating" );
     assert( pixels && "Pixel data cannot be null" );
 
     const GLenum format   = glWrap( imgFormat );
@@ -189,7 +191,7 @@ void Texture2D::update(
     const ImageDataType& imgDataType,
     const GPUBufferObjectPtr& gpuBuffer )
 {
-    assert( isCreated() && "Texture must be created before updating" );
+    assert( isValid() && "Texture must be created before updating" );
     assert( gpuBuffer->id() != 0 && "GPU buffer must be valid" );
 
     const GLenum format   = glWrap( imgFormat );
@@ -219,7 +221,7 @@ void Texture2D::update(
 // ------------------------------------------------------------------------------------------------
 Pixmap<uint8_t> Texture2D::readData() const
 {
-    assert( isCreated() && "Texture must be created before reading data" );
+    assert( isValid() && "Texture must be created before reading data" );
 
     const GLenum format   = glWrapTextureFormatToPixelFormat( _description.textureFormat() );
     const GLenum dataType = glWrapTextureFormatToPixelType( _description.textureFormat() );
@@ -246,7 +248,7 @@ Pixmap<uint8_t> Texture2D::readData() const
 // ------------------------------------------------------------------------------------------------
 void Texture2D::setMinFilter( MinFilter filter )
 {
-    assert( isCreated() );
+    assert( isValid() );
     
     // DSA: Set parameter (OpenGL 4.5+)
     glTextureParameteri( _objectID, GL_TEXTURE_MIN_FILTER, glWrap( filter ) );
@@ -256,7 +258,7 @@ void Texture2D::setMinFilter( MinFilter filter )
 // ------------------------------------------------------------------------------------------------
 void Texture2D::setMagFilter( MagFilter filter )
 {
-    assert( isCreated() );
+    assert( isValid() );
     
     glTextureParameteri( _objectID, GL_TEXTURE_MAG_FILTER, glWrap( filter) );
     glCheck;
@@ -265,7 +267,7 @@ void Texture2D::setMagFilter( MagFilter filter )
 // ------------------------------------------------------------------------------------------------
 void Texture2D::setWrapS( WrapMode wrap )
 {
-    assert( isCreated() );
+    assert( isValid() );
     
     glTextureParameteri( _objectID, GL_TEXTURE_WRAP_S, glWrap( wrap ) );
     glCheck;
@@ -274,7 +276,7 @@ void Texture2D::setWrapS( WrapMode wrap )
 // ------------------------------------------------------------------------------------------------
 void Texture2D::setWrapT( WrapMode wrap )
 {
-    assert( isCreated() );
+    assert( isValid() );
     
     glTextureParameteri( _objectID, GL_TEXTURE_WRAP_T, glWrap( wrap ) );
     glCheck;
@@ -283,7 +285,7 @@ void Texture2D::setWrapT( WrapMode wrap )
 // ------------------------------------------------------------------------------------------------
 void Texture2D::setAnisotropy( float value )
 {
-    assert( isCreated() );
+    assert( isValid() );
     
     // Clamp to valid range
     GLfloat maxAniso = 1.0f;
@@ -298,7 +300,7 @@ void Texture2D::setAnisotropy( float value )
 // ------------------------------------------------------------------------------------------------
 void Texture2D::setBorderColor( const Color &color )
 {
-    assert( isCreated() );
+    assert( isValid() );
     
     glTextureParameterfv( _objectID, GL_TEXTURE_BORDER_COLOR, color.rgba() );
     glCheck;
@@ -307,7 +309,7 @@ void Texture2D::setBorderColor( const Color &color )
 // ------------------------------------------------------------------------------------------------
 void Texture2D::generateMipmaps()
 {
-    assert( isCreated() );
+    assert( isValid() );
     
     // DSA: Generate mipmaps (OpenGL 4.5+)
     glGenerateTextureMipmap( _objectID );
@@ -317,7 +319,7 @@ void Texture2D::generateMipmaps()
 // ------------------------------------------------------------------------------------------------
 void Texture2D::clear( const Color &clearColor )
 {
-    assert( isCreated() );
+    assert( isValid() );
 
 	const GLenum format   = glWrapTextureFormatToPixelFormat( _description.textureFormat() );
 	const GLenum dataType = glWrapTextureFormatToPixelType( _description.textureFormat() );
@@ -355,7 +357,7 @@ void Texture2D::setDefaultSampler()
 // ------------------------------------------------------------------------------------------------
 uint64_t Texture2D::getBindlessHandle() const
 {
-    assert( isCreated() );
+    assert( isValid() );
     
     if( _bindlessHandle == 0 )
     {

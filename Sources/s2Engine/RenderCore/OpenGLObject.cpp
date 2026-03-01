@@ -54,17 +54,3 @@ void OpenGLObject::destroy()
     // Base implementation does nothing
     // Derived classes override this
 }
-
-//// ------------------------------------------------------------------------------------------------
-//void OpenGLObject::bind() const
-//{
-//    // Default implementation does nothing
-//    // Derived classes override for legacy binding
-//}
-//
-//// ------------------------------------------------------------------------------------------------
-//void OpenGLObject::unbind() const
-//{
-//    // Default implementation does nothing
-//    // Derived classes override for legacy binding
-//}

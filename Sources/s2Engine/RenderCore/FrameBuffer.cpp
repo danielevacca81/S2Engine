@@ -34,14 +34,14 @@ static inline GLenum toGLFilter( FrameBuffer::BlitFilter filter )
 
 // ------------------------------------------------------------------------------------------------
 // DSA helper: attach texture to framebuffer without binding
-static inline void makeGLAttachmentDSA( 
+static inline void makeGLAttachment( 
     GLuint fboID,
     const FrameBuffer::AttachmentPoint& attachPoint, 
     const Texture2DPtr& texture )
 {
     const GLenum attachment = glWrap( attachPoint );
     
-    if( texture && texture->isCreated() )
+    if( texture && texture->isValid() )
     {
         // DSA: glNamedFramebufferTexture (OpenGL 4.5+)
         glNamedFramebufferTexture( fboID, attachment, texture->id(), 0 );
@@ -97,27 +97,20 @@ int FrameBuffer::objectLabelIdentifier() const
 // ------------------------------------------------------------------------------------------------
 void FrameBuffer::create()
 {
-    destroy();
+    if( isValid() )
+        return;
+
     OpenGLObject::create();
     
     // DSA: glCreateFramebuffers (OpenGL 4.5+)
     glCreateFramebuffers( 1, &_objectID );
     glCheck;
-    
-    _created = (_objectID != 0);
-    
-    if( _created )
-    {
-        // Set default read buffer
-        glNamedFramebufferReadBuffer( _objectID, GL_COLOR_ATTACHMENT0 );
-        glCheck;
-    }
 }
 
 // ------------------------------------------------------------------------------------------------
 void FrameBuffer::destroy()
 {
-    if( !isCreated() )
+    if( !isValid() )
         return;
 
     glDeleteFramebuffers( 1, &_objectID );
@@ -144,6 +137,44 @@ void FrameBuffer::unbind() const
 }
 
 // ------------------------------------------------------------------------------------------------
+void FrameBuffer::resizeAllAttachments( int width, int height )
+{
+    // Resize color attachments
+    for( int i = 0; i < kMaxColorAttachment; ++i )
+    {
+        auto& colorAttachment = _colorAttachments[i];
+        if( colorAttachment.texture )
+        {
+            // Resize texture (DSA - recreates storage)
+            // Note: This will reset the texture content, so caller should re-upload if needed
+            colorAttachment.texture->resize( width, height );
+            glNamedFramebufferTexture( _objectID, glWrap( AttachmentPoint( ColorAttachment0 + i ) ), colorAttachment.texture->id(), 0 );
+            glCheck;
+            _changes = Changes( _changes | Changes::Color );
+        }
+    }
+
+    // Resize depth attachment
+    if( _depthAttachment )
+    {
+        _depthAttachment->resize( width, height );
+        glNamedFramebufferTexture( _objectID, glWrap (DepthAttachment), _depthAttachment->id(), 0 );
+        glCheck;
+        _changes = Changes( _changes | Changes::Depth );
+    }
+
+    // Resize depth-stencil attachment
+    if( _depthStencilAttachment )
+    {
+        _depthStencilAttachment->resize( width, height );
+        glNamedFramebufferTexture( _objectID, glWrap( DepthStencilAttachment ), _depthStencilAttachment->id(), 0 );
+        glCheck;
+        _changes = Changes( _changes | Changes::DepthStencil );
+    }
+}
+
+
+// ------------------------------------------------------------------------------------------------
 void FrameBuffer::applyPendingChanges() const
 {
     // Process color attachments
@@ -157,11 +188,11 @@ void FrameBuffer::applyPendingChanges() const
             if( _colorAttachments[i].changed )
             {
                 const AttachmentPoint ap = static_cast<AttachmentPoint>( ColorAttachment0 + i );
-                makeGLAttachmentDSA( _objectID, ap, _colorAttachments[i].texture );
+                makeGLAttachment( _objectID, ap, _colorAttachments[i].texture );
                 _colorAttachments[i].changed = false;
             }
 
-            if( _colorAttachments[i].texture && _colorAttachments[i].texture->isCreated() )
+            if( _colorAttachments[i].texture && _colorAttachments[i].texture->isValid() )
             {
                 drawBuffers.push_back( GL_COLOR_ATTACHMENT0 + i );
             }
@@ -190,14 +221,14 @@ void FrameBuffer::applyPendingChanges() const
     // Process depth attachment
     if( (_changes & Changes::Depth) == Changes::Depth )
     {
-        makeGLAttachmentDSA( _objectID, DepthAttachment, _depthAttachment );
+        makeGLAttachment( _objectID, DepthAttachment, _depthAttachment );
         _changes = Changes( _changes & ~Changes::Depth );
     }
 
     // Process depth-stencil attachment
     if( (_changes & Changes::DepthStencil) == Changes::DepthStencil )
     {
-        makeGLAttachmentDSA( _objectID, DepthStencilAttachment, _depthStencilAttachment );
+        makeGLAttachment( _objectID, DepthStencilAttachment, _depthStencilAttachment );
         _changes = Changes( _changes & ~Changes::DepthStencil );
     }
 }
@@ -284,13 +315,13 @@ int FrameBuffer::colorAttachmentCount() const
 // ------------------------------------------------------------------------------------------------
 bool FrameBuffer::hasDepthAttachment() const 
 { 
-    return _depthAttachment && _depthAttachment->isCreated(); 
+    return _depthAttachment && _depthAttachment->isValid(); 
 }
 
 // ------------------------------------------------------------------------------------------------
 bool FrameBuffer::hasDepthStencilAttachment() const 
 { 
-    return _depthStencilAttachment && _depthStencilAttachment->isCreated(); 
+    return _depthStencilAttachment && _depthStencilAttachment->isValid(); 
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -325,7 +356,7 @@ int FrameBuffer::colorAttachmentDrawBufferIndex( const AttachmentPoint a ) const
     int drawBufferIndex = 0;
     for( int i = 0; i < index; ++i )
     {
-        if( _colorAttachments[i].texture && _colorAttachments[i].texture->isCreated() )
+        if( _colorAttachments[i].texture && _colorAttachments[i].texture->isValid() )
             ++drawBufferIndex;
     }
 
@@ -347,7 +378,7 @@ void FrameBuffer::readPixels( const AttachmentPoint attachPoint, const ImageForm
 // ------------------------------------------------------------------------------------------------
 void FrameBuffer::readPixels( const AttachmentPoint attachPoint, const ImageFormat pixelFormat, const ImageDataType pixelType, const Math::irect& roi, void* pixels ) const
 {
-    assert( isCreated() && "FrameBuffer must be created before reading pixels" );
+    assert( isValid() && "FrameBuffer must be created before reading pixels" );
     assert( pixels && "Pixel buffer cannot be null" );
 
     // Apply any pending changes first
@@ -397,8 +428,8 @@ void FrameBuffer::blitTo(
     uint32_t bufferBits,
     BlitFilter filter ) const
 {
-    assert( isCreated() && "Source framebuffer must be created" );
-    assert( destination && destination->isCreated() && "Destination framebuffer must be created" );
+    assert( isValid() && "Source framebuffer must be created" );
+    assert( destination && destination->isValid() && "Destination framebuffer must be created" );
 
     // Apply pending changes
     applyPendingChanges();
@@ -428,7 +459,7 @@ void FrameBuffer::clear( BufferBit bufferBit )
 // ------------------------------------------------------------------------------------------------
 void FrameBuffer::clear( uint32_t bufferBits )
 {
-    assert( isCreated() && "FrameBuffer must be created before clearing" );
+    assert( isValid() && "FrameBuffer must be created before clearing" );
 
     // Apply pending changes
     applyPendingChanges();
@@ -449,7 +480,7 @@ void FrameBuffer::clear( uint32_t bufferBits )
 // ------------------------------------------------------------------------------------------------
 bool FrameBuffer::checkStatus() const
 {
-    assert( isCreated() && "FrameBuffer must be created before checking status" );
+    assert( isValid() && "FrameBuffer must be created before checking status" );
 
     // Apply pending changes before checking
     applyPendingChanges();
@@ -464,7 +495,7 @@ bool FrameBuffer::checkStatus() const
 // ------------------------------------------------------------------------------------------------
 std::string FrameBuffer::info() const
 {
-    if( !isCreated() )
+    if( !isValid() )
         return "Framebuffer not created";
 
     // Apply pending changes

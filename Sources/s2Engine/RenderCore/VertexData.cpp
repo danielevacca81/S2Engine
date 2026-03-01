@@ -43,6 +43,7 @@ template<> struct ComponentDataType<Color>       { static constexpr AttributeBuf
 // ------------------------------------------------------------------------------------------------
 template<typename T>
 static inline void setAttribute(
+    std::string label,
     const VertexArrayPtr& vao,
     VertexAttributeLocation location,
     const std::vector<T>& data )
@@ -58,22 +59,22 @@ static inline void setAttribute(
         std::is_same_v<T, Math::fvec3> ||
         std::is_same_v<T, Math::fvec4> ||
         std::is_same_v<T, Color>,
-        "Unsupported attribute type"
+        "Unsupported vertex attribute type"
         );
 
     const uint32_t numElements = static_cast<uint32_t>( data.size() );
 
     if( numElements == 0 )
         return;
-
+        
+    const int64_t bufferSize = numElements * sizeof( T );
+    
     constexpr int componentCount = ComponentCount<T>::value;
     constexpr auto componentType = ComponentDataType<T>::value;
 
-    const int64_t bufferSize = numElements * sizeof( T );
-
-
     // Create attribute buffer
-	AttributeBuffer attr( bufferSize,
+	AttributeBuffer attr( &data[0],
+                          bufferSize,
 						  GPUBufferObject::Type::ArrayBuffer,
 						  vao->usageHint(),
 						  componentType,
@@ -82,6 +83,9 @@ static inline void setAttribute(
                           0,      // offset
                           0       // stride (auto-calculated)
     );
+#ifdef _DEBUG
+    attr.setObjectLabel( label );
+#endif
 
     // Set attribute using DSA (no VAO binding)
     vao->setAttribute( location, attr );
@@ -137,31 +141,31 @@ VertexData::VertexData( const s2::MeshData3D& meshData, const GPUBufferObject::U
 
 void VertexData::setVertices( const std::vector<Math::fvec3>& points )
 {
-    detail::setAttribute( _vao, VertexAttributeLocation::VA_Position, points );
+    detail::setAttribute( "Vertices", _vao, VertexAttributeLocation::VA_Position, points );
 }
 
 // ------------------------------------------------------------------------------------------------
 void VertexData::setVertices( const std::vector<Math::fvec2>& points2D )
 {
-    detail::setAttribute( _vao, VertexAttributeLocation::VA_Position, points2D );
+    detail::setAttribute( "Vertices2D", _vao, VertexAttributeLocation::VA_Position, points2D );
 }
 
 // ------------------------------------------------------------------------------------------------
 void VertexData::setColors( const std::vector<Color>& colors )
 {
-    detail::setAttribute( _vao, VertexAttributeLocation::VA_Color, colors );
+    detail::setAttribute( "Colors", _vao, VertexAttributeLocation::VA_Color, colors );
 }
 
 // ------------------------------------------------------------------------------------------------
 void VertexData::setNormals( const std::vector<Math::fvec3>& normals )
 {
-    detail::setAttribute( _vao, VertexAttributeLocation::VA_Normal, normals );
+    detail::setAttribute( "Normals", _vao, VertexAttributeLocation::VA_Normal, normals );
 }
 
 // ------------------------------------------------------------------------------------------------
 void VertexData::setTextureCoords( const std::vector<Math::fvec2>& texCoords )
 {
-    detail::setAttribute( _vao, VertexAttributeLocation::VA_UVCoords, texCoords );
+    detail::setAttribute( "TextureCoords", _vao, VertexAttributeLocation::VA_UVCoords, texCoords );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -192,49 +196,49 @@ void VertexData::setIndices( const std::vector<uint32_t>& indices )
 
 void VertexData::setAttribute( VertexAttributeLocation loc, const std::vector<uint32_t>& attrib )
 {
-    detail::setAttribute( _vao, loc, attrib );
+    detail::setAttribute( "CustomIntAttribute", _vao, loc, attrib );
 }
 
 // ------------------------------------------------------------------------------------------------
 void VertexData::setAttribute( VertexAttributeLocation loc, const std::vector<Math::ivec2>& attrib )
 {
-    detail::setAttribute( _vao, loc, attrib );
+    detail::setAttribute( "CustomIvec2Attribute", _vao, loc, attrib );
 }
 
 // ------------------------------------------------------------------------------------------------
 void VertexData::setAttribute( VertexAttributeLocation loc, const std::vector<Math::ivec3>& attrib )
 {
-    detail::setAttribute( _vao, loc, attrib );
+    detail::setAttribute( "CustomIvec3Attribute", _vao, loc, attrib );
 }
 
 // ------------------------------------------------------------------------------------------------
 void VertexData::setAttribute( VertexAttributeLocation loc, const std::vector<Math::ivec4>& attrib )
 {
-    detail::setAttribute( _vao, loc, attrib );
+    detail::setAttribute( "CustomIvec4Attribute", _vao, loc, attrib );
 }
 
 // ------------------------------------------------------------------------------------------------
 void VertexData::setAttribute( VertexAttributeLocation loc, const std::vector<float>& attrib )
 {
-    detail::setAttribute( _vao, loc, attrib );
+    detail::setAttribute( "CustomFloatAttribute", _vao, loc, attrib );
 }
 
 // ------------------------------------------------------------------------------------------------
 void VertexData::setAttribute( VertexAttributeLocation loc, const std::vector<Math::fvec2>& attrib )
 {
-    detail::setAttribute( _vao, loc, attrib );
+    detail::setAttribute( "CustomFvec2Attribute", _vao, loc, attrib );
 }
 
 // ------------------------------------------------------------------------------------------------
 void VertexData::setAttribute( VertexAttributeLocation loc, const std::vector<Math::fvec3>& attrib )
 {
-    detail::setAttribute( _vao, loc, attrib );
+    detail::setAttribute( "CustomFvec3Attribute", _vao, loc, attrib );
 }
 
 // ------------------------------------------------------------------------------------------------
 void VertexData::setAttribute( VertexAttributeLocation loc, const std::vector<Math::fvec4>& attrib )
 {
-    detail::setAttribute( _vao, loc, attrib );
+    detail::setAttribute( "CustomFvec4Attribute", _vao, loc, attrib );
 }
 
 // ------------------------------------------------------------------------------------------------

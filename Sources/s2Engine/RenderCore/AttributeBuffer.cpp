@@ -34,36 +34,42 @@ static inline int64_t dataTypeSize( AttributeBuffer::ComponentDatatype type )
 }
 
 // -------------------------------------------------------------------------------------------------
-AttributeBuffer::AttributeBuffer( int64_t bufferSize,
-								  GPUBufferObject::Type bufferType,
-								  GPUBufferObject::UsageHint usageHint,
-								  ComponentDatatype componentDatatype,
-								  int numberOfComponents,
-								  bool normalize,
-								  int64_t offset,
-								  int64_t stride )
+AttributeBuffer::AttributeBuffer(
+    const void *data,
+    int64_t bufferSize,
+    GPUBufferObject::Type bufferType,
+    GPUBufferObject::UsageHint usageHint,
+    ComponentDatatype componentDatatype,
+    int numberOfComponents,
+    bool normalize,
+    int64_t offset,
+    int64_t stride)
 {
-    _gpuBuffer          = GPUBufferObject::New( numberOfComponents * dataTypeSize( componentDatatype ), bufferType, usageHint );
+    _gpuBuffer          = GPUBufferObject::New( bufferSize, bufferType, usageHint );
     _componentDatatype  = componentDatatype;
     _numberOfComponents = numberOfComponents;
     _offset             = offset;
     _normalize          = normalize;
-    //_valid              = true;
-    
-    // Calculate stride: if 0, assume tightly packed
-    _stride = (stride == 0) ? calculateStride() : stride;
+    _stride             = stride == 0 
+        ? numberOfComponents * dataTypeSize( componentDatatype ) // tightly packed
+        : stride;
+
+    if( data && bufferSize > 0 )
+        _gpuBuffer->setData( data, bufferSize );
 }
 
 // -------------------------------------------------------------------------------------------------
-int64_t AttributeBuffer::calculateStride() const
+void AttributeBuffer::setObjectLabel( const std::string& label )
 {
-    return _numberOfComponents * dataTypeSize( _componentDatatype );
+    if( _gpuBuffer ) // can be null if default constructor was used
+        _gpuBuffer->setObjectLabel( label );
 }
+
 
 // -------------------------------------------------------------------------------------------------
 int AttributeBuffer::numberOfVertices() const
 {
-    if( _stride == 0 )
+    if( _stride == 0 || !_gpuBuffer || _gpuBuffer->size() == 0 )
         return 0;
 
     return static_cast<int>( _gpuBuffer->size() / _stride );
@@ -76,6 +82,7 @@ void AttributeBuffer::attach( unsigned int vaoID, int location )
 {
     //assert( _valid && "AttributeBuffer must be valid before attaching" );
     assert( vaoID != 0 && "VAO ID must be valid" );
+    assert(  _gpuBuffer && _gpuBuffer->isValid() && "GPUBufferObject must be valid before attaching" );
 
     _location = location;
 

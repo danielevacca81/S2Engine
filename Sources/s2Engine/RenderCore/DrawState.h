@@ -19,8 +19,6 @@ namespace RenderCore {
 
 struct DrawState
 {
-	//bool         shadowingEnabled { true }; // @todo:remove. hide shadowing to the user forcing to true
-
 	// GPU state
 	RenderState  renderState;
 
@@ -34,7 +32,6 @@ struct DrawState
 	ShaderPtr      shader;
 
 	DrawState( const ShaderPtr&s = DefaultShaders.Simple, const RenderState &renderState = {} )
-	//: shadowingEnabled( true )
 	: shader( s )
 	, renderState( renderState )
 	{}

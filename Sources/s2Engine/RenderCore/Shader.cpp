@@ -110,7 +110,9 @@ void Shader::reset()
 // ------------------------------------------------------------------------------------------------
 void Shader::create()
 {
-    destroy();
+    if( isValid() )
+        return;
+
     OpenGLObject::create();
 
     _objectID = glCreateProgram();
@@ -119,13 +121,12 @@ void Shader::create()
     if( _name.empty() )
         _name = "Shader";
 
-    _created = _objectID != 0;
 }
 
 // ------------------------------------------------------------------------------------------------
 void Shader::destroy()
 {
-    if( !isCreated() )
+    if( !isValid() )
         return;
 
     // Make textures non-resident
@@ -157,7 +158,7 @@ std::string Shader::name() const
 // ------------------------------------------------------------------------------------------------
 bool Shader::attachVertexShaderStage( const ShaderStagePtr& shader )
 {
-    if( !isCreated() || !shader )
+    if( !isValid() || !shader )
         return false;
 
     if( !attach( GL_VERTEX_SHADER, _objectID, shader->id(), shader->type() ) )
@@ -170,7 +171,7 @@ bool Shader::attachVertexShaderStage( const ShaderStagePtr& shader )
 // ------------------------------------------------------------------------------------------------
 bool Shader::attachFragmentShaderStage( const ShaderStagePtr& shader )
 {
-    if( !isCreated() || !shader )
+    if( !isValid() || !shader )
         return false;
 
     if( !attach( GL_FRAGMENT_SHADER, _objectID, shader->id(), shader->type() ) )
@@ -183,7 +184,7 @@ bool Shader::attachFragmentShaderStage( const ShaderStagePtr& shader )
 // ------------------------------------------------------------------------------------------------
 bool Shader::attachGeometryShaderStage( const ShaderStagePtr& shader )
 {
-    if( !isCreated() || !shader )
+    if( !isValid() || !shader )
         return false;
 
     if( !attach( GL_GEOMETRY_SHADER, _objectID, shader->id(), shader->type() ) )
@@ -196,7 +197,7 @@ bool Shader::attachGeometryShaderStage( const ShaderStagePtr& shader )
 // ------------------------------------------------------------------------------------------------
 bool Shader::attachComputeShaderStage( const ShaderStagePtr& shader )
 {
-    if( !isCreated() || !shader )
+    if( !isValid() || !shader )
         return false;
 
     if( shader->type() != ShaderStageType::Compute )
@@ -212,7 +213,7 @@ bool Shader::attachComputeShaderStage( const ShaderStagePtr& shader )
 // ------------------------------------------------------------------------------------------------
 bool Shader::attachTessellationControlShaderStage( const ShaderStagePtr& shader )
 {
-    if( !isCreated() || !shader )
+    if( !isValid() || !shader )
         return false;
 
     if( shader->type() != ShaderStageType::TessellationControl )
@@ -228,7 +229,7 @@ bool Shader::attachTessellationControlShaderStage( const ShaderStagePtr& shader 
 // ------------------------------------------------------------------------------------------------
 bool Shader::attachTessellationEvaluationShaderStage( const ShaderStagePtr& shader )
 {
-    if( !isCreated() || !shader )
+    if( !isValid() || !shader )
         return false;
 
     if( shader->type() != ShaderStageType::TessellationEvaluation )
@@ -371,7 +372,7 @@ void Shader::setTextureHandle( const std::string& uniformName, uint64_t handle )
 // ------------------------------------------------------------------------------------------------
 void Shader::setTexture( const std::string& uniformName, const Texture2DPtr& texture )
 {
-    assert( texture && texture->isCreated() && "Texture must be valid" );
+    assert( texture && texture->isValid() && "Texture must be valid" );
     
     // Make resident if not already
     if( !texture->isResident() )

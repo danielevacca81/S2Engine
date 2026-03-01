@@ -33,8 +33,6 @@ struct ClearColorSeparate
 /************************************************************************/
 struct ClearState
 {
-	//bool                shadowingEnabled {true};
-				        
 	ScissorTest         scissorTest;
 	ColorMask           colorMask {true, true,true,true};
 	DepthMask           depthMask;

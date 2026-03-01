@@ -13,22 +13,15 @@
 using namespace s2::RenderCore;
 
 // ------------------------------------------------------------------------------------------------
-GPUBufferObjectPtr GPUBufferObject::New( 
-    int64_t size, 
-    Type type, 
-    UsageHint usageHint )
+GPUBufferObjectPtr GPUBufferObject::New( int64_t sizeInBytes, Type type, UsageHint usageHint )
 {
-    return std::make_shared<GPUBufferObject>( size, type, usageHint );
+    return std::make_shared<GPUBufferObject>( sizeInBytes, type, usageHint );
 }
 
 // ------------------------------------------------------------------------------------------------
-GPUBufferObjectPtr GPUBufferObject::NewImmutable( 
-    int64_t size, 
-    Type type, 
-    uint32_t storageFlags,
-    const void* initialData )
+GPUBufferObjectPtr GPUBufferObject::NewImmutable( int64_t sizeInBytes, Type type, uint32_t storageFlags, const void* initialData )
 {
-    auto buffer = std::make_shared<GPUBufferObject>( size, type, UsageHint::StaticDraw );
+    auto buffer = std::make_shared<GPUBufferObject>( sizeInBytes, type, UsageHint::StaticDraw );
     buffer->_immutableStorage = true;
     buffer->_storageFlags = storageFlags;
     
@@ -39,8 +32,8 @@ GPUBufferObjectPtr GPUBufferObject::NewImmutable(
 }
 
 // ------------------------------------------------------------------------------------------------
-GPUBufferObject::GPUBufferObject( int64_t size, Type type, UsageHint usageHint )
-    : _size( size )
+GPUBufferObject::GPUBufferObject( int64_t sizeInBytes, Type type, UsageHint usageHint )
+    : _size( sizeInBytes )
     , _type( type )
     , _usageHint( usageHint )
     , _immutableStorage( false )
@@ -60,8 +53,10 @@ GPUBufferObject::~GPUBufferObject()
 // ------------------------------------------------------------------------------------------------
 void GPUBufferObject::create()
 {
-    if( isCreated() )
+    if( isValid() )
         return;
+
+    OpenGLObject::create();
 
     // DSA: glCreateBuffers (OpenGL 4.5+)
     glCreateBuffers( 1, &_objectID );
@@ -73,8 +68,6 @@ void GPUBufferObject::create()
         return;
     }
 
-    _created = true;
-
     // Allocate storage if not immutable
     if( !_immutableStorage )
         allocateStorage( nullptr );
@@ -83,7 +76,7 @@ void GPUBufferObject::create()
 // ------------------------------------------------------------------------------------------------
 void GPUBufferObject::destroy()
 {
-    if( !isCreated() )
+    if( !isValid() )
         return;
 
     // Make non-resident if bindless
@@ -109,7 +102,7 @@ void GPUBufferObject::reset()
 // ------------------------------------------------------------------------------------------------
 void GPUBufferObject::allocateStorage( const void* initialData )
 {
-    assert( isCreated() && "Buffer must be created before allocating storage" );
+    assert( isValid() && "Buffer must be created before allocating storage" );
     assert( !_immutableStorage && "Cannot reallocate immutable storage" );
 
     const GLenum usage = glWrap( _usageHint );
@@ -122,7 +115,7 @@ void GPUBufferObject::allocateStorage( const void* initialData )
 // ------------------------------------------------------------------------------------------------
 void GPUBufferObject::allocateImmutableStorage( uint32_t storageFlags, const void* initialData )
 {
-    assert( isCreated() && "Buffer must be created before allocating storage" );
+    assert( isValid() && "Buffer must be created before allocating storage" );
 
     // DSA: glNamedBufferStorage (OpenGL 4.4+)
     glNamedBufferStorage( _objectID, _size, initialData, storageFlags );
@@ -132,7 +125,7 @@ void GPUBufferObject::allocateImmutableStorage( uint32_t storageFlags, const voi
 // ------------------------------------------------------------------------------------------------
 void GPUBufferObject::setData( const void* data, int64_t size, int64_t offset )
 {
-    assert( isCreated() && "Buffer must be created before setting data" );
+    assert( isValid() && "Buffer must be created before setting data" );
     assert( data && "Data cannot be null" );
     assert( offset + size <= _size && "Data exceeds buffer size" );
 
@@ -144,7 +137,7 @@ void GPUBufferObject::setData( const void* data, int64_t size, int64_t offset )
 // ------------------------------------------------------------------------------------------------
 void GPUBufferObject::getData( void* data, int64_t size, int64_t offset ) const
 {
-    assert( isCreated() && "Buffer must be created before getting data" );
+    assert( isValid() && "Buffer must be created before getting data" );
     assert( data && "Data cannot be null" );
     assert( offset + size <= _size && "Data exceeds buffer size" );
 
@@ -156,7 +149,7 @@ void GPUBufferObject::getData( void* data, int64_t size, int64_t offset ) const
 // ------------------------------------------------------------------------------------------------
 void* GPUBufferObject::mapRange( int64_t offset, int64_t length, uint32_t accessFlags )
 {
-    assert( isCreated() && "Buffer must be created before mapping" );
+    assert( isValid() && "Buffer must be created before mapping" );
     assert( offset + length <= _size && "Map range exceeds buffer size" );
 
     // DSA: glMapNamedBufferRange (OpenGL 4.5+)
@@ -169,7 +162,7 @@ void* GPUBufferObject::mapRange( int64_t offset, int64_t length, uint32_t access
 // ------------------------------------------------------------------------------------------------
 bool GPUBufferObject::unmap()
 {
-    assert( isCreated() && "Buffer must be created before unmapping" );
+    assert( isValid() && "Buffer must be created before unmapping" );
 
     // DSA: glUnmapNamedBuffer (OpenGL 4.5+)
     GLboolean result = glUnmapNamedBuffer( _objectID );
@@ -181,7 +174,7 @@ bool GPUBufferObject::unmap()
 // ------------------------------------------------------------------------------------------------
 void GPUBufferObject::flushMappedRange( int64_t offset, int64_t length )
 {
-    assert( isCreated() && "Buffer must be created before flushing" );
+    assert( isValid() && "Buffer must be created before flushing" );
 
     // DSA: glFlushMappedNamedBufferRange (OpenGL 4.5+)
     glFlushMappedNamedBufferRange( _objectID, offset, length );
@@ -195,8 +188,8 @@ void GPUBufferObject::copyTo(
     int64_t writeOffset, 
     int64_t size ) const
 {
-    assert( isCreated() && "Source buffer must be created" );
-    assert( destination && destination->isCreated() && "Destination buffer must be created" );
+    assert( isValid() && "Source buffer must be created" );
+    assert( destination && destination->isValid() && "Destination buffer must be created" );
     assert( readOffset + size <= _size && "Read range exceeds source buffer size" );
     assert( writeOffset + size <= destination->size() && "Write range exceeds destination buffer size" );
 
@@ -214,7 +207,7 @@ void GPUBufferObject::copyTo(
 // ------------------------------------------------------------------------------------------------
 void GPUBufferObject::clear( const void* clearValue )
 {
-    assert( isCreated() && "Buffer must be created before clearing" );
+    assert( isValid() && "Buffer must be created before clearing" );
 
     // DSA: glClearNamedBufferData (OpenGL 4.3+)
     glClearNamedBufferData( 
@@ -230,7 +223,7 @@ void GPUBufferObject::clear( const void* clearValue )
 // ------------------------------------------------------------------------------------------------
 void GPUBufferObject::invalidate()
 {
-    assert( isCreated() && "Buffer must be created before invalidating" );
+    assert( isValid() && "Buffer must be created before invalidating" );
 
     // DSA: glInvalidateBufferData (OpenGL 4.3+)
     glInvalidateBufferData( _objectID );
@@ -240,7 +233,7 @@ void GPUBufferObject::invalidate()
 // ------------------------------------------------------------------------------------------------
 void GPUBufferObject::invalidateRange( int64_t offset, int64_t length )
 {
-    assert( isCreated() && "Buffer must be created before invalidating" );
+    assert( isValid() && "Buffer must be created before invalidating" );
     assert( offset + length <= _size && "Range exceeds buffer size" );
 
     // DSA: glInvalidateBufferSubData (OpenGL 4.3+)
@@ -251,7 +244,7 @@ void GPUBufferObject::invalidateRange( int64_t offset, int64_t length )
 // ------------------------------------------------------------------------------------------------
 uint64_t GPUBufferObject::getGPUAddress() const
 {
-    assert( isCreated() && "Buffer must be created before getting GPU address" );
+    assert( isValid() && "Buffer must be created before getting GPU address" );
 
     if( _gpuAddress == 0 )
     {

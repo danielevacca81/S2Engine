@@ -26,7 +26,6 @@ public:
     };
 
 public:
-    //IndexBuffer() = default;
     IndexBuffer( int64_t sizeInBytes, IndexDataType dataType, GPUBufferObject::UsageHint usageHint );
 	IndexBuffer( const void* data, int64_t sizeInBytes, IndexDataType dataType, GPUBufferObject::UsageHint usageHint );
 
@@ -34,7 +33,6 @@ public:
     void set( int64_t sizeInBytes, IndexDataType dataType, GPUBufferObject::UsageHint usageHint );
 
     // State queries
-    //bool isValid()           const { return _gpuBuffer && _gpuBuffer->isCreated(); }
     int  count()             const { return _count; }
     IndexDataType dataType() const { return _dataType; }
 
@@ -55,7 +53,6 @@ public:
     bool  unmap();
 
     // Access underlying buffer
-    //GPUBufferObjectPtr gpuBuffer() const { return _gpuBuffer; }
     unsigned int id() const { return _gpuBuffer->id(); }
 
 private:
