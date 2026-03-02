@@ -9,6 +9,8 @@
 #include "RenderCore/RenderTarget.h"
 #include "RenderCore/Context.h"
 #include "RenderCore/RenderCommands.h"
+#include "RenderCore/ShaderCompiler.h"
+
 #include "Renderer/RenderMaterial.h"
 
 #include "Geometry/GeometryFactory3D.h"
@@ -34,24 +36,283 @@
 // ------------------------------------------------------------------------------------------------
 void MainWindow::loadResources()
 {
-	//_texture = s2::Resources::ImageLoader::loadFromFile( "F:/Sviluppo/Projects/S2Engine/Examples/test/x64/Debug/assets/PNG/Light/texture_11.png" ).value_or( s2::Resources::ImageData {} );
+	_texture = s2::Resources::ImageLoader::loadFromFile( "F:/Sviluppo/Projects/S2Engine/Examples/test/x64/Debug/assets/PNG/Light/texture_11.png" ).value_or( s2::Resources::ImageData {} );
 
 	if( _texture.pixmap.isEmpty() )
 	{
 		std::cout << "Failed to load texture" << std::endl;
 		return;
 	}
+
+	auto vtx = s2::RenderCore::ShaderCompiler::compile( s2::RenderCore::ShaderStageType::Vertex,
+		R"(
+			#version 450 core
+			layout(location = 0) in vec3 a_Position;
+			layout(location = 1) in vec4 a_Color;
+			layout(location = 2) in vec3 a_Normal;
+			layout(location = 3) in vec2 a_TexCoord;
+			
+			uniform mat4 u_ModelViewProjectionMatrix;
+			uniform mat4 u_ModelViewMatrix;
+			uniform mat3 u_NormalMatrix;
+			
+			out VS_OUT {
+				vec3 FragPos;
+				vec3 Normal;
+				vec2 TexCoord;
+				vec4 Color;
+			} vs_out;
+			
+			void main()
+			{
+				vec4 viewPos = u_ModelViewMatrix * vec4(a_Position, 1.0);
+				vs_out.FragPos = viewPos.xyz;
+				vs_out.Normal = normalize(u_NormalMatrix * a_Normal);
+				vs_out.TexCoord = a_TexCoord;
+				vs_out.Color = a_Color;
+				gl_Position = u_ModelViewProjectionMatrix * vec4(a_Position, 1.0);
+			}
+		)"
+	);
+
+	// PBR fragment shader
+	auto fragPBR = s2::RenderCore::ShaderCompiler::compile( s2::RenderCore::ShaderStageType::Fragment,
+	R"(
+		#version 450 core
+		
+		const float PI = 3.14159265359;
+		
+		in VS_OUT {
+			vec3 FragPos;
+			vec3 Normal;
+			vec2 TexCoord;
+			vec4 Color;
+		} fs_in;
+		
+		out vec4 FragColor;
+		
+		// Material properties
+		uniform vec3 u_Albedo;
+		uniform float u_Metallic;
+		uniform float u_Roughness;
+		uniform float u_AO;
+		
+		// Texture maps
+		layout(binding = 0) uniform sampler2D u_AlbedoMap;
+		layout(binding = 1) uniform sampler2D u_NormalMap;
+		layout(binding = 2) uniform sampler2D u_MetallicMap;
+		layout(binding = 3) uniform sampler2D u_RoughnessMap;
+		layout(binding = 4) uniform sampler2D u_AOMap;
+		
+		// Texture usage flags
+		uniform bool u_UseAlbedoMap;
+		uniform bool u_UseNormalMap;
+		uniform bool u_UseMetallicMap;
+		uniform bool u_UseRoughnessMap;
+		uniform bool u_UseAOMap;
+		
+		// Single light source (no arrays)
+		uniform vec3 u_LightPosition;
+		uniform vec3 u_LightColor;
+		uniform float u_LightIntensity;
+		
+		uniform vec3 u_CamPos;
+		
+		// Normal Distribution Function (GGX/Trowbridge-Reitz)
+		float DistributionGGX(vec3 N, vec3 H, float roughness)
+		{
+			float a = roughness * roughness;
+			float a2 = a * a;
+			float NdotH = max(dot(N, H), 0.0);
+			float NdotH2 = NdotH * NdotH;
+			
+			float num = a2;
+			float denom = (NdotH2 * (a2 - 1.0) + 1.0);
+			denom = PI * denom * denom;
+			
+			return num / denom;
+		}
+		
+		// Geometry Function (Schlick-GGX)
+		float GeometrySchlickGGX(float NdotV, float roughness)
+		{
+			float r = (roughness + 1.0);
+			float k = (r * r) / 8.0;
+			
+			float num = NdotV;
+			float denom = NdotV * (1.0 - k) + k;
+			
+			return num / denom;
+		}
+		
+		float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
+		{
+			float NdotV = max(dot(N, V), 0.0);
+			float NdotL = max(dot(N, L), 0.0);
+			float ggx2 = GeometrySchlickGGX(NdotV, roughness);
+			float ggx1 = GeometrySchlickGGX(NdotL, roughness);
+			
+			return ggx1 * ggx2;
+		}
+		
+		// Fresnel-Schlick approximation
+		vec3 fresnelSchlick(float cosTheta, vec3 F0)
+		{
+			return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+		}
+		
+		// Get normal from normal map
+		vec3 getNormalFromMap()
+		{
+			vec3 tangentNormal = texture(u_NormalMap, fs_in.TexCoord).xyz * 2.0 - 1.0;
+			
+			vec3 Q1 = dFdx(fs_in.FragPos);
+			vec3 Q2 = dFdy(fs_in.FragPos);
+			vec2 st1 = dFdx(fs_in.TexCoord);
+			vec2 st2 = dFdy(fs_in.TexCoord);
+			
+			vec3 N = normalize(fs_in.Normal);
+			vec3 T = normalize(Q1 * st2.t - Q2 * st1.t);
+			vec3 B = -normalize(cross(N, T));
+			mat3 TBN = mat3(T, B, N);
+			
+			return normalize(TBN * tangentNormal);
+		}
+		
+		void main()
+		{
+			// Sample material properties
+			vec3 albedo = u_UseAlbedoMap 
+				? pow(texture(u_AlbedoMap, fs_in.TexCoord).rgb, vec3(2.2)) 
+				: u_Albedo;
+			
+			// Mix with vertex color if available
+			albedo *= fs_in.Color.rgb;
+			
+			float metallic = u_UseMetallicMap 
+				? texture(u_MetallicMap, fs_in.TexCoord).r 
+				: u_Metallic;
+			
+			float roughness = u_UseRoughnessMap 
+				? texture(u_RoughnessMap, fs_in.TexCoord).r 
+				: u_Roughness;
+			
+			float ao = u_UseAOMap 
+				? texture(u_AOMap, fs_in.TexCoord).r 
+				: u_AO;
+			
+			// Get normal
+			vec3 N = u_UseNormalMap ? getNormalFromMap() : normalize(fs_in.Normal);
+			vec3 V = normalize(u_CamPos - fs_in.FragPos);
+			
+			// Calculate reflectance at normal incidence
+			vec3 F0 = vec3(0.04);
+			F0 = mix(F0, albedo, metallic);
+			
+			// Calculate per-light radiance
+			vec3 L = normalize(u_LightPosition - fs_in.FragPos);
+			vec3 H = normalize(V + L);
+			float distance = length(u_LightPosition - fs_in.FragPos);
+			float attenuation = 1.0 / (distance * distance);
+			vec3 radiance = u_LightColor * u_LightIntensity * attenuation;
+			
+			// Cook-Torrance BRDF
+			float NDF = DistributionGGX(N, H, roughness);
+			float G = GeometrySmith(N, V, L, roughness);
+			vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
+			
+			vec3 kS = F;
+			vec3 kD = vec3(1.0) - kS;
+			kD *= 1.0 - metallic;
+			
+			vec3 numerator = NDF * G * F;
+			float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
+			vec3 specular = numerator / denominator;
+			
+			// Calculate outgoing radiance Lo
+			float NdotL = max(dot(N, L), 0.0);
+			vec3 Lo = (kD * albedo / PI + specular) * radiance * NdotL;
+			
+			// Ambient lighting (simple approximation)
+			vec3 ambient = vec3(0.03) * albedo * ao;
+			vec3 color = ambient + Lo;
+			
+			// HDR tonemapping (Reinhard)
+			color = color / (color + vec3(1.0));
+			
+			// Gamma correction
+			color = pow(color, vec3(1.0/2.2));
+			
+			FragColor = vec4(color, 1.0);
+		}
+	)"
+	);
+
+	if( vtx && fragPBR )
+	{
+		auto pbrShader = s2::RenderCore::Shader::New();
+		pbrShader->attachVertexShaderStage( vtx.stage );
+		pbrShader->attachFragmentShaderStage( fragPBR.stage );
+		
+		auto linkResult = s2::RenderCore::ShaderCompiler::linkShader( pbrShader, "PBR_Shader" );
+		if( linkResult.success )
+		{
+			auto& resources = _renderer->resources();
+			auto shaderHandle = resources.registerShader( "pbr", pbrShader );
+			
+			// Setup PBR material
+			_materialPBR.shader = shaderHandle;
+			
+			// Default PBR properties
+			_materialPBR.set( "u_Albedo", Math::vec3(1.0f, 1.0f, 1.0f) );
+			_materialPBR.set( "u_Metallic", 0.3f );
+			_materialPBR.set( "u_Roughness", 0.05f );
+			_materialPBR.set( "u_AO", 1.0f );
+			
+			// Texture usage flags
+			_materialPBR.set( "u_UseAlbedoMap", true );
+			_materialPBR.set( "u_UseNormalMap", false );
+			_materialPBR.set( "u_UseMetallicMap", false );
+			_materialPBR.set( "u_UseRoughnessMap", false );
+			_materialPBR.set( "u_UseAOMap", false );
+			
+			// Setup single light
+			_materialPBR.set( "u_LightIntensity", 300.0f );
+			
+			// Register albedo texture
+			_materialPBR.setTexture( "u_AlbedoMap", 
+				(int)resources.registerTexture( "pbr_albedo",
+					s2::RenderCore::Texture2D::New(
+						s2::RenderCore::TextureDescription(
+							_texture.pixmap.width(),
+							_texture.pixmap.height(),
+							s2::RenderCore::TextureFormat::RedGreenBlue8 ),
+						(void*)_texture.pixmap.pixels() ) ) );
+			
+			std::cout << "PBR Shader compiled and linked successfully" << std::endl;
+		}
+		else
+		{
+			std::cout << "Failed to link PBR shader: " << linkResult.errorLog << std::endl;
+		}
+	}
+	else
+	{
+		if( !vtx )
+			std::cout << "Failed to compile PBR vertex shader" << std::endl;
+		if( !fragPBR )
+			std::cout << "Failed to compile PBR fragment shader" << std::endl;
+	}
 }
 
 // ------------------------------------------------------------------------------------------------
 void MainWindow::onInitializeEvent()
 {
-	//loadResources();
-
 	// Initialize renderer with the current rendering context and default render pipeline
 	_renderer = std::make_unique<s2::Renderer::Renderer>( _renderingContext.get(), s2::Renderer::RenderPipeline::createForwardPipeline() );
 
-	std::cout << _renderTarget->statusInfo() << std::endl;
+	loadResources();
+
 
 	auto& resources = _renderer->resources();
 
@@ -96,22 +357,15 @@ void MainWindow::onInitializeEvent()
 	}
 
 	_material.shader = resources.registerShader( "blinnPhong", s2::RenderCore::DefaultShaders.BlinnPhong );
-	//_material.shader = resources.registerShader( "simple", s2::RenderCore::DefaultShaders.Simple );
-	//_material.textures["u_DiffuseMap"] = (int) resources.registerTexture( "orange",
-	//														 s2::RenderCore::Texture2D::New(
-	//														 s2::RenderCore::TextureDescription(
-	//														 _texture.pixmap.width(),
-	//														 _texture.pixmap.height(),
-	//														 s2::RenderCore::TextureFormat::RedGreenBlue8 ),
-	//														 (void*) _texture.pixmap.pixels() ) );
-	//_material.properties["u_UseDiffuseMap"] = false;
-
-	//const auto teapot = s2::GeometryFactory3D::createTeapot( 10,10 );
-	//_teapot = RenderCore::VertexData::New();
-	//_teapot->setVertices( vector_cast<Math::dvec3,Math::vec3>(teapot.vertices) );
-	//_teapot->setNormals( vector_cast<Math::dvec3,Math::vec3>( teapot.normals ) );
-	//_teapot->setIndices( teapot.indices );
-	//_teapot->setColors( std::vector<Color>( teapot.vertices.size(), Color::orange()) );
+	_material.setTexture( "u_DiffuseMap", (int) resources.registerTexture( "texture",
+						  s2::RenderCore::Texture2D::New(
+						  s2::RenderCore::TextureDescription(
+						  _texture.pixmap.width(),
+						  _texture.pixmap.height(),
+						  s2::RenderCore::TextureFormat::RedGreenBlue8 ),
+						  (void*) _texture.pixmap.pixels() ) ) );
+	
+	_material.set( "u_UseDiffuseMap", false );
 
 	_camera.set( Math::dvec3( 0.0, 0.0, 8.0 ),
 				 Math::dvec3( 0.0, 0.0, 0.0 ),
@@ -156,14 +410,23 @@ void MainWindow::onPaintEvent()
 
 	using namespace s2::Renderer;
 
+	// Setup PBR material lighting
+	std::vector<Math::vec3> lightPositions = { Math::vec3( _trackballLight.matrix() * lightPosition )};
+	std::vector<Math::vec3> lightColors = {	Math::vec3( 300.0f, 300.0f, 300.0f ) };
+
+	_materialPBR.set( "u_LightPosition", Math::vec3( _trackballLight.matrix() * lightPosition ) );
+	_materialPBR.set( "u_LightColor", Math::vec3( 1.0f, 1.0f, 1.0f ) );
+	_materialPBR.set( "u_CamPos", Math::vec3( _camera.position() ) );
+
+
 	// setup material properties and shader
 	// note: no need to do this every frame if the material properties are static.
 	// we can create a material instance once and reuse it for multiple draw calls and update it only when properties change.
-	_material.properties["u_LightPosition"]  = Math::vec4(_trackballLight.matrix() * lightPosition);
-	_material.properties["u_LightAmbient"]   = Math::vec4{ .01f,.01f,.01f,1.f };
-	_material.properties["u_LightDiffuse"]   = Math::vec4{ 1.f,1.f,1.f,1.f };
-	_material.properties["u_LightSpecular"]  = Math::vec4{ 1.f,1.f,1.f,1.f };
-	_material.properties["u_LightShininess"] = 60.f;
+	_material.set("u_LightPosition" , Math::vec4(_trackballLight.matrix() * lightPosition) );
+	_material.set("u_LightAmbient"  , Math::vec4{ .01f,.01f,.01f,1.f });
+	_material.set("u_LightDiffuse"  , Math::vec4{ 1.f,1.f,1.f,1.f });
+	_material.set("u_LightSpecular" , Math::vec4{ 1.f,1.f,1.f,1.f });
+	_material.set("u_LightShininess", 60.f);
 
 	auto modelMatrix = Math::scale( Math::dvec3( scale ) ) * _trackball.matrix();
 
@@ -174,11 +437,20 @@ void MainWindow::onPaintEvent()
 						   } );
 	{
 		_renderer->clear( { .color = Color{ 0.3f, 0.4f, 0.5f, 1.0f } } );
-			
+
+		s2::Renderer::RenderCommand cmd
+		{
+			.renderMode  = s2::Renderer::RenderMode::Triangles,
+			.material    = _materialPBR,
+			.mesh        = _cube,
+			.modelMatrix = modelMatrix,
+		};
+		_renderer->render( cmd );
+
 		_renderer->render(
 			{
 			.renderMode  = s2::Renderer::RenderMode::Triangles,
-			.material    = _material,
+			.material    = _materialPBR,
 			.mesh        = _sphere,
 			.modelMatrix = modelMatrix,
 			} );
@@ -198,18 +470,6 @@ void MainWindow::onPaintEvent()
 			.mesh        = _cone,
 			.modelMatrix = modelMatrix,
 			} );
-
-		{	
-			s2::Renderer::RenderCommand cmd
-			{
-				.renderMode = s2::Renderer::RenderMode::Triangles,
-				.material = _material,
-				.mesh = _cube,
-				.modelMatrix = modelMatrix,
-			};
-			//cmd.material.properties["u_UseDiffuseMap"] = true;
-			_renderer->render( cmd );
-		}
 
 		_renderer->render(
 			{

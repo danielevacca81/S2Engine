@@ -12,7 +12,7 @@
 #include "RenderState.h"
 #include "TransformState.h"
 #include "Shader.h"
-#include "RenderCore.h"
+#include "DefaultShaders.h"
 
 namespace s2 {
 namespace RenderCore {

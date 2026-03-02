@@ -45,9 +45,10 @@ private:
 	s2::Renderer::ResourceHandle _cube     { s2::Renderer::InvalidHandle };
 	s2::Renderer::ResourceHandle _sphere   { s2::Renderer::InvalidHandle };
 	s2::Renderer::ResourceHandle _cylinder { s2::Renderer::InvalidHandle };
-	s2::Renderer::ResourceHandle _teapot   { s2::Renderer::InvalidHandle };
 
 	s2::Renderer::RenderMaterial _material;
+	s2::Renderer::RenderMaterial _materialPBR;
+
 	s2::Resources::ImageData _texture;
 
 	s2::Scene::Camera    _camera;

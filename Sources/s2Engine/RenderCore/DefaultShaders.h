@@ -1,7 +1,7 @@
-// RenderCore.h
+// DefaultShaders.h
 //
-#ifndef S2_RENDERCORE_RENDERCORE_H
-#define S2_RENDERCORE_RENDERCORE_H
+#ifndef S2_RENDERCORE_DEFAULTSHADERS_H
+#define S2_RENDERCORE_DEFAULTSHADERS_H
 
 #include "s2Engine_API.h"
 

@@ -59,18 +59,18 @@ static inline void setupShaderUniforms( const RenderCore::ShaderPtr& shader,cons
     assert( shader && "Shader must be valid" );
 
     // ===== Standard Transform Uniforms (DSA) =====
-    shader->setUniform( "modelMatrix", renderCmd.modelMatrix );
-    shader->setUniform( "viewMatrix", frameData.cameraViewMatrix );
-    shader->setUniform( "projectionMatrix", frameData.cameraProjectionMatrix );
+    shader->setUniform( "u_ModelMatrix", renderCmd.modelMatrix );
+    shader->setUniform( "u_ViewMatrix", frameData.cameraViewMatrix );
+    shader->setUniform( "u_ProjectionMatrix", frameData.cameraProjectionMatrix );
     
     // Derived matrices
     const auto modelView = frameData.cameraViewMatrix * renderCmd.modelMatrix;
     const auto modelViewProjection = frameData.cameraProjectionMatrix * modelView;
     const auto normalMatrix = Math::transpose( Math::inverse( Math::fmat3( modelView ) ) );
 
-    shader->setUniform( "modelViewMatrix", modelView );
-    shader->setUniform( "modelViewProjectionMatrix", modelViewProjection );
-    shader->setUniform( "normalMatrix", normalMatrix );
+    shader->setUniform( "u_ModelViewMatrix", modelView );
+    shader->setUniform( "u_ModelViewProjectionMatrix", modelViewProjection );
+    shader->setUniform( "u_NormalMatrix", normalMatrix );
 
     // NOTA: Material properties e textures sono applicate separatamente
     // tramite renderCmd.material.applyPropertiesToShader() e 

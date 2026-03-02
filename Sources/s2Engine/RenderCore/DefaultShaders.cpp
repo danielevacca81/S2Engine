@@ -1,6 +1,6 @@
-// RenderCore.cpp
+// DefaultShaders.cpp
 //
-#include "RenderCore.h"
+#include "DefaultShaders.h"
 
 #include "Core/Strings.h"
 
@@ -63,7 +63,7 @@ static inline bool initShaders()
 		layout( location = 0 ) in vec3 in_Vertex;
 		layout( location = 1 ) in vec4 in_Color;
 
-		uniform mat4 modelViewProjectionMatrix;
+		uniform mat4 u_ModelViewProjectionMatrix;
 
 		out VertexData
 		{
@@ -72,7 +72,7 @@ static inline bool initShaders()
 
 		void main()
 		{
-			gl_Position = modelViewProjectionMatrix * vec4( in_Vertex, 1.0 );
+			gl_Position = u_ModelViewProjectionMatrix * vec4( in_Vertex, 1.0 );
 			vs_out.color = in_Color;
 		}
 		));
@@ -104,8 +104,8 @@ static inline bool initShaders()
 		layout( location = 1 ) in vec4 in_Color;
 		layout( location = 2 ) in vec3 in_Normal;
 
-		uniform mat4 modelViewProjectionMatrix;
-		uniform mat3 normalMatrix;
+		uniform mat4 u_ModelViewProjectionMatrix;
+		uniform mat3 u_NormalMatrix;
 
 		out vec3 position;
 		out vec3 normal;
@@ -113,10 +113,10 @@ static inline bool initShaders()
 
 		void main()
 		{
-			gl_Position = modelViewProjectionMatrix * vec4( in_Vertex, 1.0 );
+			gl_Position = u_ModelViewProjectionMatrix * vec4( in_Vertex, 1.0 );
 			
 			position = gl_Position.xyz;
-			normal   = normalize( normalMatrix * in_Normal );
+			normal   = normalize( u_NormalMatrix * in_Normal );
 			color    = in_Color;
 		}
 		) );
@@ -173,9 +173,9 @@ static inline bool initShaders()
 		layout( location = 2 ) in vec3 in_Normal;
 		layout( location = 3 ) in vec2 in_TexCoord;
 
-		uniform mat4 modelViewProjectionMatrix;
-		uniform mat4 modelViewMatrix;
-		uniform mat3 normalMatrix;
+		uniform mat4 u_ModelViewProjectionMatrix;
+		uniform mat4 u_ModelViewMatrix;
+		uniform mat3 u_NormalMatrix;
 
 		out vec3 position;
 		out vec3 normal;
@@ -184,14 +184,14 @@ static inline bool initShaders()
 
 		void main()
 		{			
-			vec4 vertPos4 = modelViewMatrix * vec4( in_Vertex, 1.0 );
+			vec4 vertPos4 = u_ModelViewMatrix * vec4( in_Vertex, 1.0 );
 
 			position      = vec3( vertPos4 ) / vertPos4.w;
-			normal        = normalize( normalMatrix * in_Normal );
+			normal        = normalize( u_NormalMatrix * in_Normal );
 			color         = in_Color;
 			texCoord      = in_TexCoord;
 
-			gl_Position = modelViewProjectionMatrix * vec4( in_Vertex, 1.0 );
+			gl_Position = u_ModelViewProjectionMatrix * vec4( in_Vertex, 1.0 );
 		}
 		) );
 

@@ -38,25 +38,14 @@ enum class CullMode
 // ------------------------------------------------------------------------------------------------
 struct S2ENGINE_API RenderMaterial
 {
-    // ===== Render State Properties =====
-    
-    BlendMode blendMode    { BlendMode::Opaque };
-    CullMode  cullMode     { CullMode::Back };
-    bool      depthWrite   { true };
-    bool      depthTest    { true };
-    bool      shadowCaster { false };
-
-    // Shader handle
-    ResourceHandle shader { InvalidHandle };
-
-    // ===== Material Properties (Uniforms) =====
-    
+public:
+    // ===== Material Properties (Uniforms) =====    
     using Property = std::variant<
         bool,
         int,
         float,
         double,
-        uint64_t,
+        uint64_t,   // For bindless texture handles
         Color,
         Math::fvec2,
         Math::fvec3,
@@ -72,90 +61,57 @@ struct S2ENGINE_API RenderMaterial
         Math::dmat4
     >;
 
-    std::unordered_map<std::string, Property> properties;     // uniform name -> value
-    std::unordered_map<std::string, ResourceHandle> textures; // uniform name -> texture handle
+public:
+    // ===== Render State Properties =====    
+    BlendMode blendMode    { BlendMode::Opaque };
+    CullMode  cullMode     { CullMode::Back };
+    bool      depthWrite   { true };
+    bool      depthTest    { true };
+    bool      shadowCaster { false };
 
-    // ===== Sorting for Render Order =====
+    // Shader handle
+    ResourceHandle shader { InvalidHandle };
+
+    void set        ( const std::string& name, const Property& value );
     
-    bool operator<( const RenderMaterial& other ) const
-    {
-        // Opaque materials rendered before transparent (front-to-back)
-        if( blendMode != other.blendMode )
-            return blendMode == BlendMode::Opaque && other.blendMode != BlendMode::Opaque;
-        
-        // Then sort by shader (minimize shader switches)
-        if( shader != other.shader )
-            return shader < other.shader;
-        
-        // Then by material properties (arbitrary but consistent)
-        return properties.size() < other.properties.size();
-    }
-
     // ===== Setters (Convenience API) =====
-    
-    void setProperty( const std::string& name, const Property& value )
-    {
-        properties[name] = value;
-    }
-
-    void setBool( const std::string& name, bool value )
-    {
-        properties[name] = value;
-    }
-
-    void setInt( const std::string& name, int value )
-    {
-        properties[name] = value;
-    }
-
-    void setFloat( const std::string& name, float value )
-    {
-        properties[name] = value;
-    }
-
-    void setColor( const std::string& name, const Color& value )
-    {
-        properties[name] = value;
-    }
-
-    void setVec2( const std::string& name, const Math::fvec2& value )
-    {
-        properties[name] = value;
-    }
-
-    void setVec3( const std::string& name, const Math::fvec3& value )
-    {
-        properties[name] = value;
-    }
-
-    void setVec4( const std::string& name, const Math::fvec4& value )
-    {
-        properties[name] = value;
-    }
-
-    void setMatrix3( const std::string& name, const Math::fmat3& value )
-    {
-        properties[name] = value;
-    }
-
-    void setMatrix4( const std::string& name, const Math::fmat4& value )
-    {
-        properties[name] = value;
-    }
+    void setBool    ( const std::string& name, bool value );
+    void setInt     ( const std::string& name, int value );
+    void setFloat   ( const std::string& name, float value );
+    void setColor   ( const std::string& name, const Color& value );
+    void setVec2    ( const std::string& name, const Math::fvec2& value );
+    void setVec3    ( const std::string& name, const Math::fvec3& value );
+    void setVec4    ( const std::string& name, const Math::fvec4& value );
+    void setMatrix3 ( const std::string& name, const Math::fmat3& value );
+    void setMatrix4 ( const std::string& name, const Math::fmat4& value );
 
     // Set texture by uniform name (not unit index!)
-    void setTexture( const std::string& uniformName, ResourceHandle textureHandle )
-    {
-        textures[uniformName] = textureHandle;
-    }
+    void setTexture( const std::string& uniformName, ResourceHandle textureHandle );
 
     // ===== Apply to Shader (DSA) =====
-    
-    // Apply all material properties to shader uniforms (DSA - no binding required)
     void applyPropertiesToShader( RenderCore::Shader& shader ) const;
-    
+
     // Apply textures to shader (Bindless)
     void applyTexturesToShader( RenderCore::Shader& shader, const ResourceManager& resourceManager ) const;
+
+	template<typename T>
+    std::optional<T> property( const std::string& name ) const
+    {
+        auto it = _properties.find( name );
+        if( it == _properties.end() )
+			return std::nullopt; // Property not found
+
+        if( auto value = std::get_if<T>( &it->second ) )
+			return *value; // Successfully retrieved and converted
+        return std::nullopt; // Property not found or type mismatch
+	}
+
+    // ===== Sorting for Render Order =====
+    bool operator<( const RenderMaterial& other ) const;
+
+private:
+    std::unordered_map<std::string, Property>       _properties;
+    std::unordered_map<std::string, ResourceHandle> _textures;
 };
 
 } // namespace Renderer
