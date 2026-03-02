@@ -45,8 +45,8 @@ private:
 
     std::unordered_map<std::string, ResourceHandle> _nameToHandle;
     std::unordered_map<ResourceHandle, RenderCore::VertexDataPtr> _meshes;
-    std::unordered_map<ResourceHandle, RenderCore::Texture2DPtr> _textures;
-    std::unordered_map<ResourceHandle, RenderCore::ShaderPtr> _shaders;
+    std::unordered_map<ResourceHandle, RenderCore::Texture2DPtr>  _textures;
+    std::unordered_map<ResourceHandle, RenderCore::ShaderPtr>     _shaders;
 };
 
 } // namespace Renderer

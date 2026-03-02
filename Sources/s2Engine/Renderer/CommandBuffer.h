@@ -4,6 +4,7 @@
 #define S2_RENDERER_COMMANDBUFFER_H
 
 #include "s2Engine_API.h"
+
 #include "RenderCommand.h"
 
 #include <vector>

@@ -52,7 +52,7 @@ RenderPassPtr RenderPipeline::findPass( const std::string& name ) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void RenderPipeline::execute( const CommandBuffer& queue, FrameData& frameData )
+void RenderPipeline::execute( const CommandBuffer& queue, FrameData& frameData, const RenderCore::Context* ctx )
 {
 	assert( !_passes.empty() && "RenderPipeline has no passes to execute!" );
     if( _passes.empty() )
@@ -62,7 +62,7 @@ void RenderPipeline::execute( const CommandBuffer& queue, FrameData& frameData )
 
     for( auto& pass : _passes )
         if( pass->isEnabled() )
-            pass->execute( queue, frameData );
+            pass->execute( queue, frameData, ctx );
 
     //_lastStats = context.stats;
 }

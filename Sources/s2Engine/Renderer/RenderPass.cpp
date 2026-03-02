@@ -14,88 +14,12 @@
 #include "RenderCore/VertexData.h"
 
 #include <cassert>
-#include <iostream>
 
 using namespace s2::Renderer;
 
+#pragma region HelperFunctions
 // ------------------------------------------------------------------------------------------------
-void ForwardPass::initialize( ResourceManager& resourceManager )
-{
-    _resourceManager = &resourceManager;
-    assert( _resourceManager && "ForwardPass initialization failed: ResourceManager is null" );
-}
-
-// ------------------------------------------------------------------------------------------------
-void ForwardPass::execute( const CommandBuffer& queue, FrameData& frameData )
-{
-    if( !frameData.mainTarget )
-        return; // No render target set
-
-    // Get RenderCore context
-    auto* gpuContext = RenderCore::Context::current();
-    if( !gpuContext )
-        return;
-
-    auto& renderCommands = gpuContext->commands();
-
-    // ===== 1. Execute Clear Commands =====
-    for( const auto& clearCmd : queue.clearCommands() )
-        renderCommands.clear( *frameData.mainTarget, getClearState( clearCmd ) );
-
-    // ===== 2. Execute Render Commands =====
-    for( const auto& renderCmd : queue.renderCommands() )
-    {
-        // Setup draw state
-        RenderCore::DrawState drawState = createDrawState( renderCmd, frameData );
-        
-        // Get shader (with fallback to default)
-        auto shader = getShader( renderCmd );
-        drawState.shader = shader;
-
-        // ===== DSA: Set uniforms BEFORE drawing =====
-        setupShaderUniforms( shader, renderCmd, frameData );
-        
-        // Apply material properties (DSA - no binding)
-        renderCmd.material.applyPropertiesToShader( *shader );
-        
-        // Apply textures (Bindless - no TextureUnit!)
-        renderCmd.material.applyTexturesToShader( *shader, *_resourceManager );
-
-        // Get mesh
-        auto mesh = _resourceManager->getMesh( renderCmd.mesh );
-        if( !mesh )
-            continue; // Skip if mesh not found
-
-        // Determine primitive type
-        RenderCore::PrimitiveType primitiveType = getPrimitiveType( renderCmd.renderMode );
-
-        // Execute draw call (DSA-aware)
-        renderCommands.draw( *frameData.mainTarget, primitiveType, mesh, drawState );
-
-        // Update statistics
-        updateStats( mesh );
-    }
-
-#ifdef _DEBUG
-    printStats();
-#endif
-
-    _stats = {}; // Reset stats for next frame
-}
-
-// ------------------------------------------------------------------------------------------------
-const std::string& ForwardPass::name() const
-{
-    return _name;
-}
-
-// ================================================================================================
-// PRIVATE HELPERS
-// ================================================================================================
-
-RenderCore::DrawState ForwardPass::createDrawState( 
-    const RenderCommand& renderCmd, 
-    const FrameData& frameData ) const
+static inline RenderCore::DrawState createDrawState( const RenderCommand& renderCmd, const FrameData& frameData )
 {
     RenderCore::DrawState drawState;
 
@@ -114,21 +38,23 @@ RenderCore::DrawState ForwardPass::createDrawState(
 }
 
 // ------------------------------------------------------------------------------------------------
-RenderCore::ShaderPtr ForwardPass::getShader( const RenderCommand& renderCmd ) const
+// Get shader with fallback to default
+static inline RenderCore::ShaderPtr getShader(  ResourceManager* resourceManager, const RenderCommand& renderCmd )
 {
+    assert( resourceManager && "ResourceManager must be valid" );
+
     // Use material shader or fallback to default
     if( renderCmd.material.shader == InvalidHandle )
         return RenderCore::DefaultShaders.Simple;
 
-    auto shader = _resourceManager->getShader( renderCmd.material.shader );
+    auto shader = resourceManager->getShader( renderCmd.material.shader );
     return shader ? shader : RenderCore::DefaultShaders.Simple;
 }
 
+
 // ------------------------------------------------------------------------------------------------
-void ForwardPass::setupShaderUniforms( 
-    const RenderCore::ShaderPtr& shader,
-    const RenderCommand& renderCmd,
-    const FrameData& frameData ) const
+// Setup standard transform uniforms (DSA - no binding required)
+static inline void setupShaderUniforms( const RenderCore::ShaderPtr& shader,const RenderCommand& renderCmd,const FrameData& frameData )
 {
     assert( shader && "Shader must be valid" );
 
@@ -152,7 +78,8 @@ void ForwardPass::setupShaderUniforms(
 }
 
 // ------------------------------------------------------------------------------------------------
-RenderCore::PrimitiveType ForwardPass::getPrimitiveType( RenderMode mode ) const
+// Get primitive type from render mode
+static inline RenderCore::PrimitiveType getPrimitiveType( RenderMode mode )
 {
     switch( mode )
     {
@@ -163,21 +90,73 @@ RenderCore::PrimitiveType ForwardPass::getPrimitiveType( RenderMode mode ) const
     }
 }
 
+
+#pragma endregion
+
 // ------------------------------------------------------------------------------------------------
-void ForwardPass::updateStats( const RenderCore::VertexDataPtr& mesh )
+void ForwardPass::initialize( ResourceManager& resourceManager )
 {
-    _stats.drawCalls++;
-    _stats.vertices += mesh->vertexCount();
-    _stats.triangles += mesh->indexCount() / 3;
+    _resourceManager = &resourceManager;
+    assert( _resourceManager && "ForwardPass initialization failed: ResourceManager is null" );
 }
 
 // ------------------------------------------------------------------------------------------------
-void ForwardPass::printStats() const
+void ForwardPass::execute( const CommandBuffer& queue, FrameData& frameData, const RenderCore::Context* ctx )
 {
+    if( !frameData.mainTarget )
+        return; // No render target set
+        
+    auto& renderCommands = ctx->commands();
+
+    // ===== 1. Execute Clear Commands =====
+    for( const auto& clearCmd : queue.clearCommands() )
+        renderCommands.clear( *frameData.mainTarget, getClearState( clearCmd ) );
+
+    // ===== 2. Execute Render Commands =====
+    for( const auto& renderCmd : queue.renderCommands() )
+    {
+        // Setup draw state
+        auto drawState = createDrawState( renderCmd, frameData );
+        
+        // Get shader (with fallback to default)
+        auto shader = getShader( _resourceManager, renderCmd );
+        drawState.shader = shader;
+
+        // ===== DSA: Set uniforms BEFORE drawing =====
+        setupShaderUniforms( shader, renderCmd, frameData );
+        
+        // Apply material properties (DSA - no binding)
+        renderCmd.material.applyPropertiesToShader( *shader );
+        
+        // Apply textures (Bindless - no TextureUnit!)
+        renderCmd.material.applyTexturesToShader( *shader, *_resourceManager );
+
+        // Get mesh
+        auto mesh = _resourceManager->getMesh( renderCmd.mesh );
+        if( !mesh )
+            continue; // Skip if mesh not found
+
+        // Determine primitive type
+        RenderCore::PrimitiveType primitiveType = getPrimitiveType( renderCmd.renderMode );
+
+        // Execute draw call (DSA-aware)
+        renderCommands.draw( *frameData.mainTarget, primitiveType, mesh, drawState );
+
+        // Update statistics
+        _stats.drawCalls++;
+        _stats.vertices += mesh->vertexCount();
+        _stats.triangles += mesh->indexCount() / 3;
+    }
+
 #ifdef _DEBUG
-    std::cout << "ForwardPass executed: "
-              << _stats.drawCalls << " draw calls, "
-              << _stats.triangles << " triangles, "
-              << _stats.vertices << " vertices." << std::endl;
+    //printStats();
 #endif
+
+    _stats = {}; // Reset stats for next frame
+}
+
+// ------------------------------------------------------------------------------------------------
+const std::string& ForwardPass::name() const
+{
+    return _name;
 }

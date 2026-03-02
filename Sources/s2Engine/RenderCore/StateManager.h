@@ -70,11 +70,6 @@ private:
     void applyClearColorSeparate( const ClearColorSeparate& clearColorSeparate );
 
 private:
-    //// Shadowing control
-    //bool _disableDrawStateShadowingOneShot { true };
-    //bool _disableClearStateShadowingOneShot { true };
-    //bool _shadowingCurrentlyEnabled { true };
-
     // Cached state
     RenderState    _renderState;
     ViewportState  _viewportState;

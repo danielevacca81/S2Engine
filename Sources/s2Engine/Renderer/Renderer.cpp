@@ -93,7 +93,7 @@ void Renderer::endFrame()
 
 	_commandBuffer.sort(); // Sort commands for optimal rendering (e.g., by material, depth, etc.)
 	
-	_pipeline.execute( _commandBuffer, _frameData /*, *_gpuContext */); // Execute render passes in the pipeline with the current frame data and command buffer
+	_pipeline.execute( _commandBuffer, _frameData, _gpuContext ); // Execute render passes in the pipeline with the current frame data and command buffer
 
 	_commandBuffer.clear(); // Clear command buffer for next frame
 

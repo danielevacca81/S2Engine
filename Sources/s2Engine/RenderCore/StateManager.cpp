@@ -14,8 +14,6 @@
 
 using namespace s2::RenderCore;
 
-static const bool _shadowingCurrentlyEnabled = true;
-
 // ------------------------------------------------------------------------------------------------
 static inline void enable( GLenum cap, bool enabled )
 {
@@ -32,9 +30,6 @@ static inline void enable( GLenum cap, bool enabled, int index )
 
 // ------------------------------------------------------------------------------------------------
 StateManager::StateManager()
-    //: _disableDrawStateShadowingOneShot{ true }
-    //, _disableClearStateShadowingOneShot{ true }
-    //, _shadowingCurrentlyEnabled{ true }
     : _clearColor( 0.f, 0.f, 0.f, 0.f )
     , _clearDepth( 1.0f )
     , _clearStencil( 0 )
@@ -46,8 +41,6 @@ StateManager::StateManager()
 // ------------------------------------------------------------------------------------------------
 void StateManager::setClearState( const ClearState& cs )
 {
-    //_shadowingCurrentlyEnabled = !( _disableClearStateShadowingOneShot || !cs.shadowingEnabled );
-
     applyScissorTest( cs.scissorTest );
     applyColorMask( cs.colorMask );
     applyDepthMask( cs.depthMask );
@@ -63,8 +56,7 @@ void StateManager::setClearState( const ClearState& cs )
     }
 
     // Set clear color
-    if( (buffers & static_cast<int>( ClearBuffers::ColorBuffer )) && 
-        (_clearColor != cs.color || !_shadowingCurrentlyEnabled) )
+    if( (buffers & static_cast<int>( ClearBuffers::ColorBuffer )) && _clearColor != cs.color )
     {
         glClearColor( cs.color.r(), cs.color.g(), cs.color.b(), cs.color.a() );
         glCheck;
@@ -72,8 +64,7 @@ void StateManager::setClearState( const ClearState& cs )
     }
 
     // Set clear depth
-    if( (buffers & static_cast<int>( ClearBuffers::DepthBuffer )) && 
-        (_clearDepth != cs.depth || !_shadowingCurrentlyEnabled) )
+    if( (buffers & static_cast<int>( ClearBuffers::DepthBuffer )) && _clearDepth != cs.depth )
     {
         glClearDepth( static_cast<double>( cs.depth ) );
         glCheck;
@@ -81,8 +72,7 @@ void StateManager::setClearState( const ClearState& cs )
     }
 
     // Set clear stencil
-    if( (buffers & static_cast<int>( ClearBuffers::StencilBuffer )) && 
-        (_clearStencil != cs.stencil || !_shadowingCurrentlyEnabled) )
+    if( (buffers & static_cast<int>( ClearBuffers::StencilBuffer )) && _clearStencil != cs.stencil )
     {
         glClearStencil( cs.stencil );
         glCheck;
@@ -95,15 +85,11 @@ void StateManager::setClearState( const ClearState& cs )
         glClear( glWrap( static_cast<ClearBuffers>( buffers ) ) );
         glCheck;
     }
-
-    //_disableClearStateShadowingOneShot = false;
 }
 
 // ------------------------------------------------------------------------------------------------
 void StateManager::setDrawState( const DrawState& ds )
 {
-    //_shadowingCurrentlyEnabled = !( _disableDrawStateShadowingOneShot || !ds.shadowingEnabled );
-
     // Apply viewport and scissor
     applyViewport( ds.viewport );
 
@@ -112,8 +98,6 @@ void StateManager::setDrawState( const DrawState& ds )
 
     // Apply shader program (DSA-aware)
     applyShaderProgram( ds.shader );
-
-    //_disableDrawStateShadowingOneShot = false;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -136,15 +120,14 @@ void StateManager::applyRenderState( const RenderState& rs )
 // ------------------------------------------------------------------------------------------------
 void StateManager::applyPrimitiveRestart( const PrimitiveRestart& pr )
 {
-    if( _renderState.primitiveRestart.enabled != pr.enabled || !_shadowingCurrentlyEnabled )
+    if( _renderState.primitiveRestart.enabled != pr.enabled )
     {
         enable( GL_PRIMITIVE_RESTART, pr.enabled );
         glCheck;
         _renderState.primitiveRestart.enabled = pr.enabled;
     }
 
-    if( pr.enabled && 
-        (_renderState.primitiveRestart.index != pr.index || !_shadowingCurrentlyEnabled) )
+    if( pr.enabled && _renderState.primitiveRestart.index != pr.index  )
     {
         glPrimitiveRestartIndex( pr.index ); 
         glCheck;
@@ -155,23 +138,21 @@ void StateManager::applyPrimitiveRestart( const PrimitiveRestart& pr )
 // ------------------------------------------------------------------------------------------------
 void StateManager::applyFaceCulling( const FaceCulling& fc )
 {
-    if( _renderState.faceCulling.enabled != fc.enabled || !_shadowingCurrentlyEnabled )
+    if( _renderState.faceCulling.enabled != fc.enabled )
     {
         enable( GL_CULL_FACE, fc.enabled );
         glCheck;
         _renderState.faceCulling.enabled = fc.enabled;
     }
 
-    if( fc.enabled && 
-        (_renderState.faceCulling.cullFace != fc.cullFace || !_shadowingCurrentlyEnabled) )
+    if( fc.enabled && _renderState.faceCulling.cullFace != fc.cullFace )
     {
         glCullFace( glWrap( fc.cullFace ) );
         glCheck;
         _renderState.faceCulling.cullFace = fc.cullFace;
     }
 
-    if( _renderState.faceCulling.frontFaceWindingOrder != fc.frontFaceWindingOrder || 
-        !_shadowingCurrentlyEnabled )
+    if( _renderState.faceCulling.frontFaceWindingOrder != fc.frontFaceWindingOrder )
     {
         glFrontFace( glWrap( fc.frontFaceWindingOrder ) );
         glCheck;
@@ -182,8 +163,7 @@ void StateManager::applyFaceCulling( const FaceCulling& fc )
 // ------------------------------------------------------------------------------------------------
 void StateManager::applyProgramPointSize( const ProgramPointSize& programPointSize )
 {
-    if( _renderState.programPointSize.enabled != programPointSize.enabled || 
-        !_shadowingCurrentlyEnabled )
+    if( _renderState.programPointSize.enabled != programPointSize.enabled )
     {
         enable( GL_PROGRAM_POINT_SIZE, programPointSize.enabled );
         glCheck;
@@ -194,7 +174,7 @@ void StateManager::applyProgramPointSize( const ProgramPointSize& programPointSi
 // ------------------------------------------------------------------------------------------------
 void StateManager::applyRasterizationMode( RenderState::RasterizationMode rasterizationMode )
 {
-    if( _renderState.rasterizationMode != rasterizationMode || !_shadowingCurrentlyEnabled )
+    if( _renderState.rasterizationMode != rasterizationMode  )
     {
         glPolygonMode( GL_FRONT_AND_BACK, glWrap( rasterizationMode ) );
         glCheck;
@@ -205,7 +185,7 @@ void StateManager::applyRasterizationMode( RenderState::RasterizationMode raster
 // ------------------------------------------------------------------------------------------------
 void StateManager::applyLineWidth( float lineWidth )
 {
-    if( _renderState.lineWidth != lineWidth || !_shadowingCurrentlyEnabled )
+    if( _renderState.lineWidth != lineWidth )
     {
         const float w = Math::clamp( lineWidth, Device::minLinesWidth(), Device::maxLinesWidth() );
         glLineWidth( w );
@@ -224,15 +204,14 @@ void StateManager::applyScissorTest( const ScissorTest& scissorTest )
                         rectangle.width() > 0 && 
                         rectangle.height() > 0;
 
-    if( _viewportState.scissorTest.enabled != enabled || !_shadowingCurrentlyEnabled )
+    if( _viewportState.scissorTest.enabled != enabled )
     {
         enable( GL_SCISSOR_TEST, enabled );
         glCheck;
         _viewportState.scissorTest.enabled = enabled;
     }
 
-    if( enabled && 
-        ( _viewportState.scissorTest.rect != scissorTest.rect || !_shadowingCurrentlyEnabled) )
+    if( enabled && _viewportState.scissorTest.rect != scissorTest.rect )
     {
         glScissor( rectangle.left(), rectangle.bottom(), rectangle.width(), rectangle.height() );
         glCheck;
@@ -243,21 +222,17 @@ void StateManager::applyScissorTest( const ScissorTest& scissorTest )
 // ------------------------------------------------------------------------------------------------
 void StateManager::applyStencilTest( const StencilTest& stencilTest )
 {
-    if( _renderState.stencilTest.enabled != stencilTest.enabled || !_shadowingCurrentlyEnabled )
+    if( _renderState.stencilTest.enabled != stencilTest.enabled )
     {
         enable( GL_STENCIL_TEST, stencilTest.enabled );
         glCheck;
         _renderState.stencilTest.enabled = stencilTest.enabled;
     }
 
-    if( stencilTest.enabled || !_shadowingCurrentlyEnabled )
+    if( stencilTest.enabled )
     {
-        applyStencil( FaceCulling::Face::Front, 
-                     _renderState.stencilTest.frontFace, 
-                     stencilTest.frontFace );
-        applyStencil( FaceCulling::Face::Back, 
-                     _renderState.stencilTest.backFace, 
-                     stencilTest.backFace );
+        applyStencil( FaceCulling::Face::Front, _renderState.stencilTest.frontFace, stencilTest.frontFace );
+        applyStencil( FaceCulling::Face::Back,  _renderState.stencilTest.backFace,  stencilTest.backFace );
     }
 }
 
@@ -269,8 +244,7 @@ void StateManager::applyStencil(
 {
     if( (currentTest.stencilFailOperation != test.stencilFailOperation) ||
         (currentTest.depthFailStencilPassOperation != test.depthFailStencilPassOperation) ||
-        (currentTest.depthPassStencilPassOperation != test.depthPassStencilPassOperation) ||
-        !_shadowingCurrentlyEnabled )
+        (currentTest.depthPassStencilPassOperation != test.depthPassStencilPassOperation) )
     {
         glStencilOpSeparate( 
             glWrap( face ),
@@ -287,8 +261,7 @@ void StateManager::applyStencil(
 
     if( (currentTest.function != test.function) ||
         (currentTest.referenceValue != test.referenceValue) ||
-        (currentTest.mask != test.mask) ||
-        !_shadowingCurrentlyEnabled )
+        (currentTest.mask != test.mask) )
     {
         glStencilFuncSeparate( 
             glWrap( face ),
@@ -307,15 +280,14 @@ void StateManager::applyStencil(
 // ------------------------------------------------------------------------------------------------
 void StateManager::applyDepthTest( const DepthTest& depthTest )
 {
-    if( _renderState.depthTest.enabled != depthTest.enabled || !_shadowingCurrentlyEnabled )
+    if( _renderState.depthTest.enabled != depthTest.enabled )
     {
         enable( GL_DEPTH_TEST, depthTest.enabled );
         glCheck;
         _renderState.depthTest.enabled = depthTest.enabled;
     }
 
-    if( depthTest.enabled && 
-        (_renderState.depthTest.function != depthTest.function || !_shadowingCurrentlyEnabled) )
+    if( depthTest.enabled && _renderState.depthTest.function != depthTest.function )
     {
         glDepthFunc( glWrap( depthTest.function ) );
         glCheck;
@@ -327,8 +299,7 @@ void StateManager::applyDepthTest( const DepthTest& depthTest )
 void StateManager::applyDepthRange( const DepthRange& depthRange )
 {
     if( (_renderState.depthRange.nearValue != depthRange.nearValue) ||
-        (_renderState.depthRange.farValue != depthRange.farValue) ||
-        !_shadowingCurrentlyEnabled )
+        (_renderState.depthRange.farValue != depthRange.farValue) )
     {
         glDepthRange( depthRange.nearValue, depthRange.farValue );
         glCheck;
@@ -343,8 +314,7 @@ void StateManager::applyBlending( const Blending& blending )
     bool blendingEnabled = false;
     for( size_t i = 0; i < blending.enabled.size(); ++i ) 
     {
-        if( _renderState.blending.enabled[i] != blending.enabled[i] || 
-            !_shadowingCurrentlyEnabled )
+        if( _renderState.blending.enabled[i] != blending.enabled[i] )
         {
             enable( GL_BLEND, blending.enabled[i], static_cast<int>( i ) );
             glCheck;
@@ -354,13 +324,12 @@ void StateManager::applyBlending( const Blending& blending )
         blendingEnabled = blendingEnabled || blending.enabled[i]; 
     }
 
-    if( blendingEnabled || !_shadowingCurrentlyEnabled )
+    if( blendingEnabled )
     {
         if( (_renderState.blending.sourceRGBFactor != blending.sourceRGBFactor) ||
             (_renderState.blending.destinationRGBFactor != blending.destinationRGBFactor) ||
             (_renderState.blending.sourceAlphaFactor != blending.sourceAlphaFactor) ||
-            (_renderState.blending.destinationAlphaFactor != blending.destinationAlphaFactor) ||
-            !_shadowingCurrentlyEnabled )
+            (_renderState.blending.destinationAlphaFactor != blending.destinationAlphaFactor) )
         {
             glBlendFuncSeparate(
                 glWrap( blending.sourceRGBFactor ),
@@ -377,8 +346,7 @@ void StateManager::applyBlending( const Blending& blending )
         }
 
         if( (_renderState.blending.rgbEquation != blending.rgbEquation) ||
-            (_renderState.blending.alphaEquation != blending.alphaEquation) ||
-            !_shadowingCurrentlyEnabled )
+            (_renderState.blending.alphaEquation != blending.alphaEquation) )
         {
             glBlendEquationSeparate(
                 glWrap( blending.rgbEquation ),
@@ -390,7 +358,7 @@ void StateManager::applyBlending( const Blending& blending )
             _renderState.blending.alphaEquation = blending.alphaEquation;
         }
 
-        if( _renderState.blending.color != blending.color || !_shadowingCurrentlyEnabled )
+        if( _renderState.blending.color != blending.color )
         {
             glBlendColor( 
                 blending.color.r(), 
@@ -407,7 +375,7 @@ void StateManager::applyBlending( const Blending& blending )
 // ------------------------------------------------------------------------------------------------
 void StateManager::applyColorMask( const ColorMask& colorMask )
 {
-    if( !_renderState.colorMask.equals( colorMask ) || !_shadowingCurrentlyEnabled )
+    if( !_renderState.colorMask.equals( colorMask ) )
     {
         glColorMask( colorMask.r, colorMask.g, colorMask.b, colorMask.a );
         glCheck;
@@ -418,7 +386,7 @@ void StateManager::applyColorMask( const ColorMask& colorMask )
 // ------------------------------------------------------------------------------------------------
 void StateManager::applyDepthMask( const DepthMask& depthMask )
 {
-    if( _renderState.depthMask.enabled != depthMask.enabled || !_shadowingCurrentlyEnabled )
+    if( _renderState.depthMask.enabled != depthMask.enabled )
     {
         glDepthMask( depthMask.enabled );
         glCheck;
@@ -429,14 +397,14 @@ void StateManager::applyDepthMask( const DepthMask& depthMask )
 // ------------------------------------------------------------------------------------------------
 void StateManager::applyStencilMask( const StencilMask& stencilMask )
 {
-    if( _renderState.stencilMask.front != stencilMask.front || !_shadowingCurrentlyEnabled )
+    if( _renderState.stencilMask.front != stencilMask.front )
     {
         glStencilMaskSeparate( GL_FRONT, stencilMask.front );
         glCheck;
         _renderState.stencilMask.front = stencilMask.front;
     }
 
-    if( _renderState.stencilMask.back != stencilMask.back || !_shadowingCurrentlyEnabled )
+    if( _renderState.stencilMask.back != stencilMask.back )
     {
         glStencilMaskSeparate( GL_BACK, stencilMask.back );
         glCheck;
@@ -452,7 +420,7 @@ void StateManager::applyShaderProgram( const ShaderPtr& shader )
     assert( newShader == shader && "Shader must be created before use" );
 
     // Apply shader if changed or shadowing disabled
-    if( newShader != _currentShader || !_shadowingCurrentlyEnabled )
+    if( newShader != _currentShader )
     {
         if( newShader )
             newShader->bind();
@@ -497,7 +465,7 @@ void StateManager::applyClearColorSeparate( const ClearColorSeparate& clearColor
 // ------------------------------------------------------------------------------------------------
 void StateManager::applyViewport( const ViewportState& vs )
 {
-    if( vs.rect != _viewportState.rect || !_shadowingCurrentlyEnabled )
+    if( vs.rect != _viewportState.rect )
     {
         glViewport( vs.rect.left(), vs.rect.bottom(), vs.rect.width(), vs.rect.height() );
         glCheck;

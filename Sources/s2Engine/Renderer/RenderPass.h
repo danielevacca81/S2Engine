@@ -8,10 +8,7 @@
 #include "RenderCommand.h"
 #include "ResourceManager.h"
 
-#include "RenderCore/Shader.h"
-#include "RenderCore/DrawState.h"
 #include "RenderCore/VertexData.h"
-#include "RenderCore/PrimitiveType.h"
 
 #include <string>
 
@@ -36,7 +33,7 @@ public:
     virtual void initialize( ResourceManager& resourceManager ) = 0;
 
     // Execute pass with command buffer and frame data
-    virtual void execute( const CommandBuffer& queue, FrameData& frameData ) = 0;
+    virtual void execute( const CommandBuffer& queue, FrameData& frameData, const RenderCore::Context* ctx ) = 0;
 
     // Get pass name
     virtual const std::string& name() const = 0;
@@ -68,35 +65,8 @@ class S2ENGINE_API ForwardPass : public RenderPass
 {
 public:
     void initialize( ResourceManager& resourceManager ) override;
-    void execute( const CommandBuffer& queue, FrameData& frameData ) override;
+    void execute( const CommandBuffer& queue, FrameData& frameData, const RenderCore::Context* ctx ) override;
     const std::string& name() const override;
-
-private:
-    // @todo: move helpers in cpp and make them static/private
-
-
-    // Create draw state from render command and frame data
-    RenderCore::DrawState createDrawState( 
-        const RenderCommand& renderCmd, 
-        const FrameData& frameData ) const;
-
-    // Get shader with fallback to default
-    RenderCore::ShaderPtr getShader( const RenderCommand& renderCmd ) const;
-
-    // Setup standard transform uniforms (DSA - no binding required)
-    void setupShaderUniforms( 
-        const RenderCore::ShaderPtr& shader,
-        const RenderCommand& renderCmd,
-        const FrameData& frameData ) const;
-
-    // Get primitive type from render mode
-    RenderCore::PrimitiveType getPrimitiveType( RenderMode mode ) const;
-
-    // Update rendering statistics
-    void updateStats( const RenderCore::VertexDataPtr& mesh );
-
-    // Print statistics (debug only)
-    void printStats() const;
 
 private:
     ResourceManager* _resourceManager { nullptr };

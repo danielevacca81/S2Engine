@@ -11,6 +11,7 @@
 #include <memory>
 
 namespace s2 {
+namespace RenderCore { class Context; }
 namespace Renderer {
 
 class CommandBuffer;
@@ -60,19 +61,14 @@ public:
     RenderPipeline() = default;
     ~RenderPipeline() = default;
 
-    //// Non-copyable
-    //RenderPipeline( const RenderPipeline& ) = delete;
-    //RenderPipeline& operator=( const RenderPipeline& ) = delete;
-
     void initialize( ResourceManager& resourceManager );
     void clear();
-
 
     void addPass( const RenderPassPtr &pass );
     void removePass( const std::string& name );
     RenderPassPtr findPass( const std::string& name ) const;
 
-    void execute( const CommandBuffer& cmd, FrameData& frameData );
+    void execute( const CommandBuffer& cmd, FrameData& frameData, const RenderCore::Context* ctx );
 
 private:
     std::vector<RenderPassPtr> _passes;

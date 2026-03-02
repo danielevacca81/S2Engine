@@ -12,6 +12,56 @@
 
 using namespace s2::RenderCore;
 
+#pragma region HelperFunctions
+static inline void executeDrawCall( const PrimitiveType& primitive, const VertexArrayPtr& va )
+{
+    assert( va && va->isValid() && "VertexArray must be valid" );
+
+    // Bind VAO (required for rendering)
+    va->bind();
+
+    const GLenum primType = glWrap( primitive );
+
+    if( va->isIndexed() )
+    {
+        const auto& indexBuffer = va->indexBuffer();
+      
+        // Indexed draw call
+        glDrawRangeElements( 
+            primType,
+            0,
+            va->maxArrayIndex(),
+            indexBuffer.count(),
+            glWrap( indexBuffer.dataType() ),
+            nullptr  // Indices in bound element buffer
+        );
+        glCheck;
+    }
+    else
+    {
+        // Non-indexed draw call
+        glDrawArrays( primType, 0, va->maxArrayIndex() + 1 );
+        glCheck;
+    }
+
+    va->unbind();
+}
+
+// ------------------------------------------------------------------------------------------------
+static inline DrawState sanitizeDrawState( const DrawState& ds, const RenderTarget& target )
+{
+    DrawState out( ds );
+
+    // Set viewport to render target size if not specified
+    if( out.viewport.rect.isEmpty() )
+        out.viewport.rect = Math::irect( 0, 0, target.width(), target.height() );
+
+    return out;
+}
+#pragma endregion
+
+
+
 // ------------------------------------------------------------------------------------------------
 RenderCommands::RenderCommands( Context& context )
     : _context( context )
@@ -22,13 +72,13 @@ RenderCommands::RenderCommands( Context& context )
 // CLEAR OPERATIONS (DSA-ready)
 // ================================================================================================
 
-void RenderCommands::clear( const RenderTarget& target, const ClearState& cs )
+void RenderCommands::clear( const RenderTarget& target, const ClearState& cs ) const
 {
     clear( target.framebuffer(), cs );
 }
 
 // ------------------------------------------------------------------------------------------------
-void RenderCommands::clear( const FrameBufferPtr& fbo, const ClearState& cs )
+void RenderCommands::clear( const FrameBufferPtr& fbo, const ClearState& cs ) const
 {
     if( !fbo )
         return;
@@ -46,30 +96,19 @@ void RenderCommands::clear( const FrameBufferPtr& fbo, const ClearState& cs )
 // DRAW OPERATIONS (DSA-ready)
 // ================================================================================================
 
-void RenderCommands::draw( 
-    const RenderTarget& target, 
-    const PrimitiveType& primitiveType,
-    const VertexArrayPtr& va, 
-    const DrawState& ds )
+void RenderCommands::draw( const RenderTarget& target, const PrimitiveType& primitiveType,const VertexArrayPtr& va, const DrawState& ds ) const
 {
     draw( target.framebuffer(), primitiveType, va, sanitizeDrawState( ds, target ) );
 }
 
 // ------------------------------------------------------------------------------------------------
-void RenderCommands::draw( 
-    const RenderTarget& target, 
-    const PrimitiveType& primitiveType,
-    const VertexDataPtr& primitive, 
-    const DrawState& ds )
+void RenderCommands::draw( const RenderTarget& target, const PrimitiveType& primitiveType,const VertexDataPtr& primitive, const DrawState& ds ) const
 {
     draw( target.framebuffer(), primitiveType, primitive, sanitizeDrawState( ds, target ) );
 }
 
 // ------------------------------------------------------------------------------------------------
-void RenderCommands::draw( 
-    const RenderTarget& target, 
-    const PrimitiveBatch& batch, 
-    const DrawState& ds )
+void RenderCommands::draw( const RenderTarget& target, const PrimitiveBatch& batch, const DrawState& ds ) const
 {
     if( !target.framebuffer() )
         return;
@@ -93,11 +132,7 @@ void RenderCommands::draw(
 }
 
 // ------------------------------------------------------------------------------------------------
-void RenderCommands::draw( 
-    const FrameBufferPtr& fbo, 
-    const PrimitiveType& primitiveType,
-    const VertexArrayPtr& va, 
-    const DrawState& ds )
+void RenderCommands::draw( const FrameBufferPtr& fbo, const PrimitiveType& primitiveType, const VertexArrayPtr& va, const DrawState& ds ) const
 {
     if( !fbo || !va )
         return;
@@ -117,11 +152,7 @@ void RenderCommands::draw(
 }
 
 // ------------------------------------------------------------------------------------------------
-void RenderCommands::draw( 
-    const FrameBufferPtr& fbo, 
-    const PrimitiveType& primitiveType,
-    const VertexDataPtr& primitive, 
-    const DrawState& ds )
+void RenderCommands::draw( const FrameBufferPtr& fbo, const PrimitiveType& primitiveType, const VertexDataPtr& primitive, const DrawState& ds ) const
 {
     if( !fbo || !primitive )
         return;
@@ -356,54 +387,4 @@ void RenderCommands::drawFullscreenQuad( const Texture2DPtr& srcTexture )
 
     glBindFramebuffer( GL_FRAMEBUFFER, 0 );
     glCheck;
-}
-
-// ================================================================================================
-// PRIVATE HELPERS
-// ================================================================================================
-
-void RenderCommands::executeDrawCall( const PrimitiveType& primitive, const VertexArrayPtr& va )
-{
-    assert( va && va->isValid() && "VertexArray must be valid" );
-
-    // Bind VAO (required for rendering)
-    va->bind();
-
-    const GLenum primType = glWrap( primitive );
-
-    if( va->isIndexed() )
-    {
-        const auto& indexBuffer = va->indexBuffer();
-      
-        // Indexed draw call
-        glDrawRangeElements( 
-            primType,
-            0,
-            va->maxArrayIndex(),
-            indexBuffer.count(),
-            glWrap( indexBuffer.dataType() ),
-            nullptr  // Indices in bound element buffer
-        );
-        glCheck;
-    }
-    else
-    {
-        // Non-indexed draw call
-        glDrawArrays( primType, 0, va->maxArrayIndex() + 1 );
-        glCheck;
-    }
-
-    va->unbind();
-}
-
-// ------------------------------------------------------------------------------------------------
-DrawState RenderCommands::sanitizeDrawState( const DrawState& ds, const RenderTarget& target ) const
-{
-    DrawState out( ds );
-
-    // Set viewport to render target size if not specified
-    if( out.viewport.rect.isEmpty() )
-        out.viewport.rect = Math::irect( 0, 0, target.width(), target.height() );
-
-    return out;
 }

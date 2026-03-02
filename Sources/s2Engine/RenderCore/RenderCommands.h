@@ -39,21 +39,17 @@ public:
 	// ===== RENDERING OPERATIONS =====
 
 	// Clear operations
-	void clear( const RenderTarget& target, const ClearState& cs = {} );
-	void clear( const FrameBufferPtr& fbo, const ClearState& cs );
+	void clear( const RenderTarget& target, const ClearState& cs = {} ) const;
+	void clear( const FrameBufferPtr& fbo, const ClearState& cs ) const;
 
 	// Draw operations
-	void draw( const RenderTarget& target, const PrimitiveType& primitiveType,
-			   const VertexArrayPtr& va, const DrawState& ds = {} );
-	void draw( const RenderTarget& target, const PrimitiveType& primitiveType,
-			   const VertexDataPtr& primitive, const DrawState& ds = {} );
-	void draw( const RenderTarget& target, const PrimitiveBatch& batch, const DrawState& ds = {} );
+	void draw( const RenderTarget& target, const PrimitiveType& primitiveType,const VertexArrayPtr& va, const DrawState& ds = {} ) const;
+	void draw( const RenderTarget& target, const PrimitiveType& primitiveType,const VertexDataPtr& primitive, const DrawState& ds = {} ) const;
+	void draw( const RenderTarget& target, const PrimitiveBatch& batch, const DrawState& ds = {} ) const;
 
 	// Low-level draw (for special cases)
-	void draw( const FrameBufferPtr& fbo, const PrimitiveType& primitiveType,
-			   const VertexArrayPtr& va, const DrawState& ds );
-	void draw( const FrameBufferPtr& fbo, const PrimitiveType& primitiveType,
-			   const VertexDataPtr& primitive, const DrawState& ds );
+	void draw( const FrameBufferPtr& fbo, const PrimitiveType& primitiveType, const VertexArrayPtr& va, const DrawState& ds ) const;
+	void draw( const FrameBufferPtr& fbo, const PrimitiveType& primitiveType,const VertexDataPtr& primitive, const DrawState& ds ) const;
 
 	// ===== READ OPERATIONS =====
 
@@ -83,12 +79,6 @@ public:
 	Context& context() { return _context; }
 	const Context& context() const { return _context; }
 
-private:
-	// Low-level OpenGL draw call (internal)
-	void executeDrawCall( const PrimitiveType& primitive, const VertexArrayPtr& va );
-
-	// Sanitize draw state with render target dimensions
-	DrawState sanitizeDrawState( const DrawState& ds, const RenderTarget& target ) const;
 
 private:
 	Context& _context; // Reference to owning context
