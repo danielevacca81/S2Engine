@@ -49,7 +49,12 @@ private:
 	s2::Renderer::RenderMaterial _material;
 	s2::Renderer::RenderMaterial _materialPBR;
 
-	s2::Resources::ImageData _texture;
+	s2::Resources::ImageData _textureColor;
+	s2::Resources::ImageData _textureNormal;
+	s2::Resources::ImageData _textureMetallic;
+	s2::Resources::ImageData _textureRoughness;
+	s2::Resources::ImageData _textureAO;
+
 
 	s2::Scene::Camera    _camera;
 	s2::Scene::TrackBall _trackball;

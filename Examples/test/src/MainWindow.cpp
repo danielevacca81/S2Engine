@@ -8,6 +8,7 @@
 
 #include "RenderCore/RenderTarget.h"
 #include "RenderCore/Context.h"
+#include "RenderCore/Device.h"
 #include "RenderCore/RenderCommands.h"
 #include "RenderCore/ShaderCompiler.h"
 
@@ -36,11 +37,19 @@
 // ------------------------------------------------------------------------------------------------
 void MainWindow::loadResources()
 {
-	_texture = s2::Resources::ImageLoader::loadFromFile( "F:/Sviluppo/Projects/S2Engine/Examples/test/x64/Debug/assets/PNG/Light/texture_11.png" ).value_or( s2::Resources::ImageData {} );
+	_textureColor = s2::Resources::ImageLoader::loadFromFile    ( R"(E:\@Devel\Assets\Meterials\g1\g1_basecolor.png)" ).value_or( s2::Resources::ImageData {} );
+	_textureNormal = s2::Resources::ImageLoader::loadFromFile   ( R"(E:\@Devel\Assets\Meterials\g1\g1_normal.png)" ).value_or( s2::Resources::ImageData {} );
+	_textureMetallic = s2::Resources::ImageLoader::loadFromFile ( R"(E:\@Devel\Assets\Meterials\g1\g1_metallic.png)" ).value_or( s2::Resources::ImageData {} );
+	_textureRoughness = s2::Resources::ImageLoader::loadFromFile( R"(E:\@Devel\Assets\Meterials\g1\g1_roughness.png)" ).value_or( s2::Resources::ImageData {} );
+	_textureAO = s2::Resources::ImageLoader::loadFromFile       ( R"(E:\@Devel\Assets\Meterials\g1\g1_ao.png)" ).value_or( s2::Resources::ImageData {} );
 
-	if( _texture.pixmap.isEmpty() )
+	if( _textureColor.pixmap.isEmpty() 
+	|| _textureNormal.pixmap.isEmpty() 
+	|| _textureMetallic.pixmap.isEmpty() 
+	|| _textureRoughness.pixmap.isEmpty() 
+	|| _textureAO.pixmap.isEmpty() )
 	{
-		std::cout << "Failed to load texture" << std::endl;
+		std::cout << "Failed to load one or more textures" << std::endl;
 		return;
 	}
 
@@ -187,7 +196,7 @@ void MainWindow::loadResources()
 				: u_Albedo;
 			
 			// Mix with vertex color if available
-			albedo *= fs_in.Color.rgb;
+			//albedo *= fs_in.Color.rgb;
 			
 			float metallic = u_UseMetallicMap 
 				? texture(u_MetallicMap, fs_in.TexCoord).r 
@@ -264,17 +273,17 @@ void MainWindow::loadResources()
 			_materialPBR.shader = shaderHandle;
 			
 			// Default PBR properties
-			_materialPBR.set( "u_Albedo", Math::vec3(1.0f, 1.0f, 1.0f) );
-			_materialPBR.set( "u_Metallic", 0.3f );
-			_materialPBR.set( "u_Roughness", 0.05f );
-			_materialPBR.set( "u_AO", 1.0f );
+			//_materialPBR.set( "u_Albedo", Math::vec3(1.0f, 1.0f, 1.0f) );
+			// _materialPBR.set( "u_Metallic", 0.3f );
+			// _materialPBR.set( "u_Roughness", 0.05f );
+			// _materialPBR.set( "u_AO", 1.0f );
 			
 			// Texture usage flags
 			_materialPBR.set( "u_UseAlbedoMap", true );
-			_materialPBR.set( "u_UseNormalMap", false );
-			_materialPBR.set( "u_UseMetallicMap", false );
-			_materialPBR.set( "u_UseRoughnessMap", false );
-			_materialPBR.set( "u_UseAOMap", false );
+			_materialPBR.set( "u_UseNormalMap", true );
+			_materialPBR.set( "u_UseMetallicMap", true );
+			_materialPBR.set( "u_UseRoughnessMap", true );
+			_materialPBR.set( "u_UseAOMap", true );
 			
 			// Setup single light
 			_materialPBR.set( "u_LightIntensity", 300.0f );
@@ -284,10 +293,50 @@ void MainWindow::loadResources()
 				(int)resources.registerTexture( "pbr_albedo",
 					s2::RenderCore::Texture2D::New(
 						s2::RenderCore::TextureDescription(
-							_texture.pixmap.width(),
-							_texture.pixmap.height(),
+							_textureColor.pixmap.width(),
+							_textureColor.pixmap.height(),
 							s2::RenderCore::TextureFormat::RedGreenBlue8 ),
-						(void*)_texture.pixmap.pixels() ) ) );
+						(void*)_textureColor.pixmap.pixels() ) ) );
+			
+			// Register normal texture
+			_materialPBR.setTexture( "u_NormalMap", 
+				(int)resources.registerTexture( "pbr_normal",
+					s2::RenderCore::Texture2D::New(
+						s2::RenderCore::TextureDescription(
+							_textureNormal.pixmap.width(),
+							_textureNormal.pixmap.height(),
+							s2::RenderCore::TextureFormat::RedGreenBlue8 ),
+						(void*)_textureNormal.pixmap.pixels() ) ) );
+			
+			// Register metallic texture
+			_materialPBR.setTexture( "u_MetallicMap", 
+				(int)resources.registerTexture( "pbr_metallic",
+					s2::RenderCore::Texture2D::New(
+						s2::RenderCore::TextureDescription(
+							_textureMetallic.pixmap.width(),
+							_textureMetallic.pixmap.height(),
+							s2::RenderCore::TextureFormat::RedGreenBlue8 ),
+						(void*)_textureMetallic.pixmap.pixels() ) ) );
+			
+			// Register roughness texture
+			_materialPBR.setTexture( "u_RoughnessMap", 
+				(int)resources.registerTexture( "pbr_roughness",
+					s2::RenderCore::Texture2D::New(
+						s2::RenderCore::TextureDescription(
+							_textureRoughness.pixmap.width(),
+							_textureRoughness.pixmap.height(),
+							s2::RenderCore::TextureFormat::RedGreenBlue8 ),
+						(void*)_textureRoughness.pixmap.pixels() ) ) );
+			
+			// Register AO texture
+			_materialPBR.setTexture( "u_AOMap", 
+				(int)resources.registerTexture( "pbr_ao",
+					s2::RenderCore::Texture2D::New(
+						s2::RenderCore::TextureDescription(
+							_textureAO.pixmap.width(),
+							_textureAO.pixmap.height(),
+							s2::RenderCore::TextureFormat::RedGreenBlue8 ),
+						(void*)_textureAO.pixmap.pixels() ) ) );
 			
 			std::cout << "PBR Shader compiled and linked successfully" << std::endl;
 		}
@@ -315,6 +364,14 @@ void MainWindow::onInitializeEvent()
 
 
 	auto& resources = _renderer->resources();
+	
+	// register cube mesh
+	{
+		const auto mesh = s2::GeometryFactory3D::createCube( { 5.0, 0.0, 0.0 }, 2.0 );
+		auto vtx = RenderCore::VertexData::New( mesh );
+		//vtx->setColors( std::vector<Color>( mesh.vertices.size(), Color::white() ) );
+		_cube = resources.registerMesh( "cube", vtx );
+	}
 
 	// register torus mesh
 	{
@@ -323,14 +380,7 @@ void MainWindow::onInitializeEvent()
 		vtx->setColors( std::vector<Color>( mesh.vertices.size(), Color::red() ) );
 		_torus = resources.registerMesh( "torus", vtx );
 	}
-	
-	// register cube mesh
-	{
-		const auto mesh = s2::GeometryFactory3D::createCube( { 5.0, 0.0, 0.0 }, 2.0 );
-		auto vtx = RenderCore::VertexData::New( mesh );
-		vtx->setColors( std::vector<Color>( mesh.vertices.size(), Color::green() ) );
-		_cube = resources.registerMesh( "cube", vtx );
-	}
+
 
 	// register cone mesh
 	{
@@ -357,13 +407,13 @@ void MainWindow::onInitializeEvent()
 	}
 
 	_material.shader = resources.registerShader( "blinnPhong", s2::RenderCore::DefaultShaders.BlinnPhong );
-	_material.setTexture( "u_DiffuseMap", (int) resources.registerTexture( "texture",
-						  s2::RenderCore::Texture2D::New(
-						  s2::RenderCore::TextureDescription(
-						  _texture.pixmap.width(),
-						  _texture.pixmap.height(),
-						  s2::RenderCore::TextureFormat::RedGreenBlue8 ),
-						  (void*) _texture.pixmap.pixels() ) ) );
+	// _material.setTexture( "u_DiffuseMap", (int) resources.registerTexture( "texture",
+	// 					  s2::RenderCore::Texture2D::New(
+	// 					  s2::RenderCore::TextureDescription(
+	// 					  _texture.pixmap.width(),
+	// 					  _texture.pixmap.height(),
+	// 					  s2::RenderCore::TextureFormat::RedGreenBlue8 ),
+	// 					  (void*) _texture.pixmap.pixels() ) ) );
 	
 	_material.set( "u_UseDiffuseMap", false );
 
@@ -411,9 +461,6 @@ void MainWindow::onPaintEvent()
 	using namespace s2::Renderer;
 
 	// Setup PBR material lighting
-	std::vector<Math::vec3> lightPositions = { Math::vec3( _trackballLight.matrix() * lightPosition )};
-	std::vector<Math::vec3> lightColors = {	Math::vec3( 300.0f, 300.0f, 300.0f ) };
-
 	_materialPBR.set( "u_LightPosition", Math::vec3( _trackballLight.matrix() * lightPosition ) );
 	_materialPBR.set( "u_LightColor", Math::vec3( 1.0f, 1.0f, 1.0f ) );
 	_materialPBR.set( "u_CamPos", Math::vec3( _camera.position() ) );
@@ -450,7 +497,7 @@ void MainWindow::onPaintEvent()
 		_renderer->render(
 			{
 			.renderMode  = s2::Renderer::RenderMode::Triangles,
-			.material    = _materialPBR,
+			.material    = _material,
 			.mesh        = _sphere,
 			.modelMatrix = modelMatrix,
 			} );
