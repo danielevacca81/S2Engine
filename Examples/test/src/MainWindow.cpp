@@ -45,11 +45,11 @@ void MainWindow::loadResources()
 
 	std::array<texturetag, 5> texturesToLoad = 
 	{
-		texturetag{ "pbr_albedo",   R"(F:\Sviluppo\Materials\group14\g2\g2_basecolor.png)" },
-		texturetag{ "pbr_normal",   R"(F:\Sviluppo\Materials\group14\g2\g2_normal.png)" },
-		texturetag{ "pbr_metallic", R"(F:\Sviluppo\Materials\group14\g2\g2_metallic.png)" },
-		texturetag{ "pbr_roughness",R"(F:\Sviluppo\Materials\group14\g2\g2_roughness.png)" },
-		texturetag{ "pbr_ao",       R"(F:\Sviluppo\Materials\group14\g2\g2_ao.png)" }
+		texturetag{ "pbr_albedo",   R"(F:\Sviluppo\Materials\group14\g5\g5_basecolor.png)" },
+		texturetag{ "pbr_normal",   R"(F:\Sviluppo\Materials\group14\g5\g5_normal.png)" },
+		texturetag{ "pbr_metallic", R"(F:\Sviluppo\Materials\group14\g5\g5_metallic.png)" },
+		texturetag{ "pbr_roughness",R"(F:\Sviluppo\Materials\group14\g5\g5_roughness.png)" },
+		texturetag{ "pbr_ao",       R"(F:\Sviluppo\Materials\group14\g5\g5_ao.png)" }
 	};
 
 
@@ -301,7 +301,7 @@ void MainWindow::loadResources()
 			_materialPBR.setTexture( "u_AOMap",        resourceManager.texture( "pbr_ao" ) );
 			
 			// Setup single light
-			_materialPBR.set( "u_LightIntensity", 300.0f );
+			_materialPBR.set( "u_LightIntensity", 100.0f );
 			
 			std::cout << "PBR Shader compiled and linked successfully" << std::endl;
 		}
@@ -358,6 +358,12 @@ void MainWindow::onInitializeEvent()
 	{
 		const auto cyl = resources.registerMesh( "cylinder", s2::GeometryFactory3D::createCylinder( Math::dvec3( -5.0, 0.0, 0.0 ), Math::dvec3( -5.0, 0.0, 2.0 ), 1.0, true, true, 32 ) );
 		resources.mesh( cyl )->setColor( Color::cyan() );
+	}
+
+	// register capsule mesh
+	{
+		const auto capsule = resources.registerMesh( "capsule", s2::GeometryFactory3D::createCapsule( Math::dvec3( -2.0, -3.0, 0.0 ), Math::dvec3( 2.0, -3.0, 3.0 ), 1.0, 32, 32 ) );
+		resources.mesh( capsule )->setColor( Color::magenta() );
 	}
 
 	_material.shader = resources.registerShader( "blinnPhong", s2::RenderCore::DefaultShaders.BlinnPhong );
@@ -461,7 +467,7 @@ void MainWindow::onPaintEvent()
 		_renderer->render(
 			{
 			.renderMode  = s2::Renderer::RenderMode::Triangles,
-			.material    = _material,
+			.material    = _materialPBR,
 			.mesh        = resources.mesh( "torus" ),
 			.modelMatrix = modelMatrix,
 			} );
@@ -469,7 +475,7 @@ void MainWindow::onPaintEvent()
 		_renderer->render(
 			{
 			.renderMode  = s2::Renderer::RenderMode::Triangles,
-			.material    = _material,
+			.material    = _materialPBR,
 			.mesh        = resources.mesh( "cone" ),
 			.modelMatrix = modelMatrix,
 			} );
@@ -477,8 +483,16 @@ void MainWindow::onPaintEvent()
 		_renderer->render(
 			{
 			.renderMode  = s2::Renderer::RenderMode::Triangles,
-			.material    = _material,
+			.material    = _materialPBR,
 			.mesh        = resources.mesh( "cylinder" ),
+			.modelMatrix = modelMatrix,
+			} );
+
+		_renderer->render(
+			{
+			.renderMode  = s2::Renderer::RenderMode::Triangles,
+			.material    = _materialPBR,
+			.mesh        = resources.mesh( "capsule" ),
 			.modelMatrix = modelMatrix,
 			} );
 	}

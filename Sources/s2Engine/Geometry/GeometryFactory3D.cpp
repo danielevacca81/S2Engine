@@ -38,37 +38,49 @@ MeshData3D GeometryFactory3D::createTorus( double innerRadius, double outerRadiu
 
 	MeshData3D g;
 
-	// numc = number of circles (sectors)
-	for( int i = 0; i < numc; ++i )
+	// Generate vertices with +1 for UV seam closure
+	for( int i = 0; i <= numc; ++i )
 	{
-		// numt = points per circle
-		for( int j = 0; j < numt; ++j )
+		for( int j = 0; j <= numt; ++j )
 		{
 			const double t = Math::two_pi<double>() * i / (double) numc;
 			const double p = Math::two_pi<double>() * j / (double) numt;
 
 			const double x = ( innerRadius + outerRadius * Math::cos( p ) ) * Math::cos( t );
 			const double y = ( innerRadius + outerRadius * Math::cos( p ) ) * Math::sin( t );
-			const double z =  outerRadius * Math::sin( p );
+			const double z = outerRadius * Math::sin( p );
 
 			g.vertices.push_back( Math::dvec3( x, y, z ) );
 
 			const Math::dvec3 T( -Math::sin( t ), Math::cos( t ), 0 );
-			const Math::dvec3 B( Math::cos( t )*( -Math::sin( p ) ),
-								 Math::sin( t )*( -Math::sin( p ) ),
+			const Math::dvec3 B( Math::cos( t ) * ( -Math::sin( p ) ),
+								 Math::sin( t ) * ( -Math::sin( p ) ),
 								 Math::cos( p ) );
 
 			g.normals.push_back( Math::cross( T, B ) );
 
+			g.uvCoords.push_back( Math::dvec2( (double) i / numc , (double) j / numt ) );
+		}
+	}
+
+	// Generate indices
+	const int stride = numt + 1;
+	for( int i = 0; i < numc; ++i )
+	{
+		for( int j = 0; j < numt; ++j )
+		{
+			const int current = i * stride + j;
+			const int next = ( i + 1 ) * stride + j;
+
 			// First triangle
-			g.indices.push_back( ( i * numt ) + j );
-			g.indices.push_back( ( ( ( i + 1 ) % numc ) * numt ) + j );
-			g.indices.push_back( ( ( ( i + 1 ) % numc ) * numt ) + ( j + 1 ) % numt );
+			g.indices.push_back( current );
+			g.indices.push_back( next );
+			g.indices.push_back( next + 1 );
 
 			// Second triangle
-			g.indices.push_back( ( i * numt ) + j );
-			g.indices.push_back( ( ( ( i + 1 ) % numc ) * numt ) + ( j + 1 ) % numt );
-			g.indices.push_back( ( i * numt ) + ( j + 1 ) % numt );
+			g.indices.push_back( current );
+			g.indices.push_back( next + 1 );
+			g.indices.push_back( current + 1 );
 		}
 	}
 
@@ -99,10 +111,11 @@ MeshData3D GeometryFactory3D::createCylinder(
 
 	MeshData3D cylinder;
 
-	// Generate vertices for cylinder sides (base + top rings)
-	for( int i = 0; i < slices; ++i )
+	// Generate vertices for cylinder sides (base + top rings, +1 for seam)
+	for( int i = 0; i <= slices; ++i )
 	{
-		const Math::dvec3 pBase = circle[i];
+		const int idx = i % slices;  // Wrap around for last vertex
+		const Math::dvec3 pBase = circle[idx];
 		const Math::dvec3 pTop = pBase + dir * len;
 
 		cylinder.vertices.emplace_back( pBase );
@@ -112,22 +125,28 @@ MeshData3D GeometryFactory3D::createCylinder(
 		const auto n = Math::normalize( pBase - startPoint );
 		cylinder.normals.emplace_back( n );
 		cylinder.normals.emplace_back( n );
+
+		// UV: U wraps around [0,1], V is 0 at base, 1 at top
+		const double u = static_cast<double>( i ) / slices;
+		cylinder.uvCoords.emplace_back( Math::dvec2 { u, 0.0 } );
+		cylinder.uvCoords.emplace_back( Math::dvec2 { u, 1.0 } );
 	}
 
 	// Generate indices for cylinder sides
-	const int loopIndex = slices * 2;
-	for( int idx = 0; idx < slices * 2; idx += 2 )
+	for( int i = 0; i < slices; ++i )
 	{
-		// Two triangles per quad
-		// Triangle 1: base[i], top[i], top[i+1]
-		cylinder.indices.emplace_back( idx + 0 );
-		cylinder.indices.emplace_back( ( idx + 3 ) % loopIndex );
-		cylinder.indices.emplace_back( idx + 1 );
+		const int base = i * 2;
+		const int nextBase = ( i + 1 ) * 2;
 
-		// Triangle 2: base[i], top[i+1], base[i+1]
-		cylinder.indices.emplace_back( idx + 0 );
-		cylinder.indices.emplace_back( ( idx + 2 ) % loopIndex );
-		cylinder.indices.emplace_back( ( idx + 3 ) % loopIndex );
+		// Triangle 1: base[i], top[i+1], top[i]
+		cylinder.indices.emplace_back( base + 0 );
+		cylinder.indices.emplace_back( nextBase + 1 );
+		cylinder.indices.emplace_back( base + 1 );
+
+		// Triangle 2: base[i], base[i+1], top[i+1]
+		cylinder.indices.emplace_back( base + 0 );
+		cylinder.indices.emplace_back( nextBase + 0 );
+		cylinder.indices.emplace_back( nextBase + 1 );
 	}
 
 	// Add start cap if requested
@@ -138,12 +157,20 @@ MeshData3D GeometryFactory3D::createCylinder(
 		// Center vertex
 		cylinder.vertices.emplace_back( startPoint );
 		cylinder.normals.emplace_back( -dir );
+		cylinder.uvCoords.emplace_back( Math::dvec2 { 0.5, 0.5 } );
 
 		// Circle vertices (duplicated with -dir normal)
 		for( int i = 0; i < slices; ++i )
 		{
 			cylinder.vertices.emplace_back( circle[i] );
 			cylinder.normals.emplace_back( -dir );
+
+			// Radial UV for cap
+			const double angle = Math::two_pi<double>() * i / slices;
+			cylinder.uvCoords.emplace_back( Math::dvec2 {
+				0.5 + 0.5 * Math::cos( angle ),
+				0.5 + 0.5 * Math::sin( angle )
+											} );
 		}
 
 		// Fan triangulation (CW winding when viewed from -dir)
@@ -163,12 +190,20 @@ MeshData3D GeometryFactory3D::createCylinder(
 		// Center vertex
 		cylinder.vertices.emplace_back( endPoint );
 		cylinder.normals.emplace_back( dir );
+		cylinder.uvCoords.emplace_back( Math::dvec2 { 0.5, 0.5 } );
 
 		// Circle vertices (duplicated with +dir normal)
 		for( int i = 0; i < slices; ++i )
 		{
 			cylinder.vertices.emplace_back( circle[i] + dir * len );
 			cylinder.normals.emplace_back( dir );
+
+			// Radial UV for cap
+			const double angle = Math::two_pi<double>() * i / slices;
+			cylinder.uvCoords.emplace_back( Math::dvec2 {
+				0.5 + 0.5 * Math::cos( angle ),
+				0.5 + 0.5 * Math::sin( angle )
+											} );
 		}
 
 		// Fan triangulation (CCW winding when viewed from +dir)
@@ -183,6 +218,202 @@ MeshData3D GeometryFactory3D::createCylinder(
 	return cylinder;
 }
 
+
+// ------------------------------------------------------------------------------------------------
+/**
+*   V=0  _____ (top pole)
+*       /     \
+*      | TOP   |  <- Upper hemisphere
+*   ---|-------|--- V = hemisphereVRange
+*      |       |
+*      |CYLINDER|  <- cylinder section
+*      |       |
+*   ---|-------|--- V = 1 - hemisphereVRange
+*      | BOTTOM|  <- Lower hemisphere
+*       \_____/
+*   V=1         (bottom pole)
+* 
+*/
+MeshData3D GeometryFactory3D::createCapsule( const Math::dvec3& startPoint, const Math::dvec3& endPoint, double radius, int slices, int rings )
+{
+	if( slices < 4 || rings < 2 )
+		return {};
+
+	// Check for degenerate case
+	const double cylinderHeight = Math::length( endPoint - startPoint );
+	if( cylinderHeight < Math::epsilon<double>() )
+		return {};
+
+	const Math::dvec3 dir = Math::normalize( endPoint - startPoint );
+	const int hemisphereRings = rings / 2;
+
+	MeshData3D capsule;
+
+	// UV range for each section
+	const double hemisphereVRange = 0.25; // Each hemisphere takes 25% of V space
+	const double cylinderVRange = 0.5;    // Cylinder takes 50% of V space
+
+	// --- TOP HEMISPHERE (around endPoint) ---
+	// Generate from pole (V=0) down to equator
+	for( int r = 0; r <= hemisphereRings; ++r )
+	{
+		const double phi = Math::half_pi<double>() * r / hemisphereRings; // 0 to PI/2
+		const double ringRadius = radius * Math::sin( phi );
+		const double heightOffset = radius * Math::cos( phi );
+
+		for( int s = 0; s <= slices; ++s )
+		{
+			const double theta = Math::two_pi<double>() * s / slices;
+
+			// Local position on hemisphere
+			const Math::dvec3 localPos = Math::localFrame( dir ) * Math::dvec4(
+				0.0,
+				ringRadius * Math::cos( theta ),
+				ringRadius * Math::sin( theta ),
+				1.0 );
+
+			const Math::dvec3 pos = endPoint + dir * heightOffset + localPos;
+			capsule.vertices.emplace_back( pos );
+
+			// Normal points outward from hemisphere center
+			const Math::dvec3 normal = Math::normalize( pos - endPoint );
+			capsule.normals.emplace_back( normal );
+
+			// UV: V goes from 0 (pole) to hemisphereVRange (equator)
+			const double u = static_cast<double>( s ) / slices;
+			const double v = hemisphereVRange * r / hemisphereRings;
+			capsule.uvCoords.emplace_back( Math::dvec2{ u, v } );
+		}
+	}
+
+	// --- CYLINDER SECTION ---
+	// Generate from top equator to bottom equator
+	const int cylinderRings = rings;
+	for( int r = 0; r <= cylinderRings; ++r )
+	{
+		const double t = static_cast<double>( r ) / cylinderRings;
+		const Math::dvec3 ringCenter = endPoint + ( startPoint - endPoint ) * t;
+
+		for( int s = 0; s <= slices; ++s )
+		{
+			const double theta = Math::two_pi<double>() * s / slices;
+
+			const Math::dvec3 localPos = Math::localFrame( dir ) * Math::dvec4(
+				0.0,
+				radius * Math::cos( theta ),
+				radius * Math::sin( theta ),
+				1.0 );
+
+			const Math::dvec3 pos = ringCenter + localPos;
+			capsule.vertices.emplace_back( pos );
+
+			// Normal is radial (perpendicular to axis)
+			const Math::dvec3 normal = Math::normalize( localPos );
+			capsule.normals.emplace_back( normal );
+
+			// UV: V goes from hemisphereVRange to (1 - hemisphereVRange)
+			const double u = static_cast<double>( s ) / slices;
+			const double v = hemisphereVRange + cylinderVRange * t;
+			capsule.uvCoords.emplace_back( Math::dvec2{ u, v } );
+		}
+	}
+
+	// --- BOTTOM HEMISPHERE (around startPoint) ---
+	// Generate from equator down to pole (V=1)
+	for( int r = 0; r <= hemisphereRings; ++r )
+	{
+		const double phi = Math::half_pi<double>() * ( 1.0 + static_cast<double>( r ) / hemisphereRings ); // PI/2 to PI
+		const double ringRadius = radius * Math::sin( phi );
+		const double heightOffset = radius * Math::cos( phi ); // Negative values
+
+		for( int s = 0; s <= slices; ++s )
+		{
+			const double theta = Math::two_pi<double>() * s / slices;
+
+			const Math::dvec3 localPos = Math::localFrame( dir ) * Math::dvec4(
+				0.0,
+				ringRadius * Math::cos( theta ),
+				ringRadius * Math::sin( theta ),
+				1.0 );
+
+			const Math::dvec3 pos = startPoint + dir * heightOffset + localPos;
+			capsule.vertices.emplace_back( pos );
+
+			// Normal points outward from hemisphere center
+			const Math::dvec3 normal = Math::normalize( pos - startPoint );
+			capsule.normals.emplace_back( normal );
+
+			// UV: V goes from (1 - hemisphereVRange) to 1 (pole)
+			const double u = static_cast<double>( s ) / slices;
+			const double v = ( 1.0 - hemisphereVRange ) + hemisphereVRange * r / hemisphereRings;
+			capsule.uvCoords.emplace_back( Math::dvec2{ u, v } );
+		}
+	}
+
+	// --- GENERATE INDICES ---
+	const int vertsPerRing = slices + 1;
+	const int topHemiVerts = ( hemisphereRings + 1 ) * vertsPerRing;
+	const int cylinderVerts = ( cylinderRings + 1 ) * vertsPerRing;
+
+	// Top hemisphere indices
+	for( int r = 0; r < hemisphereRings; ++r )
+	{
+		for( int s = 0; s < slices; ++s )
+		{
+			const int current = r * vertsPerRing + s;
+			const int next = ( r + 1 ) * vertsPerRing + s;
+
+			capsule.indices.emplace_back( current );
+			capsule.indices.emplace_back( next );
+			capsule.indices.emplace_back( next + 1 );
+
+			capsule.indices.emplace_back( current );
+			capsule.indices.emplace_back( next + 1 );
+			capsule.indices.emplace_back( current + 1 );
+		}
+	}
+
+	// Cylinder indices
+	const int cylinderBase = topHemiVerts;
+	for( int r = 0; r < cylinderRings; ++r )
+	{
+		for( int s = 0; s < slices; ++s )
+		{
+			const int current = cylinderBase + r * vertsPerRing + s;
+			const int next = cylinderBase + ( r + 1 ) * vertsPerRing + s;
+
+			capsule.indices.emplace_back( current );
+			capsule.indices.emplace_back( next );
+			capsule.indices.emplace_back( next + 1 );
+
+			capsule.indices.emplace_back( current );
+			capsule.indices.emplace_back( next + 1 );
+			capsule.indices.emplace_back( current + 1 );
+		}
+	}
+
+	// Bottom hemisphere indices
+	const int bottomHemiBase = topHemiVerts + cylinderVerts;
+	for( int r = 0; r < hemisphereRings; ++r )
+	{
+		for( int s = 0; s < slices; ++s )
+		{
+			const int current = bottomHemiBase + r * vertsPerRing + s;
+			const int next = bottomHemiBase + ( r + 1 ) * vertsPerRing + s;
+
+			capsule.indices.emplace_back( current );
+			capsule.indices.emplace_back( next );
+			capsule.indices.emplace_back( next + 1 );
+
+			capsule.indices.emplace_back( current );
+			capsule.indices.emplace_back( next + 1 );
+			capsule.indices.emplace_back( current + 1 );
+		}
+	}
+
+	return capsule;
+}
+
 // ------------------------------------------------------------------------------------------------
 MeshData3D GeometryFactory3D::createSphere( const Math::dvec3& center, double radius, int slices )
 {
@@ -191,57 +422,43 @@ MeshData3D GeometryFactory3D::createSphere( const Math::dvec3& center, double ra
 
 	MeshData3D sphere;
 	const int    rings = slices;
-	const double twopi = Math::two_pi<double>();
-	const double dTheta = twopi / double( slices );
-	const double dPhi   = Math::pi<double>() / double( rings );
 	
 	// Generate vertices, normals and UVs
 	for( int r = 0; r < rings + 1; ++r )
-	{
-		const double phi    = Math::half_pi<double>() - double( r ) * dPhi;
-		const double cosPhi = Math::cos( phi );
-		const double sinPhi = Math::sin( phi );
-		
+	{		
 		for( int s = 0; s < slices + 1; ++s )
 		{
-			const double theta    = double( s ) * dTheta;
-			const double cosTheta = Math::cos( theta );
-			const double sinTheta = Math::sin( theta );
-			
+			const double x = double( r ) / double( rings );
+			const double y = double( s ) / double( slices );
+		
 			const Math::dvec3 p = 
 			{
-				cosTheta * cosPhi,
-				sinPhi,
-				sinTheta * cosPhi
+				Math::cos( x * Math::two_pi<double>() )* Math::sin( y * Math::pi<double>() ),
+				Math::cos( y * Math::pi<double>() ),
+				Math::sin( x * Math::two_pi<double>() )* Math::sin( y * Math::pi<double>() )
 			};
-			
-			sphere.vertices.emplace_back( center + p * radius );
-			sphere.normals.emplace_back( -p );
 
-			// UV coordinates
-			const double u = double( s ) / double( slices );
-			const double v = double( r ) / double( rings );
-			sphere.uvCoords.emplace_back( u, v );
+			sphere.vertices.emplace_back( center + p * radius );
+			sphere.normals.emplace_back( p );
+			sphere.uvCoords.emplace_back( Math::vec2{x,y} );
 		}
 	}
-	
+
 	// Generate indices
 	for( int r = 0; r < rings; ++r )
 	{
 		for( int s = 0; s < slices; ++s )
 		{
 			const int current = r * ( slices + 1 ) + s;
-			const int next    = current + slices + 1;
-			
-			// First triangle
+			const int next = ( r + 1 ) * ( slices + 1 ) + s;
+			// Triangle 1
 			sphere.indices.emplace_back( current );
 			sphere.indices.emplace_back( next );
-			sphere.indices.emplace_back( current + 1 );
-			
-			// Second triangle
-			sphere.indices.emplace_back( current + 1 );
-			sphere.indices.emplace_back( next );
 			sphere.indices.emplace_back( next + 1 );
+			// Triangle 2
+			sphere.indices.emplace_back( current );
+			sphere.indices.emplace_back( next + 1 );
+			sphere.indices.emplace_back( current + 1 );
 		}
 	}
 
@@ -255,66 +472,91 @@ MeshData3D GeometryFactory3D::createCone( const Math::dvec3& center, const Math:
 		return {};
 
 	// Check for degenerate case
-	if( Math::length( tip - center ) < Math::epsilon<double>() )
+	const double height = Math::length( tip - center );
+	if( height < Math::epsilon<double>() )
 		return {};
 
 	const Math::dvec3 dir = Math::normalize( tip - center );
 	const std::vector<Math::dvec3> circle = generateCircle3D( center, dir, baseRadius, slices );
 
+	// Cone half-angle for normal calculation
+	const double coneAngle = Math::atan( baseRadius / height );
+	const double cosAngle = Math::cos( coneAngle );
+	const double sinAngle = Math::sin( coneAngle );
+
 	MeshData3D cone;
-	
-	// Vertex 0: tip
-	cone.vertices.emplace_back( tip );
-	cone.normals.emplace_back( dir );
-	
-	// Vertices 1..slices: cone base
-	for( int i = 0; i < slices; ++i )
+
+	// Generate side vertices with seam closure (+1)
+	for( int i = 0; i <= slices; ++i )
 	{
-		const auto &p0 = circle[i];
-		const auto &p1 = circle[( i + 1 ) % slices];
-		
-		cone.vertices.emplace_back( p0 );
-		
-		// Compute normal for triangle [tip, p0, p1]
-		const auto edge1 = p0 - tip;
-		const auto edge2 = p1 - tip;
-		const auto n = Math::normalize( Math::cross( edge1, edge2 ) );
-		cone.normals.emplace_back( n );
+		const int idx = i % slices;
+		const double u = static_cast<double>( i ) / slices;
+
+		// Tip vertex (duplicated per slice for correct UV and normals)
+		cone.vertices.emplace_back( tip );
+
+		// Base vertex
+		cone.vertices.emplace_back( circle[idx] );
+
+		// Compute smooth normal for this slice
+		// Normal points outward, tilted by cone angle
+		const Math::dvec3 radial = Math::normalize( circle[idx] - center );
+		const Math::dvec3 normal = Math::normalize( radial * cosAngle + dir * sinAngle );
+
+		cone.normals.emplace_back( normal );
+		cone.normals.emplace_back( normal );
+
+		// UV: tip at top (v=1), base at bottom (v=0)
+		cone.uvCoords.emplace_back( Math::dvec2 { u, 1.0 } );
+		cone.uvCoords.emplace_back( Math::dvec2 { u, 0.0 } );
 	}
-	
+
 	// Generate indices for cone sides
 	for( int i = 0; i < slices; ++i )
 	{
-		const int current = i + 1;                    // Current base vertex
-		const int next = ( i + 1 ) % slices + 1;      // Next base vertex
-		
-		// Triangle: tip -> current -> next (CCW winding)
-		cone.indices.emplace_back( 0 );
-		cone.indices.emplace_back( current );
-		cone.indices.emplace_back( next );
+		const int tipCurrent = i * 2;
+		const int baseCurrent = i * 2 + 1;
+		const int baseNext = ( i + 1 ) * 2 + 1;
+
+		// Triangle: tip -> baseCurrent -> baseNext (CCW winding)
+		cone.indices.emplace_back( tipCurrent );
+		cone.indices.emplace_back( baseCurrent );
+		cone.indices.emplace_back( baseNext );
 	}
-	
+
 	// Add cap if requested
 	if( cap )
 	{
-		const int firstCapVertex = (int)cone.vertices.size();
-		
-		// Add vertices for cap (duplicated with -dir normal)
+		const int centerIdx = static_cast<int>( cone.vertices.size() );
+
+		// Center vertex
+		cone.vertices.emplace_back( center );
+		cone.normals.emplace_back( -dir );
+		cone.uvCoords.emplace_back( Math::dvec2 { 0.5, 0.5 } );
+
+		// Circle vertices (duplicated with -dir normal)
 		for( int i = 0; i < slices; ++i )
 		{
 			cone.vertices.emplace_back( circle[i] );
 			cone.normals.emplace_back( -dir );
+
+			// Radial UV for cap
+			const double angle = Math::two_pi<double>() * i / slices;
+			cone.uvCoords.emplace_back( Math::dvec2 {
+				0.5 + 0.5 * Math::cos( angle ),
+				0.5 + 0.5 * Math::sin( angle )
+										} );
 		}
-		
-		// Generate indices for cap (fan triangulation)
-		for( int i = 2; i < slices; ++i )
+
+		// Fan triangulation from center (CW winding when viewed from -dir)
+		for( int i = 0; i < slices; ++i )
 		{
-			cone.indices.emplace_back( firstCapVertex );
-			cone.indices.emplace_back( firstCapVertex + i );
-			cone.indices.emplace_back( firstCapVertex + i - 1 );
+			cone.indices.emplace_back( centerIdx );
+			cone.indices.emplace_back( centerIdx + 1 + ( i + 1 ) % slices );
+			cone.indices.emplace_back( centerIdx + 1 + i );
 		}
 	}
-	
+
 	return cone;
 }
 
