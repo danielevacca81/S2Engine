@@ -39,7 +39,7 @@ static inline RenderCore::DrawState createDrawState( const RenderCommand& render
 
 // ------------------------------------------------------------------------------------------------
 // Get shader with fallback to default
-static inline RenderCore::ShaderPtr getShader(  ResourceManager* resourceManager, const RenderCommand& renderCmd )
+static inline RenderCore::ShaderPtr getShader( ResourceManager* resourceManager, const RenderCommand& renderCmd )
 {
     assert( resourceManager && "ResourceManager must be valid" );
 
@@ -47,7 +47,7 @@ static inline RenderCore::ShaderPtr getShader(  ResourceManager* resourceManager
     if( renderCmd.material.shader == InvalidHandle )
         return RenderCore::DefaultShaders.Simple;
 
-    auto shader = resourceManager->getShader( renderCmd.material.shader );
+    auto shader = resourceManager->shader( renderCmd.material.shader );
     return shader ? shader : RenderCore::DefaultShaders.Simple;
 }
 
@@ -132,7 +132,7 @@ void ForwardPass::execute( const CommandBuffer& queue, FrameData& frameData, con
         renderCmd.material.applyTexturesToShader( *shader, *_resourceManager );
 
         // Get mesh
-        auto mesh = _resourceManager->getMesh( renderCmd.mesh );
+        auto mesh = _resourceManager->mesh( renderCmd.mesh );
         if( !mesh )
             continue; // Skip if mesh not found
 

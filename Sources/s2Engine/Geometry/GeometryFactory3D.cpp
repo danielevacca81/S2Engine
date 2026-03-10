@@ -195,7 +195,7 @@ MeshData3D GeometryFactory3D::createSphere( const Math::dvec3& center, double ra
 	const double dTheta = twopi / double( slices );
 	const double dPhi   = Math::pi<double>() / double( rings );
 	
-	// Generate vertices and normals
+	// Generate vertices, normals and UVs
 	for( int r = 0; r < rings + 1; ++r )
 	{
 		const double phi    = Math::half_pi<double>() - double( r ) * dPhi;
@@ -217,6 +217,11 @@ MeshData3D GeometryFactory3D::createSphere( const Math::dvec3& center, double ra
 			
 			sphere.vertices.emplace_back( center + p * radius );
 			sphere.normals.emplace_back( -p );
+
+			// UV coordinates
+			const double u = double( s ) / double( slices );
+			const double v = double( r ) / double( rings );
+			sphere.uvCoords.emplace_back( u, v );
 		}
 	}
 	
@@ -392,8 +397,6 @@ MeshData3D GeometryFactory3D::createCube( const Math::dvec3& center, double size
 		Math::dvec3(  0.0, -1.0,  0.0 ),
 		Math::dvec3(  0.0, -1.0,  0.0 ),
 	};
-
-	// Sostituisci solo la sezione uvCoords in createCube():
 
 	cube.uvCoords =
 	{

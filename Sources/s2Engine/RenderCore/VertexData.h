@@ -40,6 +40,7 @@ public:
     void setVertices( const std::vector<Math::fvec3>& points );
     void setVertices( const std::vector<Math::fvec2>& points2D );
     void setColors( const std::vector<Color>& colors );
+	void setColor( const Color &color );
     void setNormals( const std::vector<Math::fvec3>& normals );
     void setTextureCoords( const std::vector<Math::fvec2>& texCoords );
     void setIndices( const std::vector<uint32_t>& indices );

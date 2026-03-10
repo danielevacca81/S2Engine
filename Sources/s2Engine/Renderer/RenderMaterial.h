@@ -88,12 +88,6 @@ public:
     // Set texture by uniform name (not unit index!)
     void setTexture( const std::string& uniformName, ResourceHandle textureHandle );
 
-    // ===== Apply to Shader (DSA) =====
-    void applyPropertiesToShader( RenderCore::Shader& shader ) const;
-
-    // Apply textures to shader (Bindless)
-    void applyTexturesToShader( RenderCore::Shader& shader, const ResourceManager& resourceManager ) const;
-
 	template<typename T>
     std::optional<T> property( const std::string& name ) const
     {
@@ -110,8 +104,18 @@ public:
     bool operator<( const RenderMaterial& other ) const;
 
 private:
+    // ===== Apply to Shader (DSA) =====
+    void applyPropertiesToShader( RenderCore::Shader& shader ) const;
+
+    // Apply textures to shader (Bindless)
+    void applyTexturesToShader( RenderCore::Shader& shader, const ResourceManager& resourceManager ) const;
+
+
+private:
     std::unordered_map<std::string, Property>       _properties;
     std::unordered_map<std::string, ResourceHandle> _textures;
+
+	friend class ForwardPass; // Allow access to private members for rendering
 };
 
 } // namespace Renderer

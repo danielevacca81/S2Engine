@@ -101,7 +101,7 @@ void RenderMaterial::applyTexturesToShader(
     // Set textures directly by uniform name (bindless)
     for( const auto& [uniformName, textureHandle] : _textures )
     {
-        auto texture = resourceManager.getTexture( textureHandle );
+        auto texture = resourceManager.texture( textureHandle );
         if( !texture )
             continue; // Texture not found, skip
 

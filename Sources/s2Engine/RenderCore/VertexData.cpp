@@ -157,6 +157,14 @@ void VertexData::setColors( const std::vector<Color>& colors )
 }
 
 // ------------------------------------------------------------------------------------------------
+void VertexData::setColor( const Color& color )
+{
+    // Create a vector with a single color repeated for all vertices
+    std::vector<Color> colorData( vertexCount(), color );
+	detail::setAttribute( "Colors", _vao, VertexAttributeLocation::VA_Color, colorData );
+}
+
+// ------------------------------------------------------------------------------------------------
 void VertexData::setNormals( const std::vector<Math::fvec3>& normals )
 {
     detail::setAttribute( "Normals", _vao, VertexAttributeLocation::VA_Normal, normals );

@@ -2,6 +2,8 @@
 //
 #include "ResourceManager.h"
 
+#include "Resources/ImageLoader.h"
+
 using namespace s2::Renderer;
 
 
@@ -64,6 +66,39 @@ ResourceHandle ResourceManager::registerTexture( const std::string& name, const 
 }
 
 // ------------------------------------------------------------------------------------------------
+ResourceHandle ResourceManager::registerTexture( const std::string& name, const std::filesystem::path& filePath)
+{
+    // Check if already loaded
+    auto it = _nameToHandle.find( name );
+    if( it != _nameToHandle.end() )
+        return it->second;
+
+    // Load image from file
+    auto imageData = Resources::ImageLoader::loadFromFile( filePath.string() );
+    if( !imageData || imageData->pixmap.isEmpty() )
+        return InvalidHandle;
+
+    // Determine texture format based on channels
+    RenderCore::TextureFormat format = RenderCore::TextureFormat::RedGreenBlueAlpha8;
+    switch( imageData->pixmap.numChannels() )
+    {
+    case 1: format = RenderCore::TextureFormat::Red8; break;
+    case 3: format = RenderCore::TextureFormat::RedGreenBlue8; break;
+    case 4: format = RenderCore::TextureFormat::RedGreenBlueAlpha8; break;
+    }
+
+    // Create and register texture
+    auto texture = RenderCore::Texture2D::New(
+        RenderCore::TextureDescription(
+        imageData->pixmap.width(),
+        imageData->pixmap.height(),
+        format ),
+        (void*) imageData->pixmap.pixels() );
+
+    return registerTexture( name, texture );
+}
+
+// ------------------------------------------------------------------------------------------------
 ResourceHandle ResourceManager::registerShader( const std::string& name, const RenderCore::ShaderPtr& shader )
 {
     auto it = _nameToHandle.find( name );
@@ -77,23 +112,43 @@ ResourceHandle ResourceManager::registerShader( const std::string& name, const R
 }
 
 // ------------------------------------------------------------------------------------------------
-RenderCore::VertexDataPtr ResourceManager::getMesh( const ResourceHandle &handle ) const
+RenderCore::VertexDataPtr ResourceManager::mesh( const ResourceHandle &handle ) const
 {
     auto it = _meshes.find( handle );
     return ( it != _meshes.end() ) ? it->second : nullptr;
 }
 
 // ------------------------------------------------------------------------------------------------
-RenderCore::Texture2DPtr  ResourceManager::getTexture( const ResourceHandle& handle ) const
+ResourceHandle ResourceManager::mesh( const std::string& name ) const
+{
+	auto it = _nameToHandle.find( name );
+	return it == _nameToHandle.end() ? InvalidHandle : it->second;
+}
+
+// ------------------------------------------------------------------------------------------------
+RenderCore::Texture2DPtr ResourceManager::texture( const ResourceHandle& handle ) const
 {
     auto it = _textures.find( handle );
 	return ( it != _textures.end() ) ? it->second : nullptr;
 }
 
 // ------------------------------------------------------------------------------------------------
-RenderCore::ShaderPtr ResourceManager::getShader( const ResourceHandle& handle ) const
+ResourceHandle ResourceManager::texture( const std::string &name ) const
+{
+    auto it = _nameToHandle.find( name );
+    return it == _nameToHandle.end() ? InvalidHandle : it->second;
+}
+
+// ------------------------------------------------------------------------------------------------
+RenderCore::ShaderPtr ResourceManager::shader( const ResourceHandle& handle ) const
 {
     auto it = _shaders.find( handle );
 	return ( it != _shaders.end() ) ? it->second : nullptr;
 }
 
+// ------------------------------------------------------------------------------------------------
+ResourceHandle ResourceManager::shader( const std::string& name ) const
+{
+    auto it = _nameToHandle.find( name );
+    return it == _nameToHandle.end() ? InvalidHandle : it->second;
+}
