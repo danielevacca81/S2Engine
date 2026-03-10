@@ -37,20 +37,34 @@
 // ------------------------------------------------------------------------------------------------
 void MainWindow::loadResources()
 {
-	_textureColor = s2::Resources::ImageLoader::loadFromFile    ( R"(E:\@Devel\Assets\Meterials\g1\g1_basecolor.png)" ).value_or( s2::Resources::ImageData {} );
-	_textureNormal = s2::Resources::ImageLoader::loadFromFile   ( R"(E:\@Devel\Assets\Meterials\g1\g1_normal.png)" ).value_or( s2::Resources::ImageData {} );
-	_textureMetallic = s2::Resources::ImageLoader::loadFromFile ( R"(E:\@Devel\Assets\Meterials\g1\g1_metallic.png)" ).value_or( s2::Resources::ImageData {} );
-	_textureRoughness = s2::Resources::ImageLoader::loadFromFile( R"(E:\@Devel\Assets\Meterials\g1\g1_roughness.png)" ).value_or( s2::Resources::ImageData {} );
-	_textureAO = s2::Resources::ImageLoader::loadFromFile       ( R"(E:\@Devel\Assets\Meterials\g1\g1_ao.png)" ).value_or( s2::Resources::ImageData {} );
-
-	if( _textureColor.pixmap.isEmpty() 
-	|| _textureNormal.pixmap.isEmpty() 
-	|| _textureMetallic.pixmap.isEmpty() 
-	|| _textureRoughness.pixmap.isEmpty() 
-	|| _textureAO.pixmap.isEmpty() )
+	struct texturetag
 	{
-		std::cout << "Failed to load one or more textures" << std::endl;
-		return;
+		std::string           name;
+		std::filesystem::path path;
+	};
+
+	std::array<texturetag, 5> texturesToLoad = 
+	{
+		texturetag{ "pbr_albedo",   R"(F:\Sviluppo\Materials\group14\g2\g2_basecolor.png)" },
+		texturetag{ "pbr_normal",   R"(F:\Sviluppo\Materials\group14\g2\g2_normal.png)" },
+		texturetag{ "pbr_metallic", R"(F:\Sviluppo\Materials\group14\g2\g2_metallic.png)" },
+		texturetag{ "pbr_roughness",R"(F:\Sviluppo\Materials\group14\g2\g2_roughness.png)" },
+		texturetag{ "pbr_ao",       R"(F:\Sviluppo\Materials\group14\g2\g2_ao.png)" }
+	};
+
+
+
+	auto& resourceManager = _renderer->resources();
+
+	for( const auto& tex : texturesToLoad )
+	{
+		if( auto handle = resourceManager.registerTexture( tex.name, tex.path ) )
+			std::cout << "Loaded texture: " << tex.name << std::endl;
+		else
+		{
+			std::cout << "Failed to load texture: " << tex.name << std::endl;
+			return;
+		}
 	}
 
 	auto vtx = s2::RenderCore::ShaderCompiler::compile( s2::RenderCore::ShaderStageType::Vertex,
@@ -272,12 +286,6 @@ void MainWindow::loadResources()
 			// Setup PBR material
 			_materialPBR.shader = shaderHandle;
 			
-			// Default PBR properties
-			//_materialPBR.set( "u_Albedo", Math::vec3(1.0f, 1.0f, 1.0f) );
-			// _materialPBR.set( "u_Metallic", 0.3f );
-			// _materialPBR.set( "u_Roughness", 0.05f );
-			// _materialPBR.set( "u_AO", 1.0f );
-			
 			// Texture usage flags
 			_materialPBR.set( "u_UseAlbedoMap", true );
 			_materialPBR.set( "u_UseNormalMap", true );
@@ -285,58 +293,15 @@ void MainWindow::loadResources()
 			_materialPBR.set( "u_UseRoughnessMap", true );
 			_materialPBR.set( "u_UseAOMap", true );
 			
+			// set textures to the material
+			_materialPBR.setTexture( "u_AlbedoMap",    resourceManager.texture( "pbr_albedo" ) );
+			_materialPBR.setTexture( "u_NormalMap",    resourceManager.texture( "pbr_normal" ) );
+			_materialPBR.setTexture( "u_MetallicMap",  resourceManager.texture( "pbr_metallic" ) );
+			_materialPBR.setTexture( "u_RoughnessMap", resourceManager.texture( "pbr_roughness" ) );
+			_materialPBR.setTexture( "u_AOMap",        resourceManager.texture( "pbr_ao" ) );
+			
 			// Setup single light
 			_materialPBR.set( "u_LightIntensity", 300.0f );
-			
-			// Register albedo texture
-			_materialPBR.setTexture( "u_AlbedoMap", 
-				(int)resources.registerTexture( "pbr_albedo",
-					s2::RenderCore::Texture2D::New(
-						s2::RenderCore::TextureDescription(
-							_textureColor.pixmap.width(),
-							_textureColor.pixmap.height(),
-							s2::RenderCore::TextureFormat::RedGreenBlue8 ),
-						(void*)_textureColor.pixmap.pixels() ) ) );
-			
-			// Register normal texture
-			_materialPBR.setTexture( "u_NormalMap", 
-				(int)resources.registerTexture( "pbr_normal",
-					s2::RenderCore::Texture2D::New(
-						s2::RenderCore::TextureDescription(
-							_textureNormal.pixmap.width(),
-							_textureNormal.pixmap.height(),
-							s2::RenderCore::TextureFormat::RedGreenBlue8 ),
-						(void*)_textureNormal.pixmap.pixels() ) ) );
-			
-			// Register metallic texture
-			_materialPBR.setTexture( "u_MetallicMap", 
-				(int)resources.registerTexture( "pbr_metallic",
-					s2::RenderCore::Texture2D::New(
-						s2::RenderCore::TextureDescription(
-							_textureMetallic.pixmap.width(),
-							_textureMetallic.pixmap.height(),
-							s2::RenderCore::TextureFormat::RedGreenBlue8 ),
-						(void*)_textureMetallic.pixmap.pixels() ) ) );
-			
-			// Register roughness texture
-			_materialPBR.setTexture( "u_RoughnessMap", 
-				(int)resources.registerTexture( "pbr_roughness",
-					s2::RenderCore::Texture2D::New(
-						s2::RenderCore::TextureDescription(
-							_textureRoughness.pixmap.width(),
-							_textureRoughness.pixmap.height(),
-							s2::RenderCore::TextureFormat::RedGreenBlue8 ),
-						(void*)_textureRoughness.pixmap.pixels() ) ) );
-			
-			// Register AO texture
-			_materialPBR.setTexture( "u_AOMap", 
-				(int)resources.registerTexture( "pbr_ao",
-					s2::RenderCore::Texture2D::New(
-						s2::RenderCore::TextureDescription(
-							_textureAO.pixmap.width(),
-							_textureAO.pixmap.height(),
-							s2::RenderCore::TextureFormat::RedGreenBlue8 ),
-						(void*)_textureAO.pixmap.pixels() ) ) );
 			
 			std::cout << "PBR Shader compiled and linked successfully" << std::endl;
 		}
@@ -367,43 +332,32 @@ void MainWindow::onInitializeEvent()
 	
 	// register cube mesh
 	{
-		const auto mesh = s2::GeometryFactory3D::createCube( { 5.0, 0.0, 0.0 }, 2.0 );
-		auto vtx = RenderCore::VertexData::New( mesh );
-		//vtx->setColors( std::vector<Color>( mesh.vertices.size(), Color::white() ) );
-		_cube = resources.registerMesh( "cube", vtx );
+		resources.registerMesh( "cube", s2::GeometryFactory3D::createCube( { 5.0, 0.0, 0.0 }, 2.0 ) );
 	}
 
 	// register torus mesh
 	{
-		const auto mesh = s2::GeometryFactory3D::createTorus( 1.0, 0.5, 64, 16 );
-		auto vtx = RenderCore::VertexData::New( mesh );
-		vtx->setColors( std::vector<Color>( mesh.vertices.size(), Color::red() ) );
-		_torus = resources.registerMesh( "torus", vtx );
+		const auto torus = resources.registerMesh( "torus", s2::GeometryFactory3D::createTorus( 1.0, 0.5, 64, 16 ) );
+		resources.mesh( torus )->setColor( Color::red() );
 	}
 
 
 	// register cone mesh
 	{
-		const auto mesh = s2::GeometryFactory3D::createCone( Math::dvec3(2.5,0.0,0.0), Math::dvec3(2.5, 0.0, 3.0), 1, true, 32 );
-		auto vtx = RenderCore::VertexData::New( mesh );
-		vtx->setColors( std::vector<Color>( mesh.vertices.size(), Color::yellow() ) );
-		_cone = resources.registerMesh( "cone", vtx );
+		const auto cone = resources.registerMesh( "cone", s2::GeometryFactory3D::createCone( Math::dvec3( 2.5, 0.0, 0.0 ), Math::dvec3( 2.5, 0.0, 3.0 ), 1, true, 32 ) );
+		resources.mesh( cone )->setColor( Color::yellow() );
 	}
 
 	// register sphere mesh
 	{
-		const auto mesh = s2::GeometryFactory3D::createSphere( Math::dvec3( -2.5, 0.0, 0.0 ), 1.0, 32 );
-		auto vtx = RenderCore::VertexData::New( mesh );
-		vtx->setColors( std::vector<Color>( mesh.vertices.size(), Color::blue().lighter() ) );
-		_sphere = resources.registerMesh( "sphere", vtx );
+		const auto sphere = resources.registerMesh( "sphere", s2::GeometryFactory3D::createSphere( Math::dvec3( -2.5, 0.0, 0.0 ), 1.0, 32 ) );
+		resources.mesh( sphere )->setColor( Color::blue().lighter() );
 	}
 
 	// register cylinder mesh
 	{
-		const auto mesh = s2::GeometryFactory3D::createCylinder( Math::dvec3( -5.0, 0.0, 0.0 ), Math::dvec3( -5.0, 0.0, 2.0 ), 1.0, true, true, 32 );
-		auto vtx = RenderCore::VertexData::New( mesh );
-		vtx->setColors( std::vector<Color>( mesh.vertices.size(), Color::cyan() ) );
-		_cylinder = resources.registerMesh( "cylinder", vtx );
+		const auto cyl = resources.registerMesh( "cylinder", s2::GeometryFactory3D::createCylinder( Math::dvec3( -5.0, 0.0, 0.0 ), Math::dvec3( -5.0, 0.0, 2.0 ), 1.0, true, true, 32 ) );
+		resources.mesh( cyl )->setColor( Color::cyan() );
 	}
 
 	_material.shader = resources.registerShader( "blinnPhong", s2::RenderCore::DefaultShaders.BlinnPhong );
@@ -458,6 +412,8 @@ void MainWindow::onPaintEvent()
 	const auto scale = app->scaleFactor;
 	const auto lightPosition = app->lightPosition;
 
+	auto& resources = _renderer->resources();
+
 	using namespace s2::Renderer;
 
 	// Setup PBR material lighting
@@ -489,7 +445,7 @@ void MainWindow::onPaintEvent()
 		{
 			.renderMode  = s2::Renderer::RenderMode::Triangles,
 			.material    = _materialPBR,
-			.mesh        = _cube,
+			.mesh        = resources.mesh( "cube" ),
 			.modelMatrix = modelMatrix,
 		};
 		_renderer->render( cmd );
@@ -497,8 +453,8 @@ void MainWindow::onPaintEvent()
 		_renderer->render(
 			{
 			.renderMode  = s2::Renderer::RenderMode::Triangles,
-			.material    = _material,
-			.mesh        = _sphere,
+			.material    = _materialPBR,
+			.mesh        = resources.mesh( "sphere" ),
 			.modelMatrix = modelMatrix,
 			} );
 
@@ -506,7 +462,7 @@ void MainWindow::onPaintEvent()
 			{
 			.renderMode  = s2::Renderer::RenderMode::Triangles,
 			.material    = _material,
-			.mesh        = _torus,
+			.mesh        = resources.mesh( "torus" ),
 			.modelMatrix = modelMatrix,
 			} );
 
@@ -514,7 +470,7 @@ void MainWindow::onPaintEvent()
 			{
 			.renderMode  = s2::Renderer::RenderMode::Triangles,
 			.material    = _material,
-			.mesh        = _cone,
+			.mesh        = resources.mesh( "cone" ),
 			.modelMatrix = modelMatrix,
 			} );
 
@@ -522,7 +478,7 @@ void MainWindow::onPaintEvent()
 			{
 			.renderMode  = s2::Renderer::RenderMode::Triangles,
 			.material    = _material,
-			.mesh        = _cylinder,
+			.mesh        = resources.mesh( "cylinder" ),
 			.modelMatrix = modelMatrix,
 			} );
 	}

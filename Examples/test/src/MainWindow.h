@@ -40,21 +40,10 @@ private:
 	// s2::Renderer renderer; // forward rendering, deferred rendering, etc.
 	std::unique_ptr<s2::Renderer::Renderer> _renderer;
 
-	s2::Renderer::ResourceHandle _torus    { s2::Renderer::InvalidHandle };
 	s2::Renderer::ResourceHandle _cone     { s2::Renderer::InvalidHandle };
-	s2::Renderer::ResourceHandle _cube     { s2::Renderer::InvalidHandle };
-	s2::Renderer::ResourceHandle _sphere   { s2::Renderer::InvalidHandle };
-	s2::Renderer::ResourceHandle _cylinder { s2::Renderer::InvalidHandle };
 
 	s2::Renderer::RenderMaterial _material;
 	s2::Renderer::RenderMaterial _materialPBR;
-
-	s2::Resources::ImageData _textureColor;
-	s2::Resources::ImageData _textureNormal;
-	s2::Resources::ImageData _textureMetallic;
-	s2::Resources::ImageData _textureRoughness;
-	s2::Resources::ImageData _textureAO;
-
 
 	s2::Scene::Camera    _camera;
 	s2::Scene::TrackBall _trackball;
