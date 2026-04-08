@@ -174,17 +174,13 @@ void RenderCommands::draw( const FrameBufferPtr& fbo, const PrimitiveType& primi
 // ================================================================================================
 // READ OPERATIONS (DSA where possible)
 // ================================================================================================
-
-Pixmap<uint8_t> RenderCommands::readPixels( const RenderTarget& target )
+Pixmap<uint8_t> RenderCommands::readPixels( const RenderTarget& target ) const
 {
     return readPixels( target.framebuffer(), target.width(), target.height() );
 }
 
 // ------------------------------------------------------------------------------------------------
-Pixmap<uint8_t> RenderCommands::readPixels( 
-    const FrameBufferPtr& fbo, 
-    uint32_t width, 
-    uint32_t height )
+Pixmap<uint8_t> RenderCommands::readPixels( const FrameBufferPtr& fbo, uint32_t width, uint32_t height ) const
 {
     if( !fbo || width == 0 || height == 0 )
         return {};
@@ -193,9 +189,7 @@ Pixmap<uint8_t> RenderCommands::readPixels(
     constexpr ImageFormat format = ImageFormat::RedGreenBlueAlpha;
     constexpr ImageDataType dataType = ImageDataType::UnsignedByte;
     
-    const int64_t sizeInBytes = computeRequiredSizeInBytes( 
-        width, height, format, dataType, rowAlignment 
-    );
+    const int64_t sizeInBytes = computeRequiredSizeInBytes( width, height, format, dataType, rowAlignment );
 
     // Bind FBO (required for glReadPixels)
     fbo->bind();
@@ -245,25 +239,57 @@ Pixmap<uint8_t> RenderCommands::readPixels(
 }
 
 // ------------------------------------------------------------------------------------------------
-void RenderCommands::readPixels( 
-    const RenderTarget& target,
-    const FrameBuffer::AttachmentPoint& attachPoint,
-    const ImageFormat& pixelFormat,
-    const Math::irect& roi,
-    void* pixels )
+void RenderCommands::readPixels( const RenderTarget& target, 
+                                 const FrameBuffer::AttachmentPoint& attachPoint, 
+                                 const ImageFormat& pixelFormat,
+								 const ImageDataType& pixelType,
+                                 const Math::irect& roi,
+                                 void* pixels ) const
 {
     assert( pixels && "Pixel buffer cannot be null" );
 
     // Bind FBO and read pixels (DSA)
     target.framebuffer()->bind();
     target.framebuffer()->readPixels( 
-        attachPoint, 
-        pixelFormat, 
-        ImageDataType::UnsignedByte, 
+		attachPoint, // which attachment to read from
+		pixelFormat, // format of pixel data in output buffer (e.g., RGBA, RGB, etc.)
+		pixelType, // how many bytes per channel in output buffer (e.g., unsigned byte, float, etc.)
         roi, 
-        pixels 
+		pixels // output buffer to receive pixel data (cpu-side pointer)
     );
     target.framebuffer()->unbind();
+}
+
+// ------------------------------------------------------------------------------------------------
+void RenderCommands::readPixelsAsync( const RenderTarget& target,
+                                      const FrameBuffer::AttachmentPoint& attachPoint,
+                                      const ImageFormat& imageFormat,
+                                      const ImageDataType& pixelType,
+                                      const GPUBufferObjectPtr& pbo ) const
+{
+    assert( pbo && pbo->isValid() && "readPixelsAsync: PBO must be valid" );
+    assert( pbo->type() == GPUBufferObject::Type::PixelPackBuffer && "readPixelsAsync: PBO must be of type PixelPackBuffer" );
+
+    // Invalidate PBO contents before writing to hint the driver it can discard old data,
+    // avoiding a costly CPU->GPU sync on reuse.
+    pbo->invalidate();
+
+    // Bind PBO as pack target: subsequent glReadPixels will DMA into it (non-blocking).
+    glBindBuffer( GL_PIXEL_PACK_BUFFER, pbo->id() );
+    glCheck;
+
+    // With GL_PIXEL_PACK_BUFFER bound, the nullptr offset routes data into the PBO.
+    target.framebuffer()->readPixels(
+        attachPoint,
+        imageFormat,
+        pixelType,
+        Math::irect( 0, 0, target.width(), target.height() ),
+        nullptr   // offset into PBO
+    );
+
+    // Unbind PBO: restore default state so subsequent CPU-side readPixels are unaffected.
+    glBindBuffer( GL_PIXEL_PACK_BUFFER, 0 );
+    glCheck;
 }
 
 // ================================================================================================

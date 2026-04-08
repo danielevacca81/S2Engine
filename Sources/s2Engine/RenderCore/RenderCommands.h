@@ -13,6 +13,7 @@
 #include "FrameBuffer.h"
 #include "RenderTarget.h"
 #include "Texture.h"
+#include "GPUBufferObject.h"
 
 #include "Graphics/Pixmap.h"
 #include "Math/Rectangle.h"
@@ -52,18 +53,28 @@ public:
 	void draw( const FrameBufferPtr& fbo, const PrimitiveType& primitiveType,const VertexDataPtr& primitive, const DrawState& ds ) const;
 
 	// ===== READ OPERATIONS =====
-
-	Pixmap<uint8_t> readPixels( const RenderTarget& target );
-	Pixmap<uint8_t> readPixels( const FrameBufferPtr& fbo, uint32_t width, uint32_t height );
+	Pixmap<uint8_t> readPixels( const RenderTarget& target ) const;
+	Pixmap<uint8_t> readPixels( const FrameBufferPtr& fbo, uint32_t width, uint32_t height ) const;
 
 	void readPixels( const RenderTarget& target,
 					 const FrameBuffer::AttachmentPoint& attachPoint,
-					 const ImageFormat& pixelFormat,
+					 const ImageFormat& imageFormat,
+					 const ImageDataType& pixelType,
 					 const Math::irect& roi,
-					 void* pixels );
+					 void* pixels ) const;
 
+	// Async (non-blocking) readback of the entire render target into a PixelPackBuffer PBO.
+	// The GPU writes into the PBO asynchronously; the caller must map the PBO on a later
+	// frame to retrieve the data without stalling the pipeline.
+	// Precondition: pbo must be of Type::PixelPackBuffer and sized >= width*height*pixelStride.
+	void readPixelsAsync( const RenderTarget& target,
+	                      const FrameBuffer::AttachmentPoint& attachPoint,
+	                      const ImageFormat& imageFormat,
+	                      const ImageDataType& pixelType,
+	                      const GPUBufferObjectPtr& pbo ) const;
+
+	
 	// ===== BLIT OPERATIONS =====
-
 	void blit( const RenderTarget& source, const RenderTarget& destination,
 			   const Math::irect& srcRect = {}, const Math::irect& dstRect = {} );
 	void blit( const FrameBufferPtr& srcFBO, const FrameBufferPtr& dstFBO,
