@@ -1,4 +1,4 @@
-// FrameData.h (rinominato da RenderContext.h)
+// FrameData.h
 //
 #ifndef S2_RENDERER_FRAMEDATA_H
 #define S2_RENDERER_FRAMEDATA_H

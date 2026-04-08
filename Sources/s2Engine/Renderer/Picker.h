@@ -40,17 +40,17 @@ struct S2ENGINE_API PickResult
 // Picker: Decoupled GPU picking
 //
 // Design:
-//   - requestPickAt() stores screen coordinates from an input event (no GL context required).
 //   - Picker connects to Renderer::onFrameDone in its constructor.
-//   - When the signal fires (GL context still current), Picker reads from the pick
-//     RenderTarget in frameData and emits onPickResolved.
+//   - pickObjectAt() stores screen coordinates from an input event (no GL context required).
+//   - When the renderer fires onFrameDone GL context still current, Picker reads from the pick
+//     RenderTarget in frameData and invokes user callback.
 //   - PickPass has zero knowledge of Picker.
 //
 // Usage:
 //   pipeline.addPass( std::make_shared<PickPass>() );
 //   Picker picker( renderer );
 //
-//   picker.onPickResolved.connect( []( const PickResult& r )
+//   picker.onObjectHit( []( const PickResult& r )
 //   {
 //       if( r.isHit() ) selectEntity( r.objectID );
 //   });
@@ -58,7 +58,7 @@ struct S2ENGINE_API PickResult
 //   // Input event (no GL context required)
 //   picker.requestPickAt( mousePos );
 //
-//   // After renderer.endFrame() -> onPickResolved fires automatically
+//   // After renderer.endFrame() -> user callback is called internally with the result.
 // ------------------------------------------------------------------------------------------------
 class S2ENGINE_API Picker
 {
@@ -71,11 +71,12 @@ public:
     // Register a pick request from an input event.
     // No GL context required. Overwrites any pending unresolved request.
     void pickObjectAt( const Math::ivec2& screenPos );
+    
+	// Register a callback to be invoked when a pick result is resolved.
     void onObjectHit( const std::function<void( const PickResult& )>& callback );
 
 private:
-    // Slot connected to Renderer::onFrameDone
-    void onFrameDone( const FrameData& frameData );
+	void onFrameDone( const FrameData& frameData ); // internal slot connected to Renderer::onFrameDone
 
 private:
     bool        _enabled           { true };

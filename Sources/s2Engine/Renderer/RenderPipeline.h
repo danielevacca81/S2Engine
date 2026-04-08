@@ -68,8 +68,8 @@ public:
     void initialize( ResourceManager& resourceManager );
     void clear();
 
-    void addPass( const RenderPassPtr &pass );
-    void removePass( const std::string& name );
+    RenderPipeline& addPass( const RenderPassPtr &pass );
+    RenderPipeline& removePass( const std::string& name );
     RenderPassPtr findPass( const std::string& name ) const;
 
     void execute( const CommandBuffer& cmd, FrameData& frameData, const RenderCore::Context* ctx );

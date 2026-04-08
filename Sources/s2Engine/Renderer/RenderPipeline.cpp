@@ -24,30 +24,32 @@ RenderPipeline RenderPipeline::createDeferredPipeline()
 
 
 // ------------------------------------------------------------------------------------------------
-void RenderPipeline::addPass( const RenderPassPtr &pass )
+RenderPipeline& RenderPipeline::addPass( const RenderPassPtr &pass )
 {
 	// Avoid adding duplicate passes with the same name
 	auto existingPass = findPass( pass->name() );
     if( existingPass )
     {
 		assert( false && "RenderPipeline already contains a pass with the same name!" );
-        return;
+        return *this;
     }
 
 
 	// Add pass to the pipeline
     if( pass )
         _passes.push_back( pass );
+    return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
-void RenderPipeline::removePass( const std::string& name )
+RenderPipeline& RenderPipeline::removePass( const std::string& name )
 {
 	_passes.erase( std::remove_if( _passes.begin(), _passes.end(), [&name] ( const RenderPassPtr& pass ) 
     {
 	    return pass->name() == name;
     } )
 	, _passes.end() );
+    return *this;
 }
 
 // ------------------------------------------------------------------------------------------------

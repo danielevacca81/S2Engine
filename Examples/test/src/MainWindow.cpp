@@ -323,11 +323,12 @@ void MainWindow::loadResources()
 // ------------------------------------------------------------------------------------------------
 void MainWindow::onInitializeEvent()
 {
-	auto pipeline = s2::Renderer::RenderPipeline::createForwardPipeline();
-	pipeline.addPass( std::make_shared<s2::Renderer::PickPass>() );
+	auto pipeline = s2::Renderer::RenderPipeline::createForwardPipeline().addPass( std::make_shared<s2::Renderer::PickPass>() );
 
 	// Initialize renderer with the current rendering context and default render pipeline
 	_renderer = std::make_unique<s2::Renderer::Renderer>( _renderingContext.get(), pipeline );
+	
+	// Initialize the picker and connect to pick results
 	_picker = std::make_unique<s2::Renderer::Picker>( *_renderer.get() );
 	_picker->onObjectHit( []( const s2::Renderer::PickResult& result )
 	{

@@ -24,10 +24,9 @@ namespace Renderer {
 // it in FrameData::passData under kPickTargetKey.
 //
 // The pass has no knowledge of Picker or any consumer - it only writes data.
-// Consumers connect to Renderer::onFrameDone to read the target while the GL
-// context is still current.
 //
 // Usage:
+//   ...
 //   pipeline.addPass( std::make_shared<ForwardPass>() );
 //   pipeline.addPass( std::make_shared<PickPass>() );
 // ================================================================================================

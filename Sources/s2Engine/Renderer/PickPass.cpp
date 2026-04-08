@@ -27,38 +27,32 @@ using namespace s2::Renderer;
 using namespace s2::RenderCore;
 
 // ------------------------------------------------------------------------------------------------
-// Internal pick shader source
-// Vertex: transforms position only (no normals, UVs, etc.)
-// Fragment: outputs (objectID, gl_PrimitiveID) to RG32I attachment
-// ------------------------------------------------------------------------------------------------
-static const std::string kPickVertSrc = STRINGIFY( #version 460 core\n
+void PickPass::initialize( ResourceManager& resourceManager )
+{
+    _resourceManager = &resourceManager;
+
+    // Internal pick shader
+    _pickShader = Shader::New();
+
+    // Vertex: transforms position only (no normals, UVs, etc.)
+    const auto vtx  = ShaderCompiler::compile( ShaderStageType::Vertex, STRINGIFY( #version 460 core\n
     layout( location = 0 ) in vec3 a_Position;
     uniform mat4 u_MVP;
     void main()
     {
         gl_Position = u_MVP * vec4( a_Position, 1.0 );
     }
-);
-
-static const std::string kPickFragSrc = STRINGIFY( #version 460 core\n
+    ) );
+    
+    // Fragment: outputs (objectID, gl_PrimitiveID) to RG32I attachment
+    const auto frag = ShaderCompiler::compile( ShaderStageType::Fragment, STRINGIFY( #version 460 core\n
     layout( location = 0 ) out ivec2 fragPickID;
     uniform int u_ObjectID;
     void main()
     {
         fragPickID = ivec2( u_ObjectID, gl_PrimitiveID );
     }
-);
-
-// ------------------------------------------------------------------------------------------------
-void PickPass::initialize( ResourceManager& resourceManager )
-{
-    _resourceManager = &resourceManager;
-
-    // Compile and link internal pick shader
-    _pickShader = Shader::New();
-
-    const auto vtx  = ShaderCompiler::compile( ShaderStageType::Vertex,   kPickVertSrc );
-    const auto frag = ShaderCompiler::compile( ShaderStageType::Fragment,  kPickFragSrc );
+    ) );
 
     if( !vtx || !frag )
         throw std::runtime_error( "PickPass: failed to compile internal pick shader" );
