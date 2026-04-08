@@ -42,7 +42,7 @@ Window::Window( const std::string& name, int width, int height, const WindowPara
         handle->cursorPosEvent.setCallback( [=] ( glfw::Window&, double x, double y )
         { 
             _inputWrapper->updateMouseState( Input::MouseMoveEvent{ x, this->height() - y - 1 } ); 
-			onMouseMoveEvent( _inputWrapper->mouseState() ); // invoke custmo mouse move event handler
+			onMouseMoveEvent( _inputWrapper->mouseState() ); // invoke custom mouse move event handler
         } );
 
         handle->mouseButtonEvent.setCallback( [=] ( glfw::Window&, glfw::MouseButton b, glfw::MouseButtonState s, glfw::ModifierKeyBit k  )

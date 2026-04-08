@@ -46,7 +46,7 @@ public:
     struct Stats
     {
         size_t drawCalls { 0 };
-        size_t vertices { 0 };
+        size_t vertices  { 0 };
         size_t triangles { 0 };
     };
 
@@ -54,7 +54,7 @@ public:
 
 protected:
     Stats _stats;
-    bool _enabled = true;
+    bool  _enabled { true };
 };
 
 // ================================================================================================
@@ -70,7 +70,7 @@ public:
 
 private:
     ResourceManager* _resourceManager { nullptr };
-    std::string _name { "ForwardPass" };
+    std::string      _name { "ForwardPass" };
 };
 
 } // namespace Renderer

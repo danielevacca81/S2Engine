@@ -137,7 +137,7 @@ struct StencilTest
 /************************************************************************/
 struct DepthTest
 {
-	enum class DepthTestFunction
+	enum class Function
 	{
 		Never,
 		Less,
@@ -150,7 +150,7 @@ struct DepthTest
 	};
 
 	bool              enabled { true };
-	DepthTestFunction function { DepthTestFunction::Less };
+	Function function { Function::Less };
 };
 
 /************************************************************************/

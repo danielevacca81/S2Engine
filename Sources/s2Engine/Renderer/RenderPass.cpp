@@ -24,8 +24,8 @@ static inline RenderCore::DrawState createDrawState( const RenderCommand& render
     RenderCore::DrawState drawState;
 
     // Transform matrices
-    drawState.transform.modelMatrix = renderCmd.modelMatrix;
-    drawState.transform.viewMatrix = frameData.cameraViewMatrix;
+    drawState.transform.modelMatrix      = renderCmd.modelMatrix;
+    drawState.transform.viewMatrix       = frameData.cameraViewMatrix;
     drawState.transform.projectionMatrix = frameData.cameraProjectionMatrix;
 
     // Viewport

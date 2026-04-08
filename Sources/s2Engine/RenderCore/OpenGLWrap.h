@@ -61,7 +61,7 @@ uint32_t glWrap( const FaceCulling::Face                    &face );
 uint32_t glWrap( const FaceCulling::WindingOrder            &winding );
 uint32_t glWrap( const StencilTestFace::StencilOperation    &op );
 uint32_t glWrap( const StencilTestFace::StencilTestFunction &fun );
-uint32_t glWrap( const DepthTest::DepthTestFunction         &winding );
+uint32_t glWrap( const DepthTest::Function                  &function );
 uint32_t glWrap( const Blending::Factor                     &factor );
 uint32_t glWrap( const Blending::Equation                   &equation );
 uint32_t glWrap( const ClearBuffers                         &buffers );

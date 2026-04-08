@@ -12,16 +12,19 @@
 #include <ranges>
 #include <cwctype>
 
-#if defined(_WIN32) || defined(_WIN64)
-#include <windows.h>
-#endif
-
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
 
 namespace s2 {
-namespace String
-{
+namespace String {
+
+// ================================================================================================
+// WIDE/MULTIBYTE CONVERSIONS
+// ================================================================================================
+
+std::string  toStdString( const std::wstring& wstr );
+std::wstring toStdWString( const std::string& str );
+
 
 // ------------------------------------------------------------------------------------------------
 template<typename CharT>
@@ -188,70 +191,6 @@ inline std::optional<std::basic_string<CharT>> between( std::basic_string_view<C
 		return std::nullopt;
 
 	return std::basic_string<CharT>( str.substr( contentStart, endPos - contentStart ) );
-}
-
-// ================================================================================================
-// WIDE/MULTIBYTE CONVERSIONS
-// ================================================================================================
-
-// ------------------------------------------------------------------------------------------------
-// MODERNIZED: wstring -> string conversion without deprecated codecvt
-// Uses WideCharToMultiByte on Windows, mbsrtowcs on Linux
-inline std::string toStdString( const std::wstring& wstr )
-{
-	if( wstr.empty() )
-		return {};
-
-#if defined(_WIN32) || defined(_WIN64)
-	// Windows: use native API
-	int size = WideCharToMultiByte( CP_UTF8, 0, wstr.c_str(), -1, nullptr, 0, nullptr, nullptr );
-	if( size <= 0 ) return {};
-
-	std::string result( size - 1, '\0' );
-	WideCharToMultiByte( CP_UTF8, 0, wstr.c_str(), -1, result.data(), size, nullptr, nullptr );
-	return result;
-#else
-	// Linux/Unix: use wcsrtombs
-	std::mbstate_t state = std::mbstate_t();
-	const wchar_t* src = wstr.c_str();
-
-	size_t len = std::wcsrtombs( nullptr, &src, 0, &state );
-	if( len == static_cast<size_t>( -1 ) )
-		return {};
-
-	std::string result( len, '\0' );
-	std::wcsrtombs( result.data(), &src, len, &state );
-	return result;
-#endif
-}
-
-// ------------------------------------------------------------------------------------------------
-inline std::wstring toStdWString( const std::string& str )
-{
-	if( str.empty() )
-		return {};
-
-#if defined(_WIN32) || defined(_WIN64)
-	// Windows: use native API
-	int size = MultiByteToWideChar( CP_UTF8, 0, str.c_str(), -1, nullptr, 0 );
-	if( size <= 0 ) return {};
-
-	std::wstring result( size - 1, L'\0' );
-	MultiByteToWideChar( CP_UTF8, 0, str.c_str(), -1, result.data(), size );
-	return result;
-#else
-	// Linux/Unix: use mbsrtowcs
-	std::mbstate_t state = std::mbstate_t();
-	const char* src = str.c_str();
-
-	size_t len = std::mbsrtowcs( nullptr, &src, 0, &state );
-	if( len == static_cast<size_t>( -1 ) )
-		return {};
-
-	std::wstring result( len, L'\0' );
-	std::mbsrtowcs( result.data(), &src, len, &state );
-	return result;
-#endif
 }
 
 // ================================================================================================

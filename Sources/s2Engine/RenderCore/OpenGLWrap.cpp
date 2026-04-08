@@ -522,20 +522,20 @@ uint32_t glWrap( const StencilTestFace::StencilTestFunction &fun )
 }
 
 // ------------------------------------------------------------------------------------------------
-uint32_t glWrap( const DepthTest::DepthTestFunction &fun )
+uint32_t glWrap( const DepthTest::Function &fun )
 {
 	switch( fun )
 	{
-	case DepthTest::DepthTestFunction::Never:              return GL_NEVER;
-	case DepthTest::DepthTestFunction::Less:               return GL_LESS;
-	case DepthTest::DepthTestFunction::Equal:              return GL_EQUAL;
-	case DepthTest::DepthTestFunction::LessThanOrEqual:    return GL_LEQUAL;
-	case DepthTest::DepthTestFunction::Greater:            return GL_GREATER;
-	case DepthTest::DepthTestFunction::NotEqual:           return GL_NOTEQUAL;
-	case DepthTest::DepthTestFunction::GreaterThanOrEqual: return GL_GEQUAL;
-	case DepthTest::DepthTestFunction::Always:             return GL_ALWAYS;
+	case DepthTest::Function::Never:              return GL_NEVER;
+	case DepthTest::Function::Less:               return GL_LESS;
+	case DepthTest::Function::Equal:              return GL_EQUAL;
+	case DepthTest::Function::LessThanOrEqual:    return GL_LEQUAL;
+	case DepthTest::Function::Greater:            return GL_GREATER;
+	case DepthTest::Function::NotEqual:           return GL_NOTEQUAL;
+	case DepthTest::Function::GreaterThanOrEqual: return GL_GEQUAL;
+	case DepthTest::Function::Always:             return GL_ALWAYS;
 	}
-	assert( false && "Unknown DepthTest::DepthTestFunction" );
+	assert( false && "Unknown DepthTest::Function" );
 	return -1;
 }
 

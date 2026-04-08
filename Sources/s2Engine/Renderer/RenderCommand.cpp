@@ -40,7 +40,7 @@ static inline void mapDepthState( const RenderMaterial& material, RenderCore::Re
 
 	// Depth test
 	renderState.depthTest.enabled = true;
-	renderState.depthTest.function = RenderCore::DepthTest::DepthTestFunction::Less;
+	renderState.depthTest.function = RenderCore::DepthTest::Function::Less;
 
 	// Depth write
 	renderState.depthMask.enabled = !isTransparent; // Depth write disabled for transparent materials, enabled for opaque

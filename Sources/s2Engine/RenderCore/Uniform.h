@@ -16,7 +16,7 @@ namespace RenderCore {
 
 using UniformValue = std::variant<
 	bool,
-	int,
+	int32_t,
 	uint64_t,
 	float,
 	double,

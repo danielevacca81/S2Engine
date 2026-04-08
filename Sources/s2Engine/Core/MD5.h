@@ -6,13 +6,11 @@
 #include <string>
 
 namespace s2 {
-
 namespace MD5 {
 
 std::string S2ENGINE_API compute( const std::string& str );
 
 }
-
 }
 
 #endif
