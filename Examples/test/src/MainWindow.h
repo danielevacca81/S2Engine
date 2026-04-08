@@ -13,6 +13,7 @@
 #include "Scene/TrackBall.h"
 
 #include "Renderer/Renderer.h"
+#include "Renderer/Picker.h"
 
 class MainWindow : public s2::Window
 {
@@ -37,8 +38,8 @@ private:
 	void loadResources();
 
 private:
-	// s2::Renderer renderer; // forward rendering, deferred rendering, etc.
-	std::unique_ptr<s2::Renderer::Renderer> _renderer;
+	std::unique_ptr<s2::Renderer::Renderer> _renderer; // forward rendering, deferred rendering, etc.
+	std::unique_ptr<s2::Renderer::Picker>   _picker;   // optional GPU picking utility
 
 	s2::Renderer::ResourceHandle _cone     { s2::Renderer::InvalidHandle };
 

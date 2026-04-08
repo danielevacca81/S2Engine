@@ -13,6 +13,7 @@
 #include "RenderCore/ShaderCompiler.h"
 
 #include "Renderer/RenderMaterial.h"
+#include "Renderer/PickPass.h"
 
 #include "Geometry/GeometryFactory3D.h"
 
@@ -322,8 +323,28 @@ void MainWindow::loadResources()
 // ------------------------------------------------------------------------------------------------
 void MainWindow::onInitializeEvent()
 {
+	auto pipeline = s2::Renderer::RenderPipeline::createForwardPipeline();
+	pipeline.addPass( std::make_shared<s2::Renderer::PickPass>() );
+
 	// Initialize renderer with the current rendering context and default render pipeline
-	_renderer = std::make_unique<s2::Renderer::Renderer>( _renderingContext.get(), s2::Renderer::RenderPipeline::createForwardPipeline() );
+	_renderer = std::make_unique<s2::Renderer::Renderer>( _renderingContext.get(), pipeline );
+	_picker = std::make_unique<s2::Renderer::Picker>( *_renderer.get() );
+	_picker->onObjectHit( []( const s2::Renderer::PickResult& result )
+	{
+		if( result.isHit() )
+		{
+			std::cout << std::dec
+				<< "Pick Result - Object ID: " << result.objectID
+				<< ", Primitive ID: " << result.primitiveID
+				<< ", Screen Pos: (" << result.screenPos.x << ", " << result.screenPos.y << ")"
+				<< std::endl;
+		}
+		else
+		{
+			std::cout << "No valid pick result for position (" << result.screenPos.x << ", " << result.screenPos.y << ")" << std::endl;
+		}
+	} );
+
 
 	loadResources();
 
@@ -452,6 +473,7 @@ void MainWindow::onPaintEvent()
 			.renderMode  = s2::Renderer::RenderMode::Triangles,
 			.material    = _materialPBR,
 			.mesh        = resources.mesh( "cube" ),
+			.pickableID = 1, // assign a unique ID for picking
 			.modelMatrix = modelMatrix,
 		};
 		_renderer->render( cmd );
@@ -461,6 +483,7 @@ void MainWindow::onPaintEvent()
 			.renderMode  = s2::Renderer::RenderMode::Triangles,
 			.material    = _materialPBR,
 			.mesh        = resources.mesh( "sphere" ),
+			.pickableID  = 2, // assign a unique ID for picking
 			.modelMatrix = modelMatrix,
 			} );
 
@@ -469,6 +492,7 @@ void MainWindow::onPaintEvent()
 			.renderMode  = s2::Renderer::RenderMode::Triangles,
 			.material    = _materialPBR,
 			.mesh        = resources.mesh( "torus" ),
+			.pickableID  = 3, // assign a unique ID for picking
 			.modelMatrix = modelMatrix,
 			} );
 
@@ -477,6 +501,7 @@ void MainWindow::onPaintEvent()
 			.renderMode  = s2::Renderer::RenderMode::Triangles,
 			.material    = _materialPBR,
 			.mesh        = resources.mesh( "cone" ),
+			.pickableID  = 4, // assign a unique ID for picking
 			.modelMatrix = modelMatrix,
 			} );
 
@@ -485,6 +510,7 @@ void MainWindow::onPaintEvent()
 			.renderMode  = s2::Renderer::RenderMode::Triangles,
 			.material    = _materialPBR,
 			.mesh        = resources.mesh( "cylinder" ),
+			.pickableID  = 5, // assign a unique ID for picking
 			.modelMatrix = modelMatrix,
 			} );
 
@@ -493,6 +519,7 @@ void MainWindow::onPaintEvent()
 			.renderMode  = s2::Renderer::RenderMode::Triangles,
 			.material    = _materialPBR,
 			.mesh        = resources.mesh( "capsule" ),
+			.pickableID  = 6, // assign a unique ID for picking
 			.modelMatrix = modelMatrix,
 			} );
 	}
@@ -503,12 +530,12 @@ void MainWindow::onPaintEvent()
 void MainWindow::onMouseMoveEvent( const s2::Input::MouseState& ms )
 {
 	// handle dragging of light trackball
-	if( ms.isDragging() && ms.isButtonDown( s2::Input::MouseState::ButtonRight ) )
-		_trackballLight.update( Scene::TrackBall::DragEvent::Update, ms.position() );
+	//if( ms.isDragging() && ms.isButtonDown( s2::Input::MouseState::ButtonRight ) )
+	//	_trackballLight.update( Scene::TrackBall::DragEvent::Update, ms.position() );
 
 
 	// handle dragging of object trackball
-	if( ms.isDragging() && ms.isButtonDown( s2::Input::MouseState::ButtonLeft ) )
+	if( ms.isDragging() && ms.isButtonDown( s2::Input::MouseState::ButtonRight ) )
 		_trackball.update( Scene::TrackBall::DragEvent::Update, ms.position() );
 
 	//	ms.dumpStatus( "onMouseMoveEvent" );
@@ -524,12 +551,14 @@ void MainWindow::onMouseDoubleClickEvent( const s2::Input::MouseState& ms )
 void MainWindow::onMouseButtonEvent( const s2::Input::MouseState& ms )
 {
 	//	ms.dumpStatus( "onMouseButtonEvent" );
-	if( ms.isButtonDown( s2::Input::MouseState::ButtonLeft) )		_trackball.update( Scene::TrackBall::DragEvent::Begin, ms.position() );
-	else if( ms.isButtonUp( s2::Input::MouseState::ButtonLeft ) )   _trackball.update( Scene::TrackBall::DragEvent::End, ms.position() );
+	//if( ms.isButtonDown( s2::Input::MouseState::ButtonLeft) )		_trackball.update( Scene::TrackBall::DragEvent::Begin, ms.position() );
+	//else if( ms.isButtonUp( s2::Input::MouseState::ButtonLeft ) )   _trackball.update( Scene::TrackBall::DragEvent::End, ms.position() );
+	
+	if( ms.isButtonDown( s2::Input::MouseState::ButtonLeft ) )
+		_picker->pickObjectAt( ms.position() );
 
-
-	if( ms.isButtonDown( s2::Input::MouseState::ButtonRight ) )    _trackballLight.update( Scene::TrackBall::DragEvent::Begin, ms.position() );
-	else if( ms.isButtonUp( s2::Input::MouseState::ButtonRight ) ) _trackballLight.update( Scene::TrackBall::DragEvent::End, ms.position() );
+	if( ms.isButtonDown( s2::Input::MouseState::ButtonRight ) )    _trackball.update( Scene::TrackBall::DragEvent::Begin, ms.position() );
+	else if( ms.isButtonUp( s2::Input::MouseState::ButtonRight ) ) _trackball.update( Scene::TrackBall::DragEvent::End, ms.position() );
 }
 
 // ------------------------------------------------------------------------------------------------
