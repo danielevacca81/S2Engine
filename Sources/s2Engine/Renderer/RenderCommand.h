@@ -56,6 +56,8 @@ struct S2ENGINE_API RenderCommand
 	RenderMaterial material;
 	ResourceHandle mesh { InvalidHandle };
 
+	uint32_t      pickableID { 0 }; // For GPU picking - 0 means non-pickable
+
 	// per object transform (model matrix)
 	Math::dmat4 modelMatrix = Math::dmat4( 1.0 );
 

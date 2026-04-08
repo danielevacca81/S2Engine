@@ -13,94 +13,73 @@
 namespace s2 {
 namespace Renderer {
 
-
-
 // ------------------------------------------------------------------------------------------------
 Renderer::Renderer( const RenderCore::Context* ctx, const RenderPipeline& pipeline )
-	: _gpuContext( ctx )
+    : _gpuContext( ctx )
 {
-	if( !ctx )
-		throw std::runtime_error( "Renderer initialization failed: GPU context is null" );
+    if( !ctx )
+        throw std::runtime_error( "Renderer initialization failed: GPU context is null" );
 
-	// Initialize render pipeline and pass it the resource manager for loading resources needed by the passes
-	_pipeline = pipeline;
-	_pipeline.initialize( _resourceManager );
+    _pipeline = pipeline;
+    _pipeline.initialize( _resourceManager );
 }
 
 // ------------------------------------------------------------------------------------------------
 void Renderer::beginFrame( const FrameData& frameData )
 {
-	if( _state == State::FrameStarted )
-	{
-		throw std::runtime_error(
-			"Renderer::beginFrame() called twice without endFrame(). "
-			"Call endFrame() before starting a new frame."
-		);
-	}
+    if( _state == State::FrameStarted )
+        throw std::runtime_error(
+            "Renderer::beginFrame() called twice without endFrame(). "
+            "Call endFrame() before starting a new frame." );
 
-	// check frameData validity (e.g., mainTarget not null)
-	if( !frameData.mainTarget )
-		throw std::runtime_error( "Renderer::beginFrame failed: main render target is null" );
+    if( !frameData.mainTarget )
+        throw std::runtime_error( "Renderer::beginFrame failed: main render target is null" );
 
-
-	_frameData = frameData;
-
-	_state = State::FrameStarted;
+    _frameData = frameData;
+    _state     = State::FrameStarted;
 }
 
 // ------------------------------------------------------------------------------------------------
 void Renderer::clear( const ClearCommand& command )
 {
-	if( _state != State::FrameStarted )
-	{
-		throw std::runtime_error(
-			"Renderer::clear() called outside beginFrame/endFrame. "
-			"Call beginFrame() first."
-		);
-	}
+    if( _state != State::FrameStarted )
+        throw std::runtime_error(
+            "Renderer::clear() called outside beginFrame/endFrame. "
+            "Call beginFrame() first." );
 
-	// Store command for batched execution in endFrame()
-	 _commandBuffer.addClear( command );
+    _commandBuffer.addClear( command );
 }
 
 // ------------------------------------------------------------------------------------------------
 void Renderer::render( const RenderCommand& command )
 {
-	// TODO: Validate command (e.g., material and mesh data not null)
-	if( _state != State::FrameStarted )
-	{
-		throw std::runtime_error(
-			"Renderer::render() called outside beginFrame/endFrame. "
-			"Call beginFrame() first."
-		);
-	}
+    if( _state != State::FrameStarted )
+        throw std::runtime_error(
+            "Renderer::render() called outside beginFrame/endFrame. "
+            "Call beginFrame() first." );
 
-
-	// Store command for batched execution in endFrame()
-	_commandBuffer.addRender( command );
+    _commandBuffer.addRender( command );
 }
 
 // ------------------------------------------------------------------------------------------------
 void Renderer::endFrame()
 {
-	if( _state != State::FrameStarted )
-	{
-		throw std::runtime_error(
-			"Renderer::endFrame() called without matching beginFrame(). "
-			"Call beginFrame() before endFrame()."
-		);
-	}
+    if( _state != State::FrameStarted )
+        throw std::runtime_error(
+            "Renderer::endFrame() called without matching beginFrame(). "
+            "Call beginFrame() before endFrame()." );
 
-	_commandBuffer.sort(); // Sort commands for optimal rendering (e.g., by material, depth, etc.)
-	
-	_pipeline.execute( _commandBuffer, _frameData, _gpuContext ); // Execute render passes in the pipeline with the current frame data and command buffer
+    _commandBuffer.sort();
+    _pipeline.execute( _commandBuffer, _frameData, _gpuContext );
+    _commandBuffer.clear();
 
-	_commandBuffer.clear(); // Clear command buffer for next frame
+    // Notify all listeners while the GL context is still current.
+    // This is the correct point for any GL readback (e.g., Picker::onFrameDone).
+    onFrameDone( _frameData/*,_stats*/ );
 
-
-	_stats = Stats {}; // Reset statistics for next frame
-	_state = State::Ready;
+    _stats = Stats{};
+    _state = State::Ready;
 }
 
-}
-}
+} // namespace Renderer
+} // namespace s2

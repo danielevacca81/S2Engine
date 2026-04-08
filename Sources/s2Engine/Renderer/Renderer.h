@@ -1,4 +1,4 @@
-// Renderer.h - Updated
+// Renderer.h
 //
 #ifndef S2_RENDERER_RENDERER_H
 #define S2_RENDERER_RENDERER_H
@@ -9,6 +9,8 @@
 #include "CommandBuffer.h"
 #include "FrameData.h"
 #include "ResourceManager.h"
+
+#include "sigslot/signal.hpp"
 
 #include <memory>
 
@@ -82,56 +84,47 @@ struct ClearCommand;
 class S2ENGINE_API Renderer
 {
 public:
-    // Statistics for the current frame
     struct Stats
     {
         size_t drawCalls = 0;
         size_t triangles = 0;
-        size_t vertices = 0;
+        size_t vertices  = 0;
     };
 
+    // Emitted at the end of endFrame(), before the GL context is released.
+    // Slots are called synchronously while the context is still current.
+    // Connect here to safely perform GL readback operations (e.g., Picker).
+    sigslot::signal<const FrameData&> onFrameDone;
+
 public:
-    explicit Renderer( const RenderCore::Context* gpuContext, 
+    explicit Renderer( const RenderCore::Context* gpuContext,
                        const RenderPipeline& pipeline = RenderPipeline::createForwardPipeline() );
 
-    // Non-copyable, non-movable
-    Renderer( const Renderer& ) = delete;
+    Renderer( const Renderer& )            = delete;
     Renderer& operator=( const Renderer& ) = delete;
-    Renderer( Renderer&& ) = delete;
-    Renderer& operator=( Renderer&& ) = delete;
+    Renderer( Renderer&& )                 = delete;
+    Renderer& operator=( Renderer&& )      = delete;
 
-    void beginFrame( const FrameData &frameData );
+    void beginFrame( const FrameData& frameData );
     void clear( const ClearCommand& command );
     void render( const RenderCommand& command );
     void endFrame();
-    
-    const Stats& statistics() const { return _stats; }
 
-    ResourceManager& resources() { return _resourceManager; }
-
-private:
-    enum class State
-    {
-        Ready,
-        FrameStarted,
-    };
+    ResourceManager& resources()        { return _resourceManager; }
+    const FrameData& frameData()  const { return _frameData; }
+    const Stats&     statistics() const { return _stats; }
 
 private:
-    void resetStats()
-    {
-        _stats = Stats {};
-    }
-
+    enum class State { Ready, FrameStarted };
 
 private:
     const RenderCore::Context* _gpuContext { nullptr };
+    State                      _state      { State::Ready };
 
-    State 		   _state { State::Ready };
-    
     Stats           _stats;
-	CommandBuffer   _commandBuffer; // Stores submitted commands for the current frame
-	FrameData       _frameData;     // shared data for the current frame, passed to render passes
-	RenderPipeline  _pipeline;      // Render pipeline with configured render passes 
+	CommandBuffer   _commandBuffer;   // Stores submitted commands for the current frame
+	FrameData       _frameData;       // shared data for the current frame, passed to render passes
+	RenderPipeline  _pipeline;        // Render pipeline with configured render passes 
     ResourceManager _resourceManager; // Manages GPU resources (textures, buffers, shaders)
 };
 

@@ -26,6 +26,16 @@ RenderPipeline RenderPipeline::createDeferredPipeline()
 // ------------------------------------------------------------------------------------------------
 void RenderPipeline::addPass( const RenderPassPtr &pass )
 {
+	// Avoid adding duplicate passes with the same name
+	auto existingPass = findPass( pass->name() );
+    if( existingPass )
+    {
+		assert( false && "RenderPipeline already contains a pass with the same name!" );
+        return;
+    }
+
+
+	// Add pass to the pipeline
     if( pass )
         _passes.push_back( pass );
 }

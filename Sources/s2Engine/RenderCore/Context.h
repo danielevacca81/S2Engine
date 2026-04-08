@@ -32,6 +32,7 @@ public:
 
 	bool operator==( const Context& o ) const { return _nativeHandle == o._nativeHandle; }
 	bool operator!=( const Context& o ) const { return _nativeHandle != o._nativeHandle; }
+	bool isCurrent() const { return current() == this; }
 
 	// Rendering lifecycle
 	void beginFrame();

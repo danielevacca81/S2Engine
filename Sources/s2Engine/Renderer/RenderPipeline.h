@@ -40,9 +40,13 @@ Pipeline:
   |    |- Read(G-Buffer textures)
   |    !- Draw(fullscreen quad) - calcola lighting
   |
-  !- PostProcessPass
-       |- Read(lit scene)
-       !- Apply(bloom, tonemapping, etc.)
+  |- PostProcessPass
+  |    |- Read(lit scene)
+  |    !- Apply(bloom, tonemapping, etc.)
+  |
+  !- PickingPass (optional)
+
+
 */
 
 
