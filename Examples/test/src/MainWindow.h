@@ -24,6 +24,7 @@ public:
 	
 
 	void onInitializeEvent() override;
+	void onShutdownEvent() override;
 	void onPaintEvent() override;
 	void onCloseEvent() override;
 

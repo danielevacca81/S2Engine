@@ -412,6 +412,13 @@ void MainWindow::onInitializeEvent()
 }
 
 // ------------------------------------------------------------------------------------------------
+void MainWindow::onShutdownEvent()
+{
+	_renderer.reset();
+	_picker.reset();
+}
+
+// ------------------------------------------------------------------------------------------------
 void MainWindow::onResizeEvent( uint32_t width, uint32_t height )
 {
 	const auto vp = Math::irect( 0, 0, width, height );

@@ -6,10 +6,11 @@
 #include "s2Engine_API.h"
 
 #include "Input.h"
+#include "RenderThread.h"
 #include "WindowParameters.h"
 
+#include <atomic>
 #include <string>
-#include <vector>
 #include <memory>
 
 
@@ -26,53 +27,54 @@ class Application;
 
 class S2ENGINE_API Window
 {
-
 public:
-	Window( const std::string& name, int width, int height, const WindowParameters &params /**/ );
-	virtual ~Window();
+    Window();
+    Window( const std::string& name, int width, int height, const WindowParameters& params );
+    virtual ~Window();
 
-	uint32_t width()  const;
-	uint32_t height() const;
+    uint32_t width()  const;
+    uint32_t height() const;
 
 	// @todo:
 	// isMinimized
 	// isFullScreen
 	// isMaximized
 	// ...
-
-	virtual void onInitializeEvent()                                    {}
-	virtual void onMouseMoveEvent( const Input::MouseState& ms )        {}
-	virtual void onMouseDoubleClickEvent( const Input::MouseState& ms ) {}
-	virtual void onMouseButtonEvent( const Input::MouseState& ms )      {}
-	virtual void onMouseScrollEvent( const Input::MouseState& ms )      {}
-	virtual void onCloseEvent()                                         {}
-	virtual void onPaintEvent()                                         {}
-	virtual void onResizeEvent( uint32_t width, uint32_t height )       {} 
-
-
-protected:
-	// ***
-	// Do not pass the window size to glViewport or other pixel - based OpenGL calls.
-	// The window size is in screen coordinates, not pixels. Use the framebuffer size, which is in pixels, for pixel - based calls.	
-	// On some machines screen coordinates and pixels are the same, but on others they will not be.
-	void setFrameBufferSize( int width, int height );
-	void setSize( int width, int height );
-
-	void makeCurrent();
-	void paint();
+    virtual void onInitializeEvent()                                    {}
+    virtual void onShutdownEvent()                                      {}
+    virtual void onMouseMoveEvent( const Input::MouseState& ms )        {}
+    virtual void onMouseDoubleClickEvent( const Input::MouseState& ms ) {}
+    virtual void onMouseButtonEvent( const Input::MouseState& ms )      {}
+    virtual void onMouseScrollEvent( const Input::MouseState& ms )      {}
+    virtual void onCloseEvent()                                         {}
+    virtual void onPaintEvent()                                         {}
+    virtual void onResizeEvent( uint32_t width, uint32_t height )       {}
 
 protected:
-	std::unique_ptr<RenderCore::Context>      _renderingContext;
-	std::unique_ptr<RenderCore::RenderTarget> _renderTarget;
+    void makeCurrent();
+
+protected:
+    std::unique_ptr<RenderCore::Context>      _renderingContext;
+    std::unique_ptr<RenderCore::RenderTarget> _renderTarget;
 
 private:
-	void*                _handle       = nullptr;
-	Input::InputWrapper* _inputWrapper = nullptr;
+    void startRenderThread();
+    void stopRenderThread();
+    void submitFrameAndWait();
+    void paintFrame();
+    void applyFrameBufferResize( int width, int height );
+    void postResize( int width, int height ) noexcept;
 
-	friend class Application;
+private:
+    std::atomic<uint64_t> _pendingResize { 0 };
+
+    RenderThread         _renderThread;
+    void*                _handle       = nullptr;
+    Input::InputWrapper* _inputWrapper = nullptr;
+
+    friend class Application;
 };
 
-}
-
+} // namespace s2
 
 #endif
