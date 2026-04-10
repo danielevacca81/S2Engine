@@ -76,7 +76,7 @@ private:
 	uint32_t _pressedButtons    { ButtonNone };
 	uint32_t _keyModifier       { ModifierNone };
 
-	friend class InputWrapper; // allow InputWrapper to access private members
+	friend class InputState; // allow InputState to access private members
 };
 
 }

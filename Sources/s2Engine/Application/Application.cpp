@@ -4,7 +4,7 @@
 
 #include "Window.h"
 
-#include "glfwpp/glfwpp.h"
+#include "GLFW/glfw3.h"
 
 #include <memory>
 
@@ -18,7 +18,10 @@ Application::Application( const std::string& name )
     if( _instance )
         throw std::runtime_error( "Only one application instance is allowed" );
 
-    _instance = static_cast<void*>( new glfw::GlfwLibrary( glfw::init() ) );
+    if( !glfwInit() )
+        throw std::runtime_error( "Failed to initialize GLFW" );
+
+    _instance = reinterpret_cast<void*>( std::uintptr_t( 1 ) ); // sentinel: GLFW is alive
     gGlobalAppInstance = this;
 }
 
@@ -28,7 +31,7 @@ Application::~Application()
     for( auto& w : _windows )
         w.reset();
 
-    delete static_cast<glfw::GlfwLibrary*>( _instance );
+    glfwTerminate();
     _instance          = nullptr;
     gGlobalAppInstance = nullptr;
 }
@@ -65,33 +68,31 @@ int32_t Application::run()
     // Initialize all windows before entering the main loop
     for( auto& w : _windows )
     {
-        const auto glfwWindow      = static_cast<glfw::Window*>( w->_handle );
-        const auto [width, height] = glfwWindow->getFramebufferSize();
+        int fbWidth, fbHeight;
+        w->framebufferSize( fbWidth, fbHeight );
 
         w->makeCurrent();
         w->onInitializeEvent();
-        w->postResize( width, height );
+        w->postResize( fbWidth, fbHeight );
         w->startRenderThread();
     }
 
     // consider only the main window for now, multiple window support is not implemented yet
-    const auto& w      = mainWindow();
-    const auto glfwWin = static_cast<glfw::Window*>( w->_handle );
+    const auto& w = mainWindow();
 
-    while( !glfwWin->shouldClose() )
+    while( !w->shouldClose() )
     {
-        glfw::pollEvents();
+        glfwPollEvents();
         updateState();
 
         if( w->width() == 0 && w->height() == 0 )
             continue;
 
         w->submitFrameAndWait();
-        glfwWin->swapBuffers();
+        w->swapBuffers();
     }
 
     // the main loop has exited, which means the application is shutting down.
-    // Stop any render thread immediately
     for( auto& w : _windows )
         w->stopRenderThread();
 

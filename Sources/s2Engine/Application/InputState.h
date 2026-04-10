@@ -1,7 +1,7 @@
-// InputWrapper.h
+// InputState.h
 //
-#ifndef APPLICATION_INPUTWRAPPER_H
-#define APPLICATION_INPUTWRAPPER_H
+#ifndef APPLICATION_INPUTSTATE_H
+#define APPLICATION_INPUTSTATE_H
 
 #include "Input.h"
 
@@ -36,7 +36,7 @@ struct MouseWheelEvent
 
 using MouseEvent = std::variant<MouseMoveEvent, MouseButtonEvent, MouseWheelEvent>;
 
-class InputWrapper
+class InputState
 {
 public:
 	//void updateKeyboardState();

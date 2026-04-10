@@ -21,7 +21,8 @@ class Context;
 class RenderTarget;
 }
 
-namespace Input { class InputWrapper; }
+//namespace Input { class Input; }
+namespace UI    { class UILayer; }
 
 class Application;
 
@@ -32,14 +33,24 @@ public:
     Window( const std::string& name, int width, int height, const WindowParameters& params );
     virtual ~Window();
 
+    Window( const Window& )            = delete;
+    Window& operator=( const Window& ) = delete;
+
     uint32_t width()  const;
     uint32_t height() const;
 
-	// @todo:
-	// isMinimized
-	// isFullScreen
-	// isMaximized
-	// ...
+    /// Opaque native window handle (GLFWwindow* in the current backend).
+    /// Useful for subsystems that need it (e.g. UILayer::init).
+    void* nativeHandle() const noexcept;
+
+    bool  shouldClose()  const;
+    void  swapBuffers();
+
+    // @todo:
+    // isMinimized
+    // isFullScreen
+    // isMaximized
+    // ...
     virtual void onInitializeEvent()                                    {}
     virtual void onShutdownEvent()                                      {}
     virtual void onMouseMoveEvent( const Input::MouseState& ms )        {}
@@ -47,11 +58,28 @@ public:
     virtual void onMouseButtonEvent( const Input::MouseState& ms )      {}
     virtual void onMouseScrollEvent( const Input::MouseState& ms )      {}
     virtual void onCloseEvent()                                         {}
-    virtual void onPaintEvent()                                         {}
     virtual void onResizeEvent( uint32_t width, uint32_t height )       {}
+
+    virtual void onDraw()                                               {}
+
+    /// Override to build UI widgets each frame.
+    /// Called between UILayer::beginFrame() and UILayer::endFrame()
+    /// only if a UILayer has been installed.
+    virtual void onDrawUI()                                             {}
+
+    /// Install a UI layer. Ownership is transferred to Window.
+    /// Pass nullptr to remove the current UI layer.
+    /// Must be called before startRenderThread().
+    void setUILayer( std::unique_ptr<UI::UILayer> layer ) noexcept;
+
+    /// Access the UI layer (may be null if none was installed).
+    UI::UILayer* uiLayer() noexcept { return _uiLayer.get(); }
 
 protected:
     void makeCurrent();
+
+    bool uiWantCaptureMouse()    const noexcept;
+    bool uiWantCaptureKeyboard() const noexcept;
 
 protected:
     std::unique_ptr<RenderCore::Context>      _renderingContext;
@@ -65,12 +93,16 @@ private:
     void applyFrameBufferResize( int width, int height );
     void postResize( int width, int height ) noexcept;
 
+    void framebufferSize( int& width, int& height ) const;
+
 private:
     std::atomic<uint64_t> _pendingResize { 0 };
 
-    RenderThread         _renderThread;
-    void*                _handle       = nullptr;
-    Input::InputWrapper* _inputWrapper = nullptr;
+    RenderThread                   _renderThread;
+    std::unique_ptr<UI::UILayer>   _uiLayer;
+
+    struct Impl;
+    std::unique_ptr<Impl> _impl;
 
     friend class Application;
 };

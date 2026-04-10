@@ -1,6 +1,6 @@
-// InputWrapper.cpp
+// InputState.cpp
 //
-#include "InputWrapper.h"
+#include "InputState.h"
 
 #include <chrono>
 
@@ -12,7 +12,7 @@ struct MouseEventVisitorHelper : T... { using T::operator()...; };
 
 
 // ------------------------------------------------------------------------------------------------
-void InputWrapper::updateMouseState( const MouseEvent &event )
+void InputState::updateMouseState( const MouseEvent &event )
 {
 	auto onMouseMove = [this]( const MouseMoveEvent &e )
 	{

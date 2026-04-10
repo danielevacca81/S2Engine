@@ -2,19 +2,171 @@
 //
 #include "Window.h"
 
-#include "InputWrapper.h"
+#include "InputState.h"
+#include "UI/UILayer.h"
 
 #include "RenderCore/Context.h"
 #include "RenderCore/RenderTarget.h"
 #include "RenderCore/RenderCommands.h"
 
-#include "glfwpp/window.h"
+#include "GLFW/glfw3.h"
+#include "imgui_impl_glfw.h"
 
 #include <iostream>
 
 using namespace s2;
 
-// ------------------------------------------------------------------------------------------------
+// ================================================================================================
+// Window::Impl — platform-specific internals (GLFW), invisible from headers
+// ================================================================================================
+struct Window::Impl
+{
+    GLFWwindow*        window = nullptr;
+    Input::InputState* input  = nullptr;
+
+    // ---- Factory -----------------------------------------------------------
+    static std::unique_ptr<Impl> create( const std::string& name,
+                                         int width, int height,
+                                         const WindowParameters& params,
+                                         Window* owner )
+    {
+        glfwDefaultWindowHints();
+        glfwWindowHint( GLFW_CLIENT_API,            GLFW_OPENGL_API );
+        glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, params.contextVersionMajor );
+        glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, params.contextVersionMinor );
+        glfwWindowHint( GLFW_OPENGL_PROFILE,        GLFW_OPENGL_COMPAT_PROFILE );
+
+        auto impl    = std::make_unique<Impl>();
+        impl->input  = new Input::InputState;
+        impl->window = glfwCreateWindow( width, height, name.c_str(), nullptr, nullptr );
+
+        if( !impl->window )
+            throw std::runtime_error( "Failed to create GLFW window" );
+
+        glfwSetWindowUserPointer( impl->window, owner );
+        installCallbacks( impl->window );
+
+        return impl;
+    }
+
+    ~Impl()
+    {
+        delete input;
+        if( window )
+            glfwDestroyWindow( window );
+    }
+
+    // ---- Queries -----------------------------------------------------------
+    uint32_t width()  const { int w, h; glfwGetWindowSize( window, &w, &h ); return static_cast<uint32_t>( w ); }
+    uint32_t height() const { int w, h; glfwGetWindowSize( window, &w, &h ); return static_cast<uint32_t>( h ); }
+
+    void framebufferSize( int& w, int& h ) const { glfwGetFramebufferSize( window, &w, &h ); }
+
+    bool shouldClose()  const { return glfwWindowShouldClose( window ); }
+    void swapBuffers()        { glfwSwapBuffers( window ); }
+    void makeCurrent()        { glfwMakeContextCurrent( window ); }
+
+    // ---- Callbacks ---------------------------------------------------------
+    static void installCallbacks( GLFWwindow* w )
+    {
+        glfwSetWindowCloseCallback( w, []( GLFWwindow* w )
+        {
+            static_cast<Window*>( glfwGetWindowUserPointer( w ) )->onCloseEvent();
+        } );
+
+        glfwSetCursorPosCallback( w, []( GLFWwindow* w, double x, double y )
+        {
+            // Forward to ImGui first
+            ImGui_ImplGlfw_CursorPosCallback( w, x, y );
+
+            auto* self = static_cast<Window*>( glfwGetWindowUserPointer( w ) );
+            auto* impl = self->_impl.get();
+            impl->input->updateMouseState(
+                Input::MouseMoveEvent{ x, static_cast<double>( impl->height() ) - y - 1 } );
+            self->onMouseMoveEvent( impl->input->mouseState() );
+        } );
+
+        glfwSetMouseButtonCallback( w, []( GLFWwindow* w, int button, int action, int mods )
+        {
+            // Forward to ImGui first
+            ImGui_ImplGlfw_MouseButtonCallback( w, button, action, mods );
+
+            auto* self = static_cast<Window*>( glfwGetWindowUserPointer( w ) );
+            auto* impl = self->_impl.get();
+            impl->input->updateMouseState(
+                Input::MouseButtonEvent
+                {
+                    .eventType = action == GLFW_PRESS ? Input::MouseButtonEvent::Press
+                                                      : Input::MouseButtonEvent::Release,
+                    .button    = uint32_t( 1 ) << static_cast<uint32_t>( button ),
+                    .modifiers = static_cast<uint32_t>( mods )
+                } );
+
+            if( impl->input->mouseState().doubleClickButton() != Input::MouseState::ButtonNone )
+                self->onMouseDoubleClickEvent( impl->input->mouseState() );
+            else
+                self->onMouseButtonEvent( impl->input->mouseState() );
+        } );
+
+        glfwSetScrollCallback( w, []( GLFWwindow* w, double x, double y )
+        {
+            // Forward to ImGui first
+            ImGui_ImplGlfw_ScrollCallback( w, x, y );
+
+            auto* self = static_cast<Window*>( glfwGetWindowUserPointer( w ) );
+            auto* impl = self->_impl.get();
+            impl->input->updateMouseState( Input::MouseWheelEvent{ x, y } );
+            self->onMouseScrollEvent( impl->input->mouseState() );
+        } );
+
+        glfwSetKeyCallback( w, []( GLFWwindow* w, int key, int scancode, int action, int mods )
+        {
+            // Forward to ImGui — keyboard input is event-driven only
+            ImGui_ImplGlfw_KeyCallback( w, key, scancode, action, mods );
+        } );
+
+        glfwSetCharCallback( w, []( GLFWwindow* w, unsigned int c )
+        {
+            // Forward to ImGui — text input is event-driven only
+            ImGui_ImplGlfw_CharCallback( w, c );
+        } );
+
+        glfwSetWindowFocusCallback( w, []( GLFWwindow* w, int focused )
+        {
+            // Forward to ImGui — needed to suppress input when unfocused
+            ImGui_ImplGlfw_WindowFocusCallback( w, focused );
+        } );
+
+        glfwSetCursorEnterCallback( w, []( GLFWwindow* w, int entered )
+        {
+            // Forward to ImGui — needed for mouse leave/enter tracking
+            ImGui_ImplGlfw_CursorEnterCallback( w, entered );
+        } );
+
+        glfwSetMonitorCallback( []( GLFWmonitor* monitor, int event )
+        {
+            ImGui_ImplGlfw_MonitorCallback( monitor, event );
+        } );
+
+        glfwSetFramebufferSizeCallback( w, []( GLFWwindow* w, int width, int height )
+        {
+            static_cast<Window*>( glfwGetWindowUserPointer( w ) )->postResize( width, height );
+        } );
+
+        glfwSetWindowSizeCallback( w, []( GLFWwindow* w, int, int )
+        {
+            int fbW, fbH;
+            glfwGetFramebufferSize( w, &fbW, &fbH );
+            static_cast<Window*>( glfwGetWindowUserPointer( w ) )->postResize( fbW, fbH );
+        } );
+
+        glfwSetWindowPosCallback( w, []( GLFWwindow*, int, int ) {} );
+    }
+};
+
+// ================================================================================================
+// Helpers
+// ================================================================================================
 static constexpr uint64_t packSize( int w, int h ) noexcept
 {
     return ( static_cast<uint64_t>( static_cast<uint32_t>( w ) ) << 32 )
@@ -27,73 +179,19 @@ static constexpr std::pair<int,int> unpackSize( uint64_t v ) noexcept
              static_cast<int>( static_cast<uint32_t>( v        ) ) };
 }
 
-// ------------------------------------------------------------------------------------------------
+// ================================================================================================
+// Construction / Destruction
+// ================================================================================================
 Window::Window()
 {}
 
 // ------------------------------------------------------------------------------------------------
 Window::Window( const std::string& name, int width, int height, const WindowParameters& params )
+    : _impl( Impl::create( name, width, height, params, this ) )
 {
-    glfw::WindowHints
-    {
-        .clientApi           = glfw::ClientApi::OpenGl,
-        .contextVersionMajor = params.contextVersionMajor,
-        .contextVersionMinor = params.contextVersionMinor,
-        .openglProfile       = glfw::OpenGlProfile::Compat,
-    }.apply();
-
-    _inputWrapper = new Input::InputWrapper;
-
-    auto handle = new glfw::Window( width, height, name.c_str() );
-    {
-        handle->closeEvent.setCallback( [=]( glfw::Window& )
-        {
-            onCloseEvent();
-        } );
-
-        handle->cursorPosEvent.setCallback( [=]( glfw::Window&, double x, double y )
-        {
-            _inputWrapper->updateMouseState( Input::MouseMoveEvent{ x, this->height() - y - 1 } );
-            onMouseMoveEvent( _inputWrapper->mouseState() );
-        } );
-
-        handle->mouseButtonEvent.setCallback( [=]( glfw::Window&, glfw::MouseButton b, glfw::MouseButtonState s, glfw::ModifierKeyBit k )
-        {
-            _inputWrapper->updateMouseState(
-                Input::MouseButtonEvent
-                {
-                    .eventType = s == glfw::MouseButtonState::Press ? Input::MouseButtonEvent::Press
-                                                                     : Input::MouseButtonEvent::Release,
-                    .button    = uint32_t( 1 ) << static_cast<uint32_t>( b ),
-                    .modifiers = static_cast<uint32_t>( k )
-                } );
-
-            if( _inputWrapper->mouseState().doubleClickButton() != Input::MouseState::ButtonNone )
-                onMouseDoubleClickEvent( _inputWrapper->mouseState() );
-            else
-                onMouseButtonEvent( _inputWrapper->mouseState() );
-        } );
-
-        handle->scrollEvent.setCallback( [=]( glfw::Window&, double x, double y )
-        {
-            _inputWrapper->updateMouseState( Input::MouseWheelEvent{ x, y } );
-            onMouseScrollEvent( _inputWrapper->mouseState() );
-        } );
-
-        handle->framebufferSizeEvent.setCallback( [=]( glfw::Window&, int w, int h )
-        {
-            postResize( w, h );
-        } );
-
-        handle->sizeEvent.setCallback( [=]( glfw::Window&, int /*w*/, int /*h*/ ) {} );
-        handle->posEvent .setCallback( [=]( glfw::Window&, int /*x*/, int /*y*/ ) {} );
-    }
-
-    _handle = static_cast<void*>( handle );
-
     makeCurrent();
     {
-        auto& ctx = glfw::getCurrentContext();
+        GLFWwindow* ctx = glfwGetCurrentContext();
         std::cout << "Current GLFW Context: " << std::hex << ctx << '\n';
     }
 
@@ -105,22 +203,37 @@ Window::Window( const std::string& name, int width, int height, const WindowPara
 Window::~Window()
 {
     stopRenderThread();
-
-    delete _inputWrapper;
-    delete static_cast<glfw::Window*>( _handle );
-    _handle = nullptr;
+    _uiLayer.reset();
+    _impl.reset();
 }
 
-// ------------------------------------------------------------------------------------------------
-void Window::makeCurrent()
+// ================================================================================================
+// Public API — delegates to Impl
+// ================================================================================================
+uint32_t Window::width()  const { return _impl->width();  }
+uint32_t Window::height() const { return _impl->height(); }
+
+void* Window::nativeHandle() const noexcept { return _impl ? _impl->window : nullptr; }
+bool  Window::shouldClose()  const          { return _impl->shouldClose();  }
+void  Window::swapBuffers()                 { _impl->swapBuffers(); }
+void  Window::makeCurrent()                 { _impl->makeCurrent(); }
+
+void Window::framebufferSize( int& w, int& h ) const { _impl->framebufferSize( w, h ); }
+
+// ================================================================================================
+// UILayer
+// ================================================================================================
+void Window::setUILayer( std::unique_ptr<UI::UILayer> layer ) noexcept
 {
-    glfw::makeContextCurrent( *static_cast<glfw::Window*>( _handle ) );
+    _uiLayer = std::move( layer );
+    _uiLayer->init( _impl->window );
 }
 
-// ------------------------------------------------------------------------------------------------
+// ================================================================================================
+// Render thread
+// ================================================================================================
 void Window::startRenderThread()
 {
-	// release the GL context from the main thread before starting the render thread.
     glfwMakeContextCurrent( nullptr );
 
     _renderThread.start( [this]
@@ -130,42 +243,28 @@ void Window::startRenderThread()
 }
 
 // ------------------------------------------------------------------------------------------------
-// Shutdown sequence â€” the key insight:
-//
-// The shutdown job runs ON THE RENDER THREAD with the GL context still current.
-// This means onShutdownEvent() and all RAII destructors of the derived class's
-// members are guaranteed to have a valid GL context.
-//
-// Timeline:
-//   render thread:  onShutdownEvent()          <- explicit teardown (optional)
-//                   _renderTarget.reset()       <- engine GL cleanup
-//                   _renderingContext.reset()    <- engine GL cleanup
-//                   glfwMakeContextCurrent(null) <- release context
-//   main thread:    join() returns
-//                   ~Window() continues (non-GL teardown)
-// ------------------------------------------------------------------------------------------------
 void Window::stopRenderThread()
 {
     if( !_renderThread.isRunning() )
         return;
 
-	// Signal the render thread to stop, run the shutdown job.
-	// Shutdown job runs on the render thread where the GL context is still valid.
     _renderThread.stop( [this]
-    {      
-        // 1. Give the user a chance to do explicit ordered cleanup.
+    {
         onShutdownEvent();
 
-        // 2. Destroy engine GL resources while context is still valid.
+        if( _uiLayer )
+            _uiLayer->shutdown();
+
         _renderTarget.reset();
         _renderingContext.reset();
 
-        // 3. Release the GL context as the very last GL operation.
         glfwMakeContextCurrent( nullptr );
     } );
 }
 
-// ------------------------------------------------------------------------------------------------
+// ================================================================================================
+// Frame
+// ================================================================================================
 void Window::submitFrameAndWait()
 {
     _renderThread.enqueueFrame( [this] { paintFrame(); } );
@@ -186,7 +285,10 @@ void Window::paintFrame()
 
     _renderingContext->beginFrame();
     {
-        onPaintEvent();
+        onDraw();
+
+        if( _uiLayer )
+            _uiLayer->drawUI( [this] { onDrawUI(); } );
     }
     _renderingContext->endFrame();
 
@@ -205,14 +307,16 @@ void Window::postResize( int width, int height ) noexcept
     _pendingResize.store( packSize( width, height ), std::memory_order_release );
 }
 
-// ------------------------------------------------------------------------------------------------
-uint32_t Window::width() const
+// ================================================================================================
+// UI helpers
+// ================================================================================================
+bool Window::uiWantCaptureMouse() const noexcept
 {
-    return std::get<0>( static_cast<glfw::Window*>( _handle )->getSize() );
+    return _uiLayer && _uiLayer->wantCaptureMouse();
 }
 
 // ------------------------------------------------------------------------------------------------
-uint32_t Window::height() const
+bool Window::uiWantCaptureKeyboard() const noexcept
 {
-    return std::get<1>( static_cast<glfw::Window*>( _handle )->getSize() );
+    return _uiLayer && _uiLayer->wantCaptureKeyboard();
 }
