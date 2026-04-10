@@ -14,8 +14,12 @@
 
 #include "Renderer/RenderMaterial.h"
 #include "Renderer/PickPass.h"
+#include "UI/ImGuiPass.h"
+#include "UI/UILayer.h"
 
 #include "Geometry/GeometryFactory3D.h"
+
+#include "imgui.h"
 
 #include <iostream>
 
@@ -323,7 +327,13 @@ void MainWindow::loadResources()
 // ------------------------------------------------------------------------------------------------
 void MainWindow::onInitializeEvent()
 {
-	auto pipeline = s2::Renderer::RenderPipeline::createForwardPipeline().addPass( std::make_shared<s2::Renderer::PickPass>() );
+	//auto ui = ;
+	setUILayer( UI::createUILayer() );
+
+	auto pipeline = s2::Renderer::RenderPipeline::createForwardPipeline()
+		.addPass( std::make_shared<s2::Renderer::PickPass>() )
+		.addPass( std::make_shared<s2::UI::ImGuiPass>() )
+		;
 
 	// Initialize renderer with the current rendering context and default render pipeline
 	_renderer = std::make_unique<s2::Renderer::Renderer>( _renderingContext.get(), pipeline );
@@ -439,28 +449,91 @@ void MainWindow::onCloseEvent()
 }
 
 // ------------------------------------------------------------------------------------------------
-void MainWindow::onPaintEvent()
+void MainWindow::onDrawUI()
+{
+	ImGui::SetCurrentContext( static_cast<ImGuiContext*> ( uiLayer()->uiData["ImGuiContext"] ) );
+
+	ImGui::SetNextWindowPos( ImVec2( 10, 10 ), ImGuiCond_Once );
+	ImGui::SetNextWindowSize( ImVec2( 320, 0 ), ImGuiCond_Once );
+
+	if( ImGui::Begin( "PBR Material" ) )
+	{
+		auto app = static_cast<MyApplication*>( s2::Application::instance() );
+
+		// --- Material section ---
+		if( ImGui::CollapsingHeader( "Material", ImGuiTreeNodeFlags_DefaultOpen ) )
+		{
+			ImGui::ColorEdit3( "Albedo", _uiAlbedo );
+			ImGui::SliderFloat( "Metallic",  &_uiMetallic,  0.0f, 1.0f );
+			ImGui::SliderFloat( "Roughness", &_uiRoughness, 0.0f, 1.0f );
+			ImGui::SliderFloat( "AO",        &_uiAO,        0.0f, 1.0f );
+
+			ImGui::Separator();
+			ImGui::Checkbox( "Albedo Map",    &_uiUseAlbedoMap );
+			ImGui::Checkbox( "Normal Map",    &_uiUseNormalMap );
+			ImGui::Checkbox( "Metallic Map",  &_uiUseMetallicMap );
+			ImGui::Checkbox( "Roughness Map", &_uiUseRoughnessMap );
+			ImGui::Checkbox( "AO Map",        &_uiUseAOMap );
+		}
+
+		// --- Light section ---
+		if( ImGui::CollapsingHeader( "Light", ImGuiTreeNodeFlags_DefaultOpen ) )
+		{
+			ImGui::DragFloat3( "Position",  _uiLightPosition, 0.1f );
+			ImGui::ColorEdit3( "Color",     _uiLightColor );
+			ImGui::SliderFloat( "Intensity", &_uiLightIntensity, 0.0f, 500.0f );
+		}
+
+		// --- Scene section ---
+		if( ImGui::CollapsingHeader( "Scene" ) )
+		{
+			auto scale = static_cast<float>( app->scaleFactor );
+			if( ImGui::SliderFloat( "Scale", &scale, 0.1f, 10.0f ) )
+				app->scaleFactor = static_cast<double>( scale );
+		}
+
+		ImGui::Separator();
+		ImGui::Text( "%.1f FPS", ImGui::GetIO().Framerate );
+	}
+	ImGui::End();
+}
+
+// ------------------------------------------------------------------------------------------------
+void MainWindow::onDraw()
 {
 	// Scene.draw
 	auto app = static_cast<MyApplication*>( s2::Application::instance() );
 
 	const auto scale = app->scaleFactor;
-	const auto lightPosition = app->lightPosition;
 
 	auto& resources = _renderer->resources();
 
 	using namespace s2::Renderer;
 
-	// Setup PBR material lighting
-	_materialPBR.set( "u_LightPosition", Math::vec3( _trackballLight.matrix() * lightPosition ) );
-	_materialPBR.set( "u_LightColor", Math::vec3( 1.0f, 1.0f, 1.0f ) );
-	_materialPBR.set( "u_CamPos", Math::vec3( _camera.position() ) );
+	// Apply UI state to PBR material
+	_materialPBR.set( "u_Albedo",    Math::vec3( _uiAlbedo[0], _uiAlbedo[1], _uiAlbedo[2] ) );
+	_materialPBR.set( "u_Metallic",  _uiMetallic );
+	_materialPBR.set( "u_Roughness", _uiRoughness );
+	_materialPBR.set( "u_AO",        _uiAO );
+
+	_materialPBR.set( "u_UseAlbedoMap",    _uiUseAlbedoMap );
+	_materialPBR.set( "u_UseNormalMap",    _uiUseNormalMap );
+	_materialPBR.set( "u_UseMetallicMap",  _uiUseMetallicMap );
+	_materialPBR.set( "u_UseRoughnessMap", _uiUseRoughnessMap );
+	_materialPBR.set( "u_UseAOMap",        _uiUseAOMap );
+
+	// Setup PBR material lighting from UI
+	const Math::vec4 lightPos( _uiLightPosition[0], _uiLightPosition[1], _uiLightPosition[2], 1.0f );
+	_materialPBR.set( "u_LightPosition",  Math::vec3( _trackballLight.matrix() * lightPos ) );
+	_materialPBR.set( "u_LightColor",     Math::vec3( _uiLightColor[0], _uiLightColor[1], _uiLightColor[2] ) );
+	_materialPBR.set( "u_LightIntensity", _uiLightIntensity );
+	_materialPBR.set( "u_CamPos",         Math::vec3( _camera.position() ) );
 
 
 	// setup material properties and shader
 	// note: no need to do this every frame if the material properties are static.
 	// we can create a material instance once and reuse it for multiple draw calls and update it only when properties change.
-	_material.set("u_LightPosition" , Math::vec4(_trackballLight.matrix() * lightPosition) );
+	_material.set("u_LightPosition" , Math::vec4(_trackballLight.matrix() * lightPos) );
 	_material.set("u_LightAmbient"  , Math::vec4{ .01f,.01f,.01f,1.f });
 	_material.set("u_LightDiffuse"  , Math::vec4{ 1.f,1.f,1.f,1.f });
 	_material.set("u_LightSpecular" , Math::vec4{ 1.f,1.f,1.f,1.f });
@@ -537,6 +610,9 @@ void MainWindow::onPaintEvent()
 // ------------------------------------------------------------------------------------------------
 void MainWindow::onMouseMoveEvent( const s2::Input::MouseState& ms )
 {
+	if( uiWantCaptureMouse() )
+		return;
+
 	// handle dragging of light trackball
 	//if( ms.isDragging() && ms.isButtonDown( s2::Input::MouseState::ButtonRight ) )
 	//	_trackballLight.update( Scene::TrackBall::DragEvent::Update, ms.position() );
@@ -558,6 +634,9 @@ void MainWindow::onMouseDoubleClickEvent( const s2::Input::MouseState& ms )
 // ------------------------------------------------------------------------------------------------
 void MainWindow::onMouseButtonEvent( const s2::Input::MouseState& ms )
 {
+	if( uiWantCaptureMouse() )
+		return;
+
 	//	ms.dumpStatus( "onMouseButtonEvent" );
 	//if( ms.isButtonDown( s2::Input::MouseState::ButtonLeft) )		_trackball.update( Scene::TrackBall::DragEvent::Begin, ms.position() );
 	//else if( ms.isButtonUp( s2::Input::MouseState::ButtonLeft ) )   _trackball.update( Scene::TrackBall::DragEvent::End, ms.position() );
@@ -572,6 +651,9 @@ void MainWindow::onMouseButtonEvent( const s2::Input::MouseState& ms )
 // ------------------------------------------------------------------------------------------------
 void MainWindow::onMouseScrollEvent( const s2::Input::MouseState& ms )
 {
+	if( uiWantCaptureMouse() )
+		return;
+
 	//ms.dumpStatus( "onMouseScrollEvent" );
 	auto app = static_cast<MyApplication*>( s2::Application::instance() );
 	app->scaleFactor *= std::pow( 1.2, ms.wheel() );

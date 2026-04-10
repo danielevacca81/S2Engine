@@ -25,8 +25,9 @@ public:
 
 	void onInitializeEvent() override;
 	void onShutdownEvent() override;
-	void onPaintEvent() override;
 	void onCloseEvent() override;
+	void onDraw() override;
+	void onDrawUI() override;
 
 	void onMouseMoveEvent( const s2::Input::MouseState& ms ) override;
 	void onMouseDoubleClickEvent( const s2::Input::MouseState& ms ) override;
@@ -50,6 +51,20 @@ private:
 	s2::Scene::Camera    _camera;
 	s2::Scene::TrackBall _trackball;
 	s2::Scene::TrackBall _trackballLight;
+
+	// UI state
+	float _uiMetallic  = 0.0f;
+	float _uiRoughness = 0.5f;
+	float _uiAO        = 1.0f;
+	float _uiAlbedo[3] = { 1.0f, 0.0f, 0.0f };
+	float _uiLightColor[3]    = { 1.0f, 1.0f, 1.0f };
+	float _uiLightIntensity   = 100.0f;
+	float _uiLightPosition[3] = { 0.0f, 0.0f, 1.0f };
+	bool  _uiUseAlbedoMap    = true;
+	bool  _uiUseNormalMap    = true;
+	bool  _uiUseMetallicMap  = true;
+	bool  _uiUseRoughnessMap = true;
+	bool  _uiUseAOMap        = true;
 };
 
 #endif // !MAINWINDOW_H

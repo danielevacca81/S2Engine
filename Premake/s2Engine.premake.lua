@@ -98,6 +98,7 @@ project "s2Engine"
 		("{COPYDIR} %{sourcedir}/Renderer/*.h*       %{deploydir}/include/Renderer"),
 		("{COPYDIR} %{sourcedir}/Resources/*.h*      %{deploydir}/include/Resources"),
 		("{COPYDIR} %{sourcedir}/Scene/*.h*          %{deploydir}/include/Scene"),
+		("{COPYDIR} %{sourcedir}/UI/*.h*             %{deploydir}/include/UI"),
 	}
     
 	
