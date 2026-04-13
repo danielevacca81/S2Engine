@@ -1,7 +1,7 @@
 // ImGuiPass.cpp
 //
 // Renders Dear ImGui draw data using the s2 RenderCore API.
-// No direct OpenGL calls — everything goes through RenderCore abstractions.
+// No direct OpenGL calls ï¿½ everything goes through RenderCore abstractions.
 //
 #include "ImGuiPass.h"
 
@@ -22,6 +22,7 @@
 
 #include <cassert>
 #include <cstring>
+#include <algorithm>
 
 using namespace s2::UI;
 using namespace s2::RenderCore;
@@ -78,7 +79,6 @@ void ImGuiPass::initialize( Renderer::ResourceManager& /*resourceManager*/ )
     createShader();
     createFontTexture();
 
-    // Create VAO with dynamic usage (data changes every frame)
     _vao = VertexArray::New( GPUBufferObject::UsageHint::DynamicDraw );
 }
 
@@ -128,7 +128,7 @@ void ImGuiPass::createFontTexture()
 // Ensures the shared VBO has enough capacity. If the buffer needs to grow,
 // a new GPUBufferObject is created and all three interleaved attributes are
 // re-attached to the VAO via setAttribute (DSA). When the existing capacity
-// is sufficient the same GPU buffer is reused — only the data is updated.
+// is sufficient the same GPU buffer is reused ï¿½ only the data is updated.
 // ------------------------------------------------------------------------------------------------
 static GPUBufferObjectPtr ensureVertexBuffer( const VertexArrayPtr& vao,
                                               GPUBufferObjectPtr    currentVBO,
@@ -138,7 +138,7 @@ static GPUBufferObjectPtr ensureVertexBuffer( const VertexArrayPtr& vao,
 
     if( currentVBO && currentVBO->size() >= requiredBytes )
     {
-        // Existing buffer is large enough — invalidate and reuse
+        // Existing buffer is large enough ï¿½ invalidate and reuse
         currentVBO->invalidate();
         return currentVBO;
     }
@@ -155,7 +155,7 @@ static GPUBufferObjectPtr ensureVertexBuffer( const VertexArrayPtr& vao,
     // All share the same VBO with bufferOffset = 0 and stride = sizeof(ImDrawVert).
     // Each attribute specifies its own relativeOffset = offsetof(ImDrawVert, field).
     //
-    // location 0: aPos  — 2 floats at relativeOffset 0
+    // location 0: aPos  ï¿½ 2 floats at relativeOffset 0
     AttributeBuffer posAttr( vbo,
                              AttributeBuffer::ComponentDatatype::Float, 2,
                              false,
@@ -163,7 +163,7 @@ static GPUBufferObjectPtr ensureVertexBuffer( const VertexArrayPtr& vao,
                              /*relativeOffset*/ static_cast<int64_t>( offsetof( ImDrawVert, pos ) ),
                              stride );
 
-    // location 1: aUV   — 2 floats at relativeOffset 8
+    // location 1: aUV   ï¿½ 2 floats at relativeOffset 8
     AttributeBuffer uvAttr( vbo,
                             AttributeBuffer::ComponentDatatype::Float, 2,
                             false,
@@ -171,7 +171,7 @@ static GPUBufferObjectPtr ensureVertexBuffer( const VertexArrayPtr& vao,
                             /*relativeOffset*/ static_cast<int64_t>( offsetof( ImDrawVert, uv ) ),
                             stride );
 
-    // location 2: aColor — 4 unsigned bytes, normalized to [0,1], at relativeOffset 16
+    // location 2: aColor ï¿½ 4 unsigned bytes, normalized to [0,1], at relativeOffset 16
     AttributeBuffer colAttr( vbo,
                              AttributeBuffer::ComponentDatatype::UnsignedByte, 4,
                              true,
@@ -231,7 +231,19 @@ void ImGuiPass::execute( const Renderer::CommandBuffer& /*queue*/,
     auto& renderCommands = ctx->commands();
 
     // ------------------------------------------------------------------
-    // 1. Build orthographic projection from ImGui's display coordinates
+    // 1. Compute framebuffer dimensions from ImGui draw data
+    // ------------------------------------------------------------------
+    const ImVec2 clipOff   = drawData->DisplayPos;
+    const ImVec2 clipScale = drawData->FramebufferScale;
+
+    const int fbWidth  = static_cast<int>( drawData->DisplaySize.x * clipScale.x );
+    const int fbHeight = static_cast<int>( drawData->DisplaySize.y * clipScale.y );
+
+    if( fbWidth <= 0 || fbHeight <= 0 )
+        return;
+
+    // ------------------------------------------------------------------
+    // 2. Build orthographic projection from ImGui's display coordinates
     // ------------------------------------------------------------------
     const float L = drawData->DisplayPos.x;
     const float R = drawData->DisplayPos.x + drawData->DisplaySize.x;
@@ -244,7 +256,7 @@ void ImGuiPass::execute( const Renderer::CommandBuffer& /*queue*/,
     _shader->setTexture( "u_FontTexture", _fontTexture );
 
     // ------------------------------------------------------------------
-    // 2. Ensure GPU buffers have enough capacity, then upload data
+    // 3. Ensure GPU buffers have enough capacity, then upload data
     // ------------------------------------------------------------------
     const int64_t totalVtxBytes = static_cast<int64_t>( drawData->TotalVtxCount ) * sizeof( ImDrawVert );
     const int64_t totalIdxBytes = static_cast<int64_t>( drawData->TotalIdxCount ) * sizeof( ImDrawIdx );
@@ -252,7 +264,6 @@ void ImGuiPass::execute( const Renderer::CommandBuffer& /*queue*/,
     _vbo = ensureVertexBuffer( _vao, _vbo, totalVtxBytes );
     ensureIndexBuffer( _vao, totalIdxBytes );
 
-    // Stream vertex data — RAII mapped access, unmap is automatic
     _vbo->writeRange<ImDrawVert>( 0, totalVtxBytes, [&]( ImDrawVert* dst ) {
         for( int n = 0; n < drawData->CmdListsCount; ++n )
         {
@@ -262,7 +273,6 @@ void ImGuiPass::execute( const Renderer::CommandBuffer& /*queue*/,
         }
     });
 
-    // Stream index data — RAII mapped access, unmap is automatic
     _vao->indexBuffer().writeAll<ImDrawIdx>( [&]( ImDrawIdx* dst ) {
         for( int n = 0; n < drawData->CmdListsCount; ++n )
         {
@@ -273,7 +283,7 @@ void ImGuiPass::execute( const Renderer::CommandBuffer& /*queue*/,
     });
 
     // ------------------------------------------------------------------
-    // 3. Setup draw state for ImGui rendering
+    // 4. Setup draw state for ImGui rendering
     // ------------------------------------------------------------------
     DrawState ds;
     ds.shader = _shader;
@@ -292,14 +302,11 @@ void ImGuiPass::execute( const Renderer::CommandBuffer& /*queue*/,
     ds.renderState.stencilTest.enabled = false;
     ds.renderState.primitiveRestart.enabled = false;
 
-    ds.viewport.rect = frameData.mainTarget->size();
+    ds.viewport.rect = Math::irect( 0, 0, fbWidth, fbHeight );
 
     // ------------------------------------------------------------------
-    // 4. Iterate draw commands and issue drawRange calls
+    // 5. Iterate draw commands and issue drawRange calls
     // ------------------------------------------------------------------
-    const ImVec2 clipOff   = drawData->DisplayPos;
-    const ImVec2 clipScale = drawData->FramebufferScale;
-
     uint32_t globalIdxOffset = 0;
     uint32_t globalVtxOffset = 0;
 
@@ -317,21 +324,19 @@ void ImGuiPass::execute( const Renderer::CommandBuffer& /*queue*/,
                 continue;
             }
 
-            const float clipX1 = ( pcmd.ClipRect.x - clipOff.x ) * clipScale.x;
-            const float clipY1 = ( pcmd.ClipRect.y - clipOff.y ) * clipScale.y;
-            const float clipX2 = ( pcmd.ClipRect.z - clipOff.x ) * clipScale.x;
-            const float clipY2 = ( pcmd.ClipRect.w - clipOff.y ) * clipScale.y;
-
-            const int fbWidth  = static_cast<int>( drawData->DisplaySize.x * clipScale.x );
-            const int fbHeight = static_cast<int>( drawData->DisplaySize.y * clipScale.y );
-
-            if( clipX1 >= fbWidth || clipY1 >= fbHeight || clipX2 < 0.0f || clipY2 < 0.0f )
+            ImVec2 clipMin( ( pcmd.ClipRect.x - clipOff.x ) * clipScale.x, ( pcmd.ClipRect.y - clipOff.y ) * clipScale.y );
+            ImVec2 clipMax( ( pcmd.ClipRect.z - clipOff.x ) * clipScale.x, ( pcmd.ClipRect.w - clipOff.y ) * clipScale.y );
+            if( clipMax.x <= clipMin.x || clipMax.y <= clipMin.y )
                 continue;
 
-            const int sx = static_cast<int>( clipX1 );
-            const int sy = static_cast<int>( static_cast<float>( fbHeight ) - clipY2 );
-            const int sw = static_cast<int>( clipX2 - clipX1 );
-            const int sh = static_cast<int>( clipY2 - clipY1 );
+            // glScissor origin is bottom-left: (x, fbHeight - y2, width, height)
+            const int sx = static_cast<int>( clipMin.x );
+            const int sy = static_cast<int>( fbHeight - clipMax.y );
+            const int sw = static_cast<int>( clipMax.x - clipMin.x );
+            const int sh = static_cast<int>( clipMax.y - clipMin.y );
+
+            if( sw <= 0 || sh <= 0 )
+                continue;
 
             ds.viewport.scissorTest.enabled = true;
             ds.viewport.scissorTest.rect    = Math::irect( sx, sy, sw, sh );

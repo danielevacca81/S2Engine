@@ -52,9 +52,7 @@ void ImGuiUILayer::init( void* windowHandle )
     ImGui::StyleColorsDark();
 
     // Platform backend only — rendering is handled by ImGuiPass.
-    // install_callbacks = true: ImGui chains its GLFW callbacks on top of
-    // the existing glfwpp ones. Input flows to both systems automatically.
-    ImGui_ImplGlfw_InitForOpenGL( static_cast<GLFWwindow*>( windowHandle ), false );
+    ImGui_ImplGlfw_InitForOpenGL( static_cast<GLFWwindow*>( windowHandle ), true );
 
     _initialized = true;
 }
