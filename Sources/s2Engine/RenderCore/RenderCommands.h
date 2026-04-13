@@ -46,7 +46,8 @@ public:
 	// Draw operations
 	void draw( const RenderTarget& target, const PrimitiveType& primitiveType,const VertexArrayPtr& va, const DrawState& ds = {} ) const;
 	void draw( const RenderTarget& target, const PrimitiveType& primitiveType,const VertexDataPtr& primitive, const DrawState& ds = {} ) const;
-	void draw( const RenderTarget& target, const PrimitiveBatch& batch, const DrawState& ds = {} ) const;
+	void draw( const RenderTarget& target, const PrimitiveBatch& batch, const DrawState& ds = {} ) const;		
+	void drawRange( const RenderTarget& target, const PrimitiveType& primitiveType, const VertexArrayPtr& va, uint32_t elementCount, uint32_t elementOffset, uint32_t baseVertexOffset, const DrawState& ds = {} ) const;
 
 	// Low-level draw (for special cases)
 	void draw( const FrameBufferPtr& fbo, const PrimitiveType& primitiveType, const VertexArrayPtr& va, const DrawState& ds ) const;

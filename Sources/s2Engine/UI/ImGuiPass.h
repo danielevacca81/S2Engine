@@ -19,7 +19,7 @@ namespace UI {
 // ImGuiPass
 //
 // A RenderPass that renders Dear ImGui draw data using the RenderCore API.
-// Fetches draw data directly from ImGui (via ImGui::GetDrawData()) — no
+// Fetches draw data directly from ImGui (via ImGui::GetDrawData()) â€” no
 // coupling to UILayer at all.
 //
 // Contract: UILayer::endFrame() must have been called before pipeline.execute()
@@ -44,7 +44,6 @@ public:
 private:
     void createShader();
     void createFontTexture();
-    void ensureBuffers( int64_t vtxBytes, int64_t idxBytes );
 
 private:
     std::string _name { "ImGuiPass" };
@@ -53,10 +52,7 @@ private:
     RenderCore::ShaderPtr          _shader;
     RenderCore::Texture2DPtr       _fontTexture;
     RenderCore::VertexArrayPtr     _vao;
-    RenderCore::GPUBufferObjectPtr _vtxBuffer;
-    RenderCore::GPUBufferObjectPtr _idxBuffer;
-    int64_t                        _vtxBufferSize = 0;
-    int64_t                        _idxBufferSize = 0;
+    RenderCore::GPUBufferObjectPtr _vbo;  // persistent interleaved vertex buffer (shared by all 3 attributes)
 };
 
 } // namespace UI

@@ -171,6 +171,46 @@ void RenderCommands::draw( const FrameBufferPtr& fbo, const PrimitiveType& primi
     fbo->unbind();
 }
 
+// ------------------------------------------------------------------------------------------------
+void RenderCommands::drawRange( const RenderTarget& target, const PrimitiveType& primitiveType, const VertexArrayPtr& va, uint32_t elementCount, uint32_t elementOffset, uint32_t baseVertexOffset, const DrawState& ds ) const
+{
+    if( !target.framebuffer() || !va || !va->isIndexed() )
+        return;
+
+    assert( ds.shader && "DrawState must have a valid shader" );
+
+    auto &fbo = target.framebuffer();
+    fbo->bind();
+    _context._stateManager.setDrawState( ds );
+
+    va->bind();
+    
+    const GLenum primType = glWrap( primitiveType );
+    const auto& indexBuffer = va->indexBuffer();
+
+    glDrawElementsBaseVertex(
+         primType,
+         elementCount,
+         glWrap( indexBuffer.dataType() ),
+         reinterpret_cast<const void*>( static_cast<uintptr_t>( elementOffset ) ),
+         baseVertexOffset
+    );    
+
+
+    // glDrawElementsBaseVertex(
+    //     primType,
+    //     elementCount,
+    //     glWrap( indexBuffer.dataType() ),
+    //     reinterpret_cast<const void*>( elementOffset * (indexBuffer.dataType() == IndexBuffer::IndexDataType::UnsignedShort ? sizeof(uint16_t) : sizeof(uint32_t)) ),
+    //     baseVertexOffset
+    // );
+    glCheck;
+    
+    va->unbind();
+    fbo->unbind();
+}
+
+
 // ================================================================================================
 // READ OPERATIONS (DSA where possible)
 // ================================================================================================

@@ -1,39 +1,43 @@
 // ImGuiPass.cpp
 //
+// Renders Dear ImGui draw data using the s2 RenderCore API.
+// No direct OpenGL calls — everything goes through RenderCore abstractions.
+//
 #include "ImGuiPass.h"
 
+#include "Renderer/CommandBuffer.h"
+#include "Renderer/FrameData.h"
+#include "Renderer/ResourceManager.h"
+
 #include "RenderCore/Context.h"
-#include "RenderCore/RenderTarget.h"
 #include "RenderCore/RenderCommands.h"
+#include "RenderCore/RenderTarget.h"
 #include "RenderCore/ShaderCompiler.h"
 #include "RenderCore/DrawState.h"
 #include "RenderCore/PrimitiveType.h"
-#include "RenderCore/AttributeBuffer.h"
-#include "RenderCore/TextureDescription.h"
-
-#include "Math/ProjectionTransform.h"
-
-#include "Renderer/FrameData.h"
+#include "RenderCore/IndexBuffer.h"
+#include "RenderCore/ImageFormat.h"
 
 #include "imgui.h"
 
-#include <stdexcept>
+#include <cassert>
+#include <cstring>
 
-using namespace s2;
 using namespace s2::UI;
 using namespace s2::RenderCore;
 
 // ================================================================================================
-// Shaders
+// Embedded GLSL shaders (OpenGL 4.5 / GLSL 450)
 // ================================================================================================
-static const char* kVertexShader = R"(
-#version 460 core
+
+static const char* kImGuiVertexShader = R"(
+#version 450 core
 
 layout(location = 0) in vec2 aPos;
 layout(location = 1) in vec2 aUV;
 layout(location = 2) in vec4 aColor;
 
-uniform mat4 uProjection;
+uniform mat4 u_ProjectionMatrix;
 
 out vec2 vUV;
 out vec4 vColor;
@@ -42,202 +46,270 @@ void main()
 {
     vUV    = aUV;
     vColor = aColor;
-    gl_Position = uProjection * vec4( aPos, 0.0, 1.0 );
+    gl_Position = u_ProjectionMatrix * vec4(aPos, 0.0, 1.0);
 }
 )";
 
-static const char* kFragmentShader = R"(
-#version 460 core
+static const char* kImGuiFragmentShader = R"(
+#version 450 core
 
 in vec2 vUV;
 in vec4 vColor;
 
-uniform sampler2D uTexture;
+uniform sampler2D u_FontTexture;
 
 layout(location = 0) out vec4 FragColor;
 
 void main()
 {
-    FragColor = vColor * texture( uTexture, vUV );
+    FragColor = vColor * texture(u_FontTexture, vUV);
 }
 )";
 
 // ================================================================================================
-// Construction
+// ImGuiPass implementation
 // ================================================================================================
+
 ImGuiPass::ImGuiPass() = default;
 
-// ================================================================================================
-// Initialization (called once, on render thread with GL context)
-// ================================================================================================
+// ------------------------------------------------------------------------------------------------
 void ImGuiPass::initialize( Renderer::ResourceManager& /*resourceManager*/ )
 {
     createShader();
     createFontTexture();
-}
 
-// ------------------------------------------------------------------------------------------------
-const std::string& ImGuiPass::name() const { return _name; }
+    // Create VAO with dynamic usage (data changes every frame)
+    _vao = VertexArray::New( GPUBufferObject::UsageHint::DynamicDraw );
+}
 
 // ------------------------------------------------------------------------------------------------
 void ImGuiPass::createShader()
 {
-    auto vs = ShaderCompiler::compile( ShaderStageType::Vertex, kVertexShader );
-    auto fs = ShaderCompiler::compile( ShaderStageType::Fragment, kFragmentShader );
+    auto vs = ShaderCompiler::compile( ShaderStageType::Vertex,   kImGuiVertexShader );
+    auto fs = ShaderCompiler::compile( ShaderStageType::Fragment, kImGuiFragmentShader );
 
-    if( !vs || !fs )
-        throw std::runtime_error( "ImGuiPass: shader compilation failed:\n"
-                                  + vs.errorLog + "\n" + fs.errorLog );
+    assert( vs.success && "ImGuiPass: vertex shader compilation failed" );
+    assert( fs.success && "ImGuiPass: fragment shader compilation failed" );
 
     _shader = Shader::New();
     _shader->attachVertexShaderStage( vs.stage );
     _shader->attachFragmentShaderStage( fs.stage );
 
-    auto result = ShaderCompiler::linkShader( _shader, "ImGuiPass" );
-    if( !result )
-        throw std::runtime_error( "ImGuiPass: shader link failed:\n" + result.errorLog );
+    auto linkResult = ShaderCompiler::linkShader( _shader, "ImGuiPass" );
+    assert( linkResult.success && "ImGuiPass: shader link failed" );
+
+    _shader->setObjectLabel( "ImGuiPass::Shader" );
 }
 
 // ------------------------------------------------------------------------------------------------
 void ImGuiPass::createFontTexture()
 {
-    unsigned char* pixels = nullptr;
-    int w = 0, h = 0;
-    ImGui::GetIO().Fonts->GetTexDataAsRGBA32( &pixels, &w, &h );
+    ImGuiIO& io = ImGui::GetIO();
 
-    TextureDescription desc( w, h, TextureFormat::RedGreenBlueAlpha8, false, "ImGuiPass_FontAtlas" );
+    unsigned char* pixels = nullptr;
+    int width  = 0;
+    int height = 0;
+    io.Fonts->GetTexDataAsRGBA32( &pixels, &width, &height );
+
+    assert( pixels && width > 0 && height > 0 && "ImGuiPass: font atlas build failed" );
+
+    TextureDescription desc( width, height, TextureFormat::RedGreenBlueAlpha8, false, "ImGuiPass::FontAtlas" );
     _fontTexture = Texture2D::New( desc, pixels );
+
     _fontTexture->setMinFilter( Texture2D::MinFilter::Linear );
     _fontTexture->setMagFilter( Texture2D::MagFilter::Linear );
+    _fontTexture->setWrapS( Texture2D::WrapMode::ClampToEdge );
+    _fontTexture->setWrapT( Texture2D::WrapMode::ClampToEdge );
 
-    // ImTextureID is ImU64 since v1.91.4 — store the GL texture name directly.
-    ImGui::GetIO().Fonts->SetTexID( static_cast<ImTextureID>( _fontTexture->id() ) );
+    io.Fonts->SetTexID( reinterpret_cast<ImTextureID>( _fontTexture.get() ) );
 }
 
-// ================================================================================================
-// Per-frame buffer management
-// ================================================================================================
-void ImGuiPass::ensureBuffers( int64_t vtxBytes, int64_t idxBytes )
+// ------------------------------------------------------------------------------------------------
+// Ensures the shared VBO has enough capacity. If the buffer needs to grow,
+// a new GPUBufferObject is created and all three interleaved attributes are
+// re-attached to the VAO via setAttribute (DSA). When the existing capacity
+// is sufficient the same GPU buffer is reused — only the data is updated.
+// ------------------------------------------------------------------------------------------------
+static GPUBufferObjectPtr ensureVertexBuffer( const VertexArrayPtr& vao,
+                                              GPUBufferObjectPtr    currentVBO,
+                                              int64_t               requiredBytes )
 {
-    if( !_vtxBuffer || _vtxBufferSize < vtxBytes )
+    constexpr int64_t stride = sizeof( ImDrawVert );
+
+    if( currentVBO && currentVBO->size() >= requiredBytes )
     {
-        _vtxBufferSize = vtxBytes + 4096;
-        _vtxBuffer = GPUBufferObject::New( _vtxBufferSize,
-                                           GPUBufferObject::Type::ArrayBuffer,
-                                           GPUBufferObject::UsageHint::DynamicDraw );
+        // Existing buffer is large enough — invalidate and reuse
+        currentVBO->invalidate();
+        return currentVBO;
     }
 
-    if( !_idxBuffer || _idxBufferSize < idxBytes )
-    {
-        _idxBufferSize = idxBytes + 4096;
-        _idxBuffer = GPUBufferObject::New( _idxBufferSize,
-                                           GPUBufferObject::Type::ElementBuffer,
-                                           GPUBufferObject::UsageHint::DynamicDraw );
-    }
+    // Grow with 25 % headroom to avoid reallocating every frame
+    const int64_t allocBytes = requiredBytes + requiredBytes / 4;
+
+    auto vbo = GPUBufferObject::New( allocBytes,
+                                     GPUBufferObject::Type::ArrayBuffer,
+                                     GPUBufferObject::UsageHint::DynamicDraw );
+    vbo->setObjectLabel( "ImGuiPass::VBO" );
+
+    // Re-attach all three interleaved attributes to the new buffer (DSA).
+    // All share the same VBO with bufferOffset = 0 and stride = sizeof(ImDrawVert).
+    // Each attribute specifies its own relativeOffset = offsetof(ImDrawVert, field).
+    //
+    // location 0: aPos  — 2 floats at relativeOffset 0
+    AttributeBuffer posAttr( vbo,
+                             AttributeBuffer::ComponentDatatype::Float, 2,
+                             false,
+                             /*bufferOffset*/   0,
+                             /*relativeOffset*/ static_cast<int64_t>( offsetof( ImDrawVert, pos ) ),
+                             stride );
+
+    // location 1: aUV   — 2 floats at relativeOffset 8
+    AttributeBuffer uvAttr( vbo,
+                            AttributeBuffer::ComponentDatatype::Float, 2,
+                            false,
+                            /*bufferOffset*/   0,
+                            /*relativeOffset*/ static_cast<int64_t>( offsetof( ImDrawVert, uv ) ),
+                            stride );
+
+    // location 2: aColor — 4 unsigned bytes, normalized to [0,1], at relativeOffset 16
+    AttributeBuffer colAttr( vbo,
+                             AttributeBuffer::ComponentDatatype::UnsignedByte, 4,
+                             true,
+                             /*bufferOffset*/   0,
+                             /*relativeOffset*/ static_cast<int64_t>( offsetof( ImDrawVert, col ) ),
+                             stride );
+
+    vao->setAttribute( 0, posAttr );
+    vao->setAttribute( 1, uvAttr );
+    vao->setAttribute( 2, colAttr );
+
+    return vbo;
 }
 
-// ================================================================================================
-// Execute — fetches draw data directly from ImGui
-// ================================================================================================
+// ------------------------------------------------------------------------------------------------
+// Ensures the index buffer inside the VAO has enough capacity.
+// Re-creates the IndexBuffer only when it must grow.
+// ------------------------------------------------------------------------------------------------
+static void ensureIndexBuffer( const VertexArrayPtr& vao,
+                               int64_t               requiredBytes )
+{
+    constexpr IndexBuffer::IndexDataType idxType =
+        sizeof( ImDrawIdx ) == 2 ? IndexBuffer::IndexDataType::UnsignedShort
+                                 : IndexBuffer::IndexDataType::UnsignedInt;
+
+    if( vao->isIndexed() )
+    {
+        auto& ib = vao->indexBuffer();
+
+        if( ib.id() != 0 &&
+            static_cast<int64_t>( ib.count() ) * static_cast<int64_t>( sizeof( ImDrawIdx ) ) >= requiredBytes )
+            return;
+
+        const int64_t allocBytes = requiredBytes + requiredBytes / 4;
+        ib.set( allocBytes, idxType, GPUBufferObject::UsageHint::DynamicDraw );
+        vao->setIndexBuffer( ib );
+        return;
+    }
+
+    const int64_t allocBytes = requiredBytes + requiredBytes / 4;
+    IndexBuffer ib( allocBytes, idxType, GPUBufferObject::UsageHint::DynamicDraw );
+    vao->setIndexBuffer( ib );
+}
+
+// ------------------------------------------------------------------------------------------------
 void ImGuiPass::execute( const Renderer::CommandBuffer& /*queue*/,
                          Renderer::FrameData& frameData,
                          const RenderCore::Context* ctx )
 {
-    // Fetch draw data directly from ImGui.
-    // Contract: Window calls UILayer::endFrame() before the pipeline executes,
-    // so ImGui::GetDrawData() is valid here.
     ImDrawData* drawData = ImGui::GetDrawData();
-    if( !drawData || drawData->TotalVtxCount == 0 || !frameData.mainTarget )
+    if( !drawData || drawData->TotalVtxCount == 0 )
         return;
 
-    auto& rt   = *frameData.mainTarget;
-    auto& cmds = ctx->commands();
+    assert( ctx && "ImGuiPass: context must be valid" );
+    assert( frameData.mainTarget && "ImGuiPass: mainTarget must be set" );
 
-    // ----- Upload vertex + index data -----
-    const int64_t totalVtxBytes = drawData->TotalVtxCount * static_cast<int64_t>( sizeof( ImDrawVert ) );
-    const int64_t totalIdxBytes = drawData->TotalIdxCount * static_cast<int64_t>( sizeof( ImDrawIdx ) );
+    auto& renderCommands = ctx->commands();
 
-    ensureBuffers( totalVtxBytes, totalIdxBytes );
+    // ------------------------------------------------------------------
+    // 1. Build orthographic projection from ImGui's display coordinates
+    // ------------------------------------------------------------------
+    const float L = drawData->DisplayPos.x;
+    const float R = drawData->DisplayPos.x + drawData->DisplaySize.x;
+    const float T = drawData->DisplayPos.y;
+    const float B = drawData->DisplayPos.y + drawData->DisplaySize.y;
 
-    int64_t vtxOff = 0;
-    int64_t idxOff = 0;
+    const Math::fmat4 ortho = Math::ortho( L, R, B, T, -1.0f, 1.0f );
 
-    for( int n = 0; n < drawData->CmdListsCount; ++n )
-    {
-        const ImDrawList* cmdList = drawData->CmdLists[n];
-        _vtxBuffer->setData( cmdList->VtxBuffer.Data,
-                             cmdList->VtxBuffer.Size * sizeof( ImDrawVert ), vtxOff );
-        _idxBuffer->setData( cmdList->IdxBuffer.Data,
-                             cmdList->IdxBuffer.Size * sizeof( ImDrawIdx ), idxOff );
-        vtxOff += cmdList->VtxBuffer.Size * sizeof( ImDrawVert );
-        idxOff += cmdList->IdxBuffer.Size * sizeof( ImDrawIdx );
-    }
+    _shader->setUniform( "u_ProjectionMatrix", ortho );
+    _shader->setTexture( "u_FontTexture", _fontTexture );
 
-    // ----- Setup VAO -----
-    if( !_vao )
-        _vao = VertexArray::New( GPUBufferObject::UsageHint::DynamicDraw );
+    // ------------------------------------------------------------------
+    // 2. Ensure GPU buffers have enough capacity, then upload data
+    // ------------------------------------------------------------------
+    const int64_t totalVtxBytes = static_cast<int64_t>( drawData->TotalVtxCount ) * sizeof( ImDrawVert );
+    const int64_t totalIdxBytes = static_cast<int64_t>( drawData->TotalIdxCount ) * sizeof( ImDrawIdx );
 
-    _vao->setAttribute( 0, AttributeBuffer(
-        nullptr, _vtxBufferSize, GPUBufferObject::Type::ArrayBuffer,
-        GPUBufferObject::UsageHint::DynamicDraw,
-        AttributeBuffer::ComponentDatatype::Float, 2, false,
-        offsetof( ImDrawVert, pos ), sizeof( ImDrawVert ) ) );
+    _vbo = ensureVertexBuffer( _vao, _vbo, totalVtxBytes );
+    ensureIndexBuffer( _vao, totalIdxBytes );
 
-    _vao->setAttribute( 1, AttributeBuffer(
-        nullptr, _vtxBufferSize, GPUBufferObject::Type::ArrayBuffer,
-        GPUBufferObject::UsageHint::DynamicDraw,
-        AttributeBuffer::ComponentDatatype::Float, 2, false,
-        offsetof( ImDrawVert, uv ), sizeof( ImDrawVert ) ) );
+    // Stream vertex data — RAII mapped access, unmap is automatic
+    _vbo->writeRange<ImDrawVert>( 0, totalVtxBytes, [&]( ImDrawVert* dst ) {
+        for( int n = 0; n < drawData->CmdListsCount; ++n )
+        {
+            const ImDrawList* cmdList = drawData->CmdLists[n];
+            std::memcpy( dst, cmdList->VtxBuffer.Data, cmdList->VtxBuffer.Size * sizeof( ImDrawVert ) );
+            dst += cmdList->VtxBuffer.Size;
+        }
+    });
 
-    _vao->setAttribute( 2, AttributeBuffer(
-        nullptr, _vtxBufferSize, GPUBufferObject::Type::ArrayBuffer,
-        GPUBufferObject::UsageHint::DynamicDraw,
-        AttributeBuffer::ComponentDatatype::UnsignedByte, 4, true,
-        offsetof( ImDrawVert, col ), sizeof( ImDrawVert ) ) );
+    // Stream index data — RAII mapped access, unmap is automatic
+    _vao->indexBuffer().writeAll<ImDrawIdx>( [&]( ImDrawIdx* dst ) {
+        for( int n = 0; n < drawData->CmdListsCount; ++n )
+        {
+            const ImDrawList* cmdList = drawData->CmdLists[n];
+            std::memcpy( dst, cmdList->IdxBuffer.Data, cmdList->IdxBuffer.Size * sizeof( ImDrawIdx ) );
+            dst += cmdList->IdxBuffer.Size;
+        }
+    });
 
-    // ----- Ortho projection (top-left origin, as ImGui expects) -----
-    const double L = static_cast<double>( drawData->DisplayPos.x );
-    const double R = static_cast<double>( drawData->DisplayPos.x + drawData->DisplaySize.x );
-    const double T = static_cast<double>( drawData->DisplayPos.y );
-    const double B = static_cast<double>( drawData->DisplayPos.y + drawData->DisplaySize.y );
-
-    // Note: bottom=B, top=T flips the Y axis so that Y=0 is at the top (ImGui convention).
-    const auto projection = Math::ProjectionTransform::createOrthographic( L, R, B, T, -1.0, 1.0 );
-
-    _shader->setUniform( "uProjection", Math::mat4( projection.matrix() ) );
-    _shader->setTexture( "uTexture", _fontTexture );
-
-    // ----- Draw state -----
+    // ------------------------------------------------------------------
+    // 3. Setup draw state for ImGui rendering
+    // ------------------------------------------------------------------
     DrawState ds;
     ds.shader = _shader;
-    ds.renderState.faceCulling.enabled = false;
-    ds.renderState.depthTest.enabled   = false;
-    ds.renderState.depthMask.enabled   = false;
+
     ds.renderState.blending.enableAll( true );
     ds.renderState.blending.sourceRGBFactor        = Blending::Factor::SourceAlpha;
     ds.renderState.blending.destinationRGBFactor   = Blending::Factor::OneMinusSourceAlpha;
-    ds.renderState.blending.sourceAlphaFactor      = Blending::Factor::One;
+    ds.renderState.blending.sourceAlphaFactor      = Blending::Factor::SourceAlpha;
     ds.renderState.blending.destinationAlphaFactor = Blending::Factor::OneMinusSourceAlpha;
-    ds.renderState.blending.rgbEquation   = Blending::Equation::Add;
-    ds.renderState.blending.alphaEquation = Blending::Equation::Add;
-    ds.viewport.rect = rt.size();
-    ds.viewport.scissorTest.enabled = true;
+    ds.renderState.blending.rgbEquation            = Blending::Equation::Add;
+    ds.renderState.blending.alphaEquation          = Blending::Equation::Add;
 
-    // ----- Render draw lists -----
+    ds.renderState.depthTest.enabled   = false;
+    ds.renderState.depthMask.enabled   = false;
+    ds.renderState.faceCulling.enabled = false;
+    ds.renderState.stencilTest.enabled = false;
+    ds.renderState.primitiveRestart.enabled = false;
+
+    ds.viewport.rect = frameData.mainTarget->size();
+
+    // ------------------------------------------------------------------
+    // 4. Iterate draw commands and issue drawRange calls
+    // ------------------------------------------------------------------
     const ImVec2 clipOff   = drawData->DisplayPos;
     const ImVec2 clipScale = drawData->FramebufferScale;
-    const int fbHeight = static_cast<int>( drawData->DisplaySize.y * clipScale.y );
 
-    int globalVtxOffset = 0;
-    int globalIdxOffset = 0;
+    uint32_t globalIdxOffset = 0;
+    uint32_t globalVtxOffset = 0;
 
     for( int n = 0; n < drawData->CmdListsCount; ++n )
     {
         const ImDrawList* cmdList = drawData->CmdLists[n];
 
-        for( int i = 0; i < cmdList->CmdBuffer.Size; ++i )
+        for( int cmdIdx = 0; cmdIdx < cmdList->CmdBuffer.Size; ++cmdIdx )
         {
-            const ImDrawCmd& pcmd = cmdList->CmdBuffer[i];
+            const ImDrawCmd& pcmd = cmdList->CmdBuffer[cmdIdx];
 
             if( pcmd.UserCallback )
             {
@@ -245,37 +317,51 @@ void ImGuiPass::execute( const Renderer::CommandBuffer& /*queue*/,
                 continue;
             }
 
-            const float cx = ( pcmd.ClipRect.x - clipOff.x ) * clipScale.x;
-            const float cy = ( pcmd.ClipRect.y - clipOff.y ) * clipScale.y;
-            const float cw = ( pcmd.ClipRect.z - clipOff.x ) * clipScale.x;
-            const float ch = ( pcmd.ClipRect.w - clipOff.y ) * clipScale.y;
+            const float clipX1 = ( pcmd.ClipRect.x - clipOff.x ) * clipScale.x;
+            const float clipY1 = ( pcmd.ClipRect.y - clipOff.y ) * clipScale.y;
+            const float clipX2 = ( pcmd.ClipRect.z - clipOff.x ) * clipScale.x;
+            const float clipY2 = ( pcmd.ClipRect.w - clipOff.y ) * clipScale.y;
 
-            if( cw <= cx || ch <= cy )
+            const int fbWidth  = static_cast<int>( drawData->DisplaySize.x * clipScale.x );
+            const int fbHeight = static_cast<int>( drawData->DisplaySize.y * clipScale.y );
+
+            if( clipX1 >= fbWidth || clipY1 >= fbHeight || clipX2 < 0.0f || clipY2 < 0.0f )
                 continue;
 
-            ds.viewport.scissorTest.rect = Math::irect(
-                static_cast<int>( cx ),
-                fbHeight - static_cast<int>( ch ),
-                static_cast<int>( cw - cx ),
-                static_cast<int>( ch - cy ) );
+            const int sx = static_cast<int>( clipX1 );
+            const int sy = static_cast<int>( static_cast<float>( fbHeight ) - clipY2 );
+            const int sw = static_cast<int>( clipX2 - clipX1 );
+            const int sh = static_cast<int>( clipY2 - clipY1 );
 
-            // Per-command texture override.
-            // ImTextureID stores the GL texture name (unsigned int -> ImU64).
-            // The font atlas texture was registered via SetTexID( fontTexture->id() ).
-            // For user textures, the app must pass the GL name via ImTextureID as well.
-            const auto texID = static_cast<unsigned int>( pcmd.GetTexID() );
-            if( texID != _fontTexture->id() )
-                _shader->setUniform( "uTexture", texID );
-            else
-                _shader->setTexture( "uTexture", _fontTexture );
+            ds.viewport.scissorTest.enabled = true;
+            ds.viewport.scissorTest.rect    = Math::irect( sx, sy, sw, sh );
 
-            cmds.draw( rt, PrimitiveType::Triangles, _vao, ds );
+            const uint32_t idxByteOffset = ( pcmd.IdxOffset + globalIdxOffset ) * sizeof( ImDrawIdx );
+
+            renderCommands.drawRange(
+                *frameData.mainTarget,
+                PrimitiveType::Triangles,
+                _vao,
+                pcmd.ElemCount,
+                idxByteOffset,
+                pcmd.VtxOffset + globalVtxOffset,
+                ds
+            );
+
             _stats.drawCalls++;
+            _stats.triangles += pcmd.ElemCount / 3;
+            _stats.vertices  += pcmd.ElemCount;
         }
 
-        globalVtxOffset += cmdList->VtxBuffer.Size;
         globalIdxOffset += cmdList->IdxBuffer.Size;
+        globalVtxOffset += cmdList->VtxBuffer.Size;
     }
 
     _stats = {};
+}
+
+// ------------------------------------------------------------------------------------------------
+const std::string& ImGuiPass::name() const
+{
+    return _name;
 }
