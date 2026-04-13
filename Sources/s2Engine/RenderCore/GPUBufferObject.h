@@ -9,6 +9,8 @@
 
 #include <memory>
 #include <cstdint>
+#include <functional>
+#include <type_traits>
 
 namespace s2 {
 namespace RenderCore {
@@ -116,10 +118,87 @@ public:
     void setData( const void* data, int64_t size, int64_t offset = 0 );     // Set buffer data (DSA)
     void getData( void* data, int64_t size, int64_t offset = 0 ) const;     // Get buffer data (DSA)
     
+    // ===== Low-level map/unmap (use mapped() or writeRange() instead when possible) =====
     void* mapRange( int64_t offset, int64_t length, uint32_t accessFlags ); // Map buffer range (DSA)
+    bool  unmap();                                                          // Unmap buffer (DSA)
 
-    bool unmap(); // Unmap buffer (DSA)
+    // ===== RAII Mapped Buffer Access =====
+    //
+    // Maps a range, invokes the callable with a typed pointer, and automatically unmaps.
+    // Exception-safe: unmap is guaranteed even if the callable throws.
+    //
+    // Usage:
+    //   buffer->mapped<MyVertex>( 0, count, flags, [&]( MyVertex* dst ) {
+    //       for( int i = 0; i < count; ++i )
+    //           dst[i] = ...;
+    //   });
+    //
+    //   auto pixels = buffer->mapped<const uint8_t>( 0, size, readFlags, [&]( const uint8_t* src ) {
+    //       return Pixmap( width, height, 4, src );
+    //   });
+    //
+    template<typename T, typename Fn>
+    auto mapped( int64_t offset, int64_t length, uint32_t accessFlags, Fn&& fn )
+        -> std::invoke_result_t<Fn, T*>
+    {
+        T* ptr = static_cast<T*>( mapRange( offset, length, accessFlags ) );
+        assert( ptr && "GPUBufferObject::mapped: mapRange returned null" );
 
+        if constexpr( std::is_void_v<std::invoke_result_t<Fn, T*>> )
+        {
+            fn( ptr );
+            unmap();
+        }
+        else
+        {
+            auto result = fn( ptr );
+            unmap();
+            return result;
+        }
+    }
+
+    // Convenience: maps the entire buffer for writing with invalidation.
+    //
+    // Usage:
+    //   buffer->writeAll<float>( [&]( float* dst ) {
+    //       std::memcpy( dst, srcData, byteCount );
+    //   });
+    //
+    template<typename T, typename Fn>
+    void writeAll( Fn&& fn )
+    {
+        mapped<T>( 0,
+                   _size,
+                   static_cast<uint32_t>( MapAccess::Write ) | static_cast<uint32_t>( MapAccess::InvalidateBuffer ),
+                   std::forward<Fn>( fn ) );
+    }
+
+    // Convenience: maps a byte range for writing with invalidation.
+    //
+    // Usage:
+    //   buffer->writeRange<ImDrawVert>( 0, totalVtxBytes, [&]( ImDrawVert* dst ) {
+    //       for( auto& list : drawLists )  { memcpy(...); dst += list.size; }
+    //   });
+    //
+    template<typename T, typename Fn>
+    void writeRange( int64_t offset, int64_t length, Fn&& fn )
+    {
+        mapped<T>( offset, length, static_cast<uint32_t>( MapAccess::Write ) | static_cast<uint32_t>( MapAccess::InvalidateBuffer ), std::forward<Fn>( fn ) );
+    }
+
+    // Convenience: maps a byte range for reading.
+    //
+    // Usage:
+    //   auto img = buffer->readRange<const uint8_t>( 0, sizeInBytes, [&]( const uint8_t* src ) {
+    //       return Pixmap<uint8_t>( w, h, 4, src );
+    //   });
+    //
+    template<typename T, typename Fn>
+    auto readRange( int64_t offset, int64_t length, Fn&& fn )
+        -> std::invoke_result_t<Fn, T*>
+    {
+        return mapped<T>( offset, length, static_cast<uint32_t>( MapAccess::Read ), std::forward<Fn>( fn ) );
+    }
 
     void flushMappedRange( int64_t offset, int64_t length );     // Flush mapped range (DSA)
     

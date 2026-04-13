@@ -22,6 +22,14 @@ IndexBuffer::IndexBuffer( const void* data, int64_t sizeInBytes, IndexDataType d
 }
 
 // -------------------------------------------------------------------------------------------------
+IndexBuffer::IndexBuffer( const GPUBufferObjectPtr& gpuBuffer, IndexDataType dataType)
+{
+    _gpuBuffer = gpuBuffer;
+    _dataType  = dataType;
+    updateCount();
+}
+
+// -------------------------------------------------------------------------------------------------
 void IndexBuffer::set( int64_t sizeInBytes, IndexDataType dataType, GPUBufferObject::UsageHint usageHint )
 {
     _gpuBuffer = GPUBufferObject::New( sizeInBytes, GPUBufferObject::Type::ElementBuffer, usageHint );  

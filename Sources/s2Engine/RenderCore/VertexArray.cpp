@@ -103,6 +103,13 @@ const AttributeBuffer& VertexArray::attribute( int index ) const
 }
 
 // -------------------------------------------------------------------------------------------------
+AttributeBuffer& VertexArray::attribute( int index )
+{
+    assert( index >= 0 && index < static_cast<int>( _attributes.size() ) );
+    return _attributes[index];
+}
+
+// -------------------------------------------------------------------------------------------------
 // DSA: Set attribute without VAO binding (OpenGL 4.5+)
 // -------------------------------------------------------------------------------------------------
 void VertexArray::setAttribute( int location, const AttributeBuffer& attribute )
@@ -115,12 +122,19 @@ void VertexArray::setAttribute( int location, const AttributeBuffer& attribute )
     _attributes[location] = attribute;
 
     // Use DSA to attach attribute to VAO (no binding needed)
-    const_cast<AttributeBuffer&>( _attributes[location] ).attach( _objectID, location );
+    _attributes[location].attach( _objectID, location );
 }
 
 // -------------------------------------------------------------------------------------------------
 const IndexBuffer& VertexArray::indexBuffer() const
 {
+    return _indexBuffer.value();
+}
+
+// -------------------------------------------------------------------------------------------------
+IndexBuffer& VertexArray::indexBuffer()
+{
+    assert( _indexBuffer.has_value() && "IndexBuffer must be set before accessing" );
     return _indexBuffer.value();
 }
 

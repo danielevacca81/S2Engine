@@ -51,8 +51,14 @@ public:
     // Get attribute (read-only access)
     const AttributeBuffer& attribute( int index ) const;
     
+    // Get attribute (mutable access for data updates)
+    AttributeBuffer& attribute( int index );
+    
     // Get index buffer (read-only access)
     const IndexBuffer& indexBuffer() const;
+    
+    // Get index buffer (mutable access for data updates)
+    IndexBuffer& indexBuffer();
 
     // ===== Queries =====
     
