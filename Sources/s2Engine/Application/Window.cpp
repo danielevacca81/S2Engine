@@ -10,7 +10,6 @@
 #include "RenderCore/RenderCommands.h"
 
 #include "GLFW/glfw3.h"
-#include "imgui_impl_glfw.h"
 
 #include <iostream>
 
@@ -34,7 +33,16 @@ struct Window::Impl
         glfwWindowHint( GLFW_CLIENT_API,            GLFW_OPENGL_API );
         glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, params.contextVersionMajor );
         glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, params.contextVersionMinor );
-        glfwWindowHint( GLFW_OPENGL_PROFILE,        GLFW_OPENGL_COMPAT_PROFILE );
+        glfwWindowHint( GLFW_OPENGL_PROFILE,        [params]
+        { 
+            switch( params.openglProfile )
+            {
+                case OpenGLProfile::Any:    return 0; // Don't set the hint, let GLFW decide
+                case OpenGLProfile::Compat: return GLFW_OPENGL_COMPAT_PROFILE;
+                case OpenGLProfile::Core:   return GLFW_OPENGL_CORE_PROFILE;
+			}
+            return 0;
+        }() );
 
         auto impl    = std::make_unique<Impl>();
         impl->input  = new Input::InputState;
@@ -67,6 +75,7 @@ struct Window::Impl
     void makeCurrent()        { glfwMakeContextCurrent( window ); }
 
     // ---- Callbacks ---------------------------------------------------------
+    // Application-side callbacks
     static void installCallbacks( GLFWwindow* w )
     {
         glfwSetWindowCloseCallback( w, []( GLFWwindow* w )
@@ -76,9 +85,6 @@ struct Window::Impl
 
         glfwSetCursorPosCallback( w, []( GLFWwindow* w, double x, double y )
         {
-            // Forward to ImGui first
-            ImGui_ImplGlfw_CursorPosCallback( w, x, y );
-
             auto* self = static_cast<Window*>( glfwGetWindowUserPointer( w ) );
             auto* impl = self->_impl.get();
             impl->input->updateMouseState(
@@ -88,9 +94,6 @@ struct Window::Impl
 
         glfwSetMouseButtonCallback( w, []( GLFWwindow* w, int button, int action, int mods )
         {
-            // Forward to ImGui first
-            ImGui_ImplGlfw_MouseButtonCallback( w, button, action, mods );
-
             auto* self = static_cast<Window*>( glfwGetWindowUserPointer( w ) );
             auto* impl = self->_impl.get();
             impl->input->updateMouseState(
@@ -110,9 +113,6 @@ struct Window::Impl
 
         glfwSetScrollCallback( w, []( GLFWwindow* w, double x, double y )
         {
-            // Forward to ImGui first
-            ImGui_ImplGlfw_ScrollCallback( w, x, y );
-
             auto* self = static_cast<Window*>( glfwGetWindowUserPointer( w ) );
             auto* impl = self->_impl.get();
             impl->input->updateMouseState( Input::MouseWheelEvent{ x, y } );
@@ -121,31 +121,24 @@ struct Window::Impl
 
         glfwSetKeyCallback( w, []( GLFWwindow* w, int key, int scancode, int action, int mods )
         {
-            // Forward to ImGui � keyboard input is event-driven only
-            ImGui_ImplGlfw_KeyCallback( w, key, scancode, action, mods );
+            // Application key handling can be added here if needed
         } );
 
         glfwSetCharCallback( w, []( GLFWwindow* w, unsigned int c )
         {
-            // Forward to ImGui � text input is event-driven only
-            ImGui_ImplGlfw_CharCallback( w, c );
+            // Application char handling can be added here if needed
         } );
 
         glfwSetWindowFocusCallback( w, []( GLFWwindow* w, int focused )
         {
-            // Forward to ImGui � needed to suppress input when unfocused
-            ImGui_ImplGlfw_WindowFocusCallback( w, focused );
         } );
 
         glfwSetCursorEnterCallback( w, []( GLFWwindow* w, int entered )
         {
-            // Forward to ImGui � needed for mouse leave/enter tracking
-            ImGui_ImplGlfw_CursorEnterCallback( w, entered );
         } );
 
         glfwSetMonitorCallback( []( GLFWmonitor* monitor, int event )
         {
-            ImGui_ImplGlfw_MonitorCallback( monitor, event );
         } );
 
         glfwSetFramebufferSizeCallback( w, []( GLFWwindow* w, int width, int height )
@@ -208,7 +201,7 @@ Window::~Window()
 }
 
 // ================================================================================================
-// Public API � delegates to Impl
+// Public API — delegates to Impl
 // ================================================================================================
 uint32_t Window::width()  const { return _impl->width();  }
 uint32_t Window::height() const { return _impl->height(); }

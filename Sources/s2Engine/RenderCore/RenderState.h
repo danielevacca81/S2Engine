@@ -19,7 +19,7 @@ static constexpr int kMaxRenderTargets = 2;
 struct PrimitiveRestart
 {
 	bool enabled { false };
-	int  index { 0xffff };
+	int  index { 0x0000 };
 };
 
 /************************************************************************/

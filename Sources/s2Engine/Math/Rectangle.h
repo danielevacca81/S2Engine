@@ -51,10 +51,9 @@ public:
 	// ------------------------------------------------------------------------------------------------
 	bool isEmpty() const
 	{
-		return _left   <= T( 0 )
-			&& _bottom <= T( 0 )
-			&& _width  <= T( 0 )
-			&& _height <= T( 0 );
+		// a rectangle is empty if it has zero or negative area (i.e. width or height is zero or negative)
+		return _width <= T( 0 ) 
+			|| _height <= T( 0 );
 	}
 
 	// ------------------------------------------------------------------------------------------------
