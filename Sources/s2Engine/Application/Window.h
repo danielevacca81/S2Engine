@@ -39,8 +39,6 @@ public:
     uint32_t width()  const;
     uint32_t height() const;
 
-    /// Opaque native window handle (GLFWwindow* in the current backend).
-    /// Useful for subsystems that need it (e.g. UILayer::init).
     void* nativeHandle() const noexcept;
 
     bool  shouldClose()  const;

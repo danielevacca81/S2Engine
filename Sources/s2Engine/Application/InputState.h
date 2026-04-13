@@ -6,6 +6,7 @@
 #include "Input.h"
 
 #include <variant>
+#include <cstdint>
 
 namespace s2 {
 namespace Input {

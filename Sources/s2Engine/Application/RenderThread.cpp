@@ -2,11 +2,19 @@
 //
 #include "RenderThread.h"
 
+#define S2_DISABLE_RENDER_THREAD
+
+
 using namespace s2;
 
 // ------------------------------------------------------------------------------------------------
 void RenderThread::start( FrameJob initJob )
 {
+#if defined(S2_DISABLE_RENDER_THREAD)
+   _initJob = std::move( initJob );
+    if( _initJob )
+        _initJob();
+#else
     {
         std::unique_lock lock( _mutex );
         if( _running )
@@ -19,11 +27,17 @@ void RenderThread::start( FrameJob initJob )
     }
 
     _thread = std::thread( &RenderThread::threadLoop, this );
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
 void RenderThread::stop( FrameJob shutdownJob )
 {
+#if defined(S2_DISABLE_RENDER_THREAD)
+    _shutdownJob = std::move( shutdownJob );
+    if( _shutdownJob )
+        _shutdownJob();
+#else
     {
         std::unique_lock lock( _mutex );
         if( !_running )
@@ -38,18 +52,27 @@ void RenderThread::stop( FrameJob shutdownJob )
 
     if( _thread.joinable() )
         _thread.join();
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
 bool RenderThread::isRunning() const noexcept
 {
+#if defined(S2_DISABLE_RENDER_THREAD)
+    return true; // Always "running" in single-threaded mode.
+#else
     std::unique_lock lock( _mutex );
     return _running;
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
 void RenderThread::enqueueFrame( FrameJob job )
 {
+#if defined(S2_DISABLE_RENDER_THREAD)
+    if( job )
+        job();
+#else
     std::unique_lock lock( _mutex );
 
     // Wait until the render thread has consumed the previous job.
@@ -60,16 +83,23 @@ void RenderThread::enqueueFrame( FrameJob job )
     _frameDone  = false;
 
     _jobReady.notify_one();
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
 void RenderThread::waitFrameComplete()
 {
+#if defined(S2_DISABLE_RENDER_THREAD)
+    // nothing to wait for in single-threaded mode; the caller is already on the render thread.
+#else
     std::unique_lock lock( _mutex );
     _jobDone.wait( lock, [this] { return _frameDone; } );
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
+// The render thread's main loop. Waits for frame jobs, executes them, and signals completion.
+// if S2_DISABLE_RENDER_THREAD is defined, this function is not used and all jobs run immediately on the caller's thread.
 void RenderThread::threadLoop()
 {
     if( _initJob )

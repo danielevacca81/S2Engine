@@ -13,15 +13,25 @@ using namespace s2;
 static Application* gGlobalAppInstance = nullptr;
 
 // ------------------------------------------------------------------------------------------------
-Application::Application( const std::string& name )
+struct Application::Impl
 {
-    if( _instance )
+    static std::unique_ptr<Impl> create()
+    {
+        return std::make_unique<Impl>();
+    }
+};
+
+
+// ------------------------------------------------------------------------------------------------
+Application::Application( const std::string& name )
+    : _impl( Impl::create() )
+{
+    if( gGlobalAppInstance )
         throw std::runtime_error( "Only one application instance is allowed" );
 
     if( !glfwInit() )
         throw std::runtime_error( "Failed to initialize GLFW" );
 
-    _instance = reinterpret_cast<void*>( std::uintptr_t( 1 ) ); // sentinel: GLFW is alive
     gGlobalAppInstance = this;
 }
 
@@ -32,7 +42,6 @@ Application::~Application()
         w.reset();
 
     glfwTerminate();
-    _instance          = nullptr;
     gGlobalAppInstance = nullptr;
 }
 
@@ -65,6 +74,9 @@ const std::unique_ptr<Window>& Application::mainWindow() const
 // ------------------------------------------------------------------------------------------------
 int32_t Application::run()
 {
+    if( _windows.empty() )
+        throw std::runtime_error( "Application::run() - No window available in the application" );
+
     // Initialize all windows before entering the main loop
     for( auto& w : _windows )
     {

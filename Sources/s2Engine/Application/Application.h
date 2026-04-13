@@ -43,7 +43,8 @@ protected:
     HighResTimePoint                     _appTimer;
 
 private:
-    void* _instance = nullptr;
+    struct Impl;
+    std::unique_ptr<Impl> _impl;
 };
 
 } // namespace s2

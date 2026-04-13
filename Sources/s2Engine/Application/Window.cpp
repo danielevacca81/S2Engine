@@ -17,7 +17,7 @@
 using namespace s2;
 
 // ================================================================================================
-// Window::Impl — platform-specific internals (GLFW), invisible from headers
+// Window::Impl -> platform-specific internals (GLFW), invisible from headers
 // ================================================================================================
 struct Window::Impl
 {
@@ -121,25 +121,25 @@ struct Window::Impl
 
         glfwSetKeyCallback( w, []( GLFWwindow* w, int key, int scancode, int action, int mods )
         {
-            // Forward to ImGui — keyboard input is event-driven only
+            // Forward to ImGui ï¿½ keyboard input is event-driven only
             ImGui_ImplGlfw_KeyCallback( w, key, scancode, action, mods );
         } );
 
         glfwSetCharCallback( w, []( GLFWwindow* w, unsigned int c )
         {
-            // Forward to ImGui — text input is event-driven only
+            // Forward to ImGui ï¿½ text input is event-driven only
             ImGui_ImplGlfw_CharCallback( w, c );
         } );
 
         glfwSetWindowFocusCallback( w, []( GLFWwindow* w, int focused )
         {
-            // Forward to ImGui — needed to suppress input when unfocused
+            // Forward to ImGui ï¿½ needed to suppress input when unfocused
             ImGui_ImplGlfw_WindowFocusCallback( w, focused );
         } );
 
         glfwSetCursorEnterCallback( w, []( GLFWwindow* w, int entered )
         {
-            // Forward to ImGui — needed for mouse leave/enter tracking
+            // Forward to ImGui ï¿½ needed for mouse leave/enter tracking
             ImGui_ImplGlfw_CursorEnterCallback( w, entered );
         } );
 
@@ -208,7 +208,7 @@ Window::~Window()
 }
 
 // ================================================================================================
-// Public API — delegates to Impl
+// Public API ï¿½ delegates to Impl
 // ================================================================================================
 uint32_t Window::width()  const { return _impl->width();  }
 uint32_t Window::height() const { return _impl->height(); }
