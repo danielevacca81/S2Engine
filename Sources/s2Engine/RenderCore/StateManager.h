@@ -79,6 +79,8 @@ private:
     Color    _clearColor { 0.f, 0.f, 0.f, 0.f };
     float    _clearDepth { 1.0f };
     int32_t  _clearStencil { 0 };
+
+	friend class RenderCommands;
 };
 
 } // namespace RenderCore

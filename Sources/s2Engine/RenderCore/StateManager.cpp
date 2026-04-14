@@ -471,6 +471,8 @@ void StateManager::applyViewport( const ViewportState& vs )
         glCheck;
         _viewportState.rect = vs.rect;
     }
+
+	applyScissorTest( vs.scissorTest );
 }
 
 // ------------------------------------------------------------------------------------------------

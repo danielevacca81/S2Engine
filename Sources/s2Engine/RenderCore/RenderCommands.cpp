@@ -385,6 +385,10 @@ void RenderCommands::blit(
     }
     else
     {
+        // Blit to the default framebuffer (screen).
+        // glBlitFramebuffer respects the scissor test on the draw framebuffer.
+		_context._stateManager.applyScissorTest( ScissorTest{ true, destRect });
+
         // Blit to default framebuffer (screen) - requires legacy binding
         const uint32_t srcFBOId = srcFBO->id();
 
