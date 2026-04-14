@@ -13,7 +13,7 @@ namespace s2 {
 namespace UI {
 
 // ================================================================================================
-// ImGuiUILayer — concrete implementation, not visible outside this TU
+// ImGuiUILayer - concrete implementation, not visible outside this TU
 // ================================================================================================
 class ImGuiUILayer final : public UILayer
 {
@@ -51,7 +51,7 @@ void ImGuiUILayer::init( void* windowHandle )
 
     ImGui::StyleColorsDark();
 
-    // Platform backend only — rendering is handled by ImGuiPass.
+    // Platform backend only - rendering is handled by ImGuiPass.
     ImGui_ImplGlfw_InitForOpenGL( static_cast<GLFWwindow*>( windowHandle ), true );
 
     _initialized = true;
@@ -67,7 +67,7 @@ void ImGuiUILayer::shutdown()
     ImGui_ImplGlfw_Shutdown();
 
     // Destroys the ImGui CPU context (fonts, windows, settings).
-    // Does NOT touch OpenGL — no GL resource is freed here.
+    // Does NOT touch OpenGL - no GL resource is freed here.
     ImGui::DestroyContext( _context );
     _context = nullptr;
 	uiData.erase( "ImGuiContext" );

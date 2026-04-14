@@ -64,3 +64,12 @@ void InputState::updateMouseState( const MouseEvent &event )
 					[&] ( const MouseWheelEvent  &e ) { onMouseWheel( e ); },
 				}, event );
 }
+
+// ------------------------------------------------------------------------------------------------
+void InputState::updateKeyboardState( const KeyboardEvent &e )
+{
+	if( e.eventType == KeyboardEvent::Press )
+		_keyboardState.onKeyPress( e.key, e.modifiers );
+	else if( e.eventType == KeyboardEvent::Release )
+		_keyboardState.onKeyRelease( e.key, e.modifiers );
+}

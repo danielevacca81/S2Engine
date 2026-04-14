@@ -121,7 +121,16 @@ struct Window::Impl
 
         glfwSetKeyCallback( w, []( GLFWwindow* w, int key, int scancode, int action, int mods )
         {
-            // Application key handling can be added here if needed
+            auto* self = static_cast<Window*>( glfwGetWindowUserPointer( w ) );
+            auto* impl = self->_impl.get();
+            impl->input->updateKeyboardState(   
+                Input::KeyboardEvent{
+                    .eventType = action == GLFW_PRESS ? Input::KeyboardEvent::Press
+                                                      : Input::KeyboardEvent::Release,
+                    .key = key,
+                    .modifiers = static_cast<uint32_t>( mods )
+                } );
+            self->onKeyboardEvent( impl->input->keyboardState() );
         } );
 
         glfwSetCharCallback( w, []( GLFWwindow* w, unsigned int c )

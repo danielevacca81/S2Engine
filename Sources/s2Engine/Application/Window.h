@@ -55,6 +55,7 @@ public:
     virtual void onMouseDoubleClickEvent( const Input::MouseState& ms ) {}
     virtual void onMouseButtonEvent( const Input::MouseState& ms )      {}
     virtual void onMouseScrollEvent( const Input::MouseState& ms )      {}
+    virtual void onKeyboardEvent( const Input::KeyboardState& ks )      {}
     virtual void onCloseEvent()                                         {}
     virtual void onResizeEvent( uint32_t width, uint32_t height )       {}
 

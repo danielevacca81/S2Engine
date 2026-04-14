@@ -37,18 +37,27 @@ struct MouseWheelEvent
 
 using MouseEvent = std::variant<MouseMoveEvent, MouseButtonEvent, MouseWheelEvent>;
 
+
+struct KeyboardEvent
+{
+    enum EventType { Press = 0, Release = 1 } eventType;
+    int key { 0 };          // key code
+    uint32_t modifiers { 0 }; // bitmask of Modifier flags
+};
+
 class InputState
 {
 public:
-	//void updateKeyboardState();
-	void updateMouseState( const MouseEvent &e );
+    void updateKeyboardState( const KeyboardEvent &e );
+    const KeyboardState& keyboardState() const { return _keyboardState; }
 
+	void updateMouseState( const MouseEvent &e );
 	const MouseState& mouseState()    const { return _mouseState; }
 
 
 private:
-	MouseState _mouseState;
-	//KeyboardState _keyboardState;
+	KeyboardState _keyboardState;
+	MouseState    _mouseState;
 };
 
 }
