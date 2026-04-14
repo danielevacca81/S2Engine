@@ -39,17 +39,17 @@ public:
 	void endFrame();
 
 	// Access to render commands (primary interface for rendering)
-	RenderCommands& commands() { return *_commands; }
-	const RenderCommands& commands() const { return *_commands; }
+	RendererBackend&       rendererBackend()       { return *_rendererBackend; }
+	const RendererBackend& rendererBackend() const { return *_rendererBackend; }
 
 private:
 	uint64_t  _nativeHandle { 0 };
 
-	ContextInfo                     _info;
-	StateManager                    _stateManager;
-	std::unique_ptr<RenderCommands> _commands;
+	ContextInfo                      _info;
+	StateManager                     _stateManager;
+	std::unique_ptr<RendererBackend> _rendererBackend;
 
-	friend class RenderCommands; // RenderCommands needs access to _stateManager
+	friend class RendererBackend; // RendererBackend needs access to _stateManager
 };
 
 } // namespace RenderCore

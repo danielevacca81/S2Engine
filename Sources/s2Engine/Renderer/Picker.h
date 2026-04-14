@@ -9,11 +9,6 @@
 #include "FrameData.h"
 #include "Renderer.h"
 
-#include "RenderCore/RenderCommands.h"
-#include "RenderCore/FrameBuffer.h"
-#include "RenderCore/ImageFormat.h"
-#include "RenderCore/RenderTarget.h"
-
 #include "Math/Math.h"
 
 #include "sigslot/signal.hpp"

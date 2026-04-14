@@ -6,7 +6,7 @@
 #include "FrameData.h"
 #include "RenderCommand.h"
 
-#include "RenderCore/RenderCommands.h"
+#include "RenderCore/RendererBackend.h"
 #include "RenderCore/Context.h"
 #include "RenderCore/ClearState.h"
 #include "RenderCore/DrawState.h"
@@ -106,11 +106,11 @@ void ForwardPass::execute( const CommandBuffer& queue, FrameData& frameData, con
     if( !frameData.mainTarget )
         return; // No render target set
         
-    auto& renderCommands = ctx->commands();
+    auto& rendererBackend = ctx->rendererBackend();
 
     // ===== 1. Execute Clear Commands =====
     for( const auto& clearCmd : queue.clearCommands() )
-        renderCommands.clear( *frameData.mainTarget, getClearState( clearCmd ) );
+        rendererBackend.clear( *frameData.mainTarget, getClearState( clearCmd ) );
 
     // ===== 2. Execute Render Commands =====
     for( const auto& renderCmd : queue.renderCommands() )
@@ -140,7 +140,7 @@ void ForwardPass::execute( const CommandBuffer& queue, FrameData& frameData, con
         RenderCore::PrimitiveType primitiveType = getPrimitiveType( renderCmd.renderMode );
 
         // Execute draw call (DSA-aware)
-        renderCommands.draw( *frameData.mainTarget, primitiveType, mesh, drawState );
+        rendererBackend.draw( *frameData.mainTarget, primitiveType, mesh, drawState );
 
         // Update statistics
         _stats.drawCalls++;

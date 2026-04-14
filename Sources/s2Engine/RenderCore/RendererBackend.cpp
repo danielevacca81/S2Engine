@@ -1,6 +1,6 @@
-// RenderCommands.cpp
+// RendererBackend.cpp
 //
-#include "RenderCommands.h"
+#include "RendererBackend.h"
 
 #include "Context.h"
 #include "RenderTarget.h"
@@ -63,7 +63,7 @@ static inline DrawState sanitizeDrawState( const DrawState& ds, const RenderTarg
 
 
 // ------------------------------------------------------------------------------------------------
-RenderCommands::RenderCommands( Context& context )
+RendererBackend::RendererBackend( Context& context )
     : _context( context )
 {
 }
@@ -72,13 +72,13 @@ RenderCommands::RenderCommands( Context& context )
 // CLEAR OPERATIONS (DSA-ready)
 // ================================================================================================
 
-void RenderCommands::clear( const RenderTarget& target, const ClearState& cs ) const
+void RendererBackend::clear( const RenderTarget& target, const ClearState& cs ) const
 {
     clear( target.framebuffer(), cs );
 }
 
 // ------------------------------------------------------------------------------------------------
-void RenderCommands::clear( const FrameBufferPtr& fbo, const ClearState& cs ) const
+void RendererBackend::clear( const FrameBufferPtr& fbo, const ClearState& cs ) const
 {
     if( !fbo )
         return;
@@ -96,19 +96,19 @@ void RenderCommands::clear( const FrameBufferPtr& fbo, const ClearState& cs ) co
 // DRAW OPERATIONS (DSA-ready)
 // ================================================================================================
 
-void RenderCommands::draw( const RenderTarget& target, const PrimitiveType& primitiveType,const VertexArrayPtr& va, const DrawState& ds ) const
+void RendererBackend::draw( const RenderTarget& target, const PrimitiveType& primitiveType,const VertexArrayPtr& va, const DrawState& ds ) const
 {
     draw( target.framebuffer(), primitiveType, va, sanitizeDrawState( ds, target ) );
 }
 
 // ------------------------------------------------------------------------------------------------
-void RenderCommands::draw( const RenderTarget& target, const PrimitiveType& primitiveType,const VertexDataPtr& primitive, const DrawState& ds ) const
+void RendererBackend::draw( const RenderTarget& target, const PrimitiveType& primitiveType,const VertexDataPtr& primitive, const DrawState& ds ) const
 {
     draw( target.framebuffer(), primitiveType, primitive, sanitizeDrawState( ds, target ) );
 }
 
 // ------------------------------------------------------------------------------------------------
-void RenderCommands::draw( const RenderTarget& target, const PrimitiveBatch& batch, const DrawState& ds ) const
+void RendererBackend::draw( const RenderTarget& target, const PrimitiveBatch& batch, const DrawState& ds ) const
 {
     if( !target.framebuffer() )
         return;
@@ -132,7 +132,7 @@ void RenderCommands::draw( const RenderTarget& target, const PrimitiveBatch& bat
 }
 
 // ------------------------------------------------------------------------------------------------
-void RenderCommands::draw( const FrameBufferPtr& fbo, const PrimitiveType& primitiveType, const VertexArrayPtr& va, const DrawState& ds ) const
+void RendererBackend::draw( const FrameBufferPtr& fbo, const PrimitiveType& primitiveType, const VertexArrayPtr& va, const DrawState& ds ) const
 {
     if( !fbo || !va )
         return;
@@ -152,7 +152,7 @@ void RenderCommands::draw( const FrameBufferPtr& fbo, const PrimitiveType& primi
 }
 
 // ------------------------------------------------------------------------------------------------
-void RenderCommands::draw( const FrameBufferPtr& fbo, const PrimitiveType& primitiveType, const VertexDataPtr& primitive, const DrawState& ds ) const
+void RendererBackend::draw( const FrameBufferPtr& fbo, const PrimitiveType& primitiveType, const VertexDataPtr& primitive, const DrawState& ds ) const
 {
     if( !fbo || !primitive )
         return;
@@ -172,7 +172,7 @@ void RenderCommands::draw( const FrameBufferPtr& fbo, const PrimitiveType& primi
 }
 
 // ------------------------------------------------------------------------------------------------
-void RenderCommands::drawRange( const RenderTarget& target, const PrimitiveType& primitiveType, const VertexArrayPtr& va, uint32_t elementCount, uint32_t elementOffset, uint32_t baseVertexOffset, const DrawState& ds ) const
+void RendererBackend::drawRange( const RenderTarget& target, const PrimitiveType& primitiveType, const VertexArrayPtr& va, uint32_t elementCount, uint32_t elementOffset, uint32_t baseVertexOffset, const DrawState& ds ) const
 {
     if( !target.framebuffer() || !va || !va->isIndexed() )
         return;
@@ -214,13 +214,13 @@ void RenderCommands::drawRange( const RenderTarget& target, const PrimitiveType&
 // ================================================================================================
 // READ OPERATIONS (DSA where possible)
 // ================================================================================================
-Pixmap<uint8_t> RenderCommands::readPixels( const RenderTarget& target ) const
+Pixmap<uint8_t> RendererBackend::readPixels( const RenderTarget& target ) const
 {
     return readPixels( target.framebuffer(), target.width(), target.height() );
 }
 
 // ------------------------------------------------------------------------------------------------
-Pixmap<uint8_t> RenderCommands::readPixels( const FrameBufferPtr& fbo, uint32_t width, uint32_t height ) const
+Pixmap<uint8_t> RendererBackend::readPixels( const FrameBufferPtr& fbo, uint32_t width, uint32_t height ) const
 {
     if( !fbo || width == 0 || height == 0 )
         return {};
@@ -279,7 +279,7 @@ Pixmap<uint8_t> RenderCommands::readPixels( const FrameBufferPtr& fbo, uint32_t 
 }
 
 // ------------------------------------------------------------------------------------------------
-void RenderCommands::readPixels( const RenderTarget& target, 
+void RendererBackend::readPixels( const RenderTarget& target, 
                                  const FrameBuffer::AttachmentPoint& attachPoint, 
                                  const ImageFormat& pixelFormat,
 								 const ImageDataType& pixelType,
@@ -301,7 +301,7 @@ void RenderCommands::readPixels( const RenderTarget& target,
 }
 
 // ------------------------------------------------------------------------------------------------
-void RenderCommands::readPixelsAsync( const RenderTarget& target,
+void RendererBackend::readPixelsAsync( const RenderTarget& target,
                                       const FrameBuffer::AttachmentPoint& attachPoint,
                                       const ImageFormat& imageFormat,
                                       const ImageDataType& pixelType,
@@ -336,7 +336,7 @@ void RenderCommands::readPixelsAsync( const RenderTarget& target,
 // BLIT OPERATIONS (DSA-ready)
 // ================================================================================================
 
-void RenderCommands::blit( 
+void RendererBackend::blit( 
     const RenderTarget& source, 
     const RenderTarget& destination,
     const Math::irect& srcRect, 
@@ -361,7 +361,7 @@ void RenderCommands::blit(
 }
 
 // ------------------------------------------------------------------------------------------------
-void RenderCommands::blit( 
+void RendererBackend::blit( 
     const FrameBufferPtr& srcFBO, 
     const FrameBufferPtr& dstFBO,
     const Math::irect& srcRect, 
@@ -410,7 +410,7 @@ void RenderCommands::blit(
 }
 
 // ------------------------------------------------------------------------------------------------
-void RenderCommands::blitToScreen( const RenderTarget& source, const Math::irect& srcRect )
+void RendererBackend::blitToScreen( const RenderTarget& source, const Math::irect& srcRect )
 {
     const Math::irect src = srcRect.isEmpty() 
         ? Math::irect( 0, 0, source.width(), source.height() ) 
@@ -423,7 +423,7 @@ void RenderCommands::blitToScreen( const RenderTarget& source, const Math::irect
 // UTILITY OPERATIONS
 // ================================================================================================
 
-void RenderCommands::drawFullscreenQuad( const Texture2DPtr& srcTexture )
+void RendererBackend::drawFullscreenQuad( const Texture2DPtr& srcTexture )
 {
     if( !srcTexture )
         return;

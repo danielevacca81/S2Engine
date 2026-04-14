@@ -88,7 +88,7 @@ private:
     void startRenderThread();
     void stopRenderThread();
     void submitFrameAndWait();
-    void paintFrame();
+    void drawCurrentFrame();
     void applyFrameBufferResize( int width, int height );
     void postResize( int width, int height ) noexcept;
 

@@ -10,7 +10,7 @@
 #include "Renderer/ResourceManager.h"
 
 #include "RenderCore/Context.h"
-#include "RenderCore/RenderCommands.h"
+#include "RenderCore/RendererBackend.h"
 #include "RenderCore/RenderTarget.h"
 #include "RenderCore/ShaderCompiler.h"
 #include "RenderCore/DrawState.h"
@@ -228,7 +228,7 @@ void ImGuiPass::execute( const Renderer::CommandBuffer& /*queue*/,
     assert( ctx && "ImGuiPass: context must be valid" );
     assert( frameData.mainTarget && "ImGuiPass: mainTarget must be set" );
 
-    auto& renderCommands = ctx->commands();
+    auto& rendererBackend = ctx->rendererBackend();
 
     // ------------------------------------------------------------------
     // 1. Compute framebuffer dimensions from ImGui draw data
@@ -343,7 +343,7 @@ void ImGuiPass::execute( const Renderer::CommandBuffer& /*queue*/,
 
             const uint32_t idxByteOffset = ( pcmd.IdxOffset + globalIdxOffset ) * sizeof( ImDrawIdx );
 
-            renderCommands.drawRange(
+            rendererBackend.drawRange(
                 *frameData.mainTarget,
                 PrimitiveType::Triangles,
                 _vao,

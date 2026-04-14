@@ -1,12 +1,8 @@
 // Renderer.cpp
 //
 #include "Renderer.h"
+
 #include "RenderCommand.h"
-#include "RenderCore/RenderCommands.h"
-#include "RenderCore/ClearState.h"
-#include "RenderCore/DrawState.h"
-#include "RenderCore/PrimitiveType.h"
-#include "RenderCore/VertexData.h"
 
 #include <vector>
 

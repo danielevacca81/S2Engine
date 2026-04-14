@@ -7,7 +7,7 @@
 
 #include "RenderCore/Context.h"
 #include "RenderCore/RenderTarget.h"
-#include "RenderCore/RenderCommands.h"
+#include "RenderCore/RendererBackend.h"
 
 #include "GLFW/glfw3.h"
 
@@ -254,9 +254,6 @@ void Window::stopRenderThread()
     {
         onShutdownEvent();
 
-        if( _uiLayer )
-            _uiLayer->shutdown();
-
         _renderTarget.reset();
         _renderingContext.reset();
 
@@ -269,12 +266,12 @@ void Window::stopRenderThread()
 // ================================================================================================
 void Window::submitFrameAndWait()
 {
-    _renderThread.enqueueFrame( [this] { paintFrame(); } );
+    _renderThread.enqueueFrame( [this] { drawCurrentFrame(); } );
     _renderThread.waitFrameComplete();
 }
 
 // ------------------------------------------------------------------------------------------------
-void Window::paintFrame()
+void Window::drawCurrentFrame()
 {
     const uint64_t pending = _pendingResize.exchange( 0, std::memory_order_acquire );
     if( pending != 0 )
@@ -285,16 +282,19 @@ void Window::paintFrame()
                        static_cast<uint32_t>( fbHeight ) );
     }
 
+    if( _uiLayer )
+        _uiLayer->drawUI( [this] { onDrawUI(); } );
+
+    // note: beginFrame()/endFrame() at the moment are just no-op.
+    // consider removing them
+
     _renderingContext->beginFrame();
     {
         onDraw();
-
-        if( _uiLayer )
-            _uiLayer->drawUI( [this] { onDrawUI(); } );
     }
     _renderingContext->endFrame();
 
-    _renderingContext->commands().blitToScreen( *_renderTarget );
+    _renderingContext->rendererBackend().blitToScreen( *_renderTarget );
 }
 
 // ------------------------------------------------------------------------------------------------

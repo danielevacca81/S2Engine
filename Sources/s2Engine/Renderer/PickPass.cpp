@@ -10,7 +10,7 @@
 
 #include "RenderCore/OpenGL.h"
 #include "RenderCore/Context.h"
-#include "RenderCore/RenderCommands.h"
+#include "RenderCore/RendererBackend.h"
 #include "RenderCore/RenderTarget.h"
 #include "RenderCore/DrawState.h"
 #include "RenderCore/ClearState.h"
@@ -82,7 +82,7 @@ void PickPass::execute( const CommandBuffer& queue, FrameData& frameData, const 
     ClearState cs;
     cs.buffers = ClearBuffers::ColorAndDepthBuffer;
     cs.color   = Color( 0, 0, 0, 0 );
-    ctx->commands().clear( *_pickTarget, cs );
+    ctx->rendererBackend().clear( *_pickTarget, cs );
 
     // 4. Render all pickable objects with internal pick shader
     for( const auto& cmd : queue.renderCommands() )
@@ -106,7 +106,7 @@ void PickPass::execute( const CommandBuffer& queue, FrameData& frameData, const 
         ds.renderState.depthTest.function = DepthTest::Function::Less;
         ds.viewport.rect                  = _pickTarget->size();
 
-        ctx->commands().draw( *_pickTarget, PrimitiveType::Triangles, mesh, ds );
+        ctx->rendererBackend().draw( *_pickTarget, PrimitiveType::Triangles, mesh, ds );
     }
 }
 
