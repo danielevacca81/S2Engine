@@ -9,8 +9,7 @@
 
 #include "GLFW/glfw3.h"
 
-namespace s2 {
-namespace UI {
+using namespace s2;
 
 // ================================================================================================
 // ImGuiUILayer - concrete implementation, not visible outside this TU
@@ -43,7 +42,7 @@ void ImGuiUILayer::init( void* windowHandle )
 
     IMGUI_CHECKVERSION();
     _context = ImGui::CreateContext();
-	uiData["ImGuiContext"] = _context;
+	_uiData["ImGuiContext"] = _context;
 
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
@@ -70,7 +69,7 @@ void ImGuiUILayer::shutdown()
     // Does NOT touch OpenGL - no GL resource is freed here.
     ImGui::DestroyContext( _context );
     _context = nullptr;
-	uiData.erase( "ImGuiContext" );
+	_uiData.erase( "ImGuiContext" );
 
     _initialized = false;
 }
@@ -122,10 +121,7 @@ bool ImGuiUILayer::wantCaptureKeyboard() const noexcept
 // ================================================================================================
 // Factory
 // ================================================================================================
-std::unique_ptr<UILayer> createUILayer()
+std::unique_ptr<UILayer> s2::createDefaultUILayer()
 {
     return std::make_unique<ImGuiUILayer>();
 }
-
-} // namespace UI
-} // namespace s2

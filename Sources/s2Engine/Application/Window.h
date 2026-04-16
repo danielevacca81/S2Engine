@@ -21,10 +21,10 @@ class Context;
 class RenderTarget;
 }
 
-//namespace Input { class Input; }
-namespace UI    { class UILayer; }
+namespace Renderer { class Renderer; }
 
 class Application;
+class UILayer;
 
 class S2ENGINE_API Window
 {
@@ -40,9 +40,6 @@ public:
     uint32_t height() const;
 
     void* nativeHandle() const noexcept;
-
-    bool  shouldClose()  const;
-    void  swapBuffers();
 
     // @todo:
     // isMinimized
@@ -66,13 +63,13 @@ public:
     /// only if a UILayer has been installed.
     virtual void onDrawUI()                                             {}
 
-    /// Install a UI layer. Ownership is transferred to Window.
-    /// Pass nullptr to remove the current UI layer.
-    /// Must be called before startRenderThread().
-    void setUILayer( std::unique_ptr<UI::UILayer> layer ) noexcept;
+    ///// Install a UI layer. Ownership is transferred to Window.
+    ///// Pass nullptr to remove the current UI layer.
+    ///// Must be called before startRenderThread().
+    //void setUILayer( std::unique_ptr<UI::UILayer> layer ) noexcept;
 
-    /// Access the UI layer (may be null if none was installed).
-    UI::UILayer* uiLayer() noexcept { return _uiLayer.get(); }
+    ///// Access the UI layer (may be null if none was installed).
+    //UI::UILayer* uiLayer() noexcept { return _uiLayer.get(); }
 
 protected:
     void makeCurrent();
@@ -82,7 +79,8 @@ protected:
 
 protected:
     std::unique_ptr<RenderCore::Context>      _renderingContext;
-    std::unique_ptr<RenderCore::RenderTarget> _renderTarget;
+	std::unique_ptr<RenderCore::RenderTarget> _mainRenderTarget; // default renderTarget for the window
+	std::unique_ptr<UILayer>                  _ui;
 
 private:
     void startRenderThread();
@@ -91,14 +89,14 @@ private:
     void drawCurrentFrame();
     void applyFrameBufferResize( int width, int height );
     void postResize( int width, int height ) noexcept;
+    bool shouldClose()  const;
+    void swapBuffers();
 
     void framebufferSize( int& width, int& height ) const;
 
 private:
     std::atomic<uint64_t> _pendingResize { 0 };
-
-    RenderThread                   _renderThread;
-    std::unique_ptr<UI::UILayer>   _uiLayer;
+    RenderThread          _renderThread;
 
     struct Impl;
     std::unique_ptr<Impl> _impl;

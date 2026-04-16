@@ -3,7 +3,7 @@
 #include "Window.h"
 
 #include "InputState.h"
-#include "UI/UILayer.h"
+#include "UILayer.h"
 
 #include "RenderCore/Context.h"
 #include "RenderCore/RenderTarget.h"
@@ -40,7 +40,7 @@ struct Window::Impl
                 case OpenGLProfile::Any:    return 0; // Don't set the hint, let GLFW decide
                 case OpenGLProfile::Compat: return GLFW_OPENGL_COMPAT_PROFILE;
                 case OpenGLProfile::Core:   return GLFW_OPENGL_CORE_PROFILE;
-			}
+            }
             return 0;
         }() );
 
@@ -192,20 +192,18 @@ Window::Window( const std::string& name, int width, int height, const WindowPara
     : _impl( Impl::create( name, width, height, params, this ) )
 {
     makeCurrent();
-    {
-        GLFWwindow* ctx = glfwGetCurrentContext();
-        std::cout << "Current GLFW Context: " << std::hex << ctx << '\n';
-    }
-
     _renderingContext = std::make_unique<RenderCore::Context>();
-    _renderTarget     = std::make_unique<RenderCore::RenderTarget>();
+    _mainRenderTarget = std::make_unique<RenderCore::RenderTarget>();
+	_ui               = createDefaultUILayer();
+	_ui->init( _impl->window ); // install callbacks and initialize UI layer with the native window handle
+    _ui->setEnabled( false );
 }
 
 // ------------------------------------------------------------------------------------------------
 Window::~Window()
 {
     stopRenderThread();
-    _uiLayer.reset();
+    _ui.reset();
     _impl.reset();
 }
 
@@ -225,11 +223,11 @@ void Window::framebufferSize( int& w, int& h ) const { _impl->framebufferSize( w
 // ================================================================================================
 // UILayer
 // ================================================================================================
-void Window::setUILayer( std::unique_ptr<UI::UILayer> layer ) noexcept
-{
-    _uiLayer = std::move( layer );
-    _uiLayer->init( _impl->window );
-}
+//void Window::setUILayer( std::unique_ptr<UI::UILayer> layer ) noexcept
+//{
+//    _uiLayer = std::move( layer );
+//    _uiLayer->init( _impl->window );
+//}
 
 // ================================================================================================
 // Render thread
@@ -254,7 +252,7 @@ void Window::stopRenderThread()
     {
         onShutdownEvent();
 
-        _renderTarget.reset();
+        _mainRenderTarget.reset();
         _renderingContext.reset();
 
         glfwMakeContextCurrent( nullptr );
@@ -282,25 +280,23 @@ void Window::drawCurrentFrame()
                        static_cast<uint32_t>( fbHeight ) );
     }
 
-    if( _uiLayer )
-        _uiLayer->drawUI( [this] { onDrawUI(); } );
+    // UI rendering callback.
+    // Issues abstract rendering commands for the UILayer 
+    // and consume them in the pipeline UI pass.
+    if( _ui && _ui->isEnabled() )
+        _ui->drawUI( [this] { onDrawUI(); } );
 
-    // note: beginFrame()/endFrame() at the moment are just no-op.
-    // consider removing them
+    // Application rendering callback.
+    // the pipeline will be executed on the render thread
+    onDraw();
 
-    _renderingContext->beginFrame();
-    {
-        onDraw();
-    }
-    _renderingContext->endFrame();
-
-    _renderingContext->rendererBackend().blitToScreen( *_renderTarget );
+    _renderingContext->rendererBackend().blitToScreen( *_mainRenderTarget );
 }
 
 // ------------------------------------------------------------------------------------------------
 void Window::applyFrameBufferResize( int width, int height )
 {
-    _renderTarget->resize( width, height );
+    _mainRenderTarget->resize( width, height );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -314,11 +310,11 @@ void Window::postResize( int width, int height ) noexcept
 // ================================================================================================
 bool Window::uiWantCaptureMouse() const noexcept
 {
-    return _uiLayer && _uiLayer->wantCaptureMouse();
+    return _ui && _ui->wantCaptureMouse();
 }
 
 // ------------------------------------------------------------------------------------------------
 bool Window::uiWantCaptureKeyboard() const noexcept
 {
-    return _uiLayer && _uiLayer->wantCaptureKeyboard();
+    return _ui && _ui->wantCaptureKeyboard();
 }

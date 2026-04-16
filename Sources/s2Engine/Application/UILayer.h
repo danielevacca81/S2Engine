@@ -1,7 +1,7 @@
 // UILayer.h
 //
-#ifndef UI_UILAYER_H
-#define UI_UILAYER_H
+#ifndef APPLICATION_UILAYER_H
+#define APPLICATION_UILAYER_H
 
 #include "s2Engine_API.h"
 
@@ -11,7 +11,6 @@
 #include <string>
 
 namespace s2 {
-namespace UI {
 
 // ------------------------------------------------------------------------------------------------
 // UILayer
@@ -36,11 +35,17 @@ namespace UI {
 class S2ENGINE_API UILayer
 {
 public:
-	std::unordered_map<std::string, void*> uiData; // user data storage for UI-related pointers (e.g. ImGuiContext*)
-
-public:
     virtual ~UILayer() = default;
 
+	void         setEnabled( bool enabled ) noexcept { _enabled = enabled; }
+	virtual void setStyle( const std::string& style ) { /* Optional: Implement style switching if supported by the UI library */ }
+
+	const bool isEnabled() const noexcept { return _enabled; }
+	const std::unordered_map<std::string, void*>& uiData() const { return _uiData; }
+	
+    void* uiData( const std::string& key ) const { auto it = _uiData.find( key ); return it != _uiData.end() ? it->second : nullptr; }
+
+protected:
     /// Initialize the UI system.
     /// @param windowHandle  Opaque platform window handle.
     virtual void init( void* windowHandle ) = 0;
@@ -59,12 +64,21 @@ public:
 
     /// Returns true if the UI system wants to consume keyboard input.
     virtual bool wantCaptureKeyboard() const noexcept = 0;
+
+protected:
+    // User data storage for UI-related elements (e.g., ImGui contexts, font atlases, etc.). 
+    // The UILayer implementation can use this to store library-specific data without exposing it in the interface.
+    // The application can also use it to store UI-related data that needs to be accessed across frames.
+    std::unordered_map<std::string, void*> _uiData;
+
+	bool _enabled { false };
+
+    friend class Window;
 };
 
-/// Factory: creates the default UILayer implementation for the current build.
-S2ENGINE_API std::unique_ptr<UILayer> createUILayer();
+// Factory: creates the default UILayer implementation for the current build.
+S2ENGINE_API std::unique_ptr<UILayer> createDefaultUILayer();
 
-} // namespace UI
 } // namespace s2
 
-#endif // UI_UILAYER_H
+#endif // APPLICATION_UILAYER_H

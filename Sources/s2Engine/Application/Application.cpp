@@ -97,6 +97,7 @@ int32_t Application::run()
         glfwPollEvents();
         updateState();
 
+		// skip rendering if the window is minimized
         if( w->width() == 0 && w->height() == 0 )
             continue;
 
