@@ -5,35 +5,23 @@
 
 #include "s2Engine_API.h"
 
-#include "RenderCommand.h"
-#include "ResourceManager.h"
-
-#include "RenderCore/VertexData.h"
-
 #include <string>
 
 namespace s2 {
+namespace RenderCore { class RendererBackend; }
 namespace Renderer {
 
+class ResourceManager;
 class CommandBuffer;
 struct FrameData;
 
 // ================================================================================================
 // RenderPass: Abstract base class for rendering passes
 // ================================================================================================
-class RenderPass;
-using RenderPassPtr = std::shared_ptr<RenderPass>;
-
 class S2ENGINE_API RenderPass
 {
 public:
     virtual ~RenderPass() = default;
-
-    // Initialize pass with resource manager
-    virtual void initialize( ResourceManager& resourceManager ) = 0;
-
-    // Execute pass with command buffer and frame data
-    virtual void execute( const CommandBuffer& queue, FrameData& frameData, const RenderCore::Context* ctx ) = 0;
 
     // Get pass name
     virtual const std::string& name() const = 0;
@@ -53,24 +41,19 @@ public:
     const Stats& stats() const { return _stats; }
 
 protected:
+    // Initialize pass with resource manager
+    virtual void initialize( ResourceManager* resourceManager ) { _resourceManager = resourceManager; }
+
+    // Execute pass with command buffer and frame data
+    virtual void execute( const CommandBuffer& queue, FrameData& frameData, const RenderCore::RendererBackend& rendererBackend ) = 0;
+
+
+protected:
+    ResourceManager* _resourceManager { nullptr }; // not owned, set during initialization
     Stats _stats;
     bool  _enabled { true };
-};
 
-// ================================================================================================
-// ForwardPass: Standard forward rendering pass (DSA + Bindless)
-// ================================================================================================
-
-class S2ENGINE_API ForwardPass : public RenderPass
-{
-public:
-    void initialize( ResourceManager& resourceManager ) override;
-    void execute( const CommandBuffer& queue, FrameData& frameData, const RenderCore::Context* ctx ) override;
-    const std::string& name() const override;
-
-private:
-    ResourceManager* _resourceManager { nullptr };
-    std::string      _name { "ForwardPass" };
+	friend class RenderPipeline; // RenderPipeline needs access to protected members for initialization and execution
 };
 
 } // namespace Renderer

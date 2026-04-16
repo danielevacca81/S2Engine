@@ -19,7 +19,7 @@ namespace Renderer {
 struct S2ENGINE_API FrameData
 {
     // Main render target for this frame
-    RenderCore::RenderTarget* mainTarget = nullptr;
+    RenderCore::RenderTarget* renderTarget = nullptr;
 
 	Math::dmat4 cameraViewMatrix;       // View matrix from the camera
 	Math::dmat4 cameraProjectionMatrix; // Projection matrix from the camera

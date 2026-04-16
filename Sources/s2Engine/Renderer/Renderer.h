@@ -94,21 +94,23 @@ public:
     // Emitted at the end of endFrame(), before the GL context is released.
     // Slots are called synchronously while the context is still current.
     // Connect here to safely perform GL readback operations (e.g., Picker).
-    sigslot::signal<const FrameData&> onFrameDone;
+    sigslot::signal<const FrameData&> onRenderCompleted;
 
 public:
-    explicit Renderer( const RenderCore::Context* gpuContext,
-                       const RenderPipeline& pipeline = RenderPipeline::createForwardPipeline() );
+    explicit Renderer( const RenderCore::Context* gpuContext );
 
     Renderer( const Renderer& )            = delete;
     Renderer& operator=( const Renderer& ) = delete;
     Renderer( Renderer&& )                 = delete;
     Renderer& operator=( Renderer&& )      = delete;
 
-    void beginFrame( const FrameData& frameData );
-    void clear( const ClearCommand& command );
-    void render( const RenderCommand& command );
-    void endFrame();
+	// Set a custom render pipeline. Ownership is transferred to Renderer.
+    void setPipeline( RenderPipeline pipeline );
+
+    void begin( const FrameData& frameData );
+    void submit( const ClearCommand& command );
+    void submit( const RenderCommand& command );
+    void execute();
 
     ResourceManager& resources()        { return _resourceManager; }
     const FrameData& frameData()  const { return _frameData; }
@@ -118,7 +120,7 @@ private:
     enum class State { Ready, FrameStarted };
 
 private:
-    const RenderCore::Context* _gpuContext { nullptr };
+	const RenderCore::Context* _gpuContext { nullptr }; // Renderer does not own the context, it is managed by the Window and passed in on construction.
     State                      _state      { State::Ready };
 
     Stats           _stats;

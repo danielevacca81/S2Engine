@@ -35,9 +35,9 @@ struct S2ENGINE_API PickResult
 // Picker: Decoupled GPU picking
 //
 // Design:
-//   - Picker connects to Renderer::onFrameDone in its constructor.
+//   - Picker connects to Renderer::onRenderCompleted in its constructor.
 //   - pickObjectAt() stores screen coordinates from an input event (no GL context required).
-//   - When the renderer fires onFrameDone GL context still current, Picker reads from the pick
+//   - When the renderer fires onRenderCompleted GL context still current, Picker reads from the pick
 //     RenderTarget in frameData and invokes user callback.
 //   - PickPass has zero knowledge of Picker.
 //
@@ -71,7 +71,7 @@ public:
     void onObjectHit( const std::function<void( const PickResult& )>& callback );
 
 private:
-	void onFrameDone( const FrameData& frameData ); // internal slot connected to Renderer::onFrameDone
+	void onRenderCompleted( const FrameData& frameData ); // internal slot connected to Renderer::onRenderCompleted
 
 private:
     bool        _enabled           { true };

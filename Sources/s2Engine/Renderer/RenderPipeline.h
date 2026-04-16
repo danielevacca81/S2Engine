@@ -8,10 +8,11 @@
 #include "RenderPass.h"
 
 #include <vector>
+#include <optional>
 #include <memory>
 
 namespace s2 {
-namespace RenderCore { class Context; }
+namespace RenderCore { class RendererBackend; }
 namespace Renderer {
 
 class CommandBuffer;
@@ -58,24 +59,30 @@ Pipeline:
 class S2ENGINE_API RenderPipeline
 {
 public:
+	static RenderPipeline createDefaultPipeline();
     static RenderPipeline createForwardPipeline();
     static RenderPipeline createDeferredPipeline();
 
 public:
-    RenderPipeline() = default;
-    ~RenderPipeline() = default;
+	// move-only, not copyable
+	RenderPipeline() = default;
+    RenderPipeline( RenderPipeline&& ) = default;
+    RenderPipeline& operator=( RenderPipeline&& ) = default;
 
-    void initialize( ResourceManager& resourceManager );
     void clear();
 
-    RenderPipeline& addPass( const RenderPassPtr &pass );
+    RenderPipeline& addPass( std::unique_ptr<RenderPass> pass );
     RenderPipeline& removePass( const std::string& name );
-    RenderPassPtr findPass( const std::string& name ) const;
+    std::optional<std::reference_wrapper<RenderPass>> findPass( const std::string& name ) const;
 
-    void execute( const CommandBuffer& cmd, FrameData& frameData, const RenderCore::Context* ctx );
+protected:
+    void initialize( ResourceManager* resourceManager );
+    void execute( const CommandBuffer& cmd, FrameData& frameData, const RenderCore::RendererBackend& backend );
 
 private:
-    std::vector<RenderPassPtr> _passes;
+    std::vector< std::unique_ptr<RenderPass>> _passes;
+
+	friend class Renderer; // internal execution and initialization
 };
 
 } // namespace Renderer

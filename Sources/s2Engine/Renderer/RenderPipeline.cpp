@@ -2,85 +2,89 @@
 //
 #include "RenderPipeline.h"
 
+#include "ForwardPass.h"
+
 #include <algorithm>
 #include <cassert>
 
 using namespace s2::Renderer;
 
+// ------------------------------------------------------------------------------------------------
+RenderPipeline RenderPipeline::createDefaultPipeline()
+{
+	// For now, the default pipeline is just a forward rendering pipeline
+	return createForwardPipeline();
+}
 
 // ------------------------------------------------------------------------------------------------
 RenderPipeline RenderPipeline::createForwardPipeline()
 {
     RenderPipeline p;
-	p.addPass( std::make_shared<ForwardPass>() );
-	return p;
+    p.addPass( std::make_unique<ForwardPass>() );
+    return p;
 }
 
 // ------------------------------------------------------------------------------------------------
 RenderPipeline RenderPipeline::createDeferredPipeline()
 {
-	return RenderPipeline();
+	// not implemented yet, return an empty pipeline for now
+    return RenderPipeline();
 }
 
-
 // ------------------------------------------------------------------------------------------------
-RenderPipeline& RenderPipeline::addPass( const RenderPassPtr &pass )
+RenderPipeline& RenderPipeline::addPass( std::unique_ptr<RenderPass> pass )
 {
-	// Avoid adding duplicate passes with the same name
-	auto existingPass = findPass( pass->name() );
+    // Avoid adding duplicate passes with the same name
+    auto existingPass = findPass( pass->name() );
     if( existingPass )
     {
-		assert( false && "RenderPipeline already contains a pass with the same name!" );
+        assert( false && "RenderPipeline already contains a pass with the same name!" );
         return *this;
     }
 
-
-	// Add pass to the pipeline
-    if( pass )
-        _passes.push_back( pass );
+    _passes.push_back( std::move( pass ) );
     return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
 RenderPipeline& RenderPipeline::removePass( const std::string& name )
 {
-	_passes.erase( std::remove_if( _passes.begin(), _passes.end(), [&name] ( const RenderPassPtr& pass ) 
+    _passes.erase( std::remove_if( _passes.begin(), _passes.end(), [&name] ( const auto& pass )
     {
-	    return pass->name() == name;
+        return pass->name() == name;
     } )
-	, _passes.end() );
+    , _passes.end() );
     return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
-RenderPassPtr RenderPipeline::findPass( const std::string& name ) const
+std::optional<std::reference_wrapper<RenderPass>> RenderPipeline::findPass( const std::string& name ) const
 {
-    const auto found = std::find_if( _passes.begin(), _passes.end(), [&name] ( const RenderPassPtr& pass )
+    auto found = std::find_if( _passes.begin(), _passes.end(), [&name] ( const auto& pass )
     {
         return pass->name() == name;
-	} );
+    } );
 
-	return found != _passes.end() ? *found : nullptr;
+    return found == _passes.end()
+        ? std::nullopt
+        : std::make_optional<std::reference_wrapper<RenderPass>>( std::ref( **found ) )
+        ;
 }
 
 // ------------------------------------------------------------------------------------------------
-void RenderPipeline::execute( const CommandBuffer& queue, FrameData& frameData, const RenderCore::Context* ctx )
+void RenderPipeline::execute( const CommandBuffer& queue, FrameData& frameData, const RenderCore::RendererBackend& backend )
 {
-	assert( !_passes.empty() && "RenderPipeline has no passes to execute!" );
+    assert( !_passes.empty() && "RenderPipeline has no passes to execute!" );
     if( _passes.empty() )
         return;
 
-    //context.resetStats();
-
     for( auto& pass : _passes )
         if( pass->isEnabled() )
-            pass->execute( queue, frameData, ctx );
-
-    //_lastStats = context.stats;
+            pass->execute( queue, frameData, backend );
 }
 
 // ------------------------------------------------------------------------------------------------
-void RenderPipeline::initialize( ResourceManager& resourceManager )
+void RenderPipeline::initialize( ResourceManager* resourceManager )
 {
     for( auto& pass : _passes )
         pass->initialize( resourceManager );

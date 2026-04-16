@@ -8,9 +8,9 @@ using namespace s2::RenderCore;
 // ------------------------------------------------------------------------------------------------
 Picker::Picker( Renderer& renderer )
 {
-    // Connect to Renderer::onFrameDone.
+    // Connect to Renderer::onRenderCompleted.
     // The slot fires synchronously inside endFrame() while the GL context is current.
-    renderer.onFrameDone.connect( &Picker::onFrameDone, this );
+    renderer.onRenderCompleted.connect( &Picker::onRenderCompleted, this );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -27,12 +27,12 @@ void Picker::pickObjectAt( const Math::ivec2& screenPos )
 void Picker::onObjectHit( const std::function<void( const PickResult& result )>& callback )
 {
 	// simple store callback here.
-	// it will be invoked in onFrameDone when a pick result is resolved.
+	// it will be invoked in onRenderCompleted when a pick result is resolved.
 	_hitCallback = callback;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Picker::onFrameDone( const FrameData& frameData )
+void Picker::onRenderCompleted( const FrameData& frameData )
 {
     if( !_enabled || !_hasPendingRequest )
         return;

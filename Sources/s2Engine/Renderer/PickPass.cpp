@@ -27,9 +27,9 @@ using namespace s2::Renderer;
 using namespace s2::RenderCore;
 
 // ------------------------------------------------------------------------------------------------
-void PickPass::initialize( ResourceManager& resourceManager )
+void PickPass::initialize( ResourceManager* resourceManager )
 {
-    _resourceManager = &resourceManager;
+	RenderPass::initialize( resourceManager );
 
     // Internal pick shader
     _pickShader = Shader::New();
@@ -62,18 +62,20 @@ void PickPass::initialize( ResourceManager& resourceManager )
 
     if( !ShaderCompiler::linkShader( _pickShader, "Internal.PickPass" ) )
         throw std::runtime_error( "PickPass: failed to link internal pick shader" );
+
+	_resourceManager->registerShader( _name, _pickShader );
 }
 
 // ------------------------------------------------------------------------------------------------
-void PickPass::execute( const CommandBuffer& queue, FrameData& frameData, const RenderCore::Context* ctx )
+void PickPass::execute( const CommandBuffer& queue, FrameData& frameData, const RenderCore::RendererBackend& renderBackend )
 {
     assert( _resourceManager && "PickPass not initialized" );
 
-    if( !isEnabled() || !frameData.mainTarget )
+    if( !isEnabled() || !frameData.renderTarget )
         return;
 
     // 1. Ensure pick target matches main target dimensions
-    ensurePickTarget( frameData.mainTarget->width(), frameData.mainTarget->height() );
+    ensurePickTarget( frameData.renderTarget->width(), frameData.renderTarget->height() );
 
     // 2. Publish pick target so Picker can read from it
     frameData.passData[kPickTargetKey] = _pickTarget.get();
@@ -82,7 +84,7 @@ void PickPass::execute( const CommandBuffer& queue, FrameData& frameData, const 
     ClearState cs;
     cs.buffers = ClearBuffers::ColorAndDepthBuffer;
     cs.color   = Color( 0, 0, 0, 0 );
-    ctx->rendererBackend().clear( *_pickTarget, cs );
+    renderBackend.clear( *_pickTarget, cs );
 
     // 4. Render all pickable objects with internal pick shader
     for( const auto& cmd : queue.renderCommands() )
@@ -106,7 +108,7 @@ void PickPass::execute( const CommandBuffer& queue, FrameData& frameData, const 
         ds.renderState.depthTest.function = DepthTest::Function::Less;
         ds.viewport.rect                  = _pickTarget->size();
 
-        ctx->rendererBackend().draw( *_pickTarget, PrimitiveType::Triangles, mesh, ds );
+        renderBackend.draw( *_pickTarget, PrimitiveType::Triangles, mesh, ds );
     }
 }
 

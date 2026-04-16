@@ -30,28 +30,29 @@ namespace Renderer {
 //   pipeline.addPass( std::make_shared<ForwardPass>() );
 //   pipeline.addPass( std::make_shared<PickPass>() );
 // ================================================================================================
-class S2ENGINE_API PickPass : public RenderPass
+class S2ENGINE_API PickPass final : public RenderPass
 {
 public:
     static constexpr const char* kPickTargetKey = "PickPass.RenderTarget";
 
 public:
-    PickPass()  = default;
     ~PickPass() override = default;
 
-    void initialize( ResourceManager& resourceManager ) override;
-    void execute( const CommandBuffer& queue, FrameData& frameData, const RenderCore::Context* ctx ) override;
     const std::string& name() const override { return _name; }
+
+
+protected:
+    void initialize( ResourceManager* resourceManager ) override;
+	void execute( const CommandBuffer& queue, FrameData& frameData, const RenderCore::RendererBackend& rendererBackend ) override;
 
 private:
     void ensurePickTarget( uint32_t width, uint32_t height );
 
 private:
-    std::string _name { "PickPass" };
+    std::string _name { "s2Engine.PickPass" };
 
     RenderCore::ShaderPtr                     _pickShader;
     std::unique_ptr<RenderCore::RenderTarget> _pickTarget;
-    ResourceManager*                          _resourceManager { nullptr };
 };
 
 } // namespace Renderer
