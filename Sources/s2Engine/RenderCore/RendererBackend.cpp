@@ -4,6 +4,7 @@
 
 #include "Context.h"
 #include "RenderTarget.h"
+#include "Device.h"
 #include "OpenGL.h"
 #include "OpenGLCheck.h"
 #include "OpenGLWrap.h"
@@ -340,7 +341,7 @@ void RendererBackend::blit(
     const RenderTarget& source, 
     const RenderTarget& destination,
     const Math::irect& srcRect, 
-    const Math::irect& dstRect )
+    const Math::irect& dstRect ) const
 {
     const Math::irect src = srcRect.isEmpty() 
         ? Math::irect( 0, 0, source.width(), source.height() ) 
@@ -365,7 +366,7 @@ void RendererBackend::blit(
     const FrameBufferPtr& srcFBO, 
     const FrameBufferPtr& dstFBO,
     const Math::irect& srcRect, 
-    const Math::irect& dstRect )
+    const Math::irect& dstRect ) const
 {
     if( !srcFBO )
         return;
@@ -410,7 +411,7 @@ void RendererBackend::blit(
 }
 
 // ------------------------------------------------------------------------------------------------
-void RendererBackend::blitToScreen( const RenderTarget& source, const Math::irect& srcRect )
+void RendererBackend::blitToScreen( const RenderTarget& source, const Math::irect& srcRect ) const
 {
     const Math::irect src = srcRect.isEmpty() 
         ? Math::irect( 0, 0, source.width(), source.height() ) 
@@ -423,7 +424,15 @@ void RendererBackend::blitToScreen( const RenderTarget& source, const Math::irec
 // UTILITY OPERATIONS
 // ================================================================================================
 
-void RendererBackend::drawFullscreenQuad( const Texture2DPtr& srcTexture )
+// ------------------------------------------------------------------------------------------------
+void RendererBackend::flush() const
+{
+    glFlush();
+    glCheck;
+}
+
+// ------------------------------------------------------------------------------------------------
+void RendererBackend::drawFullscreenQuad( const Texture2DPtr& srcTexture ) const
 {
     if( !srcTexture )
         return;

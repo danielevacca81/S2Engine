@@ -16,35 +16,21 @@ namespace RenderCore {
 /*                                      StateManager                                            */
 /************************************************************************************************/
 // Manages OpenGL state with shadowing to minimize redundant state changes
-// Modernized for DSA and bindless textures
+// Uses DSA and bindless textures
 class S2ENGINE_API StateManager
 {
 public:
     StateManager();
 
-    // ===== State Application =====
-    
     // Apply clear state and perform clear
     void setClearState( const ClearState& clearState );
     
     // Apply draw state (DSA-aware)
     void setDrawState( const DrawState& drawState );
 
-    // ===== State Shadowing Control =====
-    
-    // Disable shadowing for next draw (forces all state updates)
-    void disableDrawStateShadowing() { /*_disableDrawStateShadowingOneShot = true; */}
-    
-    // Disable shadowing for next clear (forces all state updates)
-    void disableClearStateShadowing() { /*_disableClearStateShadowingOneShot = true;*/ }
-    
-    // Get current shader
+	// Get current shader - never used? (we can remove it if not needed, but it can be useful for debugging and validation)
     const ShaderPtr& currentShader() const { return _currentShader; }
 
-    // ===== Debug =====
-    
-    // Validate current state against OpenGL (debug only)
-    void validateState( bool drawState = true, bool clearState = false ) const;
 
 private:
     // Apply individual state components
@@ -68,6 +54,10 @@ private:
     void applyDepthMask( const DepthMask& depthMask );
     void applyStencilMask( const StencilMask& stencilMask );
     void applyClearColorSeparate( const ClearColorSeparate& clearColorSeparate );
+
+	// Debugging utility to validate that the cached state matches the actual GPU state
+	// Has no effect in release builds
+    void validateState( bool drawState = true, bool clearState = false ) const;
 
 private:
     // Cached state

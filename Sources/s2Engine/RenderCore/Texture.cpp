@@ -355,7 +355,7 @@ void Texture2D::setDefaultSampler()
 }
 
 // ------------------------------------------------------------------------------------------------
-uint64_t Texture2D::getBindlessHandle() const
+uint64_t Texture2D::bindlessHandle() const
 {
     assert( isValid() );
     
@@ -375,7 +375,7 @@ void Texture2D::makeResident()
     if( _resident )
         return;
         
-    const uint64_t handle = getBindlessHandle();
+    const uint64_t handle = bindlessHandle();
     
     glMakeTextureHandleResidentARB( handle );
     glCheck;
@@ -389,7 +389,7 @@ void Texture2D::makeNonResident()
     if( !_resident )
         return;
         
-    const uint64_t handle = getBindlessHandle();
+    const uint64_t handle = bindlessHandle();
     
     glMakeTextureHandleNonResidentARB( handle );
     glCheck;

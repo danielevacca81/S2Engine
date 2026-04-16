@@ -88,17 +88,3 @@ Context::~Context()
 			std::cout << "   handle " << std::hex << (uint32_t) i.first << " ContextPtr " << i.second << '\n';
 	}
 }
-
-// ------------------------------------------------------------------------------------------------
-void Context::beginFrame() 
-{
-	_stateManager.disableClearStateShadowing();
-	_stateManager.disableDrawStateShadowing();
-}
-
-// ------------------------------------------------------------------------------------------------
-void Context::endFrame()
-{ 
-	if( Device::vendor() != Device::Vendor::Nvidia )
-		glFinish();
-}

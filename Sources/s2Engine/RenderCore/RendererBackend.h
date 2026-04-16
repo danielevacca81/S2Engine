@@ -77,18 +77,17 @@ public:
 	
 	// ===== BLIT OPERATIONS =====
 	void blit( const RenderTarget& source, const RenderTarget& destination,
-			   const Math::irect& srcRect = {}, const Math::irect& dstRect = {} );
+			   const Math::irect& srcRect = {}, const Math::irect& dstRect = {} ) const;
 	void blit( const FrameBufferPtr& srcFBO, const FrameBufferPtr& dstFBO,
-			   const Math::irect& srcRect, const Math::irect& dstRect = {} );
+			   const Math::irect& srcRect, const Math::irect& dstRect = {} ) const;
 
-	void blitToScreen( const RenderTarget& source, const Math::irect& srcRect = {} );
+	void blitToScreen( const RenderTarget& source, const Math::irect& srcRect = {} ) const;
 
 	// ===== UTILITY OPERATIONS =====
-
-	void drawFullscreenQuad( const Texture2DPtr& srcTexture );
+	void flush() const;
+	void drawFullscreenQuad( const Texture2DPtr& srcTexture ) const;
 
 	// Access to owning context
-	Context& context() { return _context; }
 	const Context& context() const { return _context; }
 
 

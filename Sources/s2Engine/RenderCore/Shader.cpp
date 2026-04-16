@@ -382,5 +382,5 @@ void Shader::setTexture( const std::string& uniformName, const Texture2DPtr& tex
     }
     
     // Set bindless handle
-    setTextureHandle( uniformName, texture->getBindlessHandle() );
+    setTextureHandle( uniformName, texture->bindlessHandle() );
 }

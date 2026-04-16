@@ -34,10 +34,6 @@ public:
 	bool operator!=( const Context& o ) const { return _nativeHandle != o._nativeHandle; }
 	bool isCurrent() const { return current() == this; }
 
-	// Rendering lifecycle
-	void beginFrame();
-	void endFrame();
-
 	// Access to render commands (primary interface for rendering)
 	RendererBackend&       rendererBackend()       { return *_rendererBackend; }
 	const RendererBackend& rendererBackend() const { return *_rendererBackend; }

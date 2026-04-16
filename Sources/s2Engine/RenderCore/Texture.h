@@ -97,7 +97,7 @@ public:
     // ===== Bindless Support (ARB_bindless_texture) =====
     
     // Get bindless handle (cached)
-    uint64_t getBindlessHandle() const;
+    uint64_t bindlessHandle() const;
     
     // Make texture resident in GPU memory
     void makeResident();
