@@ -5,17 +5,16 @@
 #include "MyApplication.h"
 
 #include "Application/Application.h"
+#include "Application/UILayer.h"
 
 #include "RenderCore/RenderTarget.h"
 #include "RenderCore/Context.h"
-#include "RenderCore/Device.h"
-#include "RenderCore/RenderCommands.h"
 #include "RenderCore/ShaderCompiler.h"
 
 #include "Renderer/RenderMaterial.h"
 #include "Renderer/PickPass.h"
+
 #include "UI/ImGuiPass.h"
-#include "UI/UILayer.h"
 
 #include "Geometry/GeometryFactory3D.h"
 
@@ -276,6 +275,47 @@ void MainWindow::loadResources()
 	)"
 	);
 
+	// Outline shader (simple pass to create silhouette)
+	auto outVtx = s2::RenderCore::ShaderCompiler::compile( s2::RenderCore::ShaderStageType::Vertex,
+	R"(
+		#version 450 core
+		layout(location = 0) in vec3 a_Position;
+		layout(location = 2) in vec3 a_Normal;
+
+		// Use model-view + projection explicitly so extrusion occurs in view space
+		uniform mat4 u_ModelViewMatrix;
+		uniform mat4 u_ProjectionMatrix;
+		uniform float u_OutlineWidth;
+
+		void main()
+		{
+			// Transform vertex and normal to view (camera) space
+			vec4 posView4 = u_ModelViewMatrix * vec4(a_Position, 1.0);
+			vec3 posView = posView4.xyz / posView4.w;
+			vec3 nView = normalize( mat3(u_ModelViewMatrix) * a_Normal );
+
+			// Extrude in view space so silhouette is stable when camera rotates
+			vec3 extruded = posView + nView * u_OutlineWidth;
+
+			// Project using projection matrix
+			gl_Position = u_ProjectionMatrix * vec4(extruded, 1.0);
+		}
+	)"
+	);
+
+	auto outFrag = s2::RenderCore::ShaderCompiler::compile( s2::RenderCore::ShaderStageType::Fragment,
+	R"(
+		#version 450 core
+		out vec4 FragColor;
+		uniform vec4 u_OutlineColor;
+		void main()
+		{
+			FragColor = u_OutlineColor;
+		}
+	)"
+	);
+
+	// Register PBR shader and outline shader if compilation succeeded
 	if( vtx && fragPBR )
 	{
 		auto pbrShader = s2::RenderCore::Shader::New();
@@ -322,90 +362,188 @@ void MainWindow::loadResources()
 		if( !fragPBR )
 			std::cout << "Failed to compile PBR fragment shader" << std::endl;
 	}
+
+	if( outVtx && outFrag )
+	{
+		auto outShader = s2::RenderCore::Shader::New();
+		outShader->attachVertexShaderStage( outVtx.stage );
+		outShader->attachFragmentShaderStage( outFrag.stage );
+
+		auto linkResult = s2::RenderCore::ShaderCompiler::linkShader( outShader, "Outline_Shader" );
+		if( linkResult.success )
+		{
+			auto& resources = _renderer->resources();
+			auto outlineHandle = resources.registerShader( "outline", outShader );
+
+			_outlineMaterial.shader = outlineHandle;
+			// Set defaults for outline material
+			_outlineMaterial.setVec4( "u_OutlineColor", Math::fvec4{ 0.7f, 0.5f, 0.f, 0.6f } );
+			_outlineMaterial.setFloat( "u_OutlineWidth", 0.02f );
+			_outlineMaterial.cullMode = s2::Renderer::CullMode::Front; // render backfaces only
+			_outlineMaterial.depthWrite = false; // don't overwrite depth
+			//_outlineMaterial.blendMode = s2::Renderer::BlendMode::AlphaBlend; // enable blending for transparency
+			std::cout << "Outline shader compiled and linked successfully" << std::endl;
+		}
+		else
+		{
+			std::cout << "Failed to link Outline shader: " << linkResult.errorLog << std::endl;
+		}
+	}
+
 }
 
 // ------------------------------------------------------------------------------------------------
 void MainWindow::onInitializeEvent()
 {
-	//auto ui = ;
-	setUILayer( UI::createUILayer() );
+	// Initialize renderer with the current rendering context
+	_renderer = std::make_unique<s2::Renderer::Renderer>( _renderingContext.get() );
 
-	auto pipeline = s2::Renderer::RenderPipeline::createForwardPipeline()
-		.addPass( std::make_shared<s2::Renderer::PickPass>() )
-		.addPass( std::make_shared<s2::UI::ImGuiPass>() )
-		;
+	_renderer->setPipeline( std::move( s2::Renderer::RenderPipeline::createDefaultPipeline()
+							.addPass( std::make_unique<s2::Renderer::PickPass>() ) 
+							.addPass( std::make_unique < s2::UI::ImGuiPass >() ) 
+	) );
 
-	// Initialize renderer with the current rendering context and default render pipeline
-	_renderer = std::make_unique<s2::Renderer::Renderer>( _renderingContext.get(), pipeline );
+	_ui->setEnabled( true );
 	
 	// Initialize the picker and connect to pick results
 	_picker = std::make_unique<s2::Renderer::Picker>( *_renderer.get() );
-	_picker->onObjectHit( []( const s2::Renderer::PickResult& result )
+
+	// capture 'this' so the lambda can update UI selection state
+	_picker->onObjectHit( [this]( const s2::Renderer::PickResult& result )
 	{
 		if( result.isHit() )
 		{
+			// populate selection info
+			_hasSelection = true;
+			_selectedObjectID = result.objectID;
+			_selectedPrimitiveID = result.primitiveID;
+			_selectedScreenPos = result.screenPos;
+
+			// resolve mesh handle and name (if mapped)
+			auto it = _pickableToHandle.find( result.objectID );
+			if( it != _pickableToHandle.end() )
+			{
+				auto handle = it->second;
+				auto itname = _handleToName.find( handle );
+				_selectedMeshName = ( itname != _handleToName.end() ) ? itname->second : std::string( "<unknown>" );
+
+				// query vertex count from resource manager
+				auto vtx = _renderer->resources().mesh( handle );
+				_selectedVertexCount = vtx ? vtx->vertexCount() : 0;
+			}
+			else
+			{
+				_selectedMeshName = "<none>";
+				_selectedVertexCount = 0;
+			}
+
+			// request thumbnail update
+			_thumbnailNeedsUpdate = true;
+
 			std::cout << std::dec
 				<< "Pick Result - Object ID: " << result.objectID
 				<< ", Primitive ID: " << result.primitiveID
 				<< ", Screen Pos: (" << result.screenPos.x << ", " << result.screenPos.y << ")"
+				<< " -> Mesh: " << _selectedMeshName
+				<< ", VtxCount: " << _selectedVertexCount
 				<< std::endl;
 		}
 		else
 		{
+			_hasSelection = false;
+			_selectedObjectID = 0;
+			_selectedPrimitiveID = 0;
+			_selectedMeshName.clear();
+			_selectedVertexCount = 0;
+			_thumbnailNeedsUpdate = true;
+
 			std::cout << "No valid pick result for position (" << result.screenPos.x << ", " << result.screenPos.y << ")" << std::endl;
 		}
 	} );
 
 
+	// Note: we now capture MeshData3D at registration time to compute bounding boxes for thumbnails
 	loadResources();
 
 
 	auto& resources = _renderer->resources();
-	
+
 	// register cube mesh
 	{
-		resources.registerMesh( "cube", s2::GeometryFactory3D::createCube( { 5.0, 0.0, 0.0 }, 2.0 ) );
+		auto mesh = s2::GeometryFactory3D::createCube( { 5.0, 0.0, 0.0 }, 2.0 );
+		auto handle = resources.registerMesh( "cube", mesh );
+		if( handle != s2::Renderer::InvalidHandle )
+			_meshDataCache[handle] = std::move(mesh);
 	}
 
 	// register torus mesh
 	{
-		const auto torus = resources.registerMesh( "torus", s2::GeometryFactory3D::createTorus( 1.0, 0.5, 64, 16 ) );
-		resources.mesh( torus )->setColor( Color::red() );
+		auto mesh = s2::GeometryFactory3D::createTorus( 1.0, 0.5, 64, 16 );
+		auto handle = resources.registerMesh( "torus", mesh );
+		if( handle != s2::Renderer::InvalidHandle )
+		{
+			resources.mesh( handle )->setColor( Color::red() );
+			_meshDataCache[handle] = std::move(mesh);
+		}
 	}
 
 
 	// register cone mesh
 	{
-		const auto cone = resources.registerMesh( "cone", s2::GeometryFactory3D::createCone( Math::dvec3( 2.5, 0.0, 0.0 ), Math::dvec3( 2.5, 0.0, 3.0 ), 1, true, 32 ) );
-		resources.mesh( cone )->setColor( Color::yellow() );
+		auto mesh = s2::GeometryFactory3D::createCone( Math::dvec3( 2.5, 0.0, 0.0 ), Math::dvec3( 2.5, 0.0, 3.0 ), 1, true, 32 );
+		auto handle = resources.registerMesh( "cone", mesh );
+		if( handle != s2::Renderer::InvalidHandle )
+		{
+			resources.mesh( handle )->setColor( Color::yellow() );
+			_meshDataCache[handle] = std::move(mesh);
+		}
 	}
 
 	// register sphere mesh
 	{
-		const auto sphere = resources.registerMesh( "sphere", s2::GeometryFactory3D::createSphere( Math::dvec3( -2.5, 0.0, 0.0 ), 1.0, 32 ) );
-		resources.mesh( sphere )->setColor( Color::blue().lighter() );
+		auto mesh = s2::GeometryFactory3D::createSphere( Math::dvec3( -2.5, 0.0, 0.0 ), 1.0, 32 );
+		auto handle = resources.registerMesh( "sphere", mesh );
+		if( handle != s2::Renderer::InvalidHandle )
+		{
+			resources.mesh( handle )->setColor( Color::blue().lighter() );
+			_meshDataCache[handle] = std::move(mesh);
+		}
 	}
 
 	// register cylinder mesh
 	{
-		const auto cyl = resources.registerMesh( "cylinder", s2::GeometryFactory3D::createCylinder( Math::dvec3( -5.0, 0.0, 0.0 ), Math::dvec3( -5.0, 0.0, 2.0 ), 1.0, true, true, 32 ) );
-		resources.mesh( cyl )->setColor( Color::cyan() );
+		auto mesh = s2::GeometryFactory3D::createCylinder( Math::dvec3( -5.0, 0.0, 0.0 ), Math::dvec3( -5.0, 0.0, 2.0 ), 1.0, true, true, 32 );
+		auto handle = resources.registerMesh( "cylinder", mesh );
+		if( handle != s2::Renderer::InvalidHandle )
+		{
+			resources.mesh( handle )->setColor( Color::cyan() );
+			_meshDataCache[handle] = std::move(mesh);
+		}
 	}
 
 	// register capsule mesh
 	{
-		const auto capsule = resources.registerMesh( "capsule", s2::GeometryFactory3D::createCapsule( Math::dvec3( -2.0, -3.0, 0.0 ), Math::dvec3( 2.0, -3.0, 3.0 ), 1.0, 32, 32 ) );
-		resources.mesh( capsule )->setColor( Color::magenta() );
+		auto mesh = s2::GeometryFactory3D::createCapsule( Math::dvec3( -2.0, -3.0, 0.0 ), Math::dvec3( 2.0, -3.0, 3.0 ), 1.0, 32, 32 );
+		auto handle = resources.registerMesh( "capsule", mesh );
+		if( handle != s2::Renderer::InvalidHandle )
+		{
+			resources.mesh( handle )->setColor( Color::magenta() );
+			_meshDataCache[handle] = std::move(mesh);
+		}
 	}
 
+	// Build pickableID -> handle and handle -> name maps
+	// Note: these pickableIDs match the ones used in onDraw()
+	_pickableToHandle.clear();
+	_handleToName.clear();
+	auto h = resources.mesh( "cube" );       if( h != s2::Renderer::InvalidHandle ) { _pickableToHandle[1] = h; _handleToName[h] = "cube"; }
+	h = resources.mesh( "sphere" );          if( h != s2::Renderer::InvalidHandle ) { _pickableToHandle[2] = h; _handleToName[h] = "sphere"; }
+	h = resources.mesh( "torus" );           if( h != s2::Renderer::InvalidHandle ) { _pickableToHandle[3] = h; _handleToName[h] = "torus"; }
+	h = resources.mesh( "cone" );            if( h != s2::Renderer::InvalidHandle ) { _pickableToHandle[4] = h; _handleToName[h] = "cone"; }
+	h = resources.mesh( "cylinder" );        if( h != s2::Renderer::InvalidHandle ) { _pickableToHandle[5] = h; _handleToName[h] = "cylinder"; }
+	h = resources.mesh( "capsule" );         if( h != s2::Renderer::InvalidHandle ) { _pickableToHandle[6] = h; _handleToName[h] = "capsule"; }
+
 	_material.shader = resources.registerShader( "blinnPhong", s2::RenderCore::DefaultShaders.BlinnPhong );
-	// _material.setTexture( "u_DiffuseMap", (int) resources.registerTexture( "texture",
-	// 					  s2::RenderCore::Texture2D::New(
-	// 					  s2::RenderCore::TextureDescription(
-	// 					  _texture.pixmap.width(),
-	// 					  _texture.pixmap.height(),
-	// 					  s2::RenderCore::TextureFormat::RedGreenBlue8 ),
-	// 					  (void*) _texture.pixmap.pixels() ) ) );
 	
 	_material.set( "u_UseDiffuseMap", false );
 
@@ -414,11 +552,136 @@ void MainWindow::onInitializeEvent()
 				 Math::dvec3( 0.0, 1.0, 0.0 )
 	);
 
-	//_trackball.setRadius( 1.0 );
-	_trackball.setCenter( Math::ivec2( width() / 2, height() / 2 ) );
+	// thumbnail target (offscreen)
+	_thumbnailTarget = std::make_unique<s2::RenderCore::RenderTarget>();
+	_thumbnailTarget->createAttachment( s2::RenderCore::FrameBuffer::AttachmentPoint::ColorAttachment0, s2::RenderCore::TextureFormat::RedGreenBlueAlpha8 );
+	_thumbnailTarget->createAttachment( s2::RenderCore::FrameBuffer::AttachmentPoint::DepthAttachment, s2::RenderCore::TextureFormat::Depth24 );
+	_thumbnailTarget->resize( 128, 128 );
 
-	//_trackballLight.setRadius( 1.0 );
+
+	_trackball.setCenter( Math::ivec2( width() / 2, height() / 2 ) );
 	_trackballLight.setCenter( Math::ivec2( width() / 2, height() / 2 ) );
+}
+
+// ------------------------------------------------------------------------------------------------
+void MainWindow::renderThumbnailIfNeeded()
+{
+	if( !_thumbnailNeedsUpdate || !_thumbnailTarget )
+		return;
+
+	_thumbnailNeedsUpdate = false;
+
+	// If nothing selected clear thumbnail (simple clear)
+	if( !_hasSelection )
+	{
+		_renderer->begin( { .renderTarget = _thumbnailTarget.get(),
+			.cameraViewMatrix = _camera.worldToCameraMatrix(),
+			.cameraProjectionMatrix = _camera.projectionMatrix() } );
+		{
+			_renderer->submit( { .color = Color{ 0.1f, 0.1f, 0.1f, 1.0f } } );
+		}
+		_renderer->execute();
+		return;
+	}
+
+	// find mesh handle for selected object
+	auto it = _pickableToHandle.find( _selectedObjectID );
+	if( it == _pickableToHandle.end() )
+		return;
+
+	auto meshHandle = it->second;
+
+	// We need the original MeshData to compute bounding box.
+	auto mdIt = _meshDataCache.find( meshHandle );
+	if( mdIt == _meshDataCache.end() )
+	{
+		// fallback: render using main camera if we don't have mesh data
+		_renderer->begin( { .renderTarget = _thumbnailTarget.get(),
+			.cameraViewMatrix = _camera.worldToCameraMatrix(),
+			.cameraProjectionMatrix = _camera.projectionMatrix() } );
+		{
+			_renderer->submit( { .color = Color{ 0.1f, 0.1f, 0.1f, 1.0f } } );
+
+			_renderer->submit( {
+				.renderMode  = s2::Renderer::RenderMode::Triangles,
+				.material    = _materialPBR,
+				.mesh        = meshHandle,
+				.pickableID  = 0,
+				.modelMatrix = Math::scale( Math::dvec3( 1.0 ) )
+			} );
+		}
+		_renderer->execute();
+		return;
+	}
+
+	const auto& meshData = mdIt->second;
+	if( meshData.vertices.empty() )
+		return;
+
+	// Compute axis-aligned bounding box in mesh local space
+	Math::dvec3 bbMin = meshData.vertices[0];
+	Math::dvec3 bbMax = meshData.vertices[0];
+
+	for( const auto& v : meshData.vertices )
+	{
+		bbMin.x = std::min( bbMin.x, v.x );
+		bbMin.y = std::min( bbMin.y, v.y );
+		bbMin.z = std::min( bbMin.z, v.z );
+
+		bbMax.x = std::max( bbMax.x, v.x );
+		bbMax.y = std::max( bbMax.y, v.y );
+		bbMax.z = std::max( bbMax.z, v.z );
+	}
+
+	Math::dvec3 center = ( bbMin + bbMax ) * 0.5;
+	double radius = 0.0;
+	for( const auto& v : meshData.vertices )
+	{
+		radius = std::max( radius, Math::length( v - center ) );
+	}
+
+	// Choose a view direction: use main camera direction so thumbnail orientation feels consistent
+	Math::dvec3 mainCamDir = Math::normalize( _camera.position() - _camera.target() );
+	if( Math::length( mainCamDir ) < 1e-6 )
+		mainCamDir = Math::dvec3{ 0.0, 0.0, 1.0 };
+
+	// Field of view: use same vertical fov as main (we set 45deg when resizing). Use 45 deg if unknown.
+	const double fovYdeg = 45.0;
+	const double fovY = fovYdeg * ( 3.14159265358979323846 / 180.0 );
+
+	// compute distance such that the bounding sphere fits into camera frustum (with margin)
+	const double margin = 1.15; // slight margin
+	double distance = ( radius * margin ) / std::sin( fovY * 0.5 );
+	if( distance <= 0.0 ) distance = radius * 2.0 + 0.1;
+
+	// Position the thumbnail camera along mainCamDir at computed distance from center
+	Math::dvec3 eye = center + mainCamDir * distance;
+	Math::dvec3 up = _camera.up(); // keep same up vector
+
+	// Construct a temporary camera for thumbnail
+	s2::Scene::Camera thumbCam;
+	thumbCam.set( eye, center, up );
+	thumbCam.setProjectionTransform( Math::ProjectionTransform::createPerspective( 1.0, fovYdeg, std::max( 0.01, distance - radius*2.0 ), distance + radius*2.0 ) );
+	thumbCam.setViewport( Math::irect( 0, 0, static_cast<int>( _thumbnailTarget->width() ), static_cast<int>( _thumbnailTarget->height() ) ) );
+
+	// Render into thumbnail target with the thumb camera
+	_renderer->begin( { .renderTarget = _thumbnailTarget.get(),
+		.cameraViewMatrix = thumbCam.worldToCameraMatrix(),
+		.cameraProjectionMatrix = thumbCam.projectionMatrix() } );
+	{
+		_renderer->submit( { .color = Color{ 0.1f, 0.1f, 0.1f, 1.0f } } );
+
+		// Render the mesh centered at its local vertex center (mesh vertices are already in world positions when factories generated them).
+		// If your meshes are in local space you may need to transform them; here factories use world-space centers so we render with identity transform.
+		_renderer->submit( {
+			.renderMode  = s2::Renderer::RenderMode::Triangles,
+			.material    = _materialPBR,
+			.mesh        = meshHandle,
+			.pickableID  = 0,
+			.modelMatrix = Math::translate( Math::dvec3( 0.0, 0.0, 0.0 ) ) // identity model; meshes already positioned by factory
+		} );
+	}
+	_renderer->execute();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -426,6 +689,7 @@ void MainWindow::onShutdownEvent()
 {
 	_renderer.reset();
 	_picker.reset();
+	_thumbnailTarget.reset();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -451,10 +715,10 @@ void MainWindow::onCloseEvent()
 // ------------------------------------------------------------------------------------------------
 void MainWindow::onDrawUI()
 {
-	ImGui::SetCurrentContext( static_cast<ImGuiContext*> ( uiLayer()->uiData["ImGuiContext"] ) );
+	ImGui::SetCurrentContext( static_cast<ImGuiContext*> ( _ui->uiData("ImGuiContext") ) );
 
 	ImGui::SetNextWindowPos( ImVec2( 10, 10 ), ImGuiCond_Once );
-	ImGui::SetNextWindowSize( ImVec2( 320, 0 ), ImGuiCond_Once );
+	ImGui::SetNextWindowSize( ImVec2( 360, 0 ), ImGuiCond_Once );
 
 	if( ImGui::Begin( "PBR Material" ) )
 	{
@@ -490,6 +754,64 @@ void MainWindow::onDrawUI()
 			auto scale = static_cast<float>( app->scaleFactor );
 			if( ImGui::SliderFloat( "Scale", &scale, 0.1f, 10.0f ) )
 				app->scaleFactor = static_cast<double>( scale );
+		}
+
+		// --- Selection section (shows when an object is picked) ---
+		if( ImGui::CollapsingHeader( "Selection", ImGuiTreeNodeFlags_DefaultOpen ) )
+		{
+			if( _hasSelection )
+			{
+				ImGui::Text( "Object ID: %u", _selectedObjectID );
+				ImGui::Text( "Primitive ID: %u", _selectedPrimitiveID );
+				ImGui::Text( "Screen Pos: (%d, %d)", _selectedScreenPos.x, _selectedScreenPos.y );
+				ImGui::Separator();
+				ImGui::Text( "Mesh: %s", _selectedMeshName.c_str() );
+				ImGui::Text( "Vertex Count: %zu", _selectedVertexCount );
+
+				// Material quick info for selected object (reads from the PBR material)
+				ImGui::Separator();
+				ImGui::TextColored( ImVec4(0.8f,0.8f,0.2f,1.0f), "Material (preview)" );
+				// show albedo / scalars
+				ImGui::Text( "Albedo: %.2f, %.2f, %.2f", _uiAlbedo[0], _uiAlbedo[1], _uiAlbedo[2] );
+				ImGui::Text( "Metallic: %.2f  Roughness: %.2f  AO: %.2f", _uiMetallic, _uiRoughness, _uiAO );
+				ImGui::Text( "Use maps: A(%d) N(%d) M(%d) R(%d) AO(%d)",
+					_uiUseAlbedoMap ? 1 : 0, _uiUseNormalMap ? 1 : 0, _uiUseMetallicMap ? 1 : 0, _uiUseRoughnessMap ? 1 : 0, _uiUseAOMap ? 1 : 0 );
+
+				// Thumbnail block
+				ImGui::Separator();
+				ImGui::Text( "Thumbnail" );
+				if( ImGui::Button( "Render Thumbnail" ) )
+					_thumbnailNeedsUpdate = true;
+
+				if( _thumbnailTarget )
+				{
+					auto colorTex = _thumbnailTarget->attachment( s2::RenderCore::FrameBuffer::AttachmentPoint::ColorAttachment0 );
+					if( colorTex && colorTex->isValid() )
+					{
+						auto thumbnailResID = _renderer->resources().registerTexture( "thumbnail", colorTex );
+						ImGui::Image( thumbnailResID, ImVec2( 128, 128 ) );
+					}
+					else
+					{
+						ImGui::TextDisabled( "No thumbnail available" );
+					}
+				}
+
+				// quick extras easy to implement
+				if( ImGui::Button( "Clear Selection" ) )
+				{
+					_hasSelection = false;
+					_selectedObjectID = 0;
+					_selectedPrimitiveID = 0;
+					_selectedMeshName.clear();
+					_selectedVertexCount = 0;
+					_thumbnailNeedsUpdate = true;
+				}
+			}
+			else
+			{
+				ImGui::TextDisabled( "No object selected" );
+			}
 		}
 
 		ImGui::Separator();
@@ -541,70 +863,65 @@ void MainWindow::onDraw()
 
 	auto modelMatrix = Math::scale( Math::dvec3( scale ) ) * _trackball.matrix();
 
-	_renderer->beginFrame( {
-		.mainTarget             = _renderTarget.get(),
+	_renderer->begin( {
+		.renderTarget           = _mainRenderTarget.get(),
 		.cameraViewMatrix       = _camera.worldToCameraMatrix(),
 		.cameraProjectionMatrix = _camera.projectionMatrix(),
 						   } );
 	{
-		_renderer->clear( { .color = Color{ 0.3f, 0.4f, 0.5f, 1.0f } } );
+		_renderer->submit( { .color = Color{ 0.3f, 0.4f, 0.5f, 1.0f } } );
 
-		s2::Renderer::RenderCommand cmd
+		// For each object: if selected -> draw outline pass first, then regular pass.
+		auto drawWithPossibleOutline = [&]( uint32_t pickableID, const s2::Renderer::RenderMaterial& mat, const s2::Renderer::ResourceHandle meshHandle )
 		{
-			.renderMode  = s2::Renderer::RenderMode::Triangles,
-			.material    = _materialPBR,
-			.mesh        = resources.mesh( "cube" ),
-			.pickableID = 1, // assign a unique ID for picking
-			.modelMatrix = modelMatrix,
+			if( _hasSelection && pickableID == _selectedObjectID && _outlineMaterial.shader != s2::Renderer::InvalidHandle )
+			{
+				// outline pass uses same mesh, outline material (we copy and set uniforms that may change)
+				auto outlineMat = _outlineMaterial; // copy to modify per-draw uniforms if needed
+				// optionally change outline width depending on camera distance (not implemented here)
+				_renderer->submit( {
+					.renderMode  = s2::Renderer::RenderMode::Triangles,
+					.material    = outlineMat,
+					.mesh        = meshHandle,
+					.pickableID  = 0,
+					.modelMatrix = modelMatrix
+				} );
+			}
+
+			// regular pass
+			_renderer->submit( {
+				.renderMode  = s2::Renderer::RenderMode::Triangles,
+				.material    = mat,
+				.mesh        = meshHandle,
+				.pickableID  = pickableID,
+				.modelMatrix = modelMatrix
+			} );
 		};
-		_renderer->render( cmd );
 
-		_renderer->render(
-			{
-			.renderMode  = s2::Renderer::RenderMode::Triangles,
-			.material    = _materialPBR,
-			.mesh        = resources.mesh( "sphere" ),
-			.pickableID  = 2, // assign a unique ID for picking
-			.modelMatrix = modelMatrix,
-			} );
+		// cube
+		drawWithPossibleOutline( 1, _materialPBR, resources.mesh( "cube" ) ? resources.mesh( "cube" ) : s2::Renderer::InvalidHandle );
+		// sphere
+		drawWithPossibleOutline( 2, _materialPBR, resources.mesh( "sphere" ) ? resources.mesh( "sphere" ) : s2::Renderer::InvalidHandle );
+		// torus
+		drawWithPossibleOutline( 3, _materialPBR, resources.mesh( "torus" ) ? resources.mesh( "torus" ) : s2::Renderer::InvalidHandle );
+		// cone
+		drawWithPossibleOutline( 4, _materialPBR, resources.mesh( "cone" ) ? resources.mesh( "cone" ) : s2::Renderer::InvalidHandle );
+		// cylinder
+		drawWithPossibleOutline( 5, _materialPBR, resources.mesh( "cylinder" ) ? resources.mesh( "cylinder" ) : s2::Renderer::InvalidHandle );
+		// capsule
+		drawWithPossibleOutline( 6, _materialPBR, resources.mesh( "capsule" ) ? resources.mesh( "capsule" ) : s2::Renderer::InvalidHandle );
 
-		_renderer->render(
-			{
-			.renderMode  = s2::Renderer::RenderMode::Triangles,
-			.material    = _materialPBR,
-			.mesh        = resources.mesh( "torus" ),
-			.pickableID  = 3, // assign a unique ID for picking
-			.modelMatrix = modelMatrix,
-			} );
-
-		_renderer->render(
-			{
-			.renderMode  = s2::Renderer::RenderMode::Triangles,
-			.material    = _materialPBR,
-			.mesh        = resources.mesh( "cone" ),
-			.pickableID  = 4, // assign a unique ID for picking
-			.modelMatrix = modelMatrix,
-			} );
-
-		_renderer->render(
-			{
-			.renderMode  = s2::Renderer::RenderMode::Triangles,
-			.material    = _materialPBR,
-			.mesh        = resources.mesh( "cylinder" ),
-			.pickableID  = 5, // assign a unique ID for picking
-			.modelMatrix = modelMatrix,
-			} );
-
-		_renderer->render(
-			{
-			.renderMode  = s2::Renderer::RenderMode::Triangles,
-			.material    = _materialPBR,
-			.mesh        = resources.mesh( "capsule" ),
-			.pickableID  = 6, // assign a unique ID for picking
-			.modelMatrix = modelMatrix,
-			} );
 	}
-	_renderer->endFrame();
+	_renderer->execute();
+
+	// prevent UI rendering  in thumbnail pass
+	// FIXME: not working as expected
+	const auto uiEnabled = _ui->isEnabled();
+	{
+		_ui->setEnabled( false );
+		renderThumbnailIfNeeded();
+		_ui->setEnabled( uiEnabled );
+	}
 }
 
 // ------------------------------------------------------------------------------------------------
