@@ -30,23 +30,23 @@ namespace UI {
 // Usage:
 //   pipeline.addPass( std::make_shared<UI::ImGuiPass>() );
 // ================================================================================================
-class S2ENGINE_API ImGuiPass : public Renderer::RenderPass
+class S2ENGINE_API ImGuiPass final : public Renderer::RenderPass
 {
 public:
-    ImGuiPass();
-    ~ImGuiPass() override = default;
-
     // RenderPass interface
-    void               initialize( Renderer::ResourceManager& resourceManager ) override;
-    void               execute( const Renderer::CommandBuffer& queue, Renderer::FrameData& frameData, const RenderCore::Context* ctx ) override;
     const std::string& name() const override;
 
 private:
     void createShader();
     void createFontTexture();
 
+protected:
+    void initialize( Renderer::ResourceManager* resourceManager ) override;
+    void execute( const Renderer::CommandBuffer& queue, Renderer::FrameData& frameData, const RenderCore::RendererBackend& backend ) override;
+
+
 private:
-    std::string _name { "ImGuiPass" };
+    std::string _name { "s2Engine.ImGuiPass" };
 
     // GPU resources
     RenderCore::ShaderPtr          _shader;

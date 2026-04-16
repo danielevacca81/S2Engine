@@ -57,25 +57,21 @@ static const char* kImGuiFragmentShader = R"(
 in vec2 vUV;
 in vec4 vColor;
 
-uniform sampler2D u_FontTexture;
+uniform sampler2D u_CurrTexture;
 
 layout(location = 0) out vec4 FragColor;
 
 void main()
 {
-    FragColor = vColor * texture(u_FontTexture, vUV);
+    FragColor = vColor * texture(u_CurrTexture, vUV);
 }
 )";
 
-// ================================================================================================
-// ImGuiPass implementation
-// ================================================================================================
-
-ImGuiPass::ImGuiPass() = default;
-
 // ------------------------------------------------------------------------------------------------
-void ImGuiPass::initialize( Renderer::ResourceManager& /*resourceManager*/ )
+void ImGuiPass::initialize( Renderer::ResourceManager* resourceManager )
 {
+	RenderPass::initialize( resourceManager );
+
     createShader();
     createFontTexture();
 
@@ -98,7 +94,8 @@ void ImGuiPass::createShader()
     auto linkResult = ShaderCompiler::linkShader( _shader, "ImGuiPass" );
     assert( linkResult.success && "ImGuiPass: shader link failed" );
 
-    _shader->setObjectLabel( "ImGuiPass::Shader" );
+    _shader->setObjectLabel( "ImGuiPass.Shader" );
+	_resourceManager->registerShader( _shader->name(), _shader );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -121,14 +118,20 @@ void ImGuiPass::createFontTexture()
     _fontTexture->setWrapS( Texture2D::WrapMode::ClampToEdge );
     _fontTexture->setWrapT( Texture2D::WrapMode::ClampToEdge );
 
-    io.Fonts->SetTexID( reinterpret_cast<ImTextureID>( _fontTexture.get() ) );
+	auto resourceHandle = _resourceManager->registerTexture( "ImGuiPass.FontAtlas", _fontTexture );
+
+    // font atlas is passed to imgui as s2Engine TexturePtr,
+	// it will be retrieved in the render pass to set the shader texture uniform (DSA) and bindless handle.
+    //io.Fonts->SetTexID( reinterpret_cast<ImTextureID>( _fontTexture.get() ) );
+    //io.Fonts->SetTexID( _fontTexture->bindlessHandle() );
+    io.Fonts->SetTexID( resourceHandle );
 }
 
 // ------------------------------------------------------------------------------------------------
 // Ensures the shared VBO has enough capacity. If the buffer needs to grow,
 // a new GPUBufferObject is created and all three interleaved attributes are
 // re-attached to the VAO via setAttribute (DSA). When the existing capacity
-// is sufficient the same GPU buffer is reused � only the data is updated.
+// is sufficient the same GPU buffer is reused - only the data is updated.
 // ------------------------------------------------------------------------------------------------
 static GPUBufferObjectPtr ensureVertexBuffer( const VertexArrayPtr& vao,
                                               GPUBufferObjectPtr    currentVBO,
@@ -138,7 +141,7 @@ static GPUBufferObjectPtr ensureVertexBuffer( const VertexArrayPtr& vao,
 
     if( currentVBO && currentVBO->size() >= requiredBytes )
     {
-        // Existing buffer is large enough � invalidate and reuse
+        // Existing buffer is large enough - invalidate and reuse
         currentVBO->invalidate();
         return currentVBO;
     }
@@ -155,7 +158,7 @@ static GPUBufferObjectPtr ensureVertexBuffer( const VertexArrayPtr& vao,
     // All share the same VBO with bufferOffset = 0 and stride = sizeof(ImDrawVert).
     // Each attribute specifies its own relativeOffset = offsetof(ImDrawVert, field).
     //
-    // location 0: aPos  � 2 floats at relativeOffset 0
+    // location 0: aPos  -> 2 floats at relativeOffset 0
     AttributeBuffer posAttr( vbo,
                              AttributeBuffer::ComponentDatatype::Float, 2,
                              false,
@@ -163,7 +166,7 @@ static GPUBufferObjectPtr ensureVertexBuffer( const VertexArrayPtr& vao,
                              /*relativeOffset*/ static_cast<int64_t>( offsetof( ImDrawVert, pos ) ),
                              stride );
 
-    // location 1: aUV   � 2 floats at relativeOffset 8
+    // location 1: aUV   -> 2 floats at relativeOffset 8
     AttributeBuffer uvAttr( vbo,
                             AttributeBuffer::ComponentDatatype::Float, 2,
                             false,
@@ -171,7 +174,7 @@ static GPUBufferObjectPtr ensureVertexBuffer( const VertexArrayPtr& vao,
                             /*relativeOffset*/ static_cast<int64_t>( offsetof( ImDrawVert, uv ) ),
                             stride );
 
-    // location 2: aColor � 4 unsigned bytes, normalized to [0,1], at relativeOffset 16
+    // location 2: aColor -> 4 unsigned bytes, normalized to [0,1], at relativeOffset 16
     AttributeBuffer colAttr( vbo,
                              AttributeBuffer::ComponentDatatype::UnsignedByte, 4,
                              true,
@@ -219,16 +222,13 @@ static void ensureIndexBuffer( const VertexArrayPtr& vao,
 // ------------------------------------------------------------------------------------------------
 void ImGuiPass::execute( const Renderer::CommandBuffer& /*queue*/,
                          Renderer::FrameData& frameData,
-                         const RenderCore::Context* ctx )
+                         const RenderCore::RendererBackend& rendererBackend )
 {
     ImDrawData* drawData = ImGui::GetDrawData();
     if( !drawData || drawData->TotalVtxCount == 0 )
         return;
 
-    assert( ctx && "ImGuiPass: context must be valid" );
-    assert( frameData.mainTarget && "ImGuiPass: mainTarget must be set" );
-
-    auto& rendererBackend = ctx->rendererBackend();
+    assert( frameData.renderTarget && "ImGuiPass: renderTarget must be set" );
 
     // ------------------------------------------------------------------
     // 1. Compute framebuffer dimensions from ImGui draw data
@@ -253,7 +253,9 @@ void ImGuiPass::execute( const Renderer::CommandBuffer& /*queue*/,
     const Math::fmat4 ortho = Math::ortho( L, R, B, T, -1.0f, 1.0f );
 
     _shader->setUniform( "u_ProjectionMatrix", ortho );
-    _shader->setTexture( "u_FontTexture", _fontTexture );
+   
+    // default to font atlas; may be overridden per ImDrawCmd below
+    _shader->setTexture( "u_CurrTexture", _fontTexture );
 
     // ------------------------------------------------------------------
     // 3. Ensure GPU buffers have enough capacity, then upload data
@@ -343,8 +345,17 @@ void ImGuiPass::execute( const Renderer::CommandBuffer& /*queue*/,
 
             const uint32_t idxByteOffset = ( pcmd.IdxOffset + globalIdxOffset ) * sizeof( ImDrawIdx );
 
+            // bind the texture for this draw command (pcmd.TextureId)
+            // ImGui stores textures in an opaque ImTextureID type.
+            // Our integration uses it to store s2Engine Texture2D identifier
+			auto currTextureID = static_cast<uint64_t>( pcmd.TextureId );
+            //if( currTextureID == 0 )
+				//currTextureID = _fontTexture->bindlessHandle();
+            if( currTextureID != 0 ) // resource ID
+                _shader->setTexture( "u_CurrTexture", _resourceManager->texture( currTextureID ) );
+
             rendererBackend.drawRange(
-                *frameData.mainTarget,
+                *frameData.renderTarget,
                 PrimitiveType::Triangles,
                 _vao,
                 pcmd.ElemCount,
