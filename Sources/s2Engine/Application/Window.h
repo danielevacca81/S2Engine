@@ -58,19 +58,6 @@ public:
 
     virtual void onDraw()                                               {}
 
-    /// Override to build UI widgets each frame.
-    /// Called between UILayer::beginFrame() and UILayer::endFrame()
-    /// only if a UILayer has been installed.
-    virtual void onDrawUI()                                             {}
-
-    ///// Install a UI layer. Ownership is transferred to Window.
-    ///// Pass nullptr to remove the current UI layer.
-    ///// Must be called before startRenderThread().
-    //void setUILayer( std::unique_ptr<UI::UILayer> layer ) noexcept;
-
-    ///// Access the UI layer (may be null if none was installed).
-    //UI::UILayer* uiLayer() noexcept { return _uiLayer.get(); }
-
 protected:
     void makeCurrent();
 
@@ -80,6 +67,7 @@ protected:
 protected:
     std::unique_ptr<RenderCore::Context>      _renderingContext;
 	std::unique_ptr<RenderCore::RenderTarget> _mainRenderTarget; // default renderTarget for the window
+	std::unique_ptr<Renderer::Renderer>       _renderer;
 	std::unique_ptr<UILayer>                  _ui;
 
 private:

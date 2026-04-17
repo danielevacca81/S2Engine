@@ -9,6 +9,8 @@
 #include "RenderCore/RenderTarget.h"
 #include "RenderCore/RendererBackend.h"
 
+#include "Renderer/Renderer.h"
+
 #include "GLFW/glfw3.h"
 
 #include <iostream>
@@ -193,16 +195,19 @@ Window::Window( const std::string& name, int width, int height, const WindowPara
 {
     makeCurrent();
     _renderingContext = std::make_unique<RenderCore::Context>();
+	_renderer         = std::make_unique<Renderer::Renderer>( _renderingContext.get() );
     _mainRenderTarget = std::make_unique<RenderCore::RenderTarget>();
-	_ui               = createDefaultUILayer();
+	
+    _ui               = createDefaultUILayer();
 	_ui->init( _impl->window ); // install callbacks and initialize UI layer with the native window handle
-    _ui->setEnabled( false );
 }
 
 // ------------------------------------------------------------------------------------------------
 Window::~Window()
 {
     stopRenderThread();
+    
+	_renderer.reset();
     _ui.reset();
     _impl.reset();
 }
@@ -219,15 +224,6 @@ void  Window::swapBuffers()                 { _impl->swapBuffers(); }
 void  Window::makeCurrent()                 { _impl->makeCurrent(); }
 
 void Window::framebufferSize( int& w, int& h ) const { _impl->framebufferSize( w, h ); }
-
-// ================================================================================================
-// UILayer
-// ================================================================================================
-//void Window::setUILayer( std::unique_ptr<UI::UILayer> layer ) noexcept
-//{
-//    _uiLayer = std::move( layer );
-//    _uiLayer->init( _impl->window );
-//}
 
 // ================================================================================================
 // Render thread
@@ -279,12 +275,6 @@ void Window::drawCurrentFrame()
         onResizeEvent( static_cast<uint32_t>( fbWidth ),
                        static_cast<uint32_t>( fbHeight ) );
     }
-
-    // UI rendering callback.
-    // Issues abstract rendering commands for the UILayer 
-    // and consume them in the pipeline UI pass.
-    if( _ui && _ui->isEnabled() )
-        _ui->drawUI( [this] { onDrawUI(); } );
 
     // Application rendering callback.
     // the pipeline will be executed on the render thread

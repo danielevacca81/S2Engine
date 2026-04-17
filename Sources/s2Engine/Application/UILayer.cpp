@@ -9,6 +9,8 @@
 
 #include "GLFW/glfw3.h"
 
+static int debug_imguilayer = 0;
+
 using namespace s2;
 
 // ================================================================================================
@@ -20,7 +22,7 @@ public:
     ~ImGuiUILayer() override { shutdown(); }
 
     void  init( void* windowHandle ) override;
-    void  drawUI( const std::function<void()>& frame ) override;
+    void  draw( const std::function<void()>& frame ) override;
     void  shutdown() override;
     bool  isInitialized() const noexcept override { return _initialized; }
     bool  wantCaptureMouse() const noexcept override;
@@ -75,7 +77,7 @@ void ImGuiUILayer::shutdown()
 }
 
 // ------------------------------------------------------------------------------------------------
-void ImGuiUILayer::drawUI( const std::function<void()>& draw )
+void ImGuiUILayer::draw( const std::function<void()>& draw )
 {
     beginFrame();
     draw();
@@ -101,6 +103,8 @@ void ImGuiUILayer::endFrame()
     if( !_initialized )
         return;
 
+    ImGui::SetCurrentContext( _context );
+
     // Finalizes the frame and produces draw data.
     // The data is retrievable via ImGui::GetDrawData() by ImGuiPass.
     ImGui::Render();
@@ -109,12 +113,16 @@ void ImGuiUILayer::endFrame()
 // ------------------------------------------------------------------------------------------------
 bool ImGuiUILayer::wantCaptureMouse() const noexcept
 {
+    ImGui::SetCurrentContext( _context );
+
     return _initialized && ImGui::GetIO().WantCaptureMouse;
 }
 
 // ------------------------------------------------------------------------------------------------
 bool ImGuiUILayer::wantCaptureKeyboard() const noexcept
 {
+    ImGui::SetCurrentContext( _context );
+
     return _initialized && ImGui::GetIO().WantCaptureKeyboard;
 }
 

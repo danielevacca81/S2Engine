@@ -33,7 +33,6 @@ public:
 	void onShutdownEvent() override;
 	void onCloseEvent() override;
 	void onDraw() override;
-	void onDrawUI() override;
 
 	void onMouseMoveEvent( const s2::Input::MouseState& ms ) override;
 	void onMouseDoubleClickEvent( const s2::Input::MouseState& ms ) override;
@@ -45,10 +44,12 @@ public:
 private:
 	void loadResources();
 	void renderThumbnailIfNeeded();
+	void drawImGui();
 
 private:
-	std::unique_ptr<s2::Renderer::Renderer> _renderer; // forward rendering, deferred rendering, etc.
 	std::unique_ptr<s2::Renderer::Picker>   _picker;   // optional GPU picking utility
+
+	std::unordered_map<std::string, std::shared_ptr<s2::Renderer::RenderPass>> _renderPasses;
 
 	s2::Renderer::ResourceHandle _cone     { s2::Renderer::InvalidHandle };
 

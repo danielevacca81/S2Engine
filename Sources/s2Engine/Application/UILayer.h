@@ -45,6 +45,8 @@ public:
 	
     void* uiData( const std::string& key ) const { auto it = _uiData.find( key ); return it != _uiData.end() ? it->second : nullptr; }
 
+    virtual void draw( const std::function<void()> &draw ) = 0;
+
 protected:
     /// Initialize the UI system.
     /// @param windowHandle  Opaque platform window handle.
@@ -54,7 +56,6 @@ protected:
     virtual void shutdown() = 0;
 
 	/// Bracket the UI building code for each frame.
-    virtual void drawUI( const std::function<void()> &draw) = 0;
 
     /// Returns true after a successful init() and before shutdown().
     virtual bool isInitialized() const noexcept = 0;

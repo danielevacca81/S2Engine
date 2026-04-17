@@ -13,8 +13,9 @@
 
 #include "Renderer/RenderMaterial.h"
 #include "Renderer/PickPass.h"
+#include "Renderer/ForwardPass.h"
+#include "Renderer/UIPass.h"
 
-#include "UI/ImGuiPass.h"
 
 #include "Geometry/GeometryFactory3D.h"
 
@@ -398,12 +399,11 @@ void MainWindow::onInitializeEvent()
 	// Initialize renderer with the current rendering context
 	_renderer = std::make_unique<s2::Renderer::Renderer>( _renderingContext.get() );
 
-	_renderer->setPipeline( std::move( s2::Renderer::RenderPipeline::createDefaultPipeline()
-							.addPass( std::make_unique<s2::Renderer::PickPass>() ) 
-							.addPass( std::make_unique < s2::UI::ImGuiPass >() ) 
-	) );
+	_renderPasses.emplace( "forward", std::make_shared<s2::Renderer::ForwardPass>() );
+	_renderPasses.emplace( "pick", std::make_shared<s2::Renderer::PickPass>() );
+	_renderPasses.emplace( "ui", std::make_shared<s2::Renderer::UIPass>() );
 
-	_ui->setEnabled( true );
+	_ui->setEnabled( false );
 	
 	// Initialize the picker and connect to pick results
 	_picker = std::make_unique<s2::Renderer::Picker>( *_renderer.get() );
@@ -574,9 +574,13 @@ void MainWindow::renderThumbnailIfNeeded()
 	// If nothing selected clear thumbnail (simple clear)
 	if( !_hasSelection )
 	{
-		_renderer->begin( { .renderTarget = _thumbnailTarget.get(),
-			.cameraViewMatrix = _camera.worldToCameraMatrix(),
-			.cameraProjectionMatrix = _camera.projectionMatrix() } );
+		_renderer->begin( 
+			{
+				.renderPasses = { _renderPasses["forward"] },
+				.renderTarget = _thumbnailTarget.get(),
+				.cameraViewMatrix = _camera.worldToCameraMatrix(),
+				.cameraProjectionMatrix = _camera.projectionMatrix() 
+			} );
 		{
 			_renderer->submit( { .color = Color{ 0.1f, 0.1f, 0.1f, 1.0f } } );
 		}
@@ -596,9 +600,13 @@ void MainWindow::renderThumbnailIfNeeded()
 	if( mdIt == _meshDataCache.end() )
 	{
 		// fallback: render using main camera if we don't have mesh data
-		_renderer->begin( { .renderTarget = _thumbnailTarget.get(),
-			.cameraViewMatrix = _camera.worldToCameraMatrix(),
-			.cameraProjectionMatrix = _camera.projectionMatrix() } );
+		_renderer->begin(
+			{
+				.renderPasses = { _renderPasses["forward"] },
+				.renderTarget = _thumbnailTarget.get(),
+				.cameraViewMatrix = _camera.worldToCameraMatrix(),
+				.cameraProjectionMatrix = _camera.projectionMatrix()
+			} );
 		{
 			_renderer->submit( { .color = Color{ 0.1f, 0.1f, 0.1f, 1.0f } } );
 
@@ -665,9 +673,13 @@ void MainWindow::renderThumbnailIfNeeded()
 	thumbCam.setViewport( Math::irect( 0, 0, static_cast<int>( _thumbnailTarget->width() ), static_cast<int>( _thumbnailTarget->height() ) ) );
 
 	// Render into thumbnail target with the thumb camera
-	_renderer->begin( { .renderTarget = _thumbnailTarget.get(),
-		.cameraViewMatrix = thumbCam.worldToCameraMatrix(),
-		.cameraProjectionMatrix = thumbCam.projectionMatrix() } );
+	_renderer->begin(
+		{
+			.renderPasses = { _renderPasses["forward"] },
+			.renderTarget = _thumbnailTarget.get(),
+			.cameraViewMatrix = thumbCam.worldToCameraMatrix(),
+			.cameraProjectionMatrix = thumbCam.projectionMatrix() 
+		} );
 	{
 		_renderer->submit( { .color = Color{ 0.1f, 0.1f, 0.1f, 1.0f } } );
 
@@ -687,6 +699,10 @@ void MainWindow::renderThumbnailIfNeeded()
 // ------------------------------------------------------------------------------------------------
 void MainWindow::onShutdownEvent()
 {
+	// free render passes
+	for( auto& [_, pass] : _renderPasses )
+		pass.reset();
+
 	_renderer.reset();
 	_picker.reset();
 	_thumbnailTarget.reset();
@@ -713,9 +729,11 @@ void MainWindow::onCloseEvent()
 }
 
 // ------------------------------------------------------------------------------------------------
-void MainWindow::onDrawUI()
+void MainWindow::drawImGui()
 {
-	ImGui::SetCurrentContext( static_cast<ImGuiContext*> ( _ui->uiData("ImGuiContext") ) );
+	ImGui::SetCurrentContext( static_cast<ImGuiContext*> ( _ui->uiData( "ImGuiContext" ) ) );
+
+	auto io = ImGui::GetIO();
 
 	ImGui::SetNextWindowPos( ImVec2( 10, 10 ), ImGuiCond_Once );
 	ImGui::SetNextWindowSize( ImVec2( 360, 0 ), ImGuiCond_Once );
@@ -728,23 +746,23 @@ void MainWindow::onDrawUI()
 		if( ImGui::CollapsingHeader( "Material", ImGuiTreeNodeFlags_DefaultOpen ) )
 		{
 			ImGui::ColorEdit3( "Albedo", _uiAlbedo );
-			ImGui::SliderFloat( "Metallic",  &_uiMetallic,  0.0f, 1.0f );
+			ImGui::SliderFloat( "Metallic", &_uiMetallic, 0.0f, 1.0f );
 			ImGui::SliderFloat( "Roughness", &_uiRoughness, 0.0f, 1.0f );
-			ImGui::SliderFloat( "AO",        &_uiAO,        0.0f, 1.0f );
+			ImGui::SliderFloat( "AO", &_uiAO, 0.0f, 1.0f );
 
 			ImGui::Separator();
-			ImGui::Checkbox( "Albedo Map",    &_uiUseAlbedoMap );
-			ImGui::Checkbox( "Normal Map",    &_uiUseNormalMap );
-			ImGui::Checkbox( "Metallic Map",  &_uiUseMetallicMap );
+			ImGui::Checkbox( "Albedo Map", &_uiUseAlbedoMap );
+			ImGui::Checkbox( "Normal Map", &_uiUseNormalMap );
+			ImGui::Checkbox( "Metallic Map", &_uiUseMetallicMap );
 			ImGui::Checkbox( "Roughness Map", &_uiUseRoughnessMap );
-			ImGui::Checkbox( "AO Map",        &_uiUseAOMap );
+			ImGui::Checkbox( "AO Map", &_uiUseAOMap );
 		}
 
 		// --- Light section ---
 		if( ImGui::CollapsingHeader( "Light", ImGuiTreeNodeFlags_DefaultOpen ) )
 		{
-			ImGui::DragFloat3( "Position",  _uiLightPosition, 0.1f );
-			ImGui::ColorEdit3( "Color",     _uiLightColor );
+			ImGui::DragFloat3( "Position", _uiLightPosition, 0.1f );
+			ImGui::ColorEdit3( "Color", _uiLightColor );
 			ImGui::SliderFloat( "Intensity", &_uiLightIntensity, 0.0f, 500.0f );
 		}
 
@@ -770,12 +788,12 @@ void MainWindow::onDrawUI()
 
 				// Material quick info for selected object (reads from the PBR material)
 				ImGui::Separator();
-				ImGui::TextColored( ImVec4(0.8f,0.8f,0.2f,1.0f), "Material (preview)" );
+				ImGui::TextColored( ImVec4( 0.8f, 0.8f, 0.2f, 1.0f ), "Material (preview)" );
 				// show albedo / scalars
 				ImGui::Text( "Albedo: %.2f, %.2f, %.2f", _uiAlbedo[0], _uiAlbedo[1], _uiAlbedo[2] );
 				ImGui::Text( "Metallic: %.2f  Roughness: %.2f  AO: %.2f", _uiMetallic, _uiRoughness, _uiAO );
 				ImGui::Text( "Use maps: A(%d) N(%d) M(%d) R(%d) AO(%d)",
-					_uiUseAlbedoMap ? 1 : 0, _uiUseNormalMap ? 1 : 0, _uiUseMetallicMap ? 1 : 0, _uiUseRoughnessMap ? 1 : 0, _uiUseAOMap ? 1 : 0 );
+							 _uiUseAlbedoMap ? 1 : 0, _uiUseNormalMap ? 1 : 0, _uiUseMetallicMap ? 1 : 0, _uiUseRoughnessMap ? 1 : 0, _uiUseAOMap ? 1 : 0 );
 
 				// Thumbnail block
 				ImGui::Separator();
@@ -788,8 +806,8 @@ void MainWindow::onDrawUI()
 					auto colorTex = _thumbnailTarget->attachment( s2::RenderCore::FrameBuffer::AttachmentPoint::ColorAttachment0 );
 					if( colorTex && colorTex->isValid() )
 					{
-						auto thumbnailResID = _renderer->resources().registerTexture( "thumbnail", colorTex );
-						ImGui::Image( thumbnailResID, ImVec2( 128, 128 ) );
+						colorTex->makeResident(); // ensure texture is resident before using bindless handle. no cost if already resident.
+						ImGui::Image( colorTex->bindlessHandle(), ImVec2( 128, 128 ) );
 					}
 					else
 					{
@@ -818,6 +836,7 @@ void MainWindow::onDrawUI()
 		ImGui::Text( "%.1f FPS", ImGui::GetIO().Framerate );
 	}
 	ImGui::End();
+
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -863,11 +882,13 @@ void MainWindow::onDraw()
 
 	auto modelMatrix = Math::scale( Math::dvec3( scale ) ) * _trackball.matrix();
 
-	_renderer->begin( {
-		.renderTarget           = _mainRenderTarget.get(),
-		.cameraViewMatrix       = _camera.worldToCameraMatrix(),
-		.cameraProjectionMatrix = _camera.projectionMatrix(),
-						   } );
+	_renderer->begin(
+		{
+			.renderPasses           = { _renderPasses["forward"], _renderPasses["pick"] },
+			.renderTarget           = _mainRenderTarget.get(),
+			.cameraViewMatrix       = _camera.worldToCameraMatrix(),
+			.cameraProjectionMatrix = _camera.projectionMatrix(),
+		} );
 	{
 		_renderer->submit( { .color = Color{ 0.3f, 0.4f, 0.5f, 1.0f } } );
 
@@ -914,13 +935,23 @@ void MainWindow::onDraw()
 	}
 	_renderer->execute();
 
-	// prevent UI rendering  in thumbnail pass
-	// FIXME: not working as expected
-	const auto uiEnabled = _ui->isEnabled();
+	// todo: add logic to enable/disable UI rendering:
+	// make used textures resident when enabled, make them non-resident when disabled to save GPU memory if needed.
+	
+	// if ui layer is enabled, draw it in a separate pass on top of the scene
+	//if( _ui->isEnabled() )
 	{
-		_ui->setEnabled( false );
 		renderThumbnailIfNeeded();
-		_ui->setEnabled( uiEnabled );
+		
+		_ui->draw( [&] () { drawImGui(); } );
+
+		_renderer->begin(
+			{
+				.renderPasses = { _renderPasses["ui"] },
+				.renderTarget = _mainRenderTarget.get(),
+			} );
+
+		_renderer->execute(); 
 	}
 }
 
@@ -960,6 +991,7 @@ void MainWindow::onMouseButtonEvent( const s2::Input::MouseState& ms )
 	
 	if( ms.isButtonDown( s2::Input::MouseState::ButtonLeft ) )
 		_picker->pickObjectAt( ms.position() );
+		//_ui->setEnabled( !_ui->isEnabled() ); // toggle UI on left click for testing
 
 	if( ms.isButtonDown( s2::Input::MouseState::ButtonRight ) )    _trackball.update( Scene::TrackBall::DragEvent::Begin, ms.position() );
 	else if( ms.isButtonUp( s2::Input::MouseState::ButtonRight ) ) _trackball.update( Scene::TrackBall::DragEvent::End, ms.position() );
