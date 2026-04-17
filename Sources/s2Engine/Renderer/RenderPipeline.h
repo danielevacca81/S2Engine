@@ -8,7 +8,7 @@
 #include "RenderPass.h"
 
 #include <vector>
-#include <optional>
+#include <initializer_list>
 #include <memory>
 
 namespace s2 {
@@ -53,8 +53,10 @@ Pipeline:
 
 
 /**
- * Manages the sequence of render passes.
- * Different rendering techniques (Forward, Deferred) use different pipelines.
+  * Manages the sequence of render passes.
+  * User defines pipelines in application code as sequence of passes.
+  * Passes can be shared between pipelines (e.g., a common shadow pass used in both forward and deferred pipelines).
+  * 
  */
 class S2ENGINE_API RenderPipeline
 {
@@ -64,25 +66,28 @@ public:
     static RenderPipeline createDeferredPipeline();
 
 public:
-	// move-only, not copyable
 	RenderPipeline() = default;
-    RenderPipeline( RenderPipeline&& ) = default;
-    RenderPipeline& operator=( RenderPipeline&& ) = default;
-
+	RenderPipeline( const std::initializer_list<std::shared_ptr<RenderPass>>& passes ) 
+        : _passes( passes ) 
+    {}
+    
     void clear();
+	bool isEmpty() const { return _passes.empty(); }
 
-    RenderPipeline& addPass( std::unique_ptr<RenderPass> pass );
+    RenderPipeline& addPass( const std::shared_ptr<RenderPass> &pass );
     RenderPipeline& removePass( const std::string& name );
-    std::optional<std::reference_wrapper<RenderPass>> findPass( const std::string& name ) const;
+    std::shared_ptr<RenderPass> findPass( const std::string& name ) const;
 
 protected:
-    void initialize( ResourceManager* resourceManager );
-    void execute( const CommandBuffer& cmd, FrameData& frameData, const RenderCore::RendererBackend& backend );
+    void execute( const RenderCore::RendererBackend& backend,
+				  const ResourceManager& resourceManager,
+                  const CommandBuffer& cmd,
+                  FrameData& frameData );
 
 private:
-    std::vector< std::unique_ptr<RenderPass>> _passes;
+    std::vector< std::shared_ptr<RenderPass>> _passes;
 
-	friend class Renderer; // internal execution and initialization
+	friend class Renderer; // internal execution
 };
 
 } // namespace Renderer

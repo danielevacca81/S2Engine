@@ -18,11 +18,13 @@ public:
     const std::string& name() const override;
 
 protected:
-    void initialize( ResourceManager* resourceManager ) override;
-    void execute( const CommandBuffer& queue, FrameData& frameData, const RenderCore::RendererBackend& rendererBackend ) override;
+    void execute( const RenderCore::RendererBackend& rendererBackend,
+				  const ResourceManager& resourceManager,
+				  const CommandBuffer& queue,
+                  FrameData& frameData ) override;
 
 private:
-    std::string      _name { "s2Engine.ForwardPass" };
+    std::string   _name { "s2Engine.ForwardPass" };
 };
 
 } // namespace Renderer

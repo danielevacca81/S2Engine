@@ -104,8 +104,6 @@ public:
     Renderer( Renderer&& )                 = delete;
     Renderer& operator=( Renderer&& )      = delete;
 
-	// Set a custom render pipeline. Ownership is transferred to Renderer.
-    void setPipeline( RenderPipeline pipeline );
 
     void begin( const FrameData& frameData );
     void submit( const ClearCommand& command );
@@ -126,7 +124,6 @@ private:
     Stats           _stats;
 	CommandBuffer   _commandBuffer;   // Stores submitted commands for the current frame
 	FrameData       _frameData;       // shared data for the current frame, passed to render passes
-	RenderPipeline  _pipeline;        // Render pipeline with configured render passes 
     ResourceManager _resourceManager; // Manages GPU resources (textures, buffers, shaders)
 };
 

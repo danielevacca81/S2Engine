@@ -16,19 +16,6 @@ Renderer::Renderer( const RenderCore::Context* ctx )
 {
     if( !ctx )
         throw std::runtime_error( "Renderer initialization failed: GPU context is null" );
-
-    _pipeline = RenderPipeline::createDefaultPipeline();
-    _pipeline.initialize( &_resourceManager );
-}
-
-// ------------------------------------------------------------------------------------------------
-void Renderer::setPipeline( RenderPipeline pipeline )
-{
-	if( _state == State::FrameStarted )
-		throw std::runtime_error( "Renderer::setPipeline() cannot be called while a frame is in progress." );
-
-    _pipeline = std::move( pipeline );
-	_pipeline.initialize( &_resourceManager );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -41,6 +28,9 @@ void Renderer::begin( const FrameData& frameData )
 
     if( !frameData.renderTarget )
         throw std::runtime_error( "Renderer::begin() failed: main render target is null" );
+
+    if( frameData.renderPasses.isEmpty() )
+		throw std::runtime_error( "Renderer::begin() failed: no rendering passes submitted for this frame." );
 
     _frameData = frameData;
     _state     = State::FrameStarted;
@@ -77,7 +67,8 @@ void Renderer::execute()
             "Call beginFrame() before endFrame()." );
 
     _commandBuffer.sort();
-    _pipeline.execute( _commandBuffer, _frameData, _gpuContext->rendererBackend() );
+    _frameData.renderPasses.execute( _gpuContext->rendererBackend(), _resourceManager, _commandBuffer, _frameData );
+
     _commandBuffer.clear();
 
     // Notify all listeners while the GL context is still current.

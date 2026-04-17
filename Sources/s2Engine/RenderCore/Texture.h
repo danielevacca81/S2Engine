@@ -94,8 +94,7 @@ public:
     // Clear texture (OpenGL 4.4+)
     void clear( const Color &color );
     
-    // ===== Bindless Support (ARB_bindless_texture) =====
-    
+ 
     // Get bindless handle (cached)
     uint64_t bindlessHandle() const;
     

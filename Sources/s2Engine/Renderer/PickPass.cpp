@@ -8,13 +8,9 @@
 #include "RenderCommand.h"
 #include "ResourceManager.h"
 
-#include "RenderCore/OpenGL.h"
-#include "RenderCore/Context.h"
 #include "RenderCore/RendererBackend.h"
-#include "RenderCore/RenderTarget.h"
 #include "RenderCore/DrawState.h"
 #include "RenderCore/ClearState.h"
-#include "RenderCore/TextureDescription.h"
 #include "RenderCore/ShaderCompiler.h"
 #include "RenderCore/PrimitiveType.h"
 
@@ -27,10 +23,8 @@ using namespace s2::Renderer;
 using namespace s2::RenderCore;
 
 // ------------------------------------------------------------------------------------------------
-void PickPass::initialize( ResourceManager* resourceManager )
+PickPass::PickPass()
 {
-	RenderPass::initialize( resourceManager );
-
     // Internal pick shader
     _pickShader = Shader::New();
 
@@ -63,14 +57,15 @@ void PickPass::initialize( ResourceManager* resourceManager )
     if( !ShaderCompiler::linkShader( _pickShader, "Internal.PickPass" ) )
         throw std::runtime_error( "PickPass: failed to link internal pick shader" );
 
-	_resourceManager->registerShader( _name, _pickShader );
+	//resourceManager.registerShader( _name, _pickShader );
 }
 
 // ------------------------------------------------------------------------------------------------
-void PickPass::execute( const CommandBuffer& queue, FrameData& frameData, const RenderCore::RendererBackend& renderBackend )
+void PickPass::execute( const RenderCore::RendererBackend& renderBackend,
+                        const ResourceManager& resourceManager,
+                        const CommandBuffer& queue,
+						FrameData& frameData )
 {
-    assert( _resourceManager && "PickPass not initialized" );
-
     if( !isEnabled() || !frameData.renderTarget )
         return;
 
@@ -92,7 +87,7 @@ void PickPass::execute( const CommandBuffer& queue, FrameData& frameData, const 
         if( cmd.pickableID == 0 )
             continue; // Non-pickable, skip
 
-        auto mesh = _resourceManager->mesh( cmd.mesh );
+        auto mesh = resourceManager.mesh( cmd.mesh );
         if( !mesh )
             continue;
 

@@ -37,12 +37,17 @@ void Picker::onRenderCompleted( const FrameData& frameData )
     if( !_enabled || !_hasPendingRequest )
         return;
 
-    // Retrieve the pick RenderTarget published by PickPass
-    auto it = frameData.passData.find( PickPass::kPickTargetKey );
-    if( it == frameData.passData.end() || !it->second )
-        return; // PickPass not in the pipeline
+	// 1. Check if PickPass is in the pipeline
+	auto found = frameData.renderPasses.findPass( "s2Engine.PickPass" );
+	if( !found )
+		return;
 
-    auto* pickTarget = static_cast<RenderTarget*>( it->second );
+	// 2. Get the pick target from FrameData::passData
+	auto it = frameData.passData.find( PickPass::kPickTargetKey );
+    if( it == frameData.passData.end() )
+		return; // PickPass is present but did not publish the pick target (e.g., disabled or failed), cannot proceed.
+
+	auto pickTarget = std::any_cast<RenderTarget*>( it->second );
 
     const Math::ivec2 screenPos = _pendingScreenPos;
     _hasPendingRequest = false;

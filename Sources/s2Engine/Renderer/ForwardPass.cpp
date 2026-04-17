@@ -38,18 +38,15 @@ static inline RenderCore::DrawState createDrawState( const RenderCommand& render
 
 // ------------------------------------------------------------------------------------------------
 // Get shader with fallback to default
-static inline RenderCore::ShaderPtr getShader( ResourceManager* resourceManager, const RenderCommand& renderCmd )
+static inline RenderCore::ShaderPtr getShader( const ResourceManager& resourceManager, const RenderCommand& renderCmd )
 {
-    assert( resourceManager && "ResourceManager must be valid" );
-
     // Use material shader or fallback to default
     if( renderCmd.material.shader == InvalidHandle )
         return RenderCore::DefaultShaders.Simple;
 
-    auto shader = resourceManager->shader( renderCmd.material.shader );
+    auto shader = resourceManager.shader( renderCmd.material.shader );
     return shader ? shader : RenderCore::DefaultShaders.Simple;
 }
-
 
 // ------------------------------------------------------------------------------------------------
 // Setup standard transform uniforms (DSA - no binding required)
@@ -88,19 +85,14 @@ static inline RenderCore::PrimitiveType getPrimitiveType( RenderMode mode )
     default:                    return RenderCore::PrimitiveType::Triangles;
     }
 }
-
-
 #pragma endregion
 
-// ------------------------------------------------------------------------------------------------
-void ForwardPass::initialize( ResourceManager* resourceManager )
-{
-	RenderPass::initialize( resourceManager );
-	// @todo: add any internal resources (e.g., shaders) needed for this pass
-}
 
 // ------------------------------------------------------------------------------------------------
-void ForwardPass::execute( const CommandBuffer& queue, FrameData& frameData, const RenderCore::RendererBackend& backend )
+void ForwardPass::execute( const RenderCore::RendererBackend& backend,
+						   const ResourceManager& resourceManager,
+                           const CommandBuffer& queue,
+                           FrameData& frameData )
 {
     if( !frameData.renderTarget )
         return; // No render target set
@@ -116,7 +108,7 @@ void ForwardPass::execute( const CommandBuffer& queue, FrameData& frameData, con
         auto drawState = createDrawState( renderCmd, frameData );
         
         // Get shader (with fallback to default)
-        auto shader = getShader( _resourceManager, renderCmd );
+        auto shader = getShader( resourceManager, renderCmd );
         drawState.shader = shader;
 
         // ===== DSA: Set uniforms BEFORE drawing =====
@@ -126,10 +118,10 @@ void ForwardPass::execute( const CommandBuffer& queue, FrameData& frameData, con
         renderCmd.material.applyPropertiesToShader( *shader );
         
         // Apply textures (Bindless - no TextureUnit!)
-        renderCmd.material.applyTexturesToShader( *shader, *_resourceManager );
+        renderCmd.material.applyTexturesToShader( *shader, resourceManager );
 
         // Get mesh
-        auto mesh = _resourceManager->mesh( renderCmd.mesh );
+        auto mesh = resourceManager.mesh( renderCmd.mesh );
         if( !mesh )
             continue; // Skip if mesh not found
 

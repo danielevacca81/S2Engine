@@ -6,6 +6,7 @@
 #include "s2Engine_API.h"
 
 #include <string>
+#include <memory>
 
 namespace s2 {
 namespace RenderCore { class RendererBackend; }
@@ -41,17 +42,19 @@ public:
     const Stats& stats() const { return _stats; }
 
 protected:
-    // Initialize pass with resource manager
-    virtual void initialize( ResourceManager* resourceManager ) { _resourceManager = resourceManager; }
-
-    // Execute pass with command buffer and frame data
-    virtual void execute( const CommandBuffer& queue, FrameData& frameData, const RenderCore::RendererBackend& rendererBackend ) = 0;
+	// pass is responsible for executing its rendering commands using the provided backend and resource manager
+	// cmd contains the commands submitted by the application for this frame, which the pass can consume and translate into GPU commands
+	// frameData contains shared data for this frame, which the pass can read and write to share information with other passes
+	virtual void execute( const RenderCore::RendererBackend& backend,
+						  const ResourceManager& resourceManager,
+						  const CommandBuffer& cmd,
+						  FrameData& frameData ) = 0;
 
 
 protected:
-    ResourceManager* _resourceManager { nullptr }; // not owned, set during initialization
-    Stats _stats;
-    bool  _enabled { true };
+	std::weak_ptr<ResourceManager> _resourceManager; // shared resource manager for loading and accessing GPU resources (textures, buffers, shaders)
+    Stats                          _stats;
+    bool                           _enabled { true };
 
 	friend class RenderPipeline; // RenderPipeline needs access to protected members for initialization and execution
 };

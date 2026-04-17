@@ -7,15 +7,17 @@
 
 #include "RenderPass.h"
 
-#include "RenderCore/Shader.h"
 #include "RenderCore/RenderTarget.h"
-#include "RenderCore/Texture.h"
+#include "RenderCore/Shader.h"
 
 #include <memory>
 #include <string>
 
 namespace s2 {
 namespace Renderer {
+
+class ResourceManager;
+
 
 // ================================================================================================
 // PickPass: Optional render pass for GPU object picking.
@@ -36,14 +38,15 @@ public:
     static constexpr const char* kPickTargetKey = "PickPass.RenderTarget";
 
 public:
-    ~PickPass() override = default;
-
+    PickPass();
     const std::string& name() const override { return _name; }
 
 
 protected:
-    void initialize( ResourceManager* resourceManager ) override;
-	void execute( const CommandBuffer& queue, FrameData& frameData, const RenderCore::RendererBackend& rendererBackend ) override;
+    void execute( const RenderCore::RendererBackend& rendererBackend,
+                  const ResourceManager& resourceManager,
+                  const CommandBuffer& queue,
+                  FrameData& frameData ) override;
 
 private:
     void ensurePickTarget( uint32_t width, uint32_t height );

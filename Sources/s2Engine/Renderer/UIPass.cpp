@@ -1,15 +1,11 @@
-// ImGuiPass.cpp
+// UIPass.cpp
 //
-// Renders Dear ImGui draw data using the s2 RenderCore API.
-// No direct OpenGL calls � everything goes through RenderCore abstractions.
-//
-#include "ImGuiPass.h"
+#include "UIPass.h"
 
 #include "Renderer/CommandBuffer.h"
 #include "Renderer/FrameData.h"
 #include "Renderer/ResourceManager.h"
 
-#include "RenderCore/Context.h"
 #include "RenderCore/RendererBackend.h"
 #include "RenderCore/RenderTarget.h"
 #include "RenderCore/ShaderCompiler.h"
@@ -24,8 +20,8 @@
 #include <cstring>
 #include <algorithm>
 
-using namespace s2::UI;
 using namespace s2::RenderCore;
+using namespace s2::Renderer;
 
 // ================================================================================================
 // Embedded GLSL shaders (OpenGL 4.5 / GLSL 450)
@@ -53,25 +49,26 @@ void main()
 
 static const char* kImGuiFragmentShader = R"(
 #version 450 core
+#extension GL_ARB_bindless_texture : require
+#extension GL_ARB_gpu_shader_int64 : require
 
 in vec2 vUV;
 in vec4 vColor;
 
-uniform sampler2D u_CurrTexture;
+layout(location = 0) uniform uint64_t u_CurrTextureHandle;
 
 layout(location = 0) out vec4 FragColor;
 
 void main()
 {
-    FragColor = vColor * texture(u_CurrTexture, vUV);
+    // Trasformiamo l'handle numerico in un sampler "al volo" per usarlo con texture()
+    FragColor = vColor * texture(sampler2D(u_CurrTextureHandle), vUV);
 }
 )";
 
 // ------------------------------------------------------------------------------------------------
-void ImGuiPass::initialize( Renderer::ResourceManager* resourceManager )
+UIPass::UIPass()
 {
-	RenderPass::initialize( resourceManager );
-
     createShader();
     createFontTexture();
 
@@ -79,13 +76,13 @@ void ImGuiPass::initialize( Renderer::ResourceManager* resourceManager )
 }
 
 // ------------------------------------------------------------------------------------------------
-void ImGuiPass::createShader()
+void UIPass::createShader()
 {
     auto vs = ShaderCompiler::compile( ShaderStageType::Vertex,   kImGuiVertexShader );
     auto fs = ShaderCompiler::compile( ShaderStageType::Fragment, kImGuiFragmentShader );
 
-    assert( vs.success && "ImGuiPass: vertex shader compilation failed" );
-    assert( fs.success && "ImGuiPass: fragment shader compilation failed" );
+    assert( vs.success && "UIPass: vertex shader compilation failed" );
+    assert( fs.success && "UIPass: fragment shader compilation failed" );
 
     _shader = Shader::New();
     _shader->attachVertexShaderStage( vs.stage );
@@ -95,11 +92,11 @@ void ImGuiPass::createShader()
     assert( linkResult.success && "ImGuiPass: shader link failed" );
 
     _shader->setObjectLabel( "ImGuiPass.Shader" );
-	_resourceManager->registerShader( _shader->name(), _shader );
+    //_resourceManager->registerShader( _shader->name(), _shader );
 }
 
 // ------------------------------------------------------------------------------------------------
-void ImGuiPass::createFontTexture()
+void UIPass::createFontTexture()
 {
     ImGuiIO& io = ImGui::GetIO();
 
@@ -108,23 +105,20 @@ void ImGuiPass::createFontTexture()
     int height = 0;
     io.Fonts->GetTexDataAsRGBA32( &pixels, &width, &height );
 
-    assert( pixels && width > 0 && height > 0 && "ImGuiPass: font atlas build failed" );
+    assert( pixels && width > 0 && height > 0 && "UIPass: font atlas build failed" );
 
-    TextureDescription desc( width, height, TextureFormat::RedGreenBlueAlpha8, false, "ImGuiPass::FontAtlas" );
+    TextureDescription desc( width, height, TextureFormat::RedGreenBlueAlpha8, false, "UIPass.FontAtlas" );
     _fontTexture = Texture2D::New( desc, pixels );
 
     _fontTexture->setMinFilter( Texture2D::MinFilter::Linear );
     _fontTexture->setMagFilter( Texture2D::MagFilter::Linear );
     _fontTexture->setWrapS( Texture2D::WrapMode::ClampToEdge );
     _fontTexture->setWrapT( Texture2D::WrapMode::ClampToEdge );
-
-	auto resourceHandle = _resourceManager->registerTexture( "ImGuiPass.FontAtlas", _fontTexture );
+	_fontTexture->makeResident(); // the font atlas can be resident as long as the UIPass exists (never changes, small size)
 
     // font atlas is passed to imgui as s2Engine TexturePtr,
 	// it will be retrieved in the render pass to set the shader texture uniform (DSA) and bindless handle.
-    //io.Fonts->SetTexID( reinterpret_cast<ImTextureID>( _fontTexture.get() ) );
-    //io.Fonts->SetTexID( _fontTexture->bindlessHandle() );
-    io.Fonts->SetTexID( resourceHandle );
+    io.Fonts->SetTexID( _fontTexture->bindlessHandle() );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -220,9 +214,10 @@ static void ensureIndexBuffer( const VertexArrayPtr& vao,
 }
 
 // ------------------------------------------------------------------------------------------------
-void ImGuiPass::execute( const Renderer::CommandBuffer& /*queue*/,
-                         Renderer::FrameData& frameData,
-                         const RenderCore::RendererBackend& rendererBackend )
+void UIPass::execute( const RendererBackend& rendererBackend,
+                   const ResourceManager& resourceManager,
+                   const CommandBuffer& queue,
+					  FrameData& frameData )
 {
     ImDrawData* drawData = ImGui::GetDrawData();
     if( !drawData || drawData->TotalVtxCount == 0 )
@@ -255,7 +250,7 @@ void ImGuiPass::execute( const Renderer::CommandBuffer& /*queue*/,
     _shader->setUniform( "u_ProjectionMatrix", ortho );
    
     // default to font atlas; may be overridden per ImDrawCmd below
-    _shader->setTexture( "u_CurrTexture", _fontTexture );
+    _shader->setTextureHandle( "u_CurrTextureHandle", _fontTexture->bindlessHandle() );
 
     // ------------------------------------------------------------------
     // 3. Ensure GPU buffers have enough capacity, then upload data
@@ -347,12 +342,11 @@ void ImGuiPass::execute( const Renderer::CommandBuffer& /*queue*/,
 
             // bind the texture for this draw command (pcmd.TextureId)
             // ImGui stores textures in an opaque ImTextureID type.
-            // Our integration uses it to store s2Engine Texture2D identifier
-			auto currTextureID = static_cast<uint64_t>( pcmd.TextureId );
-            //if( currTextureID == 0 )
-				//currTextureID = _fontTexture->bindlessHandle();
-            if( currTextureID != 0 ) // resource ID
-                _shader->setTexture( "u_CurrTexture", _resourceManager->texture( currTextureID ) );
+            // Our integration uses it to store OpenGL bindles texture handles.
+			// Be sure to make the shader's sampler uniform resident and set it to the correct handle value before drawing.
+			auto bindlessHandle = static_cast<uint64_t>( pcmd.TextureId );
+            if( bindlessHandle != 0 ) // resource ID
+                _shader->setTextureHandle( "u_CurrTextureHandle", bindlessHandle );
 
             rendererBackend.drawRange(
                 *frameData.renderTarget,
@@ -376,8 +370,8 @@ void ImGuiPass::execute( const Renderer::CommandBuffer& /*queue*/,
     _stats = {};
 }
 
-// ------------------------------------------------------------------------------------------------
-const std::string& ImGuiPass::name() const
+// -------------------------------------------------------------------------------
+const std::string& UIPass::name() const
 {
     return _name;
 }

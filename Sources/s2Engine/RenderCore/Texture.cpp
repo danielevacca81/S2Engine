@@ -355,6 +355,8 @@ void Texture2D::setDefaultSampler()
 }
 
 // ------------------------------------------------------------------------------------------------
+// Note: The handle is valid even if the texture is not resident,
+// but it must be made resident before use in shaders.
 uint64_t Texture2D::bindlessHandle() const
 {
     assert( isValid() );
@@ -396,22 +398,6 @@ void Texture2D::makeNonResident()
     
     _resident = false;
 }
-
-//// ------------------------------------------------------------------------------------------------
-//void Texture2D::bind() const
-//{
-//    // Legacy binding for compatibility with existing code
-//    // In DSA this is not necessary, but kept for API compatibility
-//    glBindTexture( GL_TEXTURE_2D, _objectID );
-//    glCheck;
-//}
-//
-//// ------------------------------------------------------------------------------------------------
-//void Texture2D::unbind() const
-//{
-//    glBindTexture( GL_TEXTURE_2D, 0 );
-//    glCheck;
-//}
 
 // ------------------------------------------------------------------------------------------------
 TextureDescription Texture2D::description() const

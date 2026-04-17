@@ -1,7 +1,7 @@
-// ImGuiPass.h
+// UIPass.h
 //
-#ifndef UI_IMGUIPASS_H
-#define UI_IMGUIPASS_H
+#ifndef UI_UIPASS_H
+#define UI_UIPASS_H
 
 #include "s2Engine_API.h"
 
@@ -13,26 +13,26 @@
 #include "RenderCore/GPUBufferObject.h"
 
 namespace s2 {
-namespace UI {
+namespace Renderer {
+
+class ResourceManager;
+class CommandBuffer;
+struct FrameData;
 
 // ================================================================================================
-// ImGuiPass
+// UIPass
 //
 // A RenderPass that renders Dear ImGui draw data using the RenderCore API.
-// Fetches draw data directly from ImGui (via ImGui::GetDrawData()) — no
-// coupling to UILayer at all.
+// Fetches draw data directly from ImGui (via ImGui::GetDrawData()) and renders it using
+// a custom shader and ImGui font texture.
 //
-// Contract: UILayer::endFrame() must have been called before pipeline.execute()
-// so that ImGui::GetDrawData() returns valid data.
+// Note: This pass is designed to be used as the final pass in the render pipeline, after all 3D rendering is done.
 //
-// Must be the last pass in the pipeline (renders on top of everything).
-//
-// Usage:
-//   pipeline.addPass( std::make_shared<UI::ImGuiPass>() );
 // ================================================================================================
-class S2ENGINE_API ImGuiPass final : public Renderer::RenderPass
+class S2ENGINE_API UIPass final : public RenderPass
 {
 public:
+    UIPass();
     // RenderPass interface
     const std::string& name() const override;
 
@@ -41,12 +41,14 @@ private:
     void createFontTexture();
 
 protected:
-    void initialize( Renderer::ResourceManager* resourceManager ) override;
-    void execute( const Renderer::CommandBuffer& queue, Renderer::FrameData& frameData, const RenderCore::RendererBackend& backend ) override;
+    void execute( const RenderCore::RendererBackend& rendererBackend,
+                  const ResourceManager& resourceManager,
+                  const CommandBuffer& queue,
+				  FrameData& frameData ) override;
 
 
 private:
-    std::string _name { "s2Engine.ImGuiPass" };
+    std::string _name { "s2Engine.UIPass" };
 
     // GPU resources
     RenderCore::ShaderPtr          _shader;
@@ -55,7 +57,7 @@ private:
     RenderCore::GPUBufferObjectPtr _vbo;  // persistent interleaved vertex buffer (shared by all 3 attributes)
 };
 
-} // namespace UI
+} // namespace Renderer
 } // namespace s2
 
-#endif // UI_IMGUIPASS_H
+#endif // UI_UIPASS_H

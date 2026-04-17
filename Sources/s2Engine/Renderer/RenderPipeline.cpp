@@ -32,7 +32,7 @@ RenderPipeline RenderPipeline::createDeferredPipeline()
 }
 
 // ------------------------------------------------------------------------------------------------
-RenderPipeline& RenderPipeline::addPass( std::unique_ptr<RenderPass> pass )
+RenderPipeline& RenderPipeline::addPass( const std::shared_ptr<RenderPass> &pass )
 {
     // Avoid adding duplicate passes with the same name
     auto existingPass = findPass( pass->name() );
@@ -42,7 +42,7 @@ RenderPipeline& RenderPipeline::addPass( std::unique_ptr<RenderPass> pass )
         return *this;
     }
 
-    _passes.push_back( std::move( pass ) );
+    _passes.push_back( pass );
     return *this;
 }
 
@@ -58,7 +58,7 @@ RenderPipeline& RenderPipeline::removePass( const std::string& name )
 }
 
 // ------------------------------------------------------------------------------------------------
-std::optional<std::reference_wrapper<RenderPass>> RenderPipeline::findPass( const std::string& name ) const
+std::shared_ptr<RenderPass> RenderPipeline::findPass( const std::string& name ) const
 {
     auto found = std::find_if( _passes.begin(), _passes.end(), [&name] ( const auto& pass )
     {
@@ -66,13 +66,13 @@ std::optional<std::reference_wrapper<RenderPass>> RenderPipeline::findPass( cons
     } );
 
     return found == _passes.end()
-        ? std::nullopt
-        : std::make_optional<std::reference_wrapper<RenderPass>>( std::ref( **found ) )
+        ? nullptr
+        : *found
         ;
 }
 
 // ------------------------------------------------------------------------------------------------
-void RenderPipeline::execute( const CommandBuffer& queue, FrameData& frameData, const RenderCore::RendererBackend& backend )
+void RenderPipeline::execute( const RenderCore::RendererBackend& backend, const ResourceManager& resourceManager, const CommandBuffer& queue, FrameData& frameData )
 {
     assert( !_passes.empty() && "RenderPipeline has no passes to execute!" );
     if( _passes.empty() )
@@ -80,14 +80,7 @@ void RenderPipeline::execute( const CommandBuffer& queue, FrameData& frameData, 
 
     for( auto& pass : _passes )
         if( pass->isEnabled() )
-            pass->execute( queue, frameData, backend );
-}
-
-// ------------------------------------------------------------------------------------------------
-void RenderPipeline::initialize( ResourceManager* resourceManager )
-{
-    for( auto& pass : _passes )
-        pass->initialize( resourceManager );
+            pass->execute( backend, resourceManager, queue, frameData );
 }
 
 // ------------------------------------------------------------------------------------------------
