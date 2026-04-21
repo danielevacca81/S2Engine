@@ -49,7 +49,7 @@ void CommandBuffer::sort( const std::function<bool( const RenderCommand&, const 
         // - Depth (front-to-back for opaque, back-to-front for transparent)
 
         // For now, just group by material pointer
-        return a.material < b.material;
+        return a.material.definition().shader < b.material.definition().shader;
     });
 }
 

@@ -43,7 +43,7 @@ struct UniformSetterDSA
 // ------------------------------------------------------------------------------------------------
 // DSA: Set uniform without binding program (OpenGL 4.1+)
 // ------------------------------------------------------------------------------------------------
-void Uniform::setDSA( unsigned int programID )
+void Uniform::applyValue( unsigned int programID )
 {
     if( !_changed )
         return;

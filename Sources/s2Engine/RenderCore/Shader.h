@@ -46,30 +46,37 @@ public:
     bool        isLinked() const;
     std::string name() const;
 
-    // Binding (REQUIRED for rendering - cannot be avoided!)
+    // Binding (REQUIRED for rendering)
     void bind()   const;
     void unbind() const;
 
     // ===== DSA API for Uniforms (OpenGL 4.1+) =====
     
     // Set uniform and apply immediately (DSA - no binding required)
+	// Note: This method performs a lookup by uniform name, which can be inefficient if called frequently.
+    // For performance-critical code, consider caching uniform handles and using the setUniform(UniformHandle, UniformValue) overload.
     void setUniform( const std::string& uniformName, const UniformValue& value );
+
+	// directly set uniform by handle
+	void setUniform( UniformHandle handle, const UniformValue& value );
+    
+    // Get uniform by name (read-only access)
+    const Uniform* uniform( const std::string& name ) const;
+	//Uniform*       uniform( const std::string& name );
     
     // Apply all changed uniforms (DSA - no binding required)
     void applyUniforms();
 
-    // ===== Bindless Texture Support (OpenGL 4.5+) =====
-    
-    // Set bindless texture handle directly
-    void setTextureHandle( const std::string& uniformName, uint64_t handle );
-    
-    // Convenience: Set texture (makes resident automatically)
-    void setTexture( const std::string& uniformName, const Texture2DPtr& texture );
+ //   // ===== Bindless Texture Support (OpenGL 4.5+) =====
+ //   
+	//// Set bindless texture handle directly (texture must be made resident before this call)
+ //   void setTextureHandle( const std::string& uniformName, uint64_t handle );
+ //   
+ //   // Convenience: Set texture (makes resident automatically)
+ //   void setTexture( const std::string& uniformName, const Texture2DPtr& texture );
 
     // ===== Query =====
     
-    // Get uniform by name (read-only access)
-    const Uniform* uniform( const std::string& name ) const;
 
 private:
     void create()  override;
@@ -90,11 +97,18 @@ private:
     bool         _linked { false };
     std::string  _name;
 
-    std::map<std::string, unsigned int> _attributes;
-    std::map<std::string, Uniform*>     _uniforms;
+	// Uniforms are stored in a vector indexed by their location for O(1) access during rendering.
+	// The location is determined at link time and is used as the index in the vector.
+	// This allows for very fast uniform updates without the overhead of name lookups or bindings.
+    // 
+	// Note: Uniform can also be accessed by name via the uniform() method, which performs a lookup in the vector based on the uniform's location.
+	// Todo: use unique_ptr (ownership of uniforms is tied to the shader, they are created at link time and destroyed with the shader)
+	std::vector<Uniform*> _uniforms; // List of active uniforms
+
+    //std::map<std::string, Uniform*>     _uniforms;
     
     // Bindless texture tracking
-    std::vector<Texture2DPtr> _residentTextures;
+    //std::vector<Texture2DPtr> _residentTextures;
 
     friend class ShaderCompiler;
 };

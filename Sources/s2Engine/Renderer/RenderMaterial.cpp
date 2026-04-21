@@ -14,6 +14,104 @@ using namespace s2::Renderer;
 // --------------------------------------------------------------------------------------------
 // Helper: Convert material property to uniform value with type conversion
 // --------------------------------------------------------------------------------------------
+static inline std::optional<RenderCore::UniformValue> convertProperty(
+    const MaterialDefinition::Property& property,
+    const RenderCore::UniformValue& targetUniformType )
+{
+    return std::visit( [&] ( auto&& targetType ) -> std::optional<RenderCore::UniformValue>
+    {
+        using TargetType = std::decay_t<decltype( targetType )>;
+
+        return std::visit( [&]<typename T>( const T & value ) -> std::optional<RenderCore::UniformValue>
+        {
+            using ValueType = std::decay_t<T>;
+
+            // 1. Exact type match (no conversion)
+            if constexpr( std::is_same_v<ValueType, TargetType> ) { return value; }
+            // 2. Numeric conversions
+            else if constexpr( std::is_arithmetic_v<ValueType> && std::is_arithmetic_v<TargetType> ) { return static_cast<TargetType>( value ); }
+            // 3. Color -> vec4/vec3
+            else if constexpr( std::is_same_v<ValueType, Color> && std::is_same_v<TargetType, Math::fvec4> ) { return Math::fvec4( value.r(), value.g(), value.b(), value.a() ); }
+            else if constexpr( std::is_same_v<ValueType, Color> && std::is_same_v<TargetType, Math::fvec3> ) { return Math::fvec3( value.r(), value.g(), value.b() ); }
+            // 4. Vector expansions
+            else if constexpr( std::is_same_v<ValueType, Math::fvec3> && std::is_same_v<TargetType, Math::fvec4> ) { return Math::fvec4( value.x, value.y, value.z, 1.0f ); }
+            else if constexpr( std::is_same_v<ValueType, Math::fvec2> && std::is_same_v<TargetType, Math::fvec3> ) { return Math::fvec3( value.x, value.y, 0.0f ); }
+            else if constexpr( std::is_same_v<ValueType, Math::fvec2> && std::is_same_v<TargetType, Math::fvec4> ) { return Math::fvec4( value.x, value.y, 0.0f, 1.0f ); }
+            // 5. Vector reductions
+            else if constexpr( std::is_same_v<ValueType, Math::fvec4> && std::is_same_v<TargetType, Math::fvec3> ) { return Math::fvec3( value.x, value.y, value.z ); }
+            // 6. Double -> Float vector conversions
+            else if constexpr( std::is_same_v<ValueType, Math::dvec2> && std::is_same_v<TargetType, Math::fvec2> ) { return Math::fvec2( static_cast<float>( value.x ), static_cast<float>( value.y ) ); }
+            else if constexpr( std::is_same_v<ValueType, Math::dvec3> && std::is_same_v<TargetType, Math::fvec3> ) { return Math::fvec3( static_cast<float>( value.x ), static_cast<float>( value.y ), static_cast<float>( value.z ) ); }
+            else if constexpr( std::is_same_v<ValueType, Math::dvec4> && std::is_same_v<TargetType, Math::fvec4> ) { return Math::fvec4( static_cast<float>( value.x ), static_cast<float>( value.y ), static_cast<float>( value.z ), static_cast<float>( value.w ) ); }
+            else if constexpr( std::is_same_v<ValueType, Math::fvec2> && std::is_same_v<TargetType, Math::dvec2> ) { return Math::dvec2( value.x, value.y ); }
+            else if constexpr( std::is_same_v<ValueType, Math::fvec3> && std::is_same_v<TargetType, Math::dvec3> ) { return Math::dvec3( value.x, value.y, value.z ); }
+            else if constexpr( std::is_same_v<ValueType, Math::fvec4> && std::is_same_v<TargetType, Math::dvec4> ) { return Math::dvec4( value.x, value.y, value.z, value.w ); }
+            // 7. Matrix conversions (double -> float)
+            else if constexpr( std::is_same_v<ValueType, Math::dmat2> && std::is_same_v<TargetType, Math::fmat2> ) { return Math::fmat2( value ); }
+            else if constexpr( std::is_same_v<ValueType, Math::dmat3> && std::is_same_v<TargetType, Math::fmat3> ) { return Math::fmat3( value ); }
+            else if constexpr( std::is_same_v<ValueType, Math::dmat4> && std::is_same_v<TargetType, Math::fmat4> ) { return Math::fmat4( value ); }
+            else if constexpr( std::is_same_v<ValueType, Math::fmat2> && std::is_same_v<TargetType, Math::dmat2> ) { return Math::dmat2( value ); }
+            else if constexpr( std::is_same_v<ValueType, Math::fmat3> && std::is_same_v<TargetType, Math::dmat3> ) { return Math::dmat3( value ); }
+            else if constexpr( std::is_same_v<ValueType, Math::fmat4> && std::is_same_v<TargetType, Math::dmat4> ) { return Math::dmat4( value ); }
+            else
+            {
+                // Unsupported conversion
+                return std::nullopt;
+            }
+        }, property );
+    }, targetUniformType );
+}
+
+
+
+// ------------------------------------------------------------------------------------------------
+Material MaterialDefinition::createMaterial()
+{
+    return Material( this );
+}
+
+// ------------------------------------------------------------------------------------------------
+MaterialDefinition::Property Material::property( const MaterialDefinition::PropertyID &id ) const
+{
+    if( auto it = _overrides.find( id ); it != _overrides.end() )
+        return it->second;
+    return _definition->defaultProperties.at( id );
+}
+
+// ------------------------------------------------------------------------------------------------
+void Material::apply( const ResourceManager& rm ) const
+{
+	// shader object from resource manager
+	auto shader = rm.shader( _definition->shader );
+    if( !shader )
+    {
+        assert( false && "Material::apply: Shader resource not found" );
+        return;
+	}
+
+	// first apply properties from the material definition, then apply overrides from the instance
+	for( const auto& [id, val] : _definition->defaultProperties ) 
+	{
+		// If not in the override, apply
+		if( _overrides.find( id ) == _overrides.end() )
+			shader->setUniform( id , *convertProperty( val, shader->uniform( id )->value() ) );
+	}
+	// then apply instance overrides
+	for( const auto& [id, val] : _overrides ) 
+		shader->setUniform( id , *convertProperty( val, shader->uniform( id )->value() ) );
+}
+
+
+
+
+
+
+
+#if 0
+
+// --------------------------------------------------------------------------------------------
+// Helper: Convert material property to uniform value with type conversion
+// --------------------------------------------------------------------------------------------
 static inline std::optional<RenderCore::UniformValue> convertProperty( 
     const RenderMaterial::Property& property, 
     const RenderCore::UniformValue& targetUniformType )
@@ -123,7 +221,7 @@ void RenderMaterial::setMatrix3 ( const std::string& name, const Math::fmat3& va
 void RenderMaterial::setMatrix4 ( const std::string& name, const Math::fmat4& value ) { _properties[name] = value; }
 
 // Set texture by uniform name (not unit index!)
-void RenderMaterial::setTexture( const std::string& uniformName, ResourceHandle textureHandle )
+void RenderMaterial::setTexture( const std::string& uniformName, ResourceID textureHandle )
 {
     _textures[uniformName] = textureHandle;
 }
@@ -145,3 +243,5 @@ bool RenderMaterial::operator<( const RenderMaterial& other ) const
     // Then by material properties (arbitrary but consistent)
     return _properties.size() < other._properties.size();
 }
+
+#endif

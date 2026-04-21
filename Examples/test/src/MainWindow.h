@@ -13,6 +13,7 @@
 #include "Scene/TrackBall.h"
 
 #include "Renderer/Renderer.h"
+#include "Renderer/RenderMaterial.h"
 #include "Renderer/Picker.h"
 
 #include "RenderCore/RenderTarget.h" // for thumbnail render target
@@ -49,13 +50,17 @@ private:
 private:
 	std::unique_ptr<s2::Renderer::Picker>   _picker;   // optional GPU picking utility
 
-	std::unordered_map<std::string, std::shared_ptr<s2::Renderer::RenderPass>> _renderPasses;
+	s2::Renderer::RenderPasses _renderPasses;
 
-	s2::Renderer::ResourceHandle _cone     { s2::Renderer::InvalidHandle };
+	s2::Renderer::ResourceID _cone     { s2::Renderer::ResourceInvalidID };
 
-	s2::Renderer::RenderMaterial _material;
-	s2::Renderer::RenderMaterial _materialPBR;
-	s2::Renderer::RenderMaterial _outlineMaterial; // material used for silhouette
+	s2::Renderer::MaterialDefinition _material;
+	s2::Renderer::MaterialDefinition _materialPBR;
+	s2::Renderer::MaterialDefinition _outlineMaterial; // material used for silhouette
+	
+	s2::Renderer::Material  _materialInstance;
+	s2::Renderer::Material  _materialPBRInstance;
+	s2::Renderer::Material  _outlineMaterialInstance;
 
 	s2::Scene::Camera    _camera;
 	s2::Scene::TrackBall _trackball;
@@ -84,11 +89,11 @@ private:
 	size_t _selectedVertexCount = 0;
 
 	// mappings: pickableID -> resource handle, handle -> name
-	std::unordered_map<uint32_t, s2::Renderer::ResourceHandle> _pickableToHandle;
-	std::unordered_map<s2::Renderer::ResourceHandle, std::string> _handleToName;
+	std::unordered_map<uint32_t, s2::Renderer::ResourceID> _pickableToHandle;
+	std::unordered_map<s2::Renderer::ResourceID, std::string> _handleToName;
 
 	// Cache original MeshData (used to compute bounding box for thumbnail framing)
-	std::unordered_map<s2::Renderer::ResourceHandle, s2::MeshData3D> _meshDataCache;
+	std::unordered_map<s2::Renderer::ResourceID, s2::MeshData3D> _meshDataCache;
 
 	// Thumbnail / offscreen rendering
 	std::unique_ptr<s2::RenderCore::RenderTarget> _thumbnailTarget;

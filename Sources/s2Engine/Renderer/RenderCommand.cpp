@@ -6,9 +6,9 @@ namespace s2 {
 namespace Renderer {
 
 #pragma region Helper Functions
-static inline void mapOpacityToBlending( const RenderMaterial& material, RenderCore::RenderState& renderState )
+static inline void mapOpacityToBlending( const MaterialDefinition& material, RenderCore::RenderState& renderState )
 {
-	const bool isTransparent = material.blendMode != BlendMode::Opaque;
+	const bool isTransparent = material.state.blendMode != BlendMode::Opaque;
 
 	if( isTransparent )
 	{
@@ -34,9 +34,9 @@ static inline void mapOpacityToBlending( const RenderMaterial& material, RenderC
 }
 
 // ------------------------------------------------------------------------------------------------
-static inline void mapDepthState( const RenderMaterial& material, RenderCore::RenderState& renderState )
+static inline void mapDepthState( const MaterialDefinition& material, RenderCore::RenderState& renderState )
 {
-	const bool isTransparent = material.blendMode != BlendMode::Opaque;
+	const bool isTransparent = material.state.blendMode != BlendMode::Opaque;
 
 	// Depth test
 	renderState.depthTest.enabled = true;
@@ -50,17 +50,17 @@ static inline void mapDepthState( const RenderMaterial& material, RenderCore::Re
 }
 
 // ------------------------------------------------------------------------------------------------
-static inline void mapFaceCulling( const RenderMaterial& material, RenderCore::RenderState& renderState )
+static inline void mapFaceCulling( const MaterialDefinition& material, RenderCore::RenderState& renderState )
 {
 	// always disable face culling for transparent materials
-	if( material.blendMode == BlendMode::AlphaBlend )
+	if( material.state.blendMode == BlendMode::AlphaBlend )
 	{
 		renderState.faceCulling.enabled = false;
 		return;
 	}
 
 	// For opaque materials, use cull mode from material
-	switch( material.cullMode )
+	switch( material.state.cullMode )
 	{
 	case CullMode::None:  renderState.faceCulling.enabled  = false; break;
 	case CullMode::Front: renderState.faceCulling.cullFace = RenderCore::FaceCulling::Face::Front; break;
@@ -71,7 +71,7 @@ static inline void mapFaceCulling( const RenderMaterial& material, RenderCore::R
 }
 
 // ------------------------------------------------------------------------------------------------
-static inline void mapColorMask( const RenderMaterial& material, RenderCore::RenderState& renderState )
+static inline void mapColorMask( const MaterialDefinition& material, RenderCore::RenderState& renderState )
 {
 	// default: use all channels for writing.
 	// In a more complex implementation, you could have material properties that specify which channels to write to.
@@ -82,7 +82,7 @@ static inline void mapColorMask( const RenderMaterial& material, RenderCore::Ren
 }
 
 // ------------------------------------------------------------------------------------------------
-static inline void mapStencilState( const RenderMaterial& material, RenderCore::RenderState& renderState )
+static inline void mapStencilState( const MaterialDefinition& material, RenderCore::RenderState& renderState )
 {
 	// no stencil operations by default
 	renderState.stencilTest.enabled = false;
@@ -126,40 +126,40 @@ RenderCore::ClearState   getClearState( const ClearCommand& clearCmd )
 {
 	RenderCore::ClearState cs;
 
-	switch( clearCmd.mode )
+	switch( clearCmd.clearMode )
 	{
 	case s2::Renderer::ClearMode::ColorOnly:
 		cs.buffers = RenderCore::ClearBuffers::ColorBuffer;
-		cs.color = clearCmd.color;
+		cs.color = clearCmd.clearColor;
 		break;
 
 	case s2::Renderer::ClearMode::DepthOnly:
 		cs.buffers = RenderCore::ClearBuffers::DepthBuffer;
-		cs.depth = clearCmd.depth;
+		cs.depth = clearCmd.clearDepthValue;
 		break;
 
 	case s2::Renderer::ClearMode::ColorAndDepth:
 		cs.buffers = RenderCore::ClearBuffers::ColorAndDepthBuffer;
-		cs.color = clearCmd.color;
-		cs.depth = clearCmd.depth;
+		cs.color = clearCmd.clearColor;
+		cs.depth = clearCmd.clearDepthValue;
 		break;
 
 	case s2::Renderer::ClearMode::StencilOnly:
 		cs.buffers = RenderCore::ClearBuffers::StencilBuffer;
-		cs.stencil = clearCmd.stencil;
+		cs.stencil = clearCmd.clearStencilValue;
 		break;
 
 	case s2::Renderer::ClearMode::DepthAndStencil:
 		cs.buffers = RenderCore::ClearBuffers::StencilAndDepthBuffer;
-		cs.depth = clearCmd.depth;
-		cs.stencil = clearCmd.stencil;
+		cs.depth = clearCmd.clearDepthValue;
+		cs.stencil = clearCmd.clearStencilValue;
 		break;
 
 	case s2::Renderer::ClearMode::AllBuffers:
 		cs.buffers = RenderCore::ClearBuffers::All;
-		cs.color = clearCmd.color;
-		cs.depth = clearCmd.depth;
-		cs.stencil = clearCmd.stencil;
+		cs.color = clearCmd.clearColor;
+		cs.depth = clearCmd.clearDepthValue;
+		cs.stencil = clearCmd.clearStencilValue;
 		break;
 	}
 
@@ -172,11 +172,11 @@ RenderCore::RenderState  getRenderState( const RenderCommand& renderCmd )
 	RenderCore::RenderState rs;
 
 	// translate material properties to render state
-	mapOpacityToBlending( renderCmd.material, rs );
-	mapDepthState       ( renderCmd.material, rs );
-	mapFaceCulling      ( renderCmd.material, rs );
-	mapColorMask        ( renderCmd.material, rs );
-	mapStencilState     ( renderCmd.material, rs );
+	mapOpacityToBlending( renderCmd.material.definition(), rs );
+	mapDepthState       ( renderCmd.material.definition(), rs );
+	mapFaceCulling      ( renderCmd.material.definition(), rs );
+	mapColorMask        ( renderCmd.material.definition(), rs );
+	mapStencilState     ( renderCmd.material.definition(), rs );
 
 	return rs;
 }

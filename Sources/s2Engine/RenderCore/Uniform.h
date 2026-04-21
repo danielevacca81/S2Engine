@@ -38,6 +38,13 @@ using UniformValue = std::variant<
 	Math::dmat4
 >;
 
+struct UniformHandle
+{
+	static constexpr uint32_t Invalid = 0xFFFFFFFF;
+	uint32_t id { Invalid };
+	bool isValid() const { return id != Invalid; }
+};
+
 class S2ENGINE_API Uniform
 {
 public:
@@ -48,8 +55,9 @@ public:
 		, _changed( true )
 	{}
 
-	int         location() const { return _location; }
-	std::string name()     const { return _name; }
+	int           location() const { return _location; }
+	std::string   name()     const { return _name; }
+	UniformHandle handle()   const { return UniformHandle { static_cast<uint32_t>( _location ) }; }
 
 	void setValue( const UniformValue& val )
 	{
@@ -64,8 +72,9 @@ public:
 	bool isChanged() const { return _changed; }
 
 protected:
-	// Set uniform with glProgramUniform* (DSA - no binding needed)
-	void setDSA( unsigned int programID );
+	// apply cached value to uniform 
+	// with glProgramUniform* (DSA - no binding needed)
+	void applyValue( unsigned int programID );
 
 protected:
 	std::string    _name;

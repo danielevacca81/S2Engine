@@ -331,23 +331,24 @@ void MainWindow::loadResources()
 			
 			// Setup PBR material
 			_materialPBR.shader = shaderHandle;
+			_materialPBRInstance = _materialPBR.createMaterial();
 			
 			// Texture usage flags
-			_materialPBR.set( "u_UseAlbedoMap", true );
-			_materialPBR.set( "u_UseNormalMap", true );
-			_materialPBR.set( "u_UseMetallicMap", true );
-			_materialPBR.set( "u_UseRoughnessMap", true );
-			_materialPBR.set( "u_UseAOMap", true );
+			_materialPBRInstance.set( "u_UseAlbedoMap", true );
+			_materialPBRInstance.set( "u_UseNormalMap", true );
+			_materialPBRInstance.set( "u_UseMetallicMap", true );
+			_materialPBRInstance.set( "u_UseRoughnessMap", true );
+			_materialPBRInstance.set( "u_UseAOMap", true );
 			
 			// set textures to the material
-			_materialPBR.setTexture( "u_AlbedoMap",    resourceManager.texture( "pbr_albedo" ) );
-			_materialPBR.setTexture( "u_NormalMap",    resourceManager.texture( "pbr_normal" ) );
-			_materialPBR.setTexture( "u_MetallicMap",  resourceManager.texture( "pbr_metallic" ) );
-			_materialPBR.setTexture( "u_RoughnessMap", resourceManager.texture( "pbr_roughness" ) );
-			_materialPBR.setTexture( "u_AOMap",        resourceManager.texture( "pbr_ao" ) );
+			_materialPBRInstance.set( "u_AlbedoMap",    resourceManager.texture( "pbr_albedo" ) );
+			_materialPBRInstance.set( "u_NormalMap",    resourceManager.texture( "pbr_normal" ) );
+			_materialPBRInstance.set( "u_MetallicMap",  resourceManager.texture( "pbr_metallic" ) );
+			_materialPBRInstance.set( "u_RoughnessMap", resourceManager.texture( "pbr_roughness" ) );
+			_materialPBRInstance.set( "u_AOMap",        resourceManager.texture( "pbr_ao" ) );
 			
 			// Setup single light
-			_materialPBR.set( "u_LightIntensity", 100.0f );
+			_materialPBRInstance.set( "u_LightIntensity", 100.0f );
 			
 			std::cout << "PBR Shader compiled and linked successfully" << std::endl;
 		}
@@ -377,11 +378,14 @@ void MainWindow::loadResources()
 			auto outlineHandle = resources.registerShader( "outline", outShader );
 
 			_outlineMaterial.shader = outlineHandle;
+			_outlineMaterial.state.cullMode = s2::Renderer::CullMode::Front; // render backfaces only
+			_outlineMaterial.state.depthWrite = false; // don't overwrite depth
+
+			_outlineMaterialInstance = _outlineMaterial.createMaterial();
+			
 			// Set defaults for outline material
-			_outlineMaterial.setVec4( "u_OutlineColor", Math::fvec4{ 0.7f, 0.5f, 0.f, 0.6f } );
-			_outlineMaterial.setFloat( "u_OutlineWidth", 0.02f );
-			_outlineMaterial.cullMode = s2::Renderer::CullMode::Front; // render backfaces only
-			_outlineMaterial.depthWrite = false; // don't overwrite depth
+			_outlineMaterialInstance.set( "u_OutlineColor", Math::fvec4{ 0.7f, 0.5f, 0.f, 0.6f } );
+			_outlineMaterialInstance.set( "u_OutlineWidth", 0.02f );
 			//_outlineMaterial.blendMode = s2::Renderer::BlendMode::AlphaBlend; // enable blending for transparency
 			std::cout << "Outline shader compiled and linked successfully" << std::endl;
 		}
@@ -472,7 +476,7 @@ void MainWindow::onInitializeEvent()
 	{
 		auto mesh = s2::GeometryFactory3D::createCube( { 5.0, 0.0, 0.0 }, 2.0 );
 		auto handle = resources.registerMesh( "cube", mesh );
-		if( handle != s2::Renderer::InvalidHandle )
+		if( handle != s2::Renderer::ResourceInvalidID )
 			_meshDataCache[handle] = std::move(mesh);
 	}
 
@@ -480,7 +484,7 @@ void MainWindow::onInitializeEvent()
 	{
 		auto mesh = s2::GeometryFactory3D::createTorus( 1.0, 0.5, 64, 16 );
 		auto handle = resources.registerMesh( "torus", mesh );
-		if( handle != s2::Renderer::InvalidHandle )
+		if( handle != s2::Renderer::ResourceInvalidID )
 		{
 			resources.mesh( handle )->setColor( Color::red() );
 			_meshDataCache[handle] = std::move(mesh);
@@ -492,7 +496,7 @@ void MainWindow::onInitializeEvent()
 	{
 		auto mesh = s2::GeometryFactory3D::createCone( Math::dvec3( 2.5, 0.0, 0.0 ), Math::dvec3( 2.5, 0.0, 3.0 ), 1, true, 32 );
 		auto handle = resources.registerMesh( "cone", mesh );
-		if( handle != s2::Renderer::InvalidHandle )
+		if( handle != s2::Renderer::ResourceInvalidID )
 		{
 			resources.mesh( handle )->setColor( Color::yellow() );
 			_meshDataCache[handle] = std::move(mesh);
@@ -503,7 +507,7 @@ void MainWindow::onInitializeEvent()
 	{
 		auto mesh = s2::GeometryFactory3D::createSphere( Math::dvec3( -2.5, 0.0, 0.0 ), 1.0, 32 );
 		auto handle = resources.registerMesh( "sphere", mesh );
-		if( handle != s2::Renderer::InvalidHandle )
+		if( handle != s2::Renderer::ResourceInvalidID )
 		{
 			resources.mesh( handle )->setColor( Color::blue().lighter() );
 			_meshDataCache[handle] = std::move(mesh);
@@ -514,7 +518,7 @@ void MainWindow::onInitializeEvent()
 	{
 		auto mesh = s2::GeometryFactory3D::createCylinder( Math::dvec3( -5.0, 0.0, 0.0 ), Math::dvec3( -5.0, 0.0, 2.0 ), 1.0, true, true, 32 );
 		auto handle = resources.registerMesh( "cylinder", mesh );
-		if( handle != s2::Renderer::InvalidHandle )
+		if( handle != s2::Renderer::ResourceInvalidID )
 		{
 			resources.mesh( handle )->setColor( Color::cyan() );
 			_meshDataCache[handle] = std::move(mesh);
@@ -525,7 +529,7 @@ void MainWindow::onInitializeEvent()
 	{
 		auto mesh = s2::GeometryFactory3D::createCapsule( Math::dvec3( -2.0, -3.0, 0.0 ), Math::dvec3( 2.0, -3.0, 3.0 ), 1.0, 32, 32 );
 		auto handle = resources.registerMesh( "capsule", mesh );
-		if( handle != s2::Renderer::InvalidHandle )
+		if( handle != s2::Renderer::ResourceInvalidID )
 		{
 			resources.mesh( handle )->setColor( Color::magenta() );
 			_meshDataCache[handle] = std::move(mesh);
@@ -536,16 +540,17 @@ void MainWindow::onInitializeEvent()
 	// Note: these pickableIDs match the ones used in onDraw()
 	_pickableToHandle.clear();
 	_handleToName.clear();
-	auto h = resources.mesh( "cube" );       if( h != s2::Renderer::InvalidHandle ) { _pickableToHandle[1] = h; _handleToName[h] = "cube"; }
-	h = resources.mesh( "sphere" );          if( h != s2::Renderer::InvalidHandle ) { _pickableToHandle[2] = h; _handleToName[h] = "sphere"; }
-	h = resources.mesh( "torus" );           if( h != s2::Renderer::InvalidHandle ) { _pickableToHandle[3] = h; _handleToName[h] = "torus"; }
-	h = resources.mesh( "cone" );            if( h != s2::Renderer::InvalidHandle ) { _pickableToHandle[4] = h; _handleToName[h] = "cone"; }
-	h = resources.mesh( "cylinder" );        if( h != s2::Renderer::InvalidHandle ) { _pickableToHandle[5] = h; _handleToName[h] = "cylinder"; }
-	h = resources.mesh( "capsule" );         if( h != s2::Renderer::InvalidHandle ) { _pickableToHandle[6] = h; _handleToName[h] = "capsule"; }
+	auto h = resources.mesh( "cube" );       if( h != s2::Renderer::ResourceInvalidID ) { _pickableToHandle[1] = h; _handleToName[h] = "cube"; }
+	h = resources.mesh( "sphere" );          if( h != s2::Renderer::ResourceInvalidID ) { _pickableToHandle[2] = h; _handleToName[h] = "sphere"; }
+	h = resources.mesh( "torus" );           if( h != s2::Renderer::ResourceInvalidID ) { _pickableToHandle[3] = h; _handleToName[h] = "torus"; }
+	h = resources.mesh( "cone" );            if( h != s2::Renderer::ResourceInvalidID ) { _pickableToHandle[4] = h; _handleToName[h] = "cone"; }
+	h = resources.mesh( "cylinder" );        if( h != s2::Renderer::ResourceInvalidID ) { _pickableToHandle[5] = h; _handleToName[h] = "cylinder"; }
+	h = resources.mesh( "capsule" );         if( h != s2::Renderer::ResourceInvalidID ) { _pickableToHandle[6] = h; _handleToName[h] = "capsule"; }
 
 	_material.shader = resources.registerShader( "blinnPhong", s2::RenderCore::DefaultShaders.BlinnPhong );
+	_materialInstance = _material.createMaterial();
 	
-	_material.set( "u_UseDiffuseMap", false );
+	_materialInstance.set( "u_UseDiffuseMap", false );
 
 	_camera.set( Math::dvec3( 0.0, 0.0, 8.0 ),
 				 Math::dvec3( 0.0, 0.0, 0.0 ),
@@ -582,7 +587,7 @@ void MainWindow::renderThumbnailIfNeeded()
 				.cameraProjectionMatrix = _camera.projectionMatrix() 
 			} );
 		{
-			_renderer->submit( { .color = Color{ 0.1f, 0.1f, 0.1f, 1.0f } } );
+			_renderer->submit( { .clearColor = Color{ 0.1f, 0.1f, 0.1f, 1.0f } } );
 		}
 		_renderer->execute();
 		return;
@@ -608,11 +613,11 @@ void MainWindow::renderThumbnailIfNeeded()
 				.cameraProjectionMatrix = _camera.projectionMatrix()
 			} );
 		{
-			_renderer->submit( { .color = Color{ 0.1f, 0.1f, 0.1f, 1.0f } } );
+			_renderer->submit( { .clearColor = Color{ 0.1f, 0.1f, 0.1f, 1.0f } } );
 
 			_renderer->submit( {
 				.renderMode  = s2::Renderer::RenderMode::Triangles,
-				.material    = _materialPBR,
+				.material    = _materialPBRInstance,
 				.mesh        = meshHandle,
 				.pickableID  = 0,
 				.modelMatrix = Math::scale( Math::dvec3( 1.0 ) )
@@ -681,13 +686,13 @@ void MainWindow::renderThumbnailIfNeeded()
 			.cameraProjectionMatrix = thumbCam.projectionMatrix() 
 		} );
 	{
-		_renderer->submit( { .color = Color{ 0.1f, 0.1f, 0.1f, 1.0f } } );
+		_renderer->submit( { .clearColor = Color{ 0.1f, 0.1f, 0.1f, 1.0f } } );
 
 		// Render the mesh centered at its local vertex center (mesh vertices are already in world positions when factories generated them).
 		// If your meshes are in local space you may need to transform them; here factories use world-space centers so we render with identity transform.
 		_renderer->submit( {
 			.renderMode  = s2::Renderer::RenderMode::Triangles,
-			.material    = _materialPBR,
+			.material    = _materialPBRInstance,
 			.mesh        = meshHandle,
 			.pickableID  = 0,
 			.modelMatrix = Math::translate( Math::dvec3( 0.0, 0.0, 0.0 ) ) // identity model; meshes already positioned by factory
@@ -700,8 +705,7 @@ void MainWindow::renderThumbnailIfNeeded()
 void MainWindow::onShutdownEvent()
 {
 	// free render passes
-	for( auto& [_, pass] : _renderPasses )
-		pass.reset();
+	_renderPasses.clear();
 
 	_renderer.reset();
 	_picker.reset();
@@ -852,33 +856,33 @@ void MainWindow::onDraw()
 	using namespace s2::Renderer;
 
 	// Apply UI state to PBR material
-	_materialPBR.set( "u_Albedo",    Math::vec3( _uiAlbedo[0], _uiAlbedo[1], _uiAlbedo[2] ) );
-	_materialPBR.set( "u_Metallic",  _uiMetallic );
-	_materialPBR.set( "u_Roughness", _uiRoughness );
-	_materialPBR.set( "u_AO",        _uiAO );
+	_materialPBRInstance.set( "u_Albedo",    Math::vec3( _uiAlbedo[0], _uiAlbedo[1], _uiAlbedo[2] ) );
+	_materialPBRInstance.set( "u_Metallic",  _uiMetallic );
+	_materialPBRInstance.set( "u_Roughness", _uiRoughness );
+	_materialPBRInstance.set( "u_AO",        _uiAO );
 
-	_materialPBR.set( "u_UseAlbedoMap",    _uiUseAlbedoMap );
-	_materialPBR.set( "u_UseNormalMap",    _uiUseNormalMap );
-	_materialPBR.set( "u_UseMetallicMap",  _uiUseMetallicMap );
-	_materialPBR.set( "u_UseRoughnessMap", _uiUseRoughnessMap );
-	_materialPBR.set( "u_UseAOMap",        _uiUseAOMap );
+	_materialPBRInstance.set( "u_UseAlbedoMap",    _uiUseAlbedoMap );
+	_materialPBRInstance.set( "u_UseNormalMap",    _uiUseNormalMap );
+	_materialPBRInstance.set( "u_UseMetallicMap",  _uiUseMetallicMap );
+	_materialPBRInstance.set( "u_UseRoughnessMap", _uiUseRoughnessMap );
+	_materialPBRInstance.set( "u_UseAOMap",        _uiUseAOMap );
 
 	// Setup PBR material lighting from UI
 	const Math::vec4 lightPos( _uiLightPosition[0], _uiLightPosition[1], _uiLightPosition[2], 1.0f );
-	_materialPBR.set( "u_LightPosition",  Math::vec3( _trackballLight.matrix() * lightPos ) );
-	_materialPBR.set( "u_LightColor",     Math::vec3( _uiLightColor[0], _uiLightColor[1], _uiLightColor[2] ) );
-	_materialPBR.set( "u_LightIntensity", _uiLightIntensity );
-	_materialPBR.set( "u_CamPos",         Math::vec3( _camera.position() ) );
+	_materialPBRInstance.set( "u_LightPosition",  Math::vec3( _trackballLight.matrix() * lightPos ) );
+	_materialPBRInstance.set( "u_LightColor",     Math::vec3( _uiLightColor[0], _uiLightColor[1], _uiLightColor[2] ) );
+	_materialPBRInstance.set( "u_LightIntensity", _uiLightIntensity );
+	_materialPBRInstance.set( "u_CamPos",         Math::vec3( _camera.position() ) );
 
 
 	// setup material properties and shader
 	// note: no need to do this every frame if the material properties are static.
 	// we can create a material instance once and reuse it for multiple draw calls and update it only when properties change.
-	_material.set("u_LightPosition" , Math::vec4(_trackballLight.matrix() * lightPos) );
-	_material.set("u_LightAmbient"  , Math::vec4{ .01f,.01f,.01f,1.f });
-	_material.set("u_LightDiffuse"  , Math::vec4{ 1.f,1.f,1.f,1.f });
-	_material.set("u_LightSpecular" , Math::vec4{ 1.f,1.f,1.f,1.f });
-	_material.set("u_LightShininess", 60.f);
+	_materialInstance.set("u_LightPosition" , Math::vec4(_trackballLight.matrix() * lightPos) );
+	_materialInstance.set("u_LightAmbient"  , Math::vec4{ .01f,.01f,.01f,1.f });
+	_materialInstance.set("u_LightDiffuse"  , Math::vec4{ 1.f,1.f,1.f,1.f });
+	_materialInstance.set("u_LightSpecular" , Math::vec4{ 1.f,1.f,1.f,1.f });
+	_materialInstance.set("u_LightShininess", 60.f);
 
 	auto modelMatrix = Math::scale( Math::dvec3( scale ) ) * _trackball.matrix();
 
@@ -890,19 +894,20 @@ void MainWindow::onDraw()
 			.cameraProjectionMatrix = _camera.projectionMatrix(),
 		} );
 	{
-		_renderer->submit( { .color = Color{ 0.3f, 0.4f, 0.5f, 1.0f } } );
+		_renderer->submit( { .clearColor = Color{ 0.3f, 0.4f, 0.5f, 1.0f } } );
 
 		// For each object: if selected -> draw outline pass first, then regular pass.
-		auto drawWithPossibleOutline = [&]( uint32_t pickableID, const s2::Renderer::RenderMaterial& mat, const s2::Renderer::ResourceHandle meshHandle )
+		auto drawWithPossibleOutline = [&]( uint32_t pickableID, const s2::Renderer::Material& mat, const s2::Renderer::ResourceID meshHandle )
 		{
-			if( _hasSelection && pickableID == _selectedObjectID && _outlineMaterial.shader != s2::Renderer::InvalidHandle )
+			if( _hasSelection && pickableID == _selectedObjectID && _outlineMaterial.shader != s2::Renderer::ResourceInvalidID )
 			{
 				// outline pass uses same mesh, outline material (we copy and set uniforms that may change)
-				auto outlineMat = _outlineMaterial; // copy to modify per-draw uniforms if needed
+				//auto outlineMat = _outlineMaterial; // copy to modify per-draw uniforms if needed
 				// optionally change outline width depending on camera distance (not implemented here)
 				_renderer->submit( {
+					
 					.renderMode  = s2::Renderer::RenderMode::Triangles,
-					.material    = outlineMat,
+					.material    = _outlineMaterialInstance,
 					.mesh        = meshHandle,
 					.pickableID  = 0,
 					.modelMatrix = modelMatrix
@@ -920,17 +925,17 @@ void MainWindow::onDraw()
 		};
 
 		// cube
-		drawWithPossibleOutline( 1, _materialPBR, resources.mesh( "cube" ) ? resources.mesh( "cube" ) : s2::Renderer::InvalidHandle );
+		drawWithPossibleOutline( 1, _materialPBRInstance, resources.mesh( "cube" ) ? resources.mesh( "cube" ) : s2::Renderer::ResourceInvalidID );
 		// sphere
-		drawWithPossibleOutline( 2, _materialPBR, resources.mesh( "sphere" ) ? resources.mesh( "sphere" ) : s2::Renderer::InvalidHandle );
+		drawWithPossibleOutline( 2, _materialPBRInstance, resources.mesh( "sphere" ) ? resources.mesh( "sphere" ) : s2::Renderer::ResourceInvalidID );
 		// torus
-		drawWithPossibleOutline( 3, _materialPBR, resources.mesh( "torus" ) ? resources.mesh( "torus" ) : s2::Renderer::InvalidHandle );
+		drawWithPossibleOutline( 3, _materialPBRInstance, resources.mesh( "torus" ) ? resources.mesh( "torus" ) : s2::Renderer::ResourceInvalidID );
 		// cone
-		drawWithPossibleOutline( 4, _materialPBR, resources.mesh( "cone" ) ? resources.mesh( "cone" ) : s2::Renderer::InvalidHandle );
+		drawWithPossibleOutline( 4, _materialPBRInstance, resources.mesh( "cone" ) ? resources.mesh( "cone" ) : s2::Renderer::ResourceInvalidID );
 		// cylinder
-		drawWithPossibleOutline( 5, _materialPBR, resources.mesh( "cylinder" ) ? resources.mesh( "cylinder" ) : s2::Renderer::InvalidHandle );
+		drawWithPossibleOutline( 5, _materialPBRInstance, resources.mesh( "cylinder" ) ? resources.mesh( "cylinder" ) : s2::Renderer::ResourceInvalidID );
 		// capsule
-		drawWithPossibleOutline( 6, _materialPBR, resources.mesh( "capsule" ) ? resources.mesh( "capsule" ) : s2::Renderer::InvalidHandle );
+		drawWithPossibleOutline( 6, _materialPBRInstance, resources.mesh( "capsule" ) ? resources.mesh( "capsule" ) : s2::Renderer::ResourceInvalidID );
 
 	}
 	_renderer->execute();

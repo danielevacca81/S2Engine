@@ -39,10 +39,10 @@ enum class ClearMode
 */
 struct S2ENGINE_API ClearCommand
 {
-	ClearMode mode  = ClearMode::ColorAndDepth;
-	Color     color = Color::blue();
-	float     depth = 1.0f;
-	uint32_t  stencil = 0;
+	ClearMode clearMode  = ClearMode::ColorAndDepth;
+	Color     clearColor = Color::blue();
+	float     clearDepthValue = 1.0f;
+	uint32_t  clearStencilValue = 0;
 };
 
 
@@ -52,9 +52,9 @@ struct S2ENGINE_API ClearCommand
  */
 struct S2ENGINE_API RenderCommand
 {
-	RenderMode     renderMode { RenderMode::Triangles };
-	RenderMaterial material;
-	ResourceHandle mesh { InvalidHandle };
+	RenderMode renderMode { RenderMode::Triangles };
+	Material   material;
+	ResourceID mesh { ResourceInvalidID };
 
 	uint32_t      pickableID { 0 }; // For GPU picking - 0 means non-pickable
 

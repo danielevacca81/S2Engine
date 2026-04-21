@@ -99,12 +99,11 @@ void Shader::reset()
     _linked = false;
     _name = "";
 
-    for( auto& it : _uniforms )
-        delete it.second;
+    for( auto& u : _uniforms )
+        delete u;
 
     _uniforms.clear();
-    _attributes.clear();
-    _residentTextures.clear();
+    //_residentTextures.clear();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -130,11 +129,11 @@ void Shader::destroy()
         return;
 
     // Make textures non-resident
-    for( auto& texture : _residentTextures )
-    {
-        if( texture && texture->isResident() )
-            texture->makeNonResident();
-    }
+    //for( auto& texture : _residentTextures )
+    //{
+    //    if( texture && texture->isResident() )
+    //        texture->makeNonResident();
+    //}
 
     _vshd = nullptr;
     _fshd = nullptr;
@@ -267,13 +266,31 @@ void Shader::unbind() const
 // ------------------------------------------------------------------------------------------------
 void Shader::setUniform( const std::string& uniformName, const UniformValue& value )
 {
-    auto it = _uniforms.find( uniformName );
-    if( it == _uniforms.end() )
-        return;
+    auto found = std::find_if(
+        _uniforms.begin(),
+        _uniforms.end(),
+        [&uniformName] ( const auto& u )
+    {
+        return u->name() == uniformName;
+    } );
 
-    // Set value and apply immediately using DSA (no binding required)
-    it->second->setValue( value );
-    it->second->setDSA( _objectID );
+    if( found == _uniforms.end() )
+		return; // Uniform not found, do nothing (could log a warning here)
+
+    // Set value 
+	(*found)->setValue( value );
+}
+
+// ------------------------------------------------------------------------------------------------
+void Shader::setUniform( UniformHandle handle, const UniformValue& value )
+{
+    if( !handle.isValid() )
+		return; // Invalid handle, do nothing (could log a warning here)
+
+    // cache new value and mark as changed.
+    // value will be applyed applyUniforms while rendering 
+    // to apply all changed uniforms at once
+	_uniforms.at( handle.id )->setValue( value );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -281,29 +298,49 @@ void Shader::setUniform( const std::string& uniformName, const UniformValue& val
 // ------------------------------------------------------------------------------------------------
 void Shader::applyUniforms()
 {
-    for( auto& [name, uniform] : _uniforms )
-    {
-        if( uniform->isChanged() )
-            uniform->setDSA( _objectID );
-    }
+    for( auto& u : _uniforms )
+        if( u->isChanged() )
+            u->applyValue( _objectID );
 }
+
+// ------------------------------------------------------------------------------------------------
+//Uniform* Shader::uniform( const std::string& name )
+//{
+//    auto found = std::find_if(
+//        _uniforms.begin(),
+//        _uniforms.end(),
+//        [&name] ( const auto& u )
+//    {
+//        return u->name() == name;
+//    } );
+//
+//    return found != _uniforms.end()
+//        ? *found
+//        : nullptr;
+//}
 
 // ------------------------------------------------------------------------------------------------
 const Uniform* Shader::uniform( const std::string& name ) const
 {
-    auto it = _uniforms.find( name );
-    if( it == _uniforms.end() )
-        return nullptr;
+	auto found = std::find_if( 
+        _uniforms.begin(),
+        _uniforms.end(),
+        [&name] ( const auto& u )
+    {
+        return u->name() == name; 
+    } );
 
-    return it->second;
+	return found != _uniforms.end()
+        ? *found 
+        : nullptr;
 }
 
 // ------------------------------------------------------------------------------------------------
 void Shader::findUniforms()
 {
     // Clear previous uniforms
-    for( auto& it : _uniforms )
-        delete it.second;
+    for( auto& u : _uniforms )
+        delete u;
     _uniforms.clear();
 
     int numberOfUniforms;
@@ -313,6 +350,7 @@ void Shader::findUniforms()
     glGetProgramiv( _objectID, GL_ACTIVE_UNIFORM_MAX_LENGTH, &uniformNameMaxLength );
     glCheck;
 
+	_uniforms.resize( numberOfUniforms );
     for( int i = 0; i < numberOfUniforms; ++i )
     {
         int uniformNameLength;
@@ -344,7 +382,7 @@ void Shader::findUniforms()
         int uniformLocation = glGetUniformLocation( _objectID, uniformName.c_str() );
         glCheck;
 
-        _uniforms[uniformName] = createUniform( uniformName, uniformLocation, uniformType );
+        _uniforms[uniformLocation] = createUniform( uniformName, uniformLocation, uniformType );
     }
 }
 
@@ -353,34 +391,34 @@ int Shader::objectLabelIdentifier() const
 {
     return GL_PROGRAM;
 }
-
-// ------------------------------------------------------------------------------------------------
-// Bindless Texture Support
-// ------------------------------------------------------------------------------------------------
-
-void Shader::setTextureHandle( const std::string& uniformName, uint64_t handle )
-{
-    auto it = _uniforms.find( uniformName );
-    if( it == _uniforms.end() )
-        return;
-
-    // Set uint64 uniform value and apply immediately
-    it->second->setValue( handle );
-    it->second->setDSA( _objectID );
-}
-
-// ------------------------------------------------------------------------------------------------
-void Shader::setTexture( const std::string& uniformName, const Texture2DPtr& texture )
-{
-    assert( texture && texture->isValid() && "Texture must be valid" );
-    
-    // Make resident if not already
-    if( !texture->isResident() )
-    {
-        texture->makeResident();
-        _residentTextures.push_back( texture ); // Track for cleanup
-    }
-    
-    // Set bindless handle
-    setTextureHandle( uniformName, texture->bindlessHandle() );
-}
+//
+//// ------------------------------------------------------------------------------------------------
+//// Bindless Texture Support
+//// ------------------------------------------------------------------------------------------------
+//
+//void Shader::setTextureHandle( const std::string& uniformName, uint64_t handle )
+//{
+//    auto it = _uniforms.find( uniformName );
+//    if( it == _uniforms.end() )
+//        return;
+//
+//    // Set uint64 uniform value and apply immediately
+//    it->second->setValue( handle );
+//    it->second->applyValue( _objectID );
+//}
+//
+//// ------------------------------------------------------------------------------------------------
+//void Shader::setTexture( const std::string& uniformName, const Texture2DPtr& texture )
+//{
+//    assert( texture && texture->isValid() && "Texture must be valid" );
+//    
+//    // Make resident if not already
+//    if( !texture->isResident() )
+//    {
+//        texture->makeResident();
+//        _residentTextures.push_back( texture ); // Track for cleanup
+//    }
+//    
+//    // Set bindless handle
+//    setTextureHandle( uniformName, texture->bindlessHandle() );
+//}

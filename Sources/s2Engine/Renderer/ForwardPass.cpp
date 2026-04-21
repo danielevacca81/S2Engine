@@ -41,11 +41,13 @@ static inline RenderCore::DrawState createDrawState( const RenderCommand& render
 static inline RenderCore::ShaderPtr getShader( const ResourceManager& resourceManager, const RenderCommand& renderCmd )
 {
     // Use material shader or fallback to default
-    if( renderCmd.material.shader == InvalidHandle )
+    if( renderCmd.material.definition().shader == ResourceInvalidID )
         return RenderCore::DefaultShaders.Simple;
 
-    auto shader = resourceManager.shader( renderCmd.material.shader );
-    return shader ? shader : RenderCore::DefaultShaders.Simple;
+    auto shader = resourceManager.shader( renderCmd.material.definition().shader );
+    return shader
+        ? shader
+        : RenderCore::DefaultShaders.Simple;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -111,14 +113,18 @@ void ForwardPass::execute( const RenderCore::RenderBackend& backend,
         auto shader = getShader( resourceManager, renderCmd );
         drawState.shader = shader;
 
-        // ===== DSA: Set uniforms BEFORE drawing =====
+        // ===== DSA: Set uniforms before drawing =====
         setupShaderUniforms( shader, renderCmd, frameData );
-        
+
+		renderCmd.material.apply( resourceManager );
+
+#if 0
         // Apply material properties (DSA - no binding)
         renderCmd.material.applyPropertiesToShader( *shader );
         
         // Apply textures (Bindless - no TextureUnit!)
         renderCmd.material.applyTexturesToShader( *shader, resourceManager );
+#endif
 
         // Get mesh
         auto mesh = resourceManager.mesh( renderCmd.mesh );
