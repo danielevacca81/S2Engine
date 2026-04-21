@@ -16,10 +16,14 @@ namespace RenderCore {
 
 using UniformValue = std::variant<
 	bool,
-	int,
+	int32_t,
+	uint64_t,
 	float,
 	double,
 	Color,
+	Math::ivec2,
+	Math::ivec3,
+	Math::ivec4,
 	Math::fvec2,
 	Math::fvec3,
 	Math::fvec4,
@@ -34,13 +38,10 @@ using UniformValue = std::variant<
 	Math::dmat4
 >;
 
-// ------------------------------------------------------------------------------------------------
-// ------------------------------------------------------------------------------------------------
-// ------------------------------------------------------------------------------------------------
 class S2ENGINE_API Uniform
 {
 public:
-	Uniform( int location, const std::string& name, UniformValue value = int { 0 } )
+	Uniform( int location, const std::string& name, UniformValue value = int{0} )
 		: _name( name )
 		, _location( location )
 		, _value( std::move( value ) )
@@ -52,13 +53,6 @@ public:
 
 	void setValue( const UniformValue& val )
 	{
-		//// do not allow change the value type
-		//if( _value.index() != val.index() )
-		//{
-		//	assert( false && "Uniform value type cannot be changed after initialization." );
-		//	return;
-		//}
-
 		if( _value != val )
 		{
 			_value = val;
@@ -67,9 +61,11 @@ public:
 	}
 
 	const UniformValue& value() const { return _value; }
+	bool isChanged() const { return _changed; }
 
 protected:
-	void set();
+	// Set uniform with glProgramUniform* (DSA - no binding needed)
+	void setDSA( unsigned int programID );
 
 protected:
 	std::string    _name;

@@ -4,9 +4,8 @@
 
 #include "Window.h"
 
-#include "glfwpp/glfwpp.h"
+#include "GLFW/glfw3.h"
 
-#include <optional>
 #include <memory>
 
 using namespace s2;
@@ -14,26 +13,36 @@ using namespace s2;
 static Application* gGlobalAppInstance = nullptr;
 
 // ------------------------------------------------------------------------------------------------
-Application::Application( const std::string &name )
+struct Application::Impl
 {
-    if( _instance )
+    static std::unique_ptr<Impl> create()
+    {
+        return std::make_unique<Impl>();
+    }
+};
+
+
+// ------------------------------------------------------------------------------------------------
+Application::Application( const std::string& name )
+    : _impl( Impl::create() )
+{
+    if( gGlobalAppInstance )
         throw std::runtime_error( "Only one application instance is allowed" );
 
-    _instance = static_cast<void*>( new glfw::GlfwLibrary( glfw::init() ) );
-	gGlobalAppInstance = this;
+    if( !glfwInit() )
+        throw std::runtime_error( "Failed to initialize GLFW" );
+
+    gGlobalAppInstance = this;
 }
 
 // ------------------------------------------------------------------------------------------------
 Application::~Application()
 {
-	// release all windows
-    for( auto &w : _windows )
+    for( auto& w : _windows )
         w.reset();
 
-	// release GLFW
-    delete static_cast<glfw::GlfwLibrary*>(_instance);
-    _instance = nullptr;
-	gGlobalAppInstance = nullptr;
+    glfwTerminate();
+    gGlobalAppInstance = nullptr;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -43,33 +52,19 @@ Application* Application::instance()
 }
 
 // ------------------------------------------------------------------------------------------------
-void Application::addWindow( const std::shared_ptr< Window > &w)
+void Application::addWindow( std::unique_ptr<Window> w )
 {
     if( !w )
-		throw std::runtime_error( "Application::addWindow() - Null window cannot be added to application" );
+        throw std::runtime_error( "Application::addWindow() - Null window cannot be added to application" );
 
     if( _windows.size() >= 1 )
-		throw std::runtime_error( "Application::addWindow() - Multiple window application not supported yet" );
+        throw std::runtime_error( "Application::addWindow() - Multiple window application not supported yet" );
 
-    const auto glfwWindow      = static_cast<glfw::Window*>( w->_handle );
-    const auto [width, height] = glfwWindow->getSize();
-    //const auto [x, y]          = glfwWindow->getPos();
-
-
-    w->makeCurrent();
-    w->onInitializeEvent();
-
-    // set initial size
-    w->setFrameBufferSize( width, height );
-    w->setSize( width, height );
-    w->onResizeEvent( width, height );
-
-	// add to window list
-	_windows.push_back( w );
+    _windows.push_back( std::move( w ) );
 }
 
 // ------------------------------------------------------------------------------------------------
-std::shared_ptr< Window > Application::mainWindow() const
+const std::unique_ptr<Window>& Application::mainWindow() const
 {
     if( _windows.empty() )
         throw std::runtime_error( "Application::mainWindow() - No window available in the application" );
@@ -77,34 +72,42 @@ std::shared_ptr< Window > Application::mainWindow() const
 }
 
 // ------------------------------------------------------------------------------------------------
-// main application launcher and loop
 int32_t Application::run()
 {
-	// assume single window application for now.   
-	// get main window 
-	const auto w = mainWindow(); // throws if no window available
-    const auto glfwWindow = static_cast<glfw::Window*>( w->_handle );
+    if( _windows.empty() )
+        throw std::runtime_error( "Application::run() - No window available in the application" );
 
-
-    while( !glfwWindow->shouldClose() )
+    // Initialize all windows before entering the main loop
+    for( auto& w : _windows )
     {
-        glfw::pollEvents();
+        int fbWidth, fbHeight;
+        w->framebufferSize( fbWidth, fbHeight );
 
-		// update application logic
-		updateState();
+        w->makeCurrent();
+        w->onInitializeEvent();
+        w->postResize( fbWidth, fbHeight );
+        w->startRenderThread();
+    }
 
-        // is minimized??
+    // consider only the main window for now, multiple window support is not implemented yet
+    const auto& w = mainWindow();
+
+    while( !w->shouldClose() )
+    {
+        glfwPollEvents();
+        updateState();
+
+		// skip rendering if the window is minimized
         if( w->width() == 0 && w->height() == 0 )
             continue;
-        
 
-		// send render on all windows
-		// for( const auto &w : app->_windows ) // assume single window for now
-            w->paint();
-
-
-        glfwWindow->swapBuffers();
+        w->submitFrameAndWait();
+        w->swapBuffers();
     }
+
+    // the main loop has exited, which means the application is shutting down.
+    for( auto& w : _windows )
+        w->stopRenderThread();
 
     return 0;
 }

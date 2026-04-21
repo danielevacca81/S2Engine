@@ -28,12 +28,13 @@ ShaderStage::~ShaderStage()
 // -------------------------------------------------------------------------------------------------
 void ShaderStage::create()
 {
-	OpenGLObject::create();
+    if( isValid() )
+        return;
+
+    OpenGLObject::create();
 
 	_objectID = glCreateShader( glWrap( _type ) );
-	glCheck;
-	
-	_created = _objectID != 0;
+	glCheck;	
 }
 
 // -------------------------------------------------------------------------------------------------

@@ -4,88 +4,100 @@
 
 #include "OpenGLWrap.h"
 
+#include <cassert>
 
 using namespace s2::RenderCore;
 
 // -------------------------------------------------------------------------------------------------
-IndexBuffer::IndexBuffer()
-: _count(0)
-, _valid(false)
-{}
-
-// -------------------------------------------------------------------------------------------------
-//IndexBuffer::IndexBuffer( IndexBuffer &&other )
-//{
-//	std::swap( _count,        other._count );
-//	std::swap( _valid,        other._valid);
-//	std::swap( _dataType,     other._dataType);
-//	std::swap( _bufferObject, other._bufferObject );
-//}
-
-// -------------------------------------------------------------------------------------------------
-IndexBuffer::IndexBuffer( int sizeInBytes, const IndexDataType &dataType, const BufferObject::UsageHint &usageHint )
-: IndexBuffer()
+IndexBuffer::IndexBuffer( int64_t sizeInBytes, IndexDataType dataType, GPUBufferObject::UsageHint usageHint )
 {
-	set( sizeInBytes, dataType, usageHint );
+    set( sizeInBytes, dataType, usageHint );
 }
 
 // -------------------------------------------------------------------------------------------------
-//IndexBuffer &IndexBuffer::operator=( IndexBuffer &&other )
-//{
-//	std::swap( _count,        other._count );
-//	std::swap( _valid,        other._valid);
-//	std::swap( _dataType,     other._dataType);
-//	std::swap( _bufferObject, other._bufferObject );
-//	return *this;
-//}
-
-//-------------------------------------------------------------------------------------------------
-void IndexBuffer::set( int sizeInBytes, const IndexDataType &dataType, const BufferObject::UsageHint &usageHint )
+IndexBuffer::IndexBuffer( const void* data, int64_t sizeInBytes, IndexDataType dataType, GPUBufferObject::UsageHint usageHint )
 {
-	_bufferObject = BufferObject::New( sizeInBytes, BufferObject::Type::ElementBuffer, usageHint );
-	_valid        = true;
-	_dataType     = dataType;
+    set( sizeInBytes, dataType, usageHint );
+	setData( data, sizeInBytes );
 }
 
-//-------------------------------------------------------------------------------------------------
-void IndexBuffer::bind() { if( _valid ) _bufferObject->bind(); }
-
-//-------------------------------------------------------------------------------------------------
-void IndexBuffer::unbind() { if( _valid ) _bufferObject->unbind(); }
-
-//-------------------------------------------------------------------------------------------------
-void IndexBuffer::sendData( void *data, int length, int offset )
+// -------------------------------------------------------------------------------------------------
+IndexBuffer::IndexBuffer( const GPUBufferObjectPtr& gpuBuffer, IndexDataType dataType)
 {
-	if( _valid )
-	{
-		_count = _bufferObject->size() / ( _dataType == UnsignedInt ? sizeof( unsigned int) : sizeof(unsigned short) );
-		_bufferObject->sendData( data, length, offset );
-	}
+    _gpuBuffer = gpuBuffer;
+    _dataType  = dataType;
+    updateCount();
 }
 
-//-------------------------------------------------------------------------------------------------
-void * IndexBuffer::receiveData( int length, int offset )
-{ 
-	if( !_valid )
-		return 0;
-
-	return _bufferObject->receiveData( length, offset ); 
+// -------------------------------------------------------------------------------------------------
+void IndexBuffer::set( int64_t sizeInBytes, IndexDataType dataType, GPUBufferObject::UsageHint usageHint )
+{
+    _gpuBuffer = GPUBufferObject::New( sizeInBytes, GPUBufferObject::Type::ElementBuffer, usageHint );  
+    _dataType = dataType;
+    updateCount();
 }
 
-//-------------------------------------------------------------------------------------------------
-void * IndexBuffer::mapData(const BufferObject::MapMode &mode )
+// -------------------------------------------------------------------------------------------------
+void IndexBuffer::updateCount()
 {
-	if( !_valid )
-		return 0;
-	
-	return _bufferObject->mapData( mode ); 
+    if( !_gpuBuffer || !_gpuBuffer->isValid() )
+    {
+        _count = 0;
+        return;
+    }
+
+    const int64_t indexSize = (_dataType == IndexDataType::UnsignedInt) 
+        ? sizeof(uint32_t) 
+        : sizeof(uint16_t);
+    
+    _count = static_cast<int>( _gpuBuffer->size() / indexSize );
 }
 
-//-------------------------------------------------------------------------------------------------
-bool IndexBuffer::unmapData()
+// -------------------------------------------------------------------------------------------------
+void IndexBuffer::setData( const void* data, int64_t size, int64_t offset )
 {
-	if( !_valid )
-		return false;
-	
-	return _bufferObject->unmapData(); 
+    //assert( isValid() && "IndexBuffer must be valid before setting data" );
+    assert( data && "Index data cannot be null" );
+    
+    _gpuBuffer->setData( data, size, offset );
+    updateCount();
+}
+
+// -------------------------------------------------------------------------------------------------
+void IndexBuffer::setIndices( const uint16_t* indices, int count )
+{
+    assert( _dataType == IndexDataType::UnsignedShort && "Data type mismatch" );
+    setData( indices, count * sizeof(uint16_t) );
+}
+
+// -------------------------------------------------------------------------------------------------
+void IndexBuffer::setIndices( const uint32_t* indices, int count )
+{
+    assert( _dataType == IndexDataType::UnsignedInt && "Data type mismatch" );
+    setData( indices, count * sizeof(uint32_t) );
+}
+
+// -------------------------------------------------------------------------------------------------
+void IndexBuffer::getData( void* data, int64_t size, int64_t offset ) const
+{
+    //assert( isValid() && "IndexBuffer must be valid before getting data" );
+    assert( data && "Data buffer cannot be null" );
+    
+    _gpuBuffer->getData( data, size, offset );
+}
+
+// -------------------------------------------------------------------------------------------------
+void* IndexBuffer::map( uint32_t accessFlags )
+{
+    //assert( isValid() && "IndexBuffer must be valid before mapping" );
+    
+    return _gpuBuffer->mapRange( 0, _gpuBuffer->size(), accessFlags );
+}
+
+// -------------------------------------------------------------------------------------------------
+bool IndexBuffer::unmap()
+{
+    //assert( isValid() && "IndexBuffer must be valid before unmapping" );
+    
+    return _gpuBuffer->unmap();
 }

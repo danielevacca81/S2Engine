@@ -28,6 +28,11 @@ public:
 	static float  maxLinesWidth();
 	static float  minLinesWidth();
 
+	static int    availableGPUMemory();
+	static int    totalGPUMemory();
+	static int    dedicatedGPUTotalMemory();
+
+
 public:
 	Device() = delete;
 };

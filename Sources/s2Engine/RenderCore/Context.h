@@ -13,8 +13,6 @@
 namespace s2 {
 namespace RenderCore {
 
-class RenderCommands;
-
 class S2ENGINE_API Context
 {
 public:
@@ -32,23 +30,20 @@ public:
 
 	bool operator==( const Context& o ) const { return _nativeHandle == o._nativeHandle; }
 	bool operator!=( const Context& o ) const { return _nativeHandle != o._nativeHandle; }
-
-	// Rendering lifecycle
-	void beginFrame();
-	void endFrame();
+	bool isCurrent() const { return current() == this; }
 
 	// Access to render commands (primary interface for rendering)
-	RenderCommands& commands() { return *_commands; }
-	const RenderCommands& commands() const { return *_commands; }
+	RenderBackend&       rendererBackend()       { return *_rendererBackend; }
+	const RenderBackend& rendererBackend() const { return *_rendererBackend; }
 
 private:
 	uint64_t  _nativeHandle { 0 };
 
-	ContextInfo                     _info;
-	StateManager                    _stateManager;
-	std::unique_ptr<RenderCommands> _commands;
+	ContextInfo                    _info;
+	StateManager                   _stateManager;
+	std::unique_ptr<RenderBackend> _rendererBackend;
 
-	friend class RenderCommands; // RenderCommands needs access to _stateManager
+	friend class RenderBackend; // RenderBackend needs access to _stateManager
 };
 
 } // namespace RenderCore

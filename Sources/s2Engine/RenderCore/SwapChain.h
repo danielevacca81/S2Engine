@@ -10,7 +10,8 @@ namespace RenderCore  {
 
 class RenderTarget;
 
-class S2ENGINE_API SwapChain
+
+class S2ENGINE_API [[deprecated( "SwapChain is implemented but not needed. Use RenderTarget directly and call swapToScreen() instead." )]] SwapChain
 {
 public:
 	SwapChain() = delete;

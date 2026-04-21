@@ -16,8 +16,8 @@ uint32_t glWrap( const IndexBuffer::IndexDataType &datatype )
 {
 	switch( datatype )
 	{
-	case IndexBuffer::UnsignedInt:    return GL_UNSIGNED_INT;
-	case IndexBuffer::UnsignedShort:  return GL_UNSIGNED_SHORT;
+	case IndexBuffer::IndexDataType::UnsignedInt:    return GL_UNSIGNED_INT;
+	case IndexBuffer::IndexDataType::UnsignedShort:  return GL_UNSIGNED_SHORT;
 	}
 	assert( false && "Unknown IndexBuffer::IndexDataType" );
 	return -1;
@@ -34,15 +34,15 @@ uint32_t glWrap( const AttributeBuffer::ComponentDatatype &datatype )
 {
 	switch( datatype )
 	{
-	case AttributeBuffer::Byte:          return GL_BYTE;
-	case AttributeBuffer::UnsignedByte:  return GL_UNSIGNED_BYTE;
-	case AttributeBuffer::Short:         return GL_SHORT;
-	case AttributeBuffer::UnsignedShort: return GL_UNSIGNED_SHORT;
-	case AttributeBuffer::Int:           return GL_INT;
-	case AttributeBuffer::UnsignedInt:   return GL_UNSIGNED_INT;
-	case AttributeBuffer::Float:         return GL_FLOAT;
-	case AttributeBuffer::HalfFloat:     return GL_HALF_FLOAT;
-	case AttributeBuffer::Double:        return GL_DOUBLE;
+	case AttributeBuffer::ComponentDatatype::Byte:          return GL_BYTE;
+	case AttributeBuffer::ComponentDatatype::UnsignedByte:  return GL_UNSIGNED_BYTE;
+	case AttributeBuffer::ComponentDatatype::Short:         return GL_SHORT;
+	case AttributeBuffer::ComponentDatatype::UnsignedShort: return GL_UNSIGNED_SHORT;
+	case AttributeBuffer::ComponentDatatype::Int:           return GL_INT;
+	case AttributeBuffer::ComponentDatatype::UnsignedInt:   return GL_UNSIGNED_INT;
+	case AttributeBuffer::ComponentDatatype::Float:         return GL_FLOAT;
+	case AttributeBuffer::ComponentDatatype::HalfFloat:     return GL_HALF_FLOAT;
+	case AttributeBuffer::ComponentDatatype::Double:        return GL_DOUBLE;
 	}
 
 	assert( false && "Unknown AttributeBuffer::ComponentDatatype" );
@@ -51,55 +51,55 @@ uint32_t glWrap( const AttributeBuffer::ComponentDatatype &datatype )
 #pragma endregion
 
 /************************************************************************************************/
-/*                                           BufferObject                                       */
+/*                                           GPUBufferObject                                       */
 /************************************************************************************************/
-#pragma region BufferObject
+#pragma region GPUBufferObject
 // ------------------------------------------------------------------------------------------------
-uint32_t glWrap( const BufferObject::UsageHint &hint )
+uint32_t glWrap( const GPUBufferObject::UsageHint &hint )
 {
 	switch( hint )
 	{
-	case BufferObject::UsageHint::StreamDraw:  return GL_STREAM_DRAW;
-	case BufferObject::UsageHint::StreamRead:  return GL_STREAM_READ;
-	case BufferObject::UsageHint::StreamCopy:  return GL_STREAM_COPY;
-	case BufferObject::UsageHint::StaticDraw:  return GL_STATIC_DRAW;
-	case BufferObject::UsageHint::StaticRead:  return GL_STATIC_READ;
-	case BufferObject::UsageHint::StaticCopy:  return GL_STATIC_COPY;
-	case BufferObject::UsageHint::DynamicDraw: return GL_DYNAMIC_DRAW;
-	case BufferObject::UsageHint::DynamicRead: return GL_DYNAMIC_READ;
-	case BufferObject::UsageHint::DynamicCopy: return GL_DYNAMIC_COPY;
+	case GPUBufferObject::UsageHint::StreamDraw:  return GL_STREAM_DRAW;
+	case GPUBufferObject::UsageHint::StreamRead:  return GL_STREAM_READ;
+	case GPUBufferObject::UsageHint::StreamCopy:  return GL_STREAM_COPY;
+	case GPUBufferObject::UsageHint::StaticDraw:  return GL_STATIC_DRAW;
+	case GPUBufferObject::UsageHint::StaticRead:  return GL_STATIC_READ;
+	case GPUBufferObject::UsageHint::StaticCopy:  return GL_STATIC_COPY;
+	case GPUBufferObject::UsageHint::DynamicDraw: return GL_DYNAMIC_DRAW;
+	case GPUBufferObject::UsageHint::DynamicRead: return GL_DYNAMIC_READ;
+	case GPUBufferObject::UsageHint::DynamicCopy: return GL_DYNAMIC_COPY;
 	}
 
-	assert( false && "Unknown BufferObject::UsageHint" );
+	assert( false && "Unknown GPUBufferObject::UsageHint" );
 	return -1;
 }
 
 // ------------------------------------------------------------------------------------------------
-uint32_t glWrap( const BufferObject::Type &type )
+uint32_t glWrap( const GPUBufferObject::Type &type )
 {
 	switch( type )
 	{
-	case BufferObject::Type::ArrayBuffer:       return GL_ARRAY_BUFFER;
-	case BufferObject::Type::ElementBuffer:     return GL_ELEMENT_ARRAY_BUFFER;
-	case BufferObject::Type::PixelPackBuffer:   return GL_PIXEL_PACK_BUFFER;
-	case BufferObject::Type::PixelUnpackBuffer: return GL_PIXEL_UNPACK_BUFFER;
+	case GPUBufferObject::Type::ArrayBuffer:       return GL_ARRAY_BUFFER;
+	case GPUBufferObject::Type::ElementBuffer:     return GL_ELEMENT_ARRAY_BUFFER;
+	case GPUBufferObject::Type::PixelPackBuffer:   return GL_PIXEL_PACK_BUFFER;
+	case GPUBufferObject::Type::PixelUnpackBuffer: return GL_PIXEL_UNPACK_BUFFER;
 	}
 
-	assert( ( false && "Unknown BufferObject::Type" ) );
+	assert( ( false && "Unknown GPUBufferObject::Type" ) );
 	return -1;
 }
 
 // ------------------------------------------------------------------------------------------------
-uint32_t glWrap( const BufferObject::MapMode &mode )
+uint32_t glWrap( const GPUBufferObject::MapMode &mode )
 {
 	switch( mode )
 	{
-	case BufferObject::MapMode::ReadOnly:  return GL_READ_ONLY;
-	case BufferObject::MapMode::WriteOnly: return GL_WRITE_ONLY;
-	case BufferObject::MapMode::ReadWrite: return GL_READ_WRITE;
+	case GPUBufferObject::MapMode::ReadOnly:  return GL_READ_ONLY;
+	case GPUBufferObject::MapMode::WriteOnly: return GL_WRITE_ONLY;
+	case GPUBufferObject::MapMode::ReadWrite: return GL_READ_WRITE;
 	}
 
-	assert( false && "Unknown BufferObject::MapMode" );
+	assert( false && "Unknown GPUBufferObject::MapMode" );
 	return -1;
 }
 #pragma endregion
@@ -314,46 +314,47 @@ uint32_t glWrapTextureFormatToPixelFormat(const TextureFormat &f)
 }
 
 // ------------------------------------------------------------------------------------------------
-uint32_t glWrap( const Sampler::MinificationFilter &filter )
+uint32_t glWrap( const Texture2D::MinFilter &filter )
 {
 	switch( filter )
 	{
-	case Sampler::MinificationFilter::Nearest:              return GL_NEAREST;
-	case Sampler::MinificationFilter::NearestMipmapNearest: return GL_NEAREST_MIPMAP_NEAREST;
-	case Sampler::MinificationFilter::NearestMipmapLinear:  return GL_NEAREST_MIPMAP_LINEAR;
-	case Sampler::MinificationFilter::Linear:               return GL_LINEAR;
-	case Sampler::MinificationFilter::LinearMipmapNearest:  return GL_LINEAR_MIPMAP_NEAREST;
-	case Sampler::MinificationFilter::LinearMipmapLinear:   return GL_LINEAR_MIPMAP_LINEAR;
+	case Texture2D::MinFilter::Nearest:              return GL_NEAREST;
+	case Texture2D::MinFilter::NearestMipmapNearest: return GL_NEAREST_MIPMAP_NEAREST;
+	case Texture2D::MinFilter::NearestMipmapLinear:  return GL_NEAREST_MIPMAP_LINEAR;
+	case Texture2D::MinFilter::Linear:               return GL_LINEAR;
+	case Texture2D::MinFilter::LinearMipmapNearest:  return GL_LINEAR_MIPMAP_NEAREST;
+	case Texture2D::MinFilter::LinearMipmapLinear:   return GL_LINEAR_MIPMAP_LINEAR;
 	}
 
-	assert( false && "Unknown Sampler::MinificationFilter" );
+	assert( false && "Unknown Texture2D::MinFilter" );
 	return -1;
 }
 
 // ------------------------------------------------------------------------------------------------
-uint32_t glWrap( const Sampler::MagnificationFilter &filter )
+uint32_t glWrap( const Texture2D::MagFilter &filter )
 {
 	switch( filter )
 	{
-	case Sampler::MagnificationFilter::Nearest:  return GL_NEAREST;
-	case Sampler::MagnificationFilter::Linear:   return GL_LINEAR;
+	case Texture2D::MagFilter::Nearest:  return GL_NEAREST;
+	case Texture2D::MagFilter::Linear:   return GL_LINEAR;
 	}
 
-	assert( false && "Unknown Sampler::MagnificationFilter" );
+	assert( false && "Unknown Texture2D::MagFilter" );
 	return -1;
 }
 
 // ------------------------------------------------------------------------------------------------
-uint32_t glWrap( const Sampler::Wrap &wrap )
+uint32_t glWrap( const Texture2D::WrapMode &wrap )
 {
 	switch( wrap )
 	{
-	case Sampler::Wrap::Clamp:           return GL_CLAMP_TO_EDGE;
-	case Sampler::Wrap::Repeat:          return GL_REPEAT;
-	case Sampler::Wrap::MirroredRepeat:  return GL_MIRRORED_REPEAT;
+	case Texture2D::WrapMode::Repeat:         return GL_REPEAT;
+	case Texture2D::WrapMode::ClampToEdge:    return GL_CLAMP_TO_EDGE;
+	case Texture2D::WrapMode::ClampToBorder:  return GL_CLAMP_TO_BORDER;
+	case Texture2D::WrapMode::MirroredRepeat: return GL_MIRRORED_REPEAT;
 	}
 
-	assert( false && "Unknown Sampler::Wrap" );
+	assert( false && "Unknown Texture2D::WrapMode" );
 	return -1;
 }
 #pragma endregion
@@ -456,97 +457,6 @@ uint32_t glWrap( const ImageDataType &imgDataType )
 }
 #pragma endregion
 /************************************************************************************************/
-/*                                           RenderBuffer                                       */
-/************************************************************************************************/
-#pragma region RenderBuffer
-// ------------------------------------------------------------------------------------------------
-uint32_t glWrap( const RenderBuffer::Format &format )
-{
-	switch( format )
-	{
-	case RenderBuffer::Format::R8:                return GL_R8;                
-    case RenderBuffer::Format::R8_SNORM:          return GL_R8_SNORM;          
-    case RenderBuffer::Format::R16:               return GL_R16;               
-    case RenderBuffer::Format::R16_SNORM:         return GL_R16_SNORM;         
-    case RenderBuffer::Format::RG8:               return GL_RG8;               
-    case RenderBuffer::Format::RG8_SNORM:         return GL_RG8_SNORM;         
-    case RenderBuffer::Format::RG16:              return GL_RG16;              
-    case RenderBuffer::Format::RG16_SNORM:        return GL_RG16_SNORM;        
-    case RenderBuffer::Format::R3_G3_B2:          return GL_R3_G3_B2;          
-    case RenderBuffer::Format::RGB4:              return GL_RGB4;              
-    case RenderBuffer::Format::RGB5:              return GL_RGB5;              
-    case RenderBuffer::Format::RGB8:              return GL_RGB8;              
-    case RenderBuffer::Format::RGB8_SNORM:        return GL_RGB8_SNORM;        
-    case RenderBuffer::Format::RGB10:             return GL_RGB10;             
-    case RenderBuffer::Format::RGB12:             return GL_RGB12;             
-    case RenderBuffer::Format::RGB16:             return GL_RGB16;             
-    case RenderBuffer::Format::RGB16_SNORM:       return GL_RGB16_SNORM;       
-    case RenderBuffer::Format::RGBA2:             return GL_RGBA2;             
-    case RenderBuffer::Format::RGBA4:             return GL_RGBA4;             
-    case RenderBuffer::Format::RGB5_A1:           return GL_RGB5_A1;           
-    case RenderBuffer::Format::RGBA8:             return GL_RGBA8;             
-    case RenderBuffer::Format::RGBA8_SNORM:       return GL_RGBA8_SNORM;       
-    case RenderBuffer::Format::RGB10_A2:          return GL_RGB10_A2;          
-    case RenderBuffer::Format::RGB10_A2UI:        return GL_RGB10_A2UI;        
-    case RenderBuffer::Format::RGBA12:            return GL_RGBA12;            
-    case RenderBuffer::Format::RGBA16:            return GL_RGBA16;            
-    case RenderBuffer::Format::RGBA16_SNORM:      return GL_RGBA16_SNORM;      
-    case RenderBuffer::Format::SRGB8:             return GL_SRGB8;             
-    case RenderBuffer::Format::SRGB8_ALPHA8:      return GL_SRGB8_ALPHA8;      
-    case RenderBuffer::Format::R16F:              return GL_R16F;              
-    case RenderBuffer::Format::RG16F:             return GL_RG16F;             
-    case RenderBuffer::Format::RGB16F:            return GL_RGB16F;            
-    case RenderBuffer::Format::RGBA16F:           return GL_RGBA16F;           
-    case RenderBuffer::Format::R32F:              return GL_R32F;              
-    case RenderBuffer::Format::RG32F:             return GL_RG32F;             
-    case RenderBuffer::Format::RGB32F:            return GL_RGB32F;            
-    case RenderBuffer::Format::RGBA32F:           return GL_RGBA32F;           
-    case RenderBuffer::Format::R11F_G11F_B10F:    return GL_R11F_G11F_B10F;    
-    case RenderBuffer::Format::RGB9_E5:           return GL_RGB9_E5;           
-    case RenderBuffer::Format::R8I:               return GL_R8I;               
-    case RenderBuffer::Format::R8UI:              return GL_R8UI;              
-    case RenderBuffer::Format::R16I:              return GL_R16I;              
-    case RenderBuffer::Format::R16UI:             return GL_R16UI;             
-    case RenderBuffer::Format::R32I:              return GL_R32I;              
-    case RenderBuffer::Format::R32UI:             return GL_R32UI;             
-    case RenderBuffer::Format::RG8I:              return GL_RG8I;              
-    case RenderBuffer::Format::RG8UI:             return GL_RG8UI;             
-    case RenderBuffer::Format::RG16I:             return GL_RG16I;             
-    case RenderBuffer::Format::RG16UI:            return GL_RG16UI;            
-    case RenderBuffer::Format::RG32I:             return GL_RG32I;             
-    case RenderBuffer::Format::RG32UI:            return GL_RG32UI;            
-    case RenderBuffer::Format::RGB8I:             return GL_RGB8I;             
-    case RenderBuffer::Format::RGB8UI:            return GL_RGB8UI;            
-    case RenderBuffer::Format::RGB16I:            return GL_RGB16I;            
-    case RenderBuffer::Format::RGB16UI:           return GL_RGB16UI;           
-    case RenderBuffer::Format::RGB32I:            return GL_RGB32I;            
-    case RenderBuffer::Format::RGB32UI:           return GL_RGB32UI;           
-    case RenderBuffer::Format::RGBA8I:            return GL_RGBA8I;            
-    case RenderBuffer::Format::RGBA8UI:           return GL_RGBA8UI;           
-    case RenderBuffer::Format::RGBA16I:           return GL_RGBA16I;           
-    case RenderBuffer::Format::RGBA16UI:          return GL_RGBA16UI;          
-    case RenderBuffer::Format::RGBA32I:           return GL_RGBA32I;           
-    case RenderBuffer::Format::RGBA32UI:          return GL_RGBA32UI;          
-    case RenderBuffer::Format::DepthComponent:    return GL_DEPTH_COMPONENT;    
-    case RenderBuffer::Format::DepthComponent16:  return GL_DEPTH_COMPONENT16;  
-    case RenderBuffer::Format::DepthComponent24:  return GL_DEPTH_COMPONENT24;  
-    case RenderBuffer::Format::DepthComponent32:  return GL_DEPTH_COMPONENT32;  
-    case RenderBuffer::Format::DepthComponent32F: return GL_DEPTH_COMPONENT32F; 
-    case RenderBuffer::Format::Depth24Stencil8:   return GL_DEPTH24_STENCIL8;
-    case RenderBuffer::Format::Depth32FStencil8:  return GL_DEPTH32F_STENCIL8;
-    case RenderBuffer::Format::StencilIndex:      return GL_STENCIL_INDEX;  
-    case RenderBuffer::Format::StencilIndex1:     return GL_STENCIL_INDEX1;
-    case RenderBuffer::Format::StencilIndex4:     return GL_STENCIL_INDEX4;
-	case RenderBuffer::Format::StencilIndex8:     return GL_STENCIL_INDEX8;
-    case RenderBuffer::Format::StencilIndex16:    return GL_STENCIL_INDEX16;
-	}
-
-	assert( false && "Unknown RenderBuffer" );
-	return -1;
-}
-#pragma endregion
-
-/************************************************************************************************/
 /*                                           RenderState                                        */
 /************************************************************************************************/
 #pragma region RenderState
@@ -612,20 +522,20 @@ uint32_t glWrap( const StencilTestFace::StencilTestFunction &fun )
 }
 
 // ------------------------------------------------------------------------------------------------
-uint32_t glWrap( const DepthTest::DepthTestFunction &fun )
+uint32_t glWrap( const DepthTest::Function &fun )
 {
 	switch( fun )
 	{
-	case DepthTest::DepthTestFunction::Never:              return GL_NEVER;
-	case DepthTest::DepthTestFunction::Less:               return GL_LESS;
-	case DepthTest::DepthTestFunction::Equal:              return GL_EQUAL;
-	case DepthTest::DepthTestFunction::LessThanOrEqual:    return GL_LEQUAL;
-	case DepthTest::DepthTestFunction::Greater:            return GL_GREATER;
-	case DepthTest::DepthTestFunction::NotEqual:           return GL_NOTEQUAL;
-	case DepthTest::DepthTestFunction::GreaterThanOrEqual: return GL_GEQUAL;
-	case DepthTest::DepthTestFunction::Always:             return GL_ALWAYS;
+	case DepthTest::Function::Never:              return GL_NEVER;
+	case DepthTest::Function::Less:               return GL_LESS;
+	case DepthTest::Function::Equal:              return GL_EQUAL;
+	case DepthTest::Function::LessThanOrEqual:    return GL_LEQUAL;
+	case DepthTest::Function::Greater:            return GL_GREATER;
+	case DepthTest::Function::NotEqual:           return GL_NOTEQUAL;
+	case DepthTest::Function::GreaterThanOrEqual: return GL_GEQUAL;
+	case DepthTest::Function::Always:             return GL_ALWAYS;
 	}
-	assert( false && "Unknown DepthTest::DepthTestFunction" );
+	assert( false && "Unknown DepthTest::Function" );
 	return -1;
 }
 

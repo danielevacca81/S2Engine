@@ -12,32 +12,27 @@
 #include "RenderState.h"
 #include "TransformState.h"
 #include "Shader.h"
-#include "RenderCore.h"
-#include "TextureUnit.h"
+#include "DefaultShaders.h"
 
 namespace s2 {
 namespace RenderCore {
 
 struct DrawState
 {
-	bool         shadowingEnabled { true }; // @todo:remove. hide shadowing to the user forcing to true
-
 	// GPU state
 	RenderState  renderState;
 
 	// per draw call transform state (model, view, projection matrices)
 	TransformState transform;
 	
-	// shader program and texture units
-	ShaderPtr      shader;
-	TextureUnits   textureUnits;
-
 	// viewport and scissor state
 	ViewportState  viewport;
 
+	// shader program
+	ShaderPtr      shader;
+
 	DrawState( const ShaderPtr&s = DefaultShaders.Simple, const RenderState &renderState = {} )
-	: shadowingEnabled( true )
-	, shader( s )
+	: shader( s )
 	, renderState( renderState )
 	{}
 };

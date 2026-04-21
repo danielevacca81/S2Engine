@@ -3,171 +3,185 @@
 #include "VertexArray.h"
 
 #include "Math/Math.h"
-
 #include "Device.h"
 #include "OpenGL.h"
 #include "OpenGLWrap.h"
 #include "OpenGLCheck.h"
 
-#include <iostream>
+#include <cassert>
 
 using namespace s2::RenderCore;
 
-
 // -------------------------------------------------------------------------------------------------
-VertexArrayPtr VertexArray::New( const BufferObject::UsageHint &hint )
+VertexArrayPtr VertexArray::New( GPUBufferObject::UsageHint hint )
 {
-	return std::make_shared<VertexArray>(hint);
-}
-
-
-// -------------------------------------------------------------------------------------------------
-VertexArray::VertexArray( const BufferObject::UsageHint &hint )
-: _usageHint( hint )
-{
-	create();
+    return std::make_shared<VertexArray>( hint );
 }
 
 // -------------------------------------------------------------------------------------------------
-//VertexArray::VertexArray( VertexArray &&other )
-//: VertexArray()
-//{
-//	std::swap( _attributes , other._attributes  );
-//	std::swap( _indexBuffer, other._indexBuffer );
-//
-//	std::swap( _created,   other._created );
-//	std::swap( _objectID,  other._objectID);
-//}
+VertexArray::VertexArray( GPUBufferObject::UsageHint hint )
+    : _usageHint( hint )
+{
+    create();
+}
 
 // -------------------------------------------------------------------------------------------------
 VertexArray::~VertexArray()
 {
-	destroy();
+    destroy();
 }
-
-// -------------------------------------------------------------------------------------------------
-//VertexArray &VertexArray::operator=( VertexArray &&other )
-//{
-//	reset();
-//
-//	std::swap( _attributes , other._attributes  );
-//	std::swap( _indexBuffer, other._indexBuffer );
-//
-//	std::swap( _created,   other._created );
-//	std::swap( _objectID,  other._objectID);
-//	return *this;
-//}
 
 // -------------------------------------------------------------------------------------------------
 void VertexArray::reset()
 {
-	OpenGLObject::reset();
-	_attributes.clear();
-	_indexBuffer = IndexBuffer( 0, IndexBuffer::IndexDataType::UnsignedInt, _usageHint );
+    OpenGLObject::reset();
+    _attributes.clear();
+    _indexBuffer = std::nullopt;
+}
+
+// -------------------------------------------------------------------------------------------------
+int VertexArray::objectLabelIdentifier() const
+{
+    return GL_VERTEX_ARRAY;
 }
 
 // -------------------------------------------------------------------------------------------------
 void VertexArray::create()
 {
-	destroy();
-	OpenGLObject::create();
+    if( isValid() )
+        return;
 
-	const auto maxVertexAttrib = Device::maxAttribPerVertex();
+    destroy();
+    OpenGLObject::create();
 
-	_attributes.resize ( maxVertexAttrib );
-	_attributes.reserve( maxVertexAttrib );
+    const int maxVertexAttrib = Device::maxAttribPerVertex();
+    _attributes.resize( maxVertexAttrib );
 
-	
-	glGenVertexArrays( 1, &_objectID );
-	glCheck;
-	
-	_created = _objectID != 0;
+    // DSA: glCreateVertexArrays (OpenGL 4.5+)
+    glCreateVertexArrays( 1, &_objectID );
+    glCheck;
 }
 
 // -------------------------------------------------------------------------------------------------
 void VertexArray::destroy()
 {
-	if( !isCreated() )
-		return;
-	
-	glDeleteVertexArrays( 1, &_objectID );
-	glCheck;
-	reset();
+    if( !isValid() )
+        return;
+
+    glDeleteVertexArrays( 1, &_objectID );
+    glCheck;
+    
+    reset();
 }
 
 // -------------------------------------------------------------------------------------------------
 void VertexArray::bind() const
 {
-	if( !isCreated() )
-		return;
-	
-	assert( ( "VAO name not valid", _objectID != 0) );
+    if( !isValid() )
+        return;
 
-	
-	glBindVertexArray( _objectID );
-#if 0 // uncomment to debug 
-	while( glGetError() != GL_NO_ERROR )
-		std::cout << "Invalid VAO name" << _objectID << '\n';
-#endif
-	glCheck;
+    assert( _objectID != 0 && "VAO must be valid" );
 
-	if( _indexBuffer.isValid() )
-		_indexBuffer.bind();
-
-	for( size_t i = 0; i< _attributes.size(); ++i )
-		_attributes[i].attach( int( i ) );
-
-	glCheck;
+    // DSA: VAO binding is ONLY required for rendering (glDraw* calls)
+    // All configuration is done via DSA, so bind is lightweight
+    glBindVertexArray( _objectID );
+    glCheck;
 }
 
 // -------------------------------------------------------------------------------------------------
 void VertexArray::unbind() const
 {
-	
-	glBindVertexArray( 0 );
-	glCheck;
+    glBindVertexArray( 0 );
+    glCheck;
 }
 
 // -------------------------------------------------------------------------------------------------
-AttributeBuffer &VertexArray::attribute( int i )
+const AttributeBuffer& VertexArray::attribute( int index ) const
 {
-	assert( i>=0 && i<Device::maxAttribPerVertex() );
-	return _attributes[i];
+    assert( index >= 0 && index < static_cast<int>( _attributes.size() ) );
+    return _attributes[index];
 }
 
 // -------------------------------------------------------------------------------------------------
-AttributeBuffer const &VertexArray::attribute(int i) const
+AttributeBuffer& VertexArray::attribute( int index )
 {
-	assert( i >= 0 && i < Device::maxAttribPerVertex() );
-	return _attributes[i];
+    assert( index >= 0 && index < static_cast<int>( _attributes.size() ) );
+    return _attributes[index];
 }
 
 // -------------------------------------------------------------------------------------------------
-IndexBuffer     &VertexArray::indexBuffer() 
+// DSA: Set attribute without VAO binding (OpenGL 4.5+)
+// -------------------------------------------------------------------------------------------------
+void VertexArray::setAttribute( int location, const AttributeBuffer& attribute )
 {
-	return _indexBuffer;
+    assert( isValid() && "VertexArray must be created before setting attributes" );
+    assert( location >= 0 && location < static_cast<int>( _attributes.size() ) );
+    assert( attribute.isValid() && "AttributeBuffer must be valid" );
+
+    // Store attribute
+    _attributes[location] = attribute;
+
+    // Use DSA to attach attribute to VAO (no binding needed)
+    _attributes[location].attach( _objectID, location );
 }
 
 // -------------------------------------------------------------------------------------------------
-IndexBuffer     const &VertexArray::indexBuffer() const
+const IndexBuffer& VertexArray::indexBuffer() const
 {
-	return _indexBuffer;
+    return _indexBuffer.value();
+}
+
+// -------------------------------------------------------------------------------------------------
+IndexBuffer& VertexArray::indexBuffer()
+{
+    assert( _indexBuffer.has_value() && "IndexBuffer must be set before accessing" );
+    return _indexBuffer.value();
+}
+
+// -------------------------------------------------------------------------------------------------
+// DSA: Set index buffer without VAO binding (OpenGL 4.5+)
+// -------------------------------------------------------------------------------------------------
+void VertexArray::setIndexBuffer( const IndexBuffer& indexBuffer )
+{
+    assert( isValid() && "VertexArray must be created before setting index buffer" );
+    //assert( indexBuffer.isValid() && "IndexBuffer must be valid" );
+
+    // Store index buffer
+    _indexBuffer = indexBuffer;
+
+    // DSA: Bind element buffer to VAO (OpenGL 4.5+)
+    glVertexArrayElementBuffer( _objectID, indexBuffer.id() );
+    glCheck;
 }
 
 // -------------------------------------------------------------------------------------------------
 bool VertexArray::isIndexed() const
 {
-	return _indexBuffer.isValid();
+    return _indexBuffer.has_value();
 }
 
 // -------------------------------------------------------------------------------------------------
 int VertexArray::maxArrayIndex() const
 {
-	int maximumArrayIndex = 0;
+    int maximumArrayIndex = 0;
 
-	for( size_t i = 0; i < _attributes.size(); ++i )
-		if( _attributes[i].isValid() )
-			maximumArrayIndex = Math::max( _attributes[i].numberOfVertices() - 1, maximumArrayIndex);
+    for( const auto& attr : _attributes )
+    {
+        if( attr.isValid() )
+            maximumArrayIndex = Math::max( attr.numberOfVertices() - 1, maximumArrayIndex );
+    }
 
-	return maximumArrayIndex;
+    return maximumArrayIndex;
+}
+
+// -------------------------------------------------------------------------------------------------
+int VertexArray::attributeCount() const
+{
+    int count = 0;
+    for( const auto& attr : _attributes )
+    {
+        if( attr.isValid() )
+            ++count;
+    }
+    return count;
 }

@@ -8,9 +8,11 @@
 #include "RenderPass.h"
 
 #include <vector>
+#include <initializer_list>
 #include <memory>
 
 namespace s2 {
+namespace RenderCore { class RenderBackend; }
 namespace Renderer {
 
 class CommandBuffer;
@@ -39,43 +41,48 @@ Pipeline:
   |    |- Read(G-Buffer textures)
   |    !- Draw(fullscreen quad) - calcola lighting
   |
-  !- PostProcessPass
-       |- Read(lit scene)
-       !- Apply(bloom, tonemapping, etc.)
+  |- PostProcessPass
+  |    |- Read(lit scene)
+  |    !- Apply(bloom, tonemapping, etc.)
+  |
+  !- PickingPass (optional)
+
+
 */
 
 
 
 /**
- * Manages the sequence of render passes.
- * Different rendering techniques (Forward, Deferred) use different pipelines.
+  * Manages the sequence of render passes.
+  * User defines pipelines in application code as sequence of passes.
+  * Passes can be shared between pipelines (e.g., a common shadow pass used in both forward and deferred pipelines).
+  * 
  */
 class S2ENGINE_API RenderPipeline
 {
 public:
-    static RenderPipeline createForwardPipeline();
-    static RenderPipeline createDeferredPipeline();
-
-public:
-    RenderPipeline() = default;
-    ~RenderPipeline() = default;
-
-    //// Non-copyable
-    //RenderPipeline( const RenderPipeline& ) = delete;
-    //RenderPipeline& operator=( const RenderPipeline& ) = delete;
-
-    void initialize( ResourceManager& resourceManager );
+	RenderPipeline() = default;
+	RenderPipeline( const std::initializer_list<std::shared_ptr<RenderPass>>& passes ) 
+        : _passes( passes ) 
+    {}
+    
     void clear();
+	bool isEmpty() const { return _passes.empty(); }
 
+    RenderPipeline& addPass( const std::shared_ptr<RenderPass> &pass );
+    RenderPipeline& removePass( const std::string& name );
+    std::shared_ptr<RenderPass> findPass( const std::string& name ) const;
 
-    void addPass( const RenderPassPtr &pass );
-    void removePass( const std::string& name );
-    RenderPassPtr findPass( const std::string& name ) const;
-
-    void execute( const CommandBuffer& cmd, FrameData& frameData );
+protected:
+    void execute( const RenderCore::RenderBackend& backend,
+				  const ResourceManager& resourceManager,
+                  const CommandBuffer& cmd,
+                  FrameData& frameData );
 
 private:
-    std::vector<RenderPassPtr> _passes;
+    std::vector< std::shared_ptr<RenderPass>> _passes;
+
+	friend class Renderer; // internal execution
 };
 
 } // namespace Renderer

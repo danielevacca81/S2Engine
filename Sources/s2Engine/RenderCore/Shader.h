@@ -8,11 +8,13 @@
 #include "OpenGLObject.h"
 #include "Uniform.h"
 #include "ShaderStage.h"
+#include "Texture.h"
 
 #include <map>
 #include <string>
 #include <memory>
 #include <vector>
+#include <cstdint>
 
 namespace s2 {
 namespace RenderCore {
@@ -21,65 +23,80 @@ namespace RenderCore {
 /*                                           Shader                                             */
 /************************************************************************************************/
 class Shader;
-typedef std::shared_ptr<Shader>   ShaderPtr;
+typedef std::shared_ptr<Shader> ShaderPtr;
 
 class S2ENGINE_API Shader : public OpenGLObject
 {
 public:
-	static ShaderPtr New();
+    static ShaderPtr New();
 
 public:
-	Shader();
-	~Shader();
+    Shader();
+    ~Shader();
 
-	bool attachVertexShaderStage( const ShaderStagePtr& shader );
-	bool attachFragmentShaderStage( const ShaderStagePtr& shader );
-	bool attachGeometryShaderStage( const ShaderStagePtr& shader );
-	bool attachComputeShaderStage( const ShaderStagePtr& shader );
-	bool attachTessellationControlShaderStage( const ShaderStagePtr& shader );
-	bool attachTessellationEvaluationShaderStage( const ShaderStagePtr& shader );
+    // Shader stage attachment
+    bool attachVertexShaderStage( const ShaderStagePtr& shader );
+    bool attachFragmentShaderStage( const ShaderStagePtr& shader );
+    bool attachGeometryShaderStage( const ShaderStagePtr& shader );
+    bool attachComputeShaderStage( const ShaderStagePtr& shader );
+    bool attachTessellationControlShaderStage( const ShaderStagePtr& shader );
+    bool attachTessellationEvaluationShaderStage( const ShaderStagePtr& shader );
 
-	bool        isLinked()    const;
-	std::string name() const;
+    // State queries
+    bool        isLinked() const;
+    std::string name() const;
 
-	void bind()    const override;
-	void unbind()  const override;
-	void applyUniforms();
+    // Binding (REQUIRED for rendering - cannot be avoided!)
+    void bind()   const;
+    void unbind() const;
 
-	// shortcut for setting uniforms value by name.
-	// it will search for uniform by name and set its value.
-	// warning: if uniform is not found, it will do nothing.
-	void setUniformValue( const std::string& uniformName, const UniformValue& value );
+    // ===== DSA API for Uniforms (OpenGL 4.1+) =====
+    
+    // Set uniform and apply immediately (DSA - no binding required)
+    void setUniform( const std::string& uniformName, const UniformValue& value );
+    
+    // Apply all changed uniforms (DSA - no binding required)
+    void applyUniforms();
 
-	// used to get uniform by name
-	// warning: returns nullptr if not found. check before use!
-	Uniform* uniform( const std::string& name );
+    // ===== Bindless Texture Support (OpenGL 4.5+) =====
+    
+    // Set bindless texture handle directly
+    void setTextureHandle( const std::string& uniformName, uint64_t handle );
+    
+    // Convenience: Set texture (makes resident automatically)
+    void setTexture( const std::string& uniformName, const Texture2DPtr& texture );
+
+    // ===== Query =====
+    
+    // Get uniform by name (read-only access)
+    const Uniform* uniform( const std::string& name ) const;
 
 private:
-	void create()  override;
-	void destroy() override;
-	int  objectLabelIdentifier() const override;
-	void reset() override;
+    void create()  override;
+    void destroy() override;
+    int  objectLabelIdentifier() const override;
+    void reset() override;
 
-	void findUniforms();
+    void findUniforms();
+
 private:
-	ShaderStagePtr _vshd;
-	ShaderStagePtr _fshd;
-	ShaderStagePtr _gshd;
+    ShaderStagePtr _vshd;
+    ShaderStagePtr _fshd;
+    ShaderStagePtr _gshd;
+    ShaderStagePtr _cshd;   // compute shader
+    ShaderStagePtr _tshd;   // tessellation control
+    ShaderStagePtr _teshd;  // tessellation evaluation
 
-	ShaderStagePtr _cshd; // compute shader
-	ShaderStagePtr _tshd; // tessellation shader
-	ShaderStagePtr _teshd;// tessellation evaluation shader
+    bool         _linked { false };
+    std::string  _name;
 
+    std::map<std::string, unsigned int> _attributes;
+    std::map<std::string, Uniform*>     _uniforms;
+    
+    // Bindless texture tracking
+    std::vector<Texture2DPtr> _residentTextures;
 
-	bool         _linked { false };
-	std::string  _name;
-
-	std::map< std::string, unsigned int > _attributes;
-	std::map< std::string, Uniform*>      _uniforms;
-
-
-	friend class ShaderCompiler;
+    friend class ShaderCompiler;
 };
 
 } // namespace RenderCore

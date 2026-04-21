@@ -5,68 +5,73 @@
 
 #include "s2Engine_API.h"
 
-#include "DrawState.h"
-#include "ClearState.h"
 #include "RenderState.h"
-
-#include "Graphics/Color.h"
-
-#include "Shader.h"
+#include "ClearState.h"
+#include "DrawState.h"
 
 namespace s2 {
 namespace RenderCore {
 
-/* There shall be only one state manager per context.
-   Useful to have a Context::map to handle context switches?
-*/
-class StateManager
+/************************************************************************************************/
+/*                                      StateManager                                            */
+/************************************************************************************************/
+// Manages OpenGL state with shadowing to minimize redundant state changes
+// Uses DSA and bindless textures
+class S2ENGINE_API StateManager
 {
 public:
-	StateManager();
-	void disableShadowingOneShot() { _disableDrawStateShadowingOneShot = _disableClearStateShadowingOneShot = true; }
+    StateManager();
 
-	void setClearState( const ClearState &cs );
-	void setDrawState( const DrawState &ds );
+    // Apply clear state and perform clear
+    void setClearState( const ClearState& clearState );
+    
+    // Apply draw state (DSA-aware)
+    void setDrawState( const DrawState& drawState );
 
-	// for debugging purpose
-	void debugState( const bool drawStateCheck = true, const bool clearStateCheck = true ) const;
+	// Get current shader - never used? (we can remove it if not needed, but it can be useful for debugging and validation)
+    const ShaderPtr& currentShader() const { return _currentShader; }
 
-private:
-	void applyRenderState       ( const RenderState &rs );
-	void applyPrimitiveRestart  ( const PrimitiveRestart &pr );
-	void applyFaceCulling       ( const FaceCulling &fc );
-	void applyProgramPointSize  ( const ProgramPointSize &programPointSize );
-	void applyRasterizationMode ( const RenderState::RasterizationMode &rasterizationMode );
-	void applyLineWidth         ( const float lineWidth );
-	void applyScissorTest       ( const ScissorTest &scissorTest );
-	void applyStencilTest       ( const StencilTest &stencilTest );
-	void applyStencil           ( const FaceCulling::Face &face, StencilTestFace &currentTest, const StencilTestFace &test );
-	void applyDepthTest         ( const DepthTest &depthTest );
-	void applyDepthRange        ( const DepthRange &depthRange );
-	void applyBlending          ( const Blending &blending );
-	void applyColorMask         ( const ColorMask &colorMask );
-	void applyDepthMask         ( const DepthMask& depthMask );
-	void applyStencilMask       ( const StencilMask &stencilMask );
-	void applyShaderProgram     ( const ShaderPtr  &shader);
-	void applyViewportAndScissor( const ViewportState &vs);
-	void applyClearColorSeparate( const ClearColorSeparate &clearColorSeparate );
 
 private:
-	bool         _disableDrawStateShadowingOneShot;
-	bool         _disableClearStateShadowingOneShot;
-	bool         _shadowingCurrentlyEnabled;
+    // Apply individual state components
+    void applyRenderState( const RenderState& renderState );
+    void applyViewport( const ViewportState& viewport );
+    void applyShaderProgram( const ShaderPtr& shader );
 
-	// shadowed clear state to avoid redundant state changes. 
-	Color        _clearColor;
-	float        _clearDepth;
-	int          _clearStencil;
+    // Individual state setters
+    void applyPrimitiveRestart( const PrimitiveRestart& pr );
+    void applyFaceCulling( const FaceCulling& fc );
+    void applyProgramPointSize( const ProgramPointSize& pps );
+    void applyRasterizationMode( RenderState::RasterizationMode mode );
+    void applyLineWidth( float lineWidth );
+    void applyScissorTest( const ScissorTest& scissorTest );
+    void applyStencilTest( const StencilTest& stencilTest );
+    void applyStencil( FaceCulling::Face face, StencilTestFace& current, const StencilTestFace& target );
+    void applyDepthTest( const DepthTest& depthTest );
+    void applyDepthRange( const DepthRange& depthRange );
+    void applyBlending( const Blending& blending );
+    void applyColorMask( const ColorMask& colorMask );
+    void applyDepthMask( const DepthMask& depthMask );
+    void applyStencilMask( const StencilMask& stencilMask );
+    void applyClearColorSeparate( const ClearColorSeparate& clearColorSeparate );
 
-	// shadowed state to avoid redundant state changes.
-	RenderState   _renderState;
-	ViewportState _viewportState;
-	ShaderPtr     _currentShader;
+	// Debugging utility to validate that the cached state matches the actual GPU state
+	// Has no effect in release builds
+    void validateState( bool drawState = true, bool clearState = false ) const;
+
+private:
+    // Cached state
+    RenderState    _renderState;
+    ViewportState  _viewportState;
+    ShaderPtr      _currentShader;
+
+    // Clear state cache
+    Color    _clearColor { 0.f, 0.f, 0.f, 0.f };
+    float    _clearDepth { 1.0f };
+    int32_t  _clearStencil { 0 };
+
+	friend class RenderBackend;
 };
-
 
 } // namespace RenderCore
 } // namespace s2

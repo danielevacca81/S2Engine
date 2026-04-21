@@ -8,8 +8,8 @@
 void MyApplication::updateState()
 {
 	// use delta time and iterpolate animations
-	const auto sizeInterpolator = Math::Easing::Ease( 1.0, // start value
-													  2.0, // end value
+	const auto sizeInterpolator = Math::Easing::Ease( 0.0, // start value
+													  1.0, // end value
 													  3.0, // duration in seconds
 													  Math::Easing::Curve::QuadraticIn, 
 													  Math::Easing::Mode::PingPong );

@@ -14,7 +14,8 @@
 
 #include <unordered_map>
 #include <string>
-#include <memory>
+#include <filesystem>
+
 
 namespace s2 {
 namespace Renderer {
@@ -33,11 +34,17 @@ public:
     ResourceHandle registerMesh( const std::string& name,    const MeshData3D &mesh );
     //ResourceHandle registerMesh( const std::string& name,    const MeshData2D &mesh );
     ResourceHandle registerTexture( const std::string& name, const RenderCore::Texture2DPtr  &texture );
+	ResourceHandle registerTexture( const std::string& name, const std::filesystem::path &path );
     ResourceHandle registerShader( const std::string& name,  const RenderCore::ShaderPtr    &shader );
 
-    RenderCore::VertexDataPtr getMesh( const ResourceHandle &handle ) const;
-    RenderCore::Texture2DPtr  getTexture( const ResourceHandle &handle ) const;
-    RenderCore::ShaderPtr     getShader( const ResourceHandle &handle ) const;
+    RenderCore::VertexDataPtr mesh( const ResourceHandle &handle ) const;
+	ResourceHandle            mesh( const std::string& name ) const;
+
+    RenderCore::Texture2DPtr  texture( const ResourceHandle &handle ) const;
+    ResourceHandle            texture( const std::string& name ) const;
+
+    RenderCore::ShaderPtr     shader( const ResourceHandle &handle ) const;
+    ResourceHandle            shader( const std::string& name ) const;
 
 
 private:
@@ -45,8 +52,8 @@ private:
 
     std::unordered_map<std::string, ResourceHandle> _nameToHandle;
     std::unordered_map<ResourceHandle, RenderCore::VertexDataPtr> _meshes;
-    std::unordered_map<ResourceHandle, RenderCore::Texture2DPtr> _textures;
-    std::unordered_map<ResourceHandle, RenderCore::ShaderPtr> _shaders;
+    std::unordered_map<ResourceHandle, RenderCore::Texture2DPtr>  _textures;
+    std::unordered_map<ResourceHandle, RenderCore::ShaderPtr>     _shaders;
 };
 
 } // namespace Renderer

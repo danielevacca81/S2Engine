@@ -5,7 +5,11 @@
 
 #include "s2Engine_API.h"
 
-#include "BufferObject.h"
+#include "GPUBufferObject.h"
+
+#include <memory>
+#include <cstdint>
+#include <type_traits>
 
 namespace s2 {
 namespace RenderCore {
@@ -16,41 +20,66 @@ namespace RenderCore {
 class S2ENGINE_API IndexBuffer
 {
 public:
-	enum IndexDataType
-	{
-		UnsignedInt,
-		UnsignedShort,
-	};
+    enum class IndexDataType
+    {
+        UnsignedShort,  // 16-bit indices
+        UnsignedInt     // 32-bit indices
+    };
 
 public:
-	//OBJECT_DECLARE_MOVEABLE( IndexBuffer )
-	//OBJECT_DISABLE_COPY( IndexBuffer )
+    IndexBuffer( int64_t sizeInBytes, IndexDataType dataType, GPUBufferObject::UsageHint usageHint );
+	IndexBuffer( const void* data, int64_t sizeInBytes, IndexDataType dataType, GPUBufferObject::UsageHint usageHint );
+    IndexBuffer( const GPUBufferObjectPtr& gpuBuffer, IndexDataType dataType );
 
-	IndexBuffer();
-	IndexBuffer( int sizeInBytes, const IndexDataType &dataType, const BufferObject::UsageHint &usageHint );
+    // Initialize/reinitialize buffer
+    void set( int64_t sizeInBytes, IndexDataType dataType, GPUBufferObject::UsageHint usageHint );
 
-	void set( int sizeInBytes, const IndexDataType &dataType, const BufferObject::UsageHint &usageHint );
+    // State queries
+    int  count()             const { return _count; }
+    IndexDataType dataType() const { return _dataType; }
 
-	bool isValid() const { return _valid; }
+    // ===== DSA API (via GPUBufferObject) =====
+    
+    // Set index data (DSA)
+    void setData( const void* data, int64_t size, int64_t offset = 0 );
+    
+    // Set index data from typed arrays (convenience)
+    void setIndices( const uint16_t* indices, int count );
+    void setIndices( const uint32_t* indices, int count );
+    
+    // Get index data (DSA)
+    void getData( void* data, int64_t size, int64_t offset = 0 ) const;
+    
+    // Low-level map/unmap
+    void* map( uint32_t accessFlags );
+    bool  unmap();
 
-	void bind();
-	void unbind();
+    // ===== RAII Mapped Buffer Access =====
 
-	int count() const { return _count; }
+    // Maps the entire buffer, invokes the callable, and unmaps automatically.
+    template<typename T, typename Fn>
+    auto mapped( uint32_t accessFlags, Fn&& fn ) -> std::invoke_result_t<Fn, T*>
+    {
+        return _gpuBuffer->mapped<T>( 0, _gpuBuffer->size(), accessFlags, std::forward<Fn>( fn ) );
+    }
 
-	IndexDataType dataType() const { return _dataType; }
+    // Convenience: maps entire buffer for writing with invalidation.
+    template<typename T, typename Fn>
+    void writeAll( Fn&& fn )
+    {
+        _gpuBuffer->writeAll<T>( std::forward<Fn>( fn ) );
+    }
 
-	void  sendData( void *data, int length, int offset = 0 );
-	void* receiveData( int length, int offset = 0 );
-	void* mapData( const BufferObject::MapMode &mode );
-	bool  unmapData();
+    // Access underlying buffer
+    unsigned int id() const { return _gpuBuffer->id(); }
 
 private:
-	BufferObjectPtr _bufferObject;
-	IndexDataType   _dataType;
-	int             _count;
-	bool            _valid;
+    void updateCount();
 
+private:
+    GPUBufferObjectPtr _gpuBuffer;
+    IndexDataType      _dataType  { IndexDataType::UnsignedInt };
+    int                _count     { 0 };
 };
 
 } // namespace RenderCore

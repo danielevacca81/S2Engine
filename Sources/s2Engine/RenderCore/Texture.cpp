@@ -2,280 +2,411 @@
 //
 #include "Texture.h"
 
-#include "OpenGL.h"
-#include "OpenGLWrap.h"
-#include "OpenGLCheck.h"
+#include "Math/Math.h"
 
-#include "Sampler.h"
-#include "RenderCore.h" //samplers
+#include "OpenGL.h"
+#include "OpenGLCheck.h"
+#include "OpenGLWrap.h"
+
+#include <cassert>
+#include <algorithm>
 
 using namespace s2::RenderCore;
 
-// -------------------------------------------------------------------------------------------------
-Texture2DPtr Texture2D::New( const TextureDescription &desc, void *data )
+// ------------------------------------------------------------------------------------------------
+Texture2DPtr Texture2D::New( const TextureDescription& desc, void* data )
 {
-	return std::make_shared<Texture2D>( desc, data );
+    return std::make_shared<Texture2D>( desc, data );
 }
 
-// -------------------------------------------------------------------------------------------------
-Texture2D::Texture2D( const TextureDescription &description, void* data )
-: _description( description )
+// ------------------------------------------------------------------------------------------------
+Texture2D::Texture2D( const TextureDescription& description, void* data )
+    : _description( description )
 {
-	create();
-
-	if( data )
-		setData( data );
+    create();
+    
+    if( data )
+        setData( data );
+        
+    setDefaultSampler();
 }
 
-// -------------------------------------------------------------------------------------------------
-//Texture2D::Texture2D( Texture2D &&other )
-//{
-//	std::swap( _format     , other._format      );
-//	std::swap( _description, other._description );
-//
-//	std::swap( _created,   other._created);
-//	std::swap( _objectID,  other._objectID);
-//}
-
-// -------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 Texture2D::~Texture2D()
 {
-	destroy();
+    destroy();
 }
 
-// -------------------------------------------------------------------------------------------------
-//Texture2D &Texture2D::operator=( Texture2D &&other )
-//{
-//	reset();
-//
-//	std::swap( _format     , other._format      );
-//	std::swap( _description, other._description );
-//
-//	std::swap( _created,   other._created);
-//	std::swap( _objectID,  other._objectID);
-//	return *this;
-//}
-
-// -------------------------------------------------------------------------------------------------
-void Texture2D::reset()
-{
-	OpenGLObject::reset();
-
-	_description = TextureDescription( 0,0, TextureFormat::RedGreenBlueAlpha8 );
-}
-
-// -------------------------------------------------------------------------------------------------
-TextureDescription Texture2D::description() const { return _description; }
-
-// -------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 void Texture2D::create()
 {
-	destroy();
-	OpenGLObject::create();
-	
-	glGenTextures( 1, &_objectID );
-	glCheck;
+    OpenGLObject::create();
 
-	if( _description.isRectangle() )
-	{
-		//glBindTexture(GL_TEXTURE_2D); bind rectangle
-	}
-	else
-	{
-		setData( nullptr );
-	}
+    if( isValid() )
+        return;
 
-	setDefaultSampler();
-	generateMipmaps();
+    // DSA: glCreateTextures (OpenGL 4.5+)
+    glCreateTextures( GL_TEXTURE_2D, 1, &_objectID );
+    glCheck;
 
+    if( _objectID == 0 )
+    {
+        assert( false && "Failed to create texture object" );
+        return;
+    }
 
-	_created = _objectID != 0;
+    // Allocate immutable storage (DSA)
+    allocateStorage();
+
+    // Set debug label (OpenGL 4.3+)
+    if( !_description.name().empty() )
+        setObjectLabel( _description.name() );
 }
 
-// -------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 void Texture2D::destroy()
 {
-	if( !isCreated() )
-		return;
+    if( !isValid() )
+        return;
 
-	
-	glDeleteTextures( 1, &_objectID );
-	glCheck;
-	reset();
+    // Make non-resident if bindless
+    if( _resident )
+        makeNonResident();
+
+    glDeleteTextures( 1, &_objectID );
+    glCheck;
+
+    reset();
 }
 
-// -------------------------------------------------------------------------------------------------
-void Texture2D::bind()   const {  glBindTexture( GL_TEXTURE_2D, _objectID ); glCheck; }
-void Texture2D::unbind() const {  glBindTexture( GL_TEXTURE_2D, 0 ); glCheck; }
-void Texture2D::unbindAll()    { glBindTexture( GL_TEXTURE_2D, 0 ); glCheck; }
-
-// -------------------------------------------------------------------------------------------------
-void Texture2D::setDefaultSampler()
+// ------------------------------------------------------------------------------------------------
+void Texture2D::reset()
 {
-	const SamplerPtr sampler = DefaultSamplers.LinearClamp;
-	assert( sampler );
-
-	/*todo : handle gl texture rectangle in case of description.isRectangle*/
-	
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, glWrap( sampler->minificationFilter() ) );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, glWrap( sampler->magnificationFilter() ) );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,     glWrap( sampler->wrapS() ) );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,     glWrap( sampler->wrapT() ) );
-	glCheck;
+    OpenGLObject::reset();
+    _bindlessHandle = 0;
+    _resident = false;
 }
 
-// -------------------------------------------------------------------------------------------------
-void Texture2D::generateMipmaps()
+// ------------------------------------------------------------------------------------------------
+void Texture2D::allocateStorage()
 {
-	if( _description.isGenerateMipmapsEnabled() )
-	{
-		
-		glGenerateMipmap( GL_TEXTURE_2D ); // dv: to be tested 
-		glCheck;
-	}
+    assert( isValid() && "Texture must be created before allocating storage" );
+
+    const GLenum internalFormat = glWrap( _description.textureFormat() );
+    
+    // Calculate mip levels
+    const int maxDimension = Math::max( _description.width(), _description.height() );
+    const int levels = _description.isGenerateMipmapsEnabled() 
+        ? static_cast<int>( std::floor( std::log2( maxDimension ) ) ) + 1
+        : 1;
+
+    // DSA: Allocate immutable storage (OpenGL 4.5+)
+    glTextureStorage2D( 
+        _objectID, 
+        levels,
+        internalFormat,
+        _description.width(),
+        _description.height() 
+    );
+    glCheck;
 }
 
-// -------------------------------------------------------------------------------------------------
-int  Texture2D::objectLabelIdentifier() const 
+// ------------------------------------------------------------------------------------------------
+void Texture2D::setData( void* pixels )
 {
-	return GL_TEXTURE;
+    assert( isValid() && "Texture must be created before uploading data" );
+
+    if( !pixels )
+        return;
+
+    const GLenum format   = glWrapTextureFormatToPixelFormat( _description.textureFormat() );
+    const GLenum dataType = glWrapTextureFormatToPixelType( _description.textureFormat() );
+
+    // DSA: Upload pixel data (OpenGL 4.5+)
+    glTextureSubImage2D(
+        _objectID,
+        0, // mip level
+        0, 0, // xoffset, yoffset
+        _description.width(),
+        _description.height(),
+        format,
+        dataType,
+        pixels
+    );
+    glCheck;
+
+    if( _description.isGenerateMipmapsEnabled() )
+        generateMipmaps();
 }
 
-// -------------------------------------------------------------------------------------------------
-void Texture2D::setData( void* pixels /*, int rowAlignment = 4 */ )
+// ------------------------------------------------------------------------------------------------
+void Texture2D::resize( int width, int height )
 {
-	
-	glActiveTexture( GL_TEXTURE0 ); //bind to last?
-	bind();
-	
-	glTexImage2D( GL_TEXTURE_2D,
-			      0,
-			      glWrap( _description.textureFormat() ),
-			      _description.width(),
-			      _description.height(),
-			      0, /*border*/
-			      glWrapTextureFormatToPixelFormat( _description.textureFormat() ),
-			      glWrapTextureFormatToPixelType( _description.textureFormat() ),
-			      pixels );
-	glCheck;
-	unbind();
+    if( width == _description.width() && height == _description.height() )
+        return;
+
+    // Update description (DSA - texture is recreated with new dimensions keeping other properties)
+    _description = TextureDescription( width, height, 
+                                       _description.textureFormat(), 
+                                       _description.isGenerateMipmapsEnabled(),
+                                       _description.name() );
+
+    // with immutable storage, we have to destroy and recreate the texture
+    destroy();
+    create();
 }
 
-// -------------------------------------------------------------------------------------------------
-void Texture2D::resize( const int width, const int height )
+// ------------------------------------------------------------------------------------------------
+void Texture2D::update( 
+    int xOffset, int yOffset, 
+    int width, int height, 
+    const ImageFormat& imgFormat,
+    const ImageDataType& imgDataType,
+    void* pixels )
 {
-	_description = TextureDescription( width, height, _description.textureFormat(), _description.isGenerateMipmapsEnabled() );
-	setData( nullptr );
+    assert( isValid() && "Texture must be created before updating" );
+    assert( pixels && "Pixel data cannot be null" );
+
+    const GLenum format   = glWrap( imgFormat );
+    const GLenum dataType = glWrap( imgDataType );
+
+    // DSA: Update partial region (OpenGL 4.5+)
+    glTextureSubImage2D(
+        _objectID,
+        0, // mip level
+        xOffset, yOffset,
+        width, height,
+        format,
+        dataType,
+        pixels
+    );
+    glCheck;
 }
 
-// -------------------------------------------------------------------------------------------------
-void Texture2D::update(int xOffset, int yOffset, 
-				 int width, int height, 
-				 const ImageFormat &imgFormat,
-				 const ImageDataType &imgDataType,
-				 void* pixels/*, int rowAlignment = 4 */)
+// ------------------------------------------------------------------------------------------------
+void Texture2D::update( 
+    int xOffset, int yOffset, 
+    int width, int height, 
+    const ImageFormat& imgFormat,
+    const ImageDataType& imgDataType,
+    const GPUBufferObjectPtr& gpuBuffer )
 {
-	bind();
-	
-	glTexSubImage2D( GL_TEXTURE_2D,
-					 0,
-					 xOffset,
-					 yOffset,
-					 width,
-					 height,
-					 glWrap( imgFormat ),
-					 glWrap( imgDataType ),
-					 pixels );
-	glCheck;
-	unbind();
+    assert( isValid() && "Texture must be created before updating" );
+    assert( gpuBuffer->id() != 0 && "GPU buffer must be valid" );
+
+    const GLenum format   = glWrap( imgFormat );
+    const GLenum dataType = glWrap( imgDataType );
+
+    // Bind PBO for reading
+    glBindBuffer( GL_PIXEL_UNPACK_BUFFER, gpuBuffer->id() );
+    glCheck;
+
+    // DSA: Update from PBO
+    glTextureSubImage2D(
+        _objectID,
+        0, // mip level
+        xOffset, yOffset,
+        width, height,
+        format,
+        dataType,
+        nullptr // offset into PBO
+    );
+    glCheck;
+
+    // Unbind PBO
+    glBindBuffer( GL_PIXEL_UNPACK_BUFFER, 0 );
+    glCheck;
 }
 
-// -------------------------------------------------------------------------------------------------
-void Texture2D::update(int xOffset, int yOffset, 
-				 int width, int height, 
-				 const ImageFormat &imgFormat,
-				 const ImageDataType &imgDataType,
-				 const ReadPixelBuffer &gpuBuffer/*, int rowAlignment = 4 */)
-{
-	bind();
-	gpuBuffer.bind();
-	
-	glTexSubImage2D( GL_TEXTURE_2D,
-					 0,
-					 xOffset,
-					 yOffset,
-					 width,
-					 height,
-					 glWrap( imgFormat ),
-					 glWrap( imgDataType ),
-					 nullptr );
-	glCheck;
-	unbind();
-}
-
-// -------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 Pixmap<uint8_t> Texture2D::readData() const
 {
- //public override ReadPixelBuffer CopyToBuffer(
-	// ImageFormat format,
-	// ImageDatatype dataType,
-	// int rowAlignment )
- //{
-	// if( format == ImageFormat.StencilIndex )
-	// {
-	//	 throw new ArgumentException( "StencilIndex is not supported by CopyToBuffer.  Try DepthStencil instead.", "format" );
-	// }
+    assert( isValid() && "Texture must be created before reading data" );
 
-	// VerifyRowAlignment( rowAlignment );
+    const GLenum format   = glWrapTextureFormatToPixelFormat( _description.textureFormat() );
+    const GLenum dataType = glWrapTextureFormatToPixelType( _description.textureFormat() );
 
-	// ReadPixelBufferGL3x pixelBuffer = new ReadPixelBufferGL3x( PixelBufferHint.Stream,
-	//															TextureUtility.RequiredSizeInBytes( _description.Width, _description.Height, format, dataType, rowAlignment ) );
+    // Use description's channelCount instead of switch
+    const int channels = _description.channelCount();
+    
+    Pixmap<uint8_t> pixmap( _description.width(), _description.height(), channels, nullptr );
 
-	// pixelBuffer.Bind();
-	// BindToLastTextureUnit();
-	// GL.PixelStore( PixelStoreParameter.PackAlignment, rowAlignment );
-	// GL.GetTexImage( _target, 0,
-	//				 TypeConverterGL3x.To( format ),
-	//				 TypeConverterGL3x.To( dataType ),
-	//				 new IntPtr() );
+    // DSA: Read texture data (OpenGL 4.5+)
+    glGetTextureImage(
+        _objectID,
+        0, // mip level
+        format,
+        dataType,
+        static_cast<GLsizei>( pixmap.width() * pixmap.height() * pixmap.numChannels() ),
+        const_cast<uint8_t*>( pixmap.pixels() )
+    );
+    glCheck;
 
-	// return pixelBuffer;
- //}
-
-	// @todo: make user selectable
-	const int rowAlignment       = 4;
-	const ImageFormat format     = ImageFormat::RedGreenBlueAlpha;
-	const ImageDataType dataType = ImageDataType::UnsignedByte;
-	const int sizeInBytes        = computeRequiredSizeInBytes( _description.width(), _description.height(), format, dataType, rowAlignment );
-
-	//glActiveTexture( GL_TEXTURE0 );
-	bind();
-	//glPixelStorei( GL_PACK_ALIGNMENT, rowAlignment );
-	
-	ReadPixelBuffer pixelBuffer = ReadPixelBuffer( sizeInBytes, ReadPixelBuffer::UsageHint::Dynamic );
-	pixelBuffer.bind();
-	
-	
-	glGetTexImage( GL_TEXTURE_2D, 0, glWrap( format ), glWrap( dataType ), DATA_PTR(0) );
-	glCheck;
-	//unbind();
-	//glCheck;
-
-	Pixmap<uint8_t> img( _description.width(), _description.height(), 4, (uint8_t*)pixelBuffer.mapData() );
-	pixelBuffer.unmapData();
-	pixelBuffer.unbind();
-	unbind();
-
-	return img;
+    return pixmap;
 }
 
-
-// -------------------------------------------------------------------------------------------------
-void Texture2D::validateAlignment( int rowAlignment )
+// ------------------------------------------------------------------------------------------------
+void Texture2D::setMinFilter( MinFilter filter )
 {
-	if( ( rowAlignment != 1 ) &&
-		( rowAlignment != 2 ) &&
-		( rowAlignment != 4 ) &&
-		( rowAlignment != 8 ) )
-		assert( ("Invalid rowAlignment", 0) );
+    assert( isValid() );
+    
+    // DSA: Set parameter (OpenGL 4.5+)
+    glTextureParameteri( _objectID, GL_TEXTURE_MIN_FILTER, glWrap( filter ) );
+    glCheck;
+}
+
+// ------------------------------------------------------------------------------------------------
+void Texture2D::setMagFilter( MagFilter filter )
+{
+    assert( isValid() );
+    
+    glTextureParameteri( _objectID, GL_TEXTURE_MAG_FILTER, glWrap( filter) );
+    glCheck;
+}
+
+// ------------------------------------------------------------------------------------------------
+void Texture2D::setWrapS( WrapMode wrap )
+{
+    assert( isValid() );
+    
+    glTextureParameteri( _objectID, GL_TEXTURE_WRAP_S, glWrap( wrap ) );
+    glCheck;
+}
+
+// ------------------------------------------------------------------------------------------------
+void Texture2D::setWrapT( WrapMode wrap )
+{
+    assert( isValid() );
+    
+    glTextureParameteri( _objectID, GL_TEXTURE_WRAP_T, glWrap( wrap ) );
+    glCheck;
+}
+
+// ------------------------------------------------------------------------------------------------
+void Texture2D::setAnisotropy( float value )
+{
+    assert( isValid() );
+    
+    // Clamp to valid range
+    GLfloat maxAniso = 1.0f;
+    glGetFloatv( GL_MAX_TEXTURE_MAX_ANISOTROPY, &maxAniso );
+    glCheck;
+    
+    
+    glTextureParameterf( _objectID, GL_TEXTURE_MAX_ANISOTROPY, Math::clamp( value, 1.0f, maxAniso ) );
+    glCheck;
+}
+
+// ------------------------------------------------------------------------------------------------
+void Texture2D::setBorderColor( const Color &color )
+{
+    assert( isValid() );
+    
+    glTextureParameterfv( _objectID, GL_TEXTURE_BORDER_COLOR, color.rgba() );
+    glCheck;
+}
+
+// ------------------------------------------------------------------------------------------------
+void Texture2D::generateMipmaps()
+{
+    assert( isValid() );
+    
+    // DSA: Generate mipmaps (OpenGL 4.5+)
+    glGenerateTextureMipmap( _objectID );
+    glCheck;
+}
+
+// ------------------------------------------------------------------------------------------------
+void Texture2D::clear( const Color &clearColor )
+{
+    assert( isValid() );
+
+	const GLenum format   = glWrapTextureFormatToPixelFormat( _description.textureFormat() );
+	const GLenum dataType = glWrapTextureFormatToPixelType( _description.textureFormat() );
+
+    // DSA: Clear texture (OpenGL 4.4+)
+    glClearTexImage(
+        _objectID,
+        0, // mip level
+        format,
+        dataType,
+        clearColor.rgba()
+    );
+    glCheck;
+}
+
+// ------------------------------------------------------------------------------------------------
+void Texture2D::setDefaultSampler()
+{
+    // Set default filtering
+    if( _description.isGenerateMipmapsEnabled() )
+        setMinFilter( MinFilter::LinearMipmapLinear );
+    else
+        setMinFilter( MinFilter::Linear );
+    
+    setMagFilter( MagFilter::Linear );
+    
+    // Set default wrap mode
+    setWrapS( WrapMode::Repeat );
+    setWrapT( WrapMode::Repeat );
+    
+    // Set default anisotropy
+    setAnisotropy( 1.0f );
+}
+
+// ------------------------------------------------------------------------------------------------
+// Note: The handle is valid even if the texture is not resident,
+// but it must be made resident before use in shaders.
+uint64_t Texture2D::bindlessHandle() const
+{
+    assert( isValid() );
+    
+    if( _bindlessHandle == 0 )
+    {
+        // Get bindless handle (ARB_bindless_texture)
+        _bindlessHandle = glGetTextureHandleARB( _objectID );
+        glCheck;
+    }
+    
+    return _bindlessHandle;
+}
+
+// ------------------------------------------------------------------------------------------------
+void Texture2D::makeResident()
+{
+    if( _resident )
+        return;
+        
+    const uint64_t handle = bindlessHandle();
+    
+    glMakeTextureHandleResidentARB( handle );
+    glCheck;
+    
+    _resident = true;
+}
+
+// ------------------------------------------------------------------------------------------------
+void Texture2D::makeNonResident()
+{
+    if( !_resident )
+        return;
+        
+    const uint64_t handle = bindlessHandle();
+    
+    glMakeTextureHandleNonResidentARB( handle );
+    glCheck;
+    
+    _resident = false;
+}
+
+// ------------------------------------------------------------------------------------------------
+TextureDescription Texture2D::description() const
+{
+    return _description;
+}
+
+// ------------------------------------------------------------------------------------------------
+int Texture2D::objectLabelIdentifier() const
+{
+    return GL_TEXTURE;
 }

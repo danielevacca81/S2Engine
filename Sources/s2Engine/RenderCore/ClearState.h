@@ -33,15 +33,13 @@ struct ClearColorSeparate
 /************************************************************************/
 struct ClearState
 {
-	bool                shadowingEnabled {true};
-				        
 	ScissorTest         scissorTest;
 	ColorMask           colorMask {true, true,true,true};
 	DepthMask           depthMask;
 	StencilMask         stencilMask {~0u,~0u};
 	ClearBuffers        buffers { ClearBuffers::ColorAndDepthBuffer };
 	Color               color = Color::gray();	// it will be ignored if colorSeparate.enabled == true
-	float               depth {1.f};
+	float               depth  {1.f};
 	int32_t             stencil{0};
 	ClearColorSeparate  colorSeparate;
 };

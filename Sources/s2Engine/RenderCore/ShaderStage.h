@@ -42,8 +42,6 @@ public:
 private:
     void create()  override;
     void destroy() override;
-    void bind()    const override {}
-    void unbind()  const override {}
 
 	int objectLabelIdentifier() const override;
 

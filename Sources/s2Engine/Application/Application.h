@@ -9,6 +9,7 @@
 
 #include <string>
 #include <memory>
+#include <vector>
 
 namespace s2 {
 
@@ -18,34 +19,34 @@ class Window;
 class S2ENGINE_API Application : public std::enable_shared_from_this<Application>
 {
 public:
-	static Application* instance();
+    static Application* instance();
 
 public:
-	Application( const std::string &name );
-	virtual ~Application();
-	
-	Application( const Application& a )    = delete;
-	Application( Application&& a )         = delete;
-	void operator=( const Application& a ) = delete;
-	void operator=( Application&& a )      = delete;
+    Application( const std::string& name );
+    virtual ~Application();
 
-	virtual void                    addWindow( const std::shared_ptr<Window> &w );
-	virtual std::shared_ptr<Window> mainWindow() const;
-	virtual uint64_t                elapsedTime_ms() const;
-	virtual int32_t                 run();
-
-protected:
-	virtual void updateState() {}
-
+    Application( const Application& )  = delete;
+    Application( Application&& )       = delete;
+    void operator=( const Application& ) = delete;
+    void operator=( Application&& )      = delete;
+	    
+    virtual void                           addWindow( std::unique_ptr<Window> w );
+    virtual const std::unique_ptr<Window>& mainWindow() const;
+    virtual uint64_t                       elapsedTime_ms() const;
+    virtual int32_t                        run();
 
 protected:
-	std::vector<std::shared_ptr<Window>> _windows;
-	HighResTimePoint _appTimer;	
+    virtual void updateState() {}
+
+protected:
+    std::vector<std::unique_ptr<Window>> _windows;
+    HighResTimePoint                     _appTimer;
 
 private:
-	void* _instance = nullptr;
+    struct Impl;
+    std::unique_ptr<Impl> _impl;
 };
 
-}
+} // namespace s2
 
 #endif

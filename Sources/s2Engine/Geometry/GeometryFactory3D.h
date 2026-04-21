@@ -20,7 +20,7 @@ public:
 	static MeshData3D createSphere( const Math::dvec3& center, double radius, int slices );
 	static MeshData3D createCone( const Math::dvec3& center, const Math::dvec3& tip, double baseRadius, bool cap, int slices );
 	static MeshData3D createCube( const Math::dvec3& center, double size );
-	//static MeshData3D createCapsule( const Math::dvec3& startPoint, const Math::dvec3& endPoint, double radius, int slices, int rings );
+	static MeshData3D createCapsule( const Math::dvec3& startPoint, const Math::dvec3& endPoint, double radius, int slices, int rings );
 	static MeshData3D createTeapot( int resU, int resV );
 
 

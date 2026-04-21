@@ -19,7 +19,7 @@ static constexpr int kMaxRenderTargets = 2;
 struct PrimitiveRestart
 {
 	bool enabled { false };
-	int  index { 0xffff };
+	int  index { 0x0000 };
 };
 
 /************************************************************************/
@@ -68,7 +68,7 @@ struct DepthMask
 struct ScissorTest
 {
 	bool        enabled { false };
-	Math::irect rect {0,0,0,0};
+	Math::irect rect    { 0,0,0,0 };
 };
 
 ///************************************************************************/
@@ -137,7 +137,7 @@ struct StencilTest
 /************************************************************************/
 struct DepthTest
 {
-	enum class DepthTestFunction
+	enum class Function
 	{
 		Never,
 		Less,
@@ -150,7 +150,7 @@ struct DepthTest
 	};
 
 	bool              enabled { true };
-	DepthTestFunction function { DepthTestFunction::Less };
+	Function function { Function::Less };
 };
 
 /************************************************************************/

@@ -2,52 +2,30 @@
 //
 #include "KeyboardState.h"
 
-using namespace s2;
+using namespace s2::Input;
 
-#if 0
-
-// -----------------------------------------------------------------------------------------------
-void KeyboardStatus::update( QKeyEvent *e, bool pressed )
+// ------------------------------------------------------------------------------------------------
+bool KeyboardState::isKeyDown( int key ) const
 {
-#if 0
-	unsigned int k = e->nativeVirtualKey();
-	
-	if( k<256 )
-		buffer[k] = pressed;
-
-	Qt::KeyboardModifiers mod = e->modifiers();
-
-	if (modifiers & Qt::ShiftModifier)	 modifiers |= ModifierShift;
-	if (modifiers & Qt::ControlModifier) modifiers |= ModifierCtrl;
-	if (modifiers & Qt::AltModifier)	 modifiers |= ModifierAlt;
-#endif
-	modifiers = 0;
-	::Qt::KeyboardModifiers mod = e->modifiers();
-
-	if (mod & ::Qt::ShiftModifier)	    modifiers |= ModifierShift;
-	if (mod & ::Qt::ControlModifier)	modifiers |= ModifierCtrl;
-	if (mod & ::Qt::AltModifier)		modifiers |= ModifierAlt;
-	if (mod & ::Qt::MetaModifier)		modifiers |= ModifierMeta;
-
-	keySequence = QKeySequence( e->key() );
-	e->accept();
-	//std::cout<< keySequence.toString().toStdString();
+	return _pressedKeys.find( key ) != _pressedKeys.end();
 }
 
-// -----------------------------------------------------------------------------------------------
-unsigned int KeyboardStatus::getCode() const
+// ------------------------------------------------------------------------------------------------
+bool KeyboardState::isKeyUp( int key ) const
 {
-    unsigned int ks = 0;       //0 means no valid code
-    if (keySequence.count() == 1)
-    {
-        ks = keySequence[0];
-
-        if (modifiers & ModifierShift) ks += ::Qt::SHIFT;
-        if (modifiers & ModifierCtrl)  ks += ::Qt::CTRL;
-        if (modifiers & ModifierAlt)   ks += ::Qt::ALT;
-        if (modifiers & ModifierMeta)  ks += ::Qt::META;
-    }
-	return ks;
+	return _pressedKeys.find( key ) == _pressedKeys.end();
 }
 
-#endif
+// ------------------------------------------------------------------------------------------------
+void KeyboardState::onKeyPress( int key, uint32_t modifiers )
+{
+    _pressedKeys.insert( key );
+    _modifiers = modifiers;
+}
+
+// ------------------------------------------------------------------------------------------------
+void KeyboardState::onKeyRelease( int key, uint32_t modifiers )
+{
+    _pressedKeys.erase( key );
+    _modifiers = modifiers;
+}
