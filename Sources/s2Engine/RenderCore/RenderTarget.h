@@ -18,7 +18,7 @@ namespace RenderCore {
 // ------------------------------------------------------------------------------------------------
 // RenderTarget: High-level wrapper for FrameBuffer with automatic texture management
 // 100% DSA - No binding required for setup
-// Does NOT perform rendering operations (delegated to RenderCommands)
+// Does NOT perform rendering operations
 // ------------------------------------------------------------------------------------------------
 class S2ENGINE_API RenderTarget
 {

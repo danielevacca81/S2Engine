@@ -7,7 +7,7 @@
 
 #include "RenderCore/Context.h"
 #include "RenderCore/RenderTarget.h"
-#include "RenderCore/RendererBackend.h"
+#include "RenderCore/RenderBackend.h"
 
 #include "Renderer/Renderer.h"
 
@@ -197,6 +197,7 @@ Window::Window( const std::string& name, int width, int height, const WindowPara
     _renderingContext = std::make_unique<RenderCore::Context>();
 	_renderer         = std::make_unique<Renderer::Renderer>( _renderingContext.get() );
     _mainRenderTarget = std::make_unique<RenderCore::RenderTarget>();
+	_mainRenderTarget->setObjectLabel( "s2Engine.MainRenderTarget" );
 	
     _ui               = createDefaultUILayer();
 	_ui->init( _impl->window ); // install callbacks and initialize UI layer with the native window handle

@@ -6,7 +6,7 @@
 #include "FrameData.h"
 #include "RenderCommand.h"
 
-#include "RenderCore/RendererBackend.h"
+#include "RenderCore/RenderBackend.h"
 #include "RenderCore/ClearState.h"
 #include "RenderCore/DrawState.h"
 #include "RenderCore/PrimitiveType.h"
@@ -89,7 +89,7 @@ static inline RenderCore::PrimitiveType getPrimitiveType( RenderMode mode )
 
 
 // ------------------------------------------------------------------------------------------------
-void ForwardPass::execute( const RenderCore::RendererBackend& backend,
+void ForwardPass::execute( const RenderCore::RenderBackend& backend,
 						   const ResourceManager& resourceManager,
                            const CommandBuffer& queue,
                            FrameData& frameData )

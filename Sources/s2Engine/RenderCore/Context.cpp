@@ -1,7 +1,7 @@
 // Context.cpp
 //
 #include "Context.h"
-#include "RendererBackend.h"
+#include "RenderBackend.h"
 
 #include "OpenGL.h"
 #include "Device.h"
@@ -53,7 +53,7 @@ Context::Context()
 	RenderCore::init(); // initialize shaders and samplers for this context
 
 	// Create renderer backend (primary interface for rendering operations)
-	_rendererBackend = std::make_unique<RendererBackend>( *this );
+	_rendererBackend = std::make_unique<RenderBackend>( *this );
 
 	std::cout
 		<< "Registering Context: 0x" << std::hex << (uint32_t) _nativeHandle << '\n'

@@ -68,7 +68,6 @@ public:
 private:
     VertexArrayPtr _vao;
 
-    friend class RenderCommands; // Allow RenderCommands to access _vao
 };
 
 } // namespace RenderCore

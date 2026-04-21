@@ -2,11 +2,13 @@
 //
 #include "UIPass.h"
 
+
+#include "RenderCore/OpenGL.h"
 #include "Renderer/CommandBuffer.h"
 #include "Renderer/FrameData.h"
 #include "Renderer/ResourceManager.h"
 
-#include "RenderCore/RendererBackend.h"
+#include "RenderCore/RenderBackend.h"
 #include "RenderCore/RenderTarget.h"
 #include "RenderCore/ShaderCompiler.h"
 #include "RenderCore/DrawState.h"
@@ -66,13 +68,16 @@ void main()
 }
 )";
 
+static inline auto usageHint = GPUBufferObject::UsageHint::StreamDraw;
+//static inline auto usageHint = GPUBufferObject::UsageHint::StaticDraw;
+
 // ------------------------------------------------------------------------------------------------
 UIPass::UIPass()
 {
     createShader();
     createFontTexture();
 
-    _vao = VertexArray::New( GPUBufferObject::UsageHint::DynamicDraw );
+    _vao = VertexArray::New( usageHint );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -131,8 +136,6 @@ static GPUBufferObjectPtr ensureVertexBuffer( const VertexArrayPtr& vao,
                                               GPUBufferObjectPtr    currentVBO,
                                               int64_t               requiredBytes )
 {
-    constexpr int64_t stride = sizeof( ImDrawVert );
-
     if( currentVBO && currentVBO->size() >= requiredBytes )
     {
         // Existing buffer is large enough - invalidate and reuse
@@ -145,9 +148,10 @@ static GPUBufferObjectPtr ensureVertexBuffer( const VertexArrayPtr& vao,
 
     auto vbo = GPUBufferObject::New( allocBytes,
                                      GPUBufferObject::Type::ArrayBuffer,
-                                     GPUBufferObject::UsageHint::DynamicDraw );
+                                     usageHint );
     vbo->setObjectLabel( "ImGuiPass::VBO" );
 
+    constexpr int64_t stride = sizeof( ImDrawVert );
     // Re-attach all three interleaved attributes to the new buffer (DSA).
     // All share the same VBO with bufferOffset = 0 and stride = sizeof(ImDrawVert).
     // Each attribute specifies its own relativeOffset = offsetof(ImDrawVert, field).
@@ -203,18 +207,18 @@ static void ensureIndexBuffer( const VertexArrayPtr& vao,
             return;
 
         const int64_t allocBytes = requiredBytes + requiredBytes / 4;
-        ib.set( allocBytes, idxType, GPUBufferObject::UsageHint::DynamicDraw );
+        ib.set( allocBytes, idxType, usageHint );
         vao->setIndexBuffer( ib );
         return;
     }
 
     const int64_t allocBytes = requiredBytes + requiredBytes / 4;
-    IndexBuffer ib( allocBytes, idxType, GPUBufferObject::UsageHint::DynamicDraw );
+    IndexBuffer ib( allocBytes, idxType, usageHint );
     vao->setIndexBuffer( ib );
 }
 
 // ------------------------------------------------------------------------------------------------
-void UIPass::execute( const RendererBackend& rendererBackend,
+void UIPass::execute( const RenderBackend& rendererBackend,
                    const ResourceManager& resourceManager,
                    const CommandBuffer& queue,
 					  FrameData& frameData )
@@ -247,10 +251,10 @@ void UIPass::execute( const RendererBackend& rendererBackend,
 
     const Math::fmat4 ortho = Math::ortho( L, R, B, T, -1.0f, 1.0f );
 
-    _shader->setUniform( "u_ProjectionMatrix", ortho );
+    _shader->setUniform( "u_ProjectionMatrix" ,ortho );
    
     // default to font atlas; may be overridden per ImDrawCmd below
-    _shader->setTextureHandle( "u_CurrTextureHandle", _fontTexture->bindlessHandle() );
+    _shader->setUniform( "u_CurrTextureHandle" , _fontTexture->bindlessHandle() );
 
     // ------------------------------------------------------------------
     // 3. Ensure GPU buffers have enough capacity, then upload data
@@ -261,7 +265,8 @@ void UIPass::execute( const RendererBackend& rendererBackend,
     _vbo = ensureVertexBuffer( _vao, _vbo, totalVtxBytes );
     ensureIndexBuffer( _vao, totalIdxBytes );
 
-    _vbo->writeRange<ImDrawVert>( 0, totalVtxBytes, [&]( ImDrawVert* dst ) {
+    _vbo->writeRange<ImDrawVert>( 0, totalVtxBytes, [&]( ImDrawVert* dst ) 
+    {
         for( int n = 0; n < drawData->CmdListsCount; ++n )
         {
             const ImDrawList* cmdList = drawData->CmdLists[n];
@@ -270,7 +275,8 @@ void UIPass::execute( const RendererBackend& rendererBackend,
         }
     });
 
-    _vao->indexBuffer().writeAll<ImDrawIdx>( [&]( ImDrawIdx* dst ) {
+    _vao->indexBuffer().writeAll<ImDrawIdx>( [&]( ImDrawIdx* dst ) 
+    {
         for( int n = 0; n < drawData->CmdListsCount; ++n )
         {
             const ImDrawList* cmdList = drawData->CmdLists[n];
@@ -346,7 +352,7 @@ void UIPass::execute( const RendererBackend& rendererBackend,
 			// Be sure to make the shader's sampler uniform resident and set it to the correct handle value before drawing.
 			auto bindlessHandle = static_cast<uint64_t>( pcmd.TextureId );
             if( bindlessHandle != 0 ) // resource ID
-                _shader->setTextureHandle( "u_CurrTextureHandle", bindlessHandle );
+                _shader->setUniform( "u_CurrTextureHandle" , bindlessHandle );
 
             rendererBackend.drawRange(
                 *frameData.renderTarget,

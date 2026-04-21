@@ -1,6 +1,6 @@
-// RendererBackend.cpp
+// RenderBackend.cpp
 //
-#include "RendererBackend.h"
+#include "RenderBackend.h"
 
 #include "Context.h"
 #include "RenderTarget.h"
@@ -64,7 +64,7 @@ static inline DrawState sanitizeDrawState( const DrawState& ds, const RenderTarg
 
 
 // ------------------------------------------------------------------------------------------------
-RendererBackend::RendererBackend( Context& context )
+RenderBackend::RenderBackend( Context& context )
     : _context( context )
 {
 }
@@ -73,13 +73,13 @@ RendererBackend::RendererBackend( Context& context )
 // CLEAR OPERATIONS (DSA-ready)
 // ================================================================================================
 
-void RendererBackend::clear( const RenderTarget& target, const ClearState& cs ) const
+void RenderBackend::clear( const RenderTarget& target, const ClearState& cs ) const
 {
     clear( target.framebuffer(), cs );
 }
 
 // ------------------------------------------------------------------------------------------------
-void RendererBackend::clear( const FrameBufferPtr& fbo, const ClearState& cs ) const
+void RenderBackend::clear( const FrameBufferPtr& fbo, const ClearState& cs ) const
 {
     if( !fbo )
         return;
@@ -97,19 +97,19 @@ void RendererBackend::clear( const FrameBufferPtr& fbo, const ClearState& cs ) c
 // DRAW OPERATIONS (DSA-ready)
 // ================================================================================================
 
-void RendererBackend::draw( const RenderTarget& target, const PrimitiveType& primitiveType,const VertexArrayPtr& va, const DrawState& ds ) const
+void RenderBackend::draw( const RenderTarget& target, const PrimitiveType& primitiveType,const VertexArrayPtr& va, const DrawState& ds ) const
 {
     draw( target.framebuffer(), primitiveType, va, sanitizeDrawState( ds, target ) );
 }
 
 // ------------------------------------------------------------------------------------------------
-void RendererBackend::draw( const RenderTarget& target, const PrimitiveType& primitiveType,const VertexDataPtr& primitive, const DrawState& ds ) const
+void RenderBackend::draw( const RenderTarget& target, const PrimitiveType& primitiveType,const VertexDataPtr& primitive, const DrawState& ds ) const
 {
     draw( target.framebuffer(), primitiveType, primitive, sanitizeDrawState( ds, target ) );
 }
 
 // ------------------------------------------------------------------------------------------------
-void RendererBackend::draw( const RenderTarget& target, const PrimitiveBatch& batch, const DrawState& ds ) const
+void RenderBackend::draw( const RenderTarget& target, const PrimitiveBatch& batch, const DrawState& ds ) const
 {
     if( !target.framebuffer() )
         return;
@@ -133,7 +133,7 @@ void RendererBackend::draw( const RenderTarget& target, const PrimitiveBatch& ba
 }
 
 // ------------------------------------------------------------------------------------------------
-void RendererBackend::draw( const FrameBufferPtr& fbo, const PrimitiveType& primitiveType, const VertexArrayPtr& va, const DrawState& ds ) const
+void RenderBackend::draw( const FrameBufferPtr& fbo, const PrimitiveType& primitiveType, const VertexArrayPtr& va, const DrawState& ds ) const
 {
     if( !fbo || !va )
         return;
@@ -153,7 +153,7 @@ void RendererBackend::draw( const FrameBufferPtr& fbo, const PrimitiveType& prim
 }
 
 // ------------------------------------------------------------------------------------------------
-void RendererBackend::draw( const FrameBufferPtr& fbo, const PrimitiveType& primitiveType, const VertexDataPtr& primitive, const DrawState& ds ) const
+void RenderBackend::draw( const FrameBufferPtr& fbo, const PrimitiveType& primitiveType, const VertexDataPtr& primitive, const DrawState& ds ) const
 {
     if( !fbo || !primitive )
         return;
@@ -173,7 +173,7 @@ void RendererBackend::draw( const FrameBufferPtr& fbo, const PrimitiveType& prim
 }
 
 // ------------------------------------------------------------------------------------------------
-void RendererBackend::drawRange( const RenderTarget& target, const PrimitiveType& primitiveType, const VertexArrayPtr& va, uint32_t elementCount, uint32_t elementOffset, uint32_t baseVertexOffset, const DrawState& ds ) const
+void RenderBackend::drawRange( const RenderTarget& target, const PrimitiveType& primitiveType, const VertexArrayPtr& va, uint32_t elementCount, uint32_t elementOffset, uint32_t baseVertexOffset, const DrawState& ds ) const
 {
     if( !target.framebuffer() || !va || !va->isIndexed() )
         return;
@@ -215,13 +215,13 @@ void RendererBackend::drawRange( const RenderTarget& target, const PrimitiveType
 // ================================================================================================
 // READ OPERATIONS (DSA where possible)
 // ================================================================================================
-Pixmap<uint8_t> RendererBackend::readPixels( const RenderTarget& target ) const
+Pixmap<uint8_t> RenderBackend::readPixels( const RenderTarget& target ) const
 {
     return readPixels( target.framebuffer(), target.width(), target.height() );
 }
 
 // ------------------------------------------------------------------------------------------------
-Pixmap<uint8_t> RendererBackend::readPixels( const FrameBufferPtr& fbo, uint32_t width, uint32_t height ) const
+Pixmap<uint8_t> RenderBackend::readPixels( const FrameBufferPtr& fbo, uint32_t width, uint32_t height ) const
 {
     if( !fbo || width == 0 || height == 0 )
         return {};
@@ -280,7 +280,7 @@ Pixmap<uint8_t> RendererBackend::readPixels( const FrameBufferPtr& fbo, uint32_t
 }
 
 // ------------------------------------------------------------------------------------------------
-void RendererBackend::readPixels( const RenderTarget& target, 
+void RenderBackend::readPixels( const RenderTarget& target, 
                                  const FrameBuffer::AttachmentPoint& attachPoint, 
                                  const ImageFormat& pixelFormat,
 								 const ImageDataType& pixelType,
@@ -302,7 +302,7 @@ void RendererBackend::readPixels( const RenderTarget& target,
 }
 
 // ------------------------------------------------------------------------------------------------
-void RendererBackend::readPixelsAsync( const RenderTarget& target,
+void RenderBackend::readPixelsAsync( const RenderTarget& target,
                                       const FrameBuffer::AttachmentPoint& attachPoint,
                                       const ImageFormat& imageFormat,
                                       const ImageDataType& pixelType,
@@ -337,7 +337,7 @@ void RendererBackend::readPixelsAsync( const RenderTarget& target,
 // BLIT OPERATIONS (DSA-ready)
 // ================================================================================================
 
-void RendererBackend::blit( 
+void RenderBackend::blit( 
     const RenderTarget& source, 
     const RenderTarget& destination,
     const Math::irect& srcRect, 
@@ -362,7 +362,7 @@ void RendererBackend::blit(
 }
 
 // ------------------------------------------------------------------------------------------------
-void RendererBackend::blit( 
+void RenderBackend::blit( 
     const FrameBufferPtr& srcFBO, 
     const FrameBufferPtr& dstFBO,
     const Math::irect& srcRect, 
@@ -411,7 +411,7 @@ void RendererBackend::blit(
 }
 
 // ------------------------------------------------------------------------------------------------
-void RendererBackend::blitToScreen( const RenderTarget& source, const Math::irect& srcRect ) const
+void RenderBackend::blitToScreen( const RenderTarget& source, const Math::irect& srcRect ) const
 {
     const Math::irect src = srcRect.isEmpty() 
         ? Math::irect( 0, 0, source.width(), source.height() ) 
@@ -425,14 +425,14 @@ void RendererBackend::blitToScreen( const RenderTarget& source, const Math::irec
 // ================================================================================================
 
 // ------------------------------------------------------------------------------------------------
-void RendererBackend::flush() const
+void RenderBackend::flush() const
 {
     glFlush();
     glCheck;
 }
 
 // ------------------------------------------------------------------------------------------------
-void RendererBackend::drawFullscreenQuad( const Texture2DPtr& srcTexture ) const
+void RenderBackend::drawFullscreenQuad( const Texture2DPtr& srcTexture ) const
 {
     if( !srcTexture )
         return;
@@ -451,7 +451,11 @@ void RendererBackend::drawFullscreenQuad( const Texture2DPtr& srcTexture ) const
     );
 
     // Set texture using bindless (DSA)
-    drawState.shader->setTexture( "screenTexture", srcTexture );
+    srcTexture->makeResident();
+	// Assumes the shader has a uniform named "screenTexture" of type sampler2D or similar.
+	// @todo: Consider caching uniform locations for efficiency if this is called frequently.
+	// and ensure the shader actually has that uniform to avoid potential crashes.
+    drawState.shader->setUniform( "screenTexture", srcTexture->bindlessHandle() );
 
     // Bind default framebuffer (screen)
     glBindFramebuffer( GL_FRAMEBUFFER, 0 );

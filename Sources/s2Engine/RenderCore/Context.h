@@ -13,8 +13,6 @@
 namespace s2 {
 namespace RenderCore {
 
-class RenderCommands;
-
 class S2ENGINE_API Context
 {
 public:
@@ -35,17 +33,17 @@ public:
 	bool isCurrent() const { return current() == this; }
 
 	// Access to render commands (primary interface for rendering)
-	RendererBackend&       rendererBackend()       { return *_rendererBackend; }
-	const RendererBackend& rendererBackend() const { return *_rendererBackend; }
+	RenderBackend&       rendererBackend()       { return *_rendererBackend; }
+	const RenderBackend& rendererBackend() const { return *_rendererBackend; }
 
 private:
 	uint64_t  _nativeHandle { 0 };
 
-	ContextInfo                      _info;
-	StateManager                     _stateManager;
-	std::unique_ptr<RendererBackend> _rendererBackend;
+	ContextInfo                    _info;
+	StateManager                   _stateManager;
+	std::unique_ptr<RenderBackend> _rendererBackend;
 
-	friend class RendererBackend; // RendererBackend needs access to _stateManager
+	friend class RenderBackend; // RenderBackend needs access to _stateManager
 };
 
 } // namespace RenderCore

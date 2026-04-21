@@ -10,28 +10,6 @@
 using namespace s2::Renderer;
 
 // ------------------------------------------------------------------------------------------------
-RenderPipeline RenderPipeline::createDefaultPipeline()
-{
-	// For now, the default pipeline is just a forward rendering pipeline
-	return createForwardPipeline();
-}
-
-// ------------------------------------------------------------------------------------------------
-RenderPipeline RenderPipeline::createForwardPipeline()
-{
-    RenderPipeline p;
-    p.addPass( std::make_unique<ForwardPass>() );
-    return p;
-}
-
-// ------------------------------------------------------------------------------------------------
-RenderPipeline RenderPipeline::createDeferredPipeline()
-{
-	// not implemented yet, return an empty pipeline for now
-    return RenderPipeline();
-}
-
-// ------------------------------------------------------------------------------------------------
 RenderPipeline& RenderPipeline::addPass( const std::shared_ptr<RenderPass> &pass )
 {
     // Avoid adding duplicate passes with the same name
@@ -72,7 +50,7 @@ std::shared_ptr<RenderPass> RenderPipeline::findPass( const std::string& name ) 
 }
 
 // ------------------------------------------------------------------------------------------------
-void RenderPipeline::execute( const RenderCore::RendererBackend& backend, const ResourceManager& resourceManager, const CommandBuffer& queue, FrameData& frameData )
+void RenderPipeline::execute( const RenderCore::RenderBackend& backend, const ResourceManager& resourceManager, const CommandBuffer& queue, FrameData& frameData )
 {
     assert( !_passes.empty() && "RenderPipeline has no passes to execute!" );
     if( _passes.empty() )

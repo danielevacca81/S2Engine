@@ -7,9 +7,10 @@
 
 #include <string>
 #include <memory>
+#include <unordered_map>
 
 namespace s2 {
-namespace RenderCore { class RendererBackend; }
+namespace RenderCore { class RenderBackend; }
 namespace Renderer {
 
 class ResourceManager;
@@ -22,6 +23,15 @@ struct FrameData;
 class S2ENGINE_API RenderPass
 {
 public:
+	// pass statistics (tbd: more stats like GPU time, memory usage, etc.)
+    struct Stats
+    {
+        size_t drawCalls { 0 };
+        size_t vertices { 0 };
+        size_t triangles { 0 };
+    };
+
+public:
     virtual ~RenderPass() = default;
 
     // Get pass name
@@ -30,22 +40,13 @@ public:
     bool isEnabled() const { return _enabled; }
     void setEnabled( bool enabled ) { _enabled = enabled; }
 
-
-    // Get pass statistics
-    struct Stats
-    {
-        size_t drawCalls { 0 };
-        size_t vertices  { 0 };
-        size_t triangles { 0 };
-    };
-
     const Stats& stats() const { return _stats; }
 
 protected:
 	// pass is responsible for executing its rendering commands using the provided backend and resource manager
 	// cmd contains the commands submitted by the application for this frame, which the pass can consume and translate into GPU commands
 	// frameData contains shared data for this frame, which the pass can read and write to share information with other passes
-	virtual void execute( const RenderCore::RendererBackend& backend,
+	virtual void execute( const RenderCore::RenderBackend& backend,
 						  const ResourceManager& resourceManager,
 						  const CommandBuffer& cmd,
 						  FrameData& frameData ) = 0;
@@ -56,8 +57,11 @@ protected:
     Stats                          _stats;
     bool                           _enabled { true };
 
-	friend class RenderPipeline; // RenderPipeline needs access to protected members for initialization and execution
+    friend class RenderPipeline;
 };
+
+// convenience typedef
+using RenderPasses = std::unordered_map<std::string, std::shared_ptr<RenderPass>>;
 
 } // namespace Renderer
 } // namespace s2

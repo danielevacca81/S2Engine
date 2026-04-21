@@ -8,7 +8,7 @@
 #include "RenderCommand.h"
 #include "ResourceManager.h"
 
-#include "RenderCore/RendererBackend.h"
+#include "RenderCore/RenderBackend.h"
 #include "RenderCore/DrawState.h"
 #include "RenderCore/ClearState.h"
 #include "RenderCore/ShaderCompiler.h"
@@ -61,7 +61,7 @@ PickPass::PickPass()
 }
 
 // ------------------------------------------------------------------------------------------------
-void PickPass::execute( const RenderCore::RendererBackend& renderBackend,
+void PickPass::execute( const RenderCore::RenderBackend& renderBackend,
                         const ResourceManager& resourceManager,
                         const CommandBuffer& queue,
 						FrameData& frameData )

@@ -1,7 +1,7 @@
-// RendererBackend.h
+// RenderBackend.h
 //
-#ifndef S2_RENDERCORE_RENDERERBACKEND_H
-#define S2_RENDERCORE_RENDERERBACKEND_H
+#ifndef S2_RENDERCORE_RENDERBACKEND_H
+#define S2_RENDERCORE_RENDERBACKEND_H
 
 #include "s2Engine_API.h"
 
@@ -25,17 +25,17 @@ class Context;
 
 // ------------------------------------------------------------------------------------------------
 // Encapsulates low-level OpenGL rendering commands.
-// Each Context owns a RendererBackend instance for executing rendering operations.
+// Each Context owns a RenderBackend instance for executing rendering operations.
 // ------------------------------------------------------------------------------------------------
-class S2ENGINE_API RendererBackend
+class S2ENGINE_API RenderBackend
 {
 public:
-	explicit RendererBackend( Context& context );
-	~RendererBackend() = default;
+	explicit RenderBackend( Context& context );
+	~RenderBackend() = default;
 
 	// Prevent copying
-	RendererBackend( const RendererBackend& ) = delete;
-	RendererBackend& operator=( const RendererBackend& ) = delete;
+	RenderBackend( const RenderBackend& ) = delete;
+	RenderBackend& operator=( const RenderBackend& ) = delete;
 
 	// ===== RENDERING OPERATIONS =====
 
@@ -98,4 +98,4 @@ private:
 } // namespace RenderCore
 } // namespace s2
 
-#endif // !S2_RENDERCORE_RENDERCOMMANDS_H
+#endif // !S2_RENDERCORE_RENDERBACKEND_H

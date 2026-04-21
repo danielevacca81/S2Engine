@@ -5,7 +5,6 @@
 
 #include "s2Engine_API.h"
 
-#include "RenderPipeline.h"
 #include "CommandBuffer.h"
 #include "FrameData.h"
 #include "ResourceManager.h"
@@ -23,7 +22,6 @@ namespace Renderer {
 
 Renderer/
 |-- Renderer.h/cpp              # High-level renderer
-|-- RenderPipeline.h/cpp        # Manages render passes
 |-- RenderPass.h/cpp            # Base class for passes
 |-- FrameData.h                 # Shared context between passes
 |-- CommandBuffer.h/cpp         # Command storage and sorting

@@ -12,7 +12,7 @@
 #include <memory>
 
 namespace s2 {
-namespace RenderCore { class RendererBackend; }
+namespace RenderCore { class RenderBackend; }
 namespace Renderer {
 
 class CommandBuffer;
@@ -61,11 +61,6 @@ Pipeline:
 class S2ENGINE_API RenderPipeline
 {
 public:
-	static RenderPipeline createDefaultPipeline();
-    static RenderPipeline createForwardPipeline();
-    static RenderPipeline createDeferredPipeline();
-
-public:
 	RenderPipeline() = default;
 	RenderPipeline( const std::initializer_list<std::shared_ptr<RenderPass>>& passes ) 
         : _passes( passes ) 
@@ -79,7 +74,7 @@ public:
     std::shared_ptr<RenderPass> findPass( const std::string& name ) const;
 
 protected:
-    void execute( const RenderCore::RendererBackend& backend,
+    void execute( const RenderCore::RenderBackend& backend,
 				  const ResourceManager& resourceManager,
                   const CommandBuffer& cmd,
                   FrameData& frameData );

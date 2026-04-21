@@ -70,7 +70,7 @@ private:
     float    _clearDepth { 1.0f };
     int32_t  _clearStencil { 0 };
 
-	friend class RendererBackend;
+	friend class RenderBackend;
 };
 
 } // namespace RenderCore

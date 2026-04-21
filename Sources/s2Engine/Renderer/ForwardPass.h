@@ -18,7 +18,7 @@ public:
     const std::string& name() const override;
 
 protected:
-    void execute( const RenderCore::RendererBackend& rendererBackend,
+    void execute( const RenderCore::RenderBackend& rendererBackend,
 				  const ResourceManager& resourceManager,
 				  const CommandBuffer& queue,
                   FrameData& frameData ) override;

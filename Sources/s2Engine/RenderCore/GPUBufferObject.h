@@ -183,7 +183,10 @@ public:
     template<typename T, typename Fn>
     void writeRange( int64_t offset, int64_t length, Fn&& fn )
     {
-        mapped<T>( offset, length, static_cast<uint32_t>( MapAccess::Write ) | static_cast<uint32_t>( MapAccess::InvalidateBuffer ), std::forward<Fn>( fn ) );
+        mapped<T>( offset,
+                   length,
+                   static_cast<uint32_t>( MapAccess::Write ) | static_cast<uint32_t>( MapAccess::InvalidateBuffer ),
+                   std::forward<Fn>( fn ) );
     }
 
     // Convenience: maps a byte range for reading.
