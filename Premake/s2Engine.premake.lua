@@ -71,7 +71,6 @@ project "s2Engine"
 	includedirs
 	{ 
 		"%{sourcedir}/",
-		"%{extlibsdir}/glfwpp/include",
 	}
 	
     links {

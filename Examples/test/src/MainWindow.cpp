@@ -23,8 +23,7 @@
 
 #include <iostream>
 
-////// TODO:
-// - add keyboard handling
+// TODO:
 // - computeshaders and opengl 4.6
 
 
@@ -42,28 +41,30 @@
 // ------------------------------------------------------------------------------------------------
 void MainWindow::loadResources()
 {
-	struct texturetag
-	{
+	static std::filesystem::path assetBasePath( R"(E:\@Devel\Assets\Meterials)" );  
+	//static constexpr char assetBasePath[] = R"(F:\Sviluppo\Materials\group14)";  
+	struct texturetag  
+	{  
 		std::string           name;
 		std::filesystem::path path;
-	};
-
-	std::array<texturetag, 5> texturesToLoad = 
-	{
-		texturetag{ "pbr_albedo",   R"(F:\Sviluppo\Materials\group14\g5\g5_basecolor.png)" },
-		texturetag{ "pbr_normal",   R"(F:\Sviluppo\Materials\group14\g5\g5_normal.png)" },
-		texturetag{ "pbr_metallic", R"(F:\Sviluppo\Materials\group14\g5\g5_metallic.png)" },
-		texturetag{ "pbr_roughness",R"(F:\Sviluppo\Materials\group14\g5\g5_roughness.png)" },
-		texturetag{ "pbr_ao",       R"(F:\Sviluppo\Materials\group14\g5\g5_ao.png)" }
-	};
-
-
-
-	auto& resourceManager = _renderer->resources();
-
-	for( const auto& tex : texturesToLoad )
-	{
-		if( auto handle = resourceManager.registerTexture( tex.name, tex.path ) )
+	};  
+  
+	std::array<texturetag, 5> texturesToLoad =   
+	{  
+		texturetag{ "pbr_albedo",    assetBasePath / R"(g5\g5_basecolor.png)" },  
+		texturetag{ "pbr_normal",    assetBasePath / R"(g5\g5_normal.png)" },  
+		texturetag{ "pbr_metallic",  assetBasePath / R"(g5\g5_metallic.png)" },  
+		texturetag{ "pbr_roughness", assetBasePath / R"(g5\g5_roughness.png)" },  
+		texturetag{ "pbr_ao",        assetBasePath / R"(g5\g5_ao.png)" }  
+	};  
+  
+  
+  
+	auto& resourceManager = _renderer->resources();  
+  
+	for( const auto& tex : texturesToLoad )  
+	{  
+		if( auto handle = resourceManager.registerTexture( tex.name,  tex.path ) )
 			std::cout << "Loaded texture: " << tex.name << std::endl;
 		else
 		{
@@ -732,12 +733,16 @@ void MainWindow::onCloseEvent()
 {
 }
 
+#include "imgui_internal.h"
+
 // ------------------------------------------------------------------------------------------------
 void MainWindow::drawImGui()
 {
 	ImGui::SetCurrentContext( static_cast<ImGuiContext*> ( _ui->uiData( "ImGuiContext" ) ) );
 
-	auto io = ImGui::GetIO();
+	//ImGui::GetCurrentContext()->DebugLogFlags |= ImGuiDebugLogFlags_EventIO;
+
+	ImGui::ShowDebugLogWindow();
 
 	ImGui::SetNextWindowPos( ImVec2( 10, 10 ), ImGuiCond_Once );
 	ImGui::SetNextWindowSize( ImVec2( 360, 0 ), ImGuiCond_Once );
