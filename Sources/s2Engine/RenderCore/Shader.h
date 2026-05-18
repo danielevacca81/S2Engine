@@ -13,7 +13,7 @@
 #include <map>
 #include <string>
 #include <memory>
-#include <vector>
+#include <unordered_map>
 #include <cstdint>
 
 namespace s2 {
@@ -52,17 +52,23 @@ public:
 
     // ===== DSA API for Uniforms (OpenGL 4.1+) =====
     
+    // Get uniform handle by name (O(1) lookup via cache)
+    // Returns Invalid handle if uniform does not exist.
+    // Cache the result for subsequent fast access via setUniform(UniformHandle, UniformValue).
+    UniformHandle getUniformHandle( const std::string& uniformName ) const;
+    
     // Set uniform and apply immediately (DSA - no binding required)
-	// Note: This method performs a lookup by uniform name, which can be inefficient if called frequently.
-    // For performance-critical code, consider caching uniform handles and using the setUniform(UniformHandle, UniformValue) overload.
+	// Note: This method performs a lookup by uniform name (O(n) iteration).
+    // For performance-critical code, use getUniformHandle() once and cache the result,
+    // then use setUniform(UniformHandle, UniformValue) for fast O(1) access.
     void setUniform( const std::string& uniformName, const UniformValue& value );
 
-	// directly set uniform by handle
+	// Set uniform by handle (O(1) fast path - no lookup needed)
 	void setUniform( UniformHandle handle, const UniformValue& value );
     
     // Get uniform by name (read-only access)
+    // Deprecated: Use getUniformHandle() for better performance.
     const Uniform* uniform( const std::string& name ) const;
-	//Uniform*       uniform( const std::string& name );
     
     // Apply all changed uniforms (DSA - no binding required)
     void applyUniforms();
@@ -97,18 +103,17 @@ private:
     bool         _linked { false };
     std::string  _name;
 
-	// Uniforms are stored in a vector indexed by their location for O(1) access during rendering.
-	// The location is determined at link time and is used as the index in the vector.
-	// This allows for very fast uniform updates without the overhead of name lookups or bindings.
+	// Uniforms are stored in an unordered_map keyed by their location for O(1) access during rendering.
+	// The location is determined at link time by OpenGL and serves as the unique key.
+	// Only valid uniforms are stored (built-in and array uniforms are skipped).
     // 
-	// Note: Uniform can also be accessed by name via the uniform() method, which performs a lookup in the vector based on the uniform's location.
-	// Todo: use unique_ptr (ownership of uniforms is tied to the shader, they are created at link time and destroyed with the shader)
-	std::vector<Uniform*> _uniforms; // List of active uniforms
-
-    //std::map<std::string, Uniform*>     _uniforms;
+	// This avoids the nullptr-holes problem of vector-based storage while maintaining fast lookups.
+	// Ownership: Uniforms are created at link time and destroyed when the shader is destroyed.
+	std::unordered_map<int, Uniform*> _uniforms; // key = uniformLocation, value = Uniform*
     
-    // Bindless texture tracking
-    //std::vector<Texture2DPtr> _residentTextures;
+    // Cache for O(1) uniform name lookups: uniformName -> uniformLocation
+    // Populated during findUniforms() to enable fast getUniformHandle(name) queries.
+	std::unordered_map<std::string, int> _uniformsByName; // key = uniformName, value = uniformLocation
 
     friend class ShaderCompiler;
 };

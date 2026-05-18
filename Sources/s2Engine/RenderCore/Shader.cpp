@@ -99,10 +99,11 @@ void Shader::reset()
     _linked = false;
     _name = "";
 
-    for( auto& u : _uniforms )
+    for( auto& [loc, u] : _uniforms )
         delete u;
 
     _uniforms.clear();
+    _uniformsByName.clear();
     //_residentTextures.clear();
 }
 
@@ -262,23 +263,31 @@ void Shader::unbind() const
 }
 
 // ------------------------------------------------------------------------------------------------
+// DSA: Get uniform handle by name (O(1) lookup via cache)
+// ------------------------------------------------------------------------------------------------
+UniformHandle Shader::getUniformHandle( const std::string& uniformName ) const
+{
+    auto it = _uniformsByName.find( uniformName );
+    if( it != _uniformsByName.end() )
+        return UniformHandle { static_cast<uint32_t>( it->second ) };
+    
+    return UniformHandle { UniformHandle::Invalid };
+}
+
+// ------------------------------------------------------------------------------------------------
 // DSA: Set uniform and apply immediately (OpenGL 4.1+)
 // ------------------------------------------------------------------------------------------------
 void Shader::setUniform( const std::string& uniformName, const UniformValue& value )
 {
-    auto found = std::find_if(
-        _uniforms.begin(),
-        _uniforms.end(),
-        [&uniformName] ( const auto& u )
+    for( auto& [loc, u] : _uniforms )
     {
-        return u->name() == uniformName;
-    } );
-
-    if( found == _uniforms.end() )
-		return; // Uniform not found, do nothing (could log a warning here)
-
-    // Set value 
-	(*found)->setValue( value );
+        if( u->name() == uniformName )
+        {
+            u->setValue( value );
+            return;
+        }
+    }
+    // Uniform not found, do nothing (could log a warning here)
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -290,7 +299,9 @@ void Shader::setUniform( UniformHandle handle, const UniformValue& value )
     // cache new value and mark as changed.
     // value will be applyed applyUniforms while rendering 
     // to apply all changed uniforms at once
-	_uniforms.at( handle.id )->setValue( value );
+    auto it = _uniforms.find( handle.id );
+    if( it != _uniforms.end() )
+        it->second->setValue( value );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -298,7 +309,7 @@ void Shader::setUniform( UniformHandle handle, const UniformValue& value )
 // ------------------------------------------------------------------------------------------------
 void Shader::applyUniforms()
 {
-    for( auto& u : _uniforms )
+    for( auto& [loc, u] : _uniforms )
         if( u->isChanged() )
             u->applyValue( _objectID );
 }
@@ -322,26 +333,26 @@ void Shader::applyUniforms()
 // ------------------------------------------------------------------------------------------------
 const Uniform* Shader::uniform( const std::string& name ) const
 {
-	auto found = std::find_if( 
-        _uniforms.begin(),
-        _uniforms.end(),
-        [&name] ( const auto& u )
+    // Fast path: use cache if available
+    auto nameIt = _uniformsByName.find( name );
+    if( nameIt != _uniformsByName.end() )
     {
-        return u->name() == name; 
-    } );
+        auto uniformIt = _uniforms.find( nameIt->second );
+        if( uniformIt != _uniforms.end() )
+            return uniformIt->second;
+    }
 
-	return found != _uniforms.end()
-        ? *found 
-        : nullptr;
+	return nullptr;
 }
 
 // ------------------------------------------------------------------------------------------------
 void Shader::findUniforms()
 {
     // Clear previous uniforms
-    for( auto& u : _uniforms )
+    for( auto& [loc, u] : _uniforms )
         delete u;
     _uniforms.clear();
+    _uniformsByName.clear();
 
     int numberOfUniforms;
     glGetProgramiv( _objectID, GL_ACTIVE_UNIFORMS, &numberOfUniforms );
@@ -350,7 +361,6 @@ void Shader::findUniforms()
     glGetProgramiv( _objectID, GL_ACTIVE_UNIFORM_MAX_LENGTH, &uniformNameMaxLength );
     glCheck;
 
-	_uniforms.resize( numberOfUniforms );
     for( int i = 0; i < numberOfUniforms; ++i )
     {
         int uniformNameLength;
@@ -382,7 +392,9 @@ void Shader::findUniforms()
         int uniformLocation = glGetUniformLocation( _objectID, uniformName.c_str() );
         glCheck;
 
-        _uniforms[uniformLocation] = createUniform( uniformName, uniformLocation, uniformType );
+        Uniform* u = createUniform( uniformName, uniformLocation, uniformType );
+        _uniforms[uniformLocation] = u;
+        _uniformsByName[uniformName] = uniformLocation;  // Cache for O(1) name lookup
     }
 }
 

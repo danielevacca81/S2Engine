@@ -202,6 +202,8 @@ static inline bool initShaders()
 		uniform vec4  u_LightSpecular;
 		uniform float u_LightShininess;
 
+		uniform vec4  u_ColorBase = vec4(1.0); // Base color multiplier (can be used to tint the object)
+
 		// Texture uniforms
 		uniform sampler2D u_DiffuseMap;
 		uniform bool      u_UseDiffuseMap;
@@ -226,7 +228,7 @@ static inline bool initShaders()
 			float specAngle = max( dot( halfDir, N ), 0.0 );
 			specular = pow( specAngle, u_LightShininess );
 
-			vec4 baseColor = color;
+			vec4 baseColor = color * u_ColorBase;
 			if( u_UseDiffuseMap )
 				baseColor *= texture( u_DiffuseMap, texCoord );
 
