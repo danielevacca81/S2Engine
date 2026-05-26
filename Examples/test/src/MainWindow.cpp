@@ -39,10 +39,10 @@
 */
 
 // ------------------------------------------------------------------------------------------------
-void MainWindow::loadResources()
+bool MainWindow::loadResources()
 {
-	static std::filesystem::path assetBasePath( R"(E:\@Devel\Assets\Meterials)" );  
-	//static constexpr char assetBasePath[] = R"(F:\Sviluppo\Materials\group14)";  
+	//static std::filesystem::path assetBasePath( R"(E:\@Devel\Assets\Meterials)" );  
+	static std::filesystem::path assetBasePath (R"(F:\Sviluppo\Materials\group14)" );  
 	struct texturetag  
 	{  
 		std::string           name;
@@ -64,12 +64,12 @@ void MainWindow::loadResources()
   
 	for( const auto& tex : texturesToLoad )  
 	{  
-		if( auto handle = resourceManager.registerTexture( tex.name,  tex.path ) )
+		if( auto handle = resourceManager.registerTexture( tex.name,  tex.path ); handle.isValid() )
 			std::cout << "Loaded texture: " << tex.name << std::endl;
 		else
 		{
 			std::cout << "Failed to load texture: " << tex.name << std::endl;
-			return;
+			return false;
 		}
 	}
 
@@ -351,11 +351,12 @@ void MainWindow::loadResources()
 			// Setup single light
 			_materialPBRInstance.set( "u_LightIntensity", 100.0f );
 			
-			std::cout << "PBR Shader compiled and linked successfully" << std::endl;
+			std::cout << "PBR Shader compiled and linked successfully" << std::endl;			
 		}
 		else
 		{
 			std::cout << "Failed to link PBR shader: " << linkResult.errorLog << std::endl;
+			return false;
 		}
 	}
 	else
@@ -364,6 +365,8 @@ void MainWindow::loadResources()
 			std::cout << "Failed to compile PBR vertex shader" << std::endl;
 		if( !fragPBR )
 			std::cout << "Failed to compile PBR fragment shader" << std::endl;
+
+		return false;
 	}
 
 	if( outVtx && outFrag )
@@ -393,9 +396,20 @@ void MainWindow::loadResources()
 		else
 		{
 			std::cout << "Failed to link Outline shader: " << linkResult.errorLog << std::endl;
+			return false;
 		}
 	}
+	else
+	{
+		if( !outVtx )
+			std::cout << "Failed to compile Outline vertex shader" << std::endl;
+		if( !outFrag )
+			std::cout << "Failed to compile Outline fragment shader" << std::endl;
 
+		return false;
+	}	
+
+	return true;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -467,9 +481,11 @@ void MainWindow::onInitializeEvent()
 	} );
 
 
-	// Note: we now capture MeshData3D at registration time to compute bounding boxes for thumbnails
-	loadResources();
-
+	if (!loadResources())
+	{
+		std::cerr << "Failed to load resources" << std::endl;
+		return;
+	}
 
 	auto& resources = _renderer->resources();
 
@@ -477,7 +493,7 @@ void MainWindow::onInitializeEvent()
 	{
 		auto mesh = s2::GeometryFactory3D::createCube( { 5.0, 0.0, 0.0 }, 2.0 );
 		auto handle = resources.registerMesh( "cube", mesh );
-		if( handle != s2::Renderer::ResourceInvalidID )
+		if( handle.isValid() )
 			_meshDataCache[handle] = std::move(mesh);
 	}
 
@@ -485,7 +501,7 @@ void MainWindow::onInitializeEvent()
 	{
 		auto mesh = s2::GeometryFactory3D::createTorus( 1.0, 0.5, 64, 16 );
 		auto handle = resources.registerMesh( "torus", mesh );
-		if( handle != s2::Renderer::ResourceInvalidID )
+		if( handle.isValid() )
 		{
 			resources.mesh( handle )->setColor( Color::red() );
 			_meshDataCache[handle] = std::move(mesh);
@@ -497,7 +513,7 @@ void MainWindow::onInitializeEvent()
 	{
 		auto mesh = s2::GeometryFactory3D::createCone( Math::dvec3( 2.5, 0.0, 0.0 ), Math::dvec3( 2.5, 0.0, 3.0 ), 1, true, 32 );
 		auto handle = resources.registerMesh( "cone", mesh );
-		if( handle != s2::Renderer::ResourceInvalidID )
+		if( handle.isValid() )
 		{
 			resources.mesh( handle )->setColor( Color::yellow() );
 			_meshDataCache[handle] = std::move(mesh);
@@ -508,7 +524,7 @@ void MainWindow::onInitializeEvent()
 	{
 		auto mesh = s2::GeometryFactory3D::createSphere( Math::dvec3( -2.5, 0.0, 0.0 ), 1.0, 32 );
 		auto handle = resources.registerMesh( "sphere", mesh );
-		if( handle != s2::Renderer::ResourceInvalidID )
+		if( handle.isValid() )
 		{
 			resources.mesh( handle )->setColor( Color::blue().lighter() );
 			_meshDataCache[handle] = std::move(mesh);
@@ -519,7 +535,7 @@ void MainWindow::onInitializeEvent()
 	{
 		auto mesh = s2::GeometryFactory3D::createCylinder( Math::dvec3( -5.0, 0.0, 0.0 ), Math::dvec3( -5.0, 0.0, 2.0 ), 1.0, true, true, 32 );
 		auto handle = resources.registerMesh( "cylinder", mesh );
-		if( handle != s2::Renderer::ResourceInvalidID )
+		if( handle.isValid() )
 		{
 			resources.mesh( handle )->setColor( Color::cyan() );
 			_meshDataCache[handle] = std::move(mesh);
@@ -530,7 +546,7 @@ void MainWindow::onInitializeEvent()
 	{
 		auto mesh = s2::GeometryFactory3D::createCapsule( Math::dvec3( -2.0, -3.0, 0.0 ), Math::dvec3( 2.0, -3.0, 3.0 ), 1.0, 32, 32 );
 		auto handle = resources.registerMesh( "capsule", mesh );
-		if( handle != s2::Renderer::ResourceInvalidID )
+		if( handle.isValid() )
 		{
 			resources.mesh( handle )->setColor( Color::magenta() );
 			_meshDataCache[handle] = std::move(mesh);
@@ -541,12 +557,12 @@ void MainWindow::onInitializeEvent()
 	// Note: these pickableIDs match the ones used in onDraw()
 	_pickableToHandle.clear();
 	_handleToName.clear();
-	auto h = resources.mesh( "cube" );       if( h != s2::Renderer::ResourceInvalidID ) { _pickableToHandle[1] = h; _handleToName[h] = "cube"; }
-	h = resources.mesh( "sphere" );          if( h != s2::Renderer::ResourceInvalidID ) { _pickableToHandle[2] = h; _handleToName[h] = "sphere"; }
-	h = resources.mesh( "torus" );           if( h != s2::Renderer::ResourceInvalidID ) { _pickableToHandle[3] = h; _handleToName[h] = "torus"; }
-	h = resources.mesh( "cone" );            if( h != s2::Renderer::ResourceInvalidID ) { _pickableToHandle[4] = h; _handleToName[h] = "cone"; }
-	h = resources.mesh( "cylinder" );        if( h != s2::Renderer::ResourceInvalidID ) { _pickableToHandle[5] = h; _handleToName[h] = "cylinder"; }
-	h = resources.mesh( "capsule" );         if( h != s2::Renderer::ResourceInvalidID ) { _pickableToHandle[6] = h; _handleToName[h] = "capsule"; }
+	auto h = resources.mesh( "cube" );       if( h.isValid() ) { _pickableToHandle[1] = h; _handleToName[h] = "cube"; }
+	h = resources.mesh( "sphere" );          if( h.isValid() ) { _pickableToHandle[2] = h; _handleToName[h] = "sphere"; }
+	h = resources.mesh( "torus" );           if( h.isValid() ) { _pickableToHandle[3] = h; _handleToName[h] = "torus"; }
+	h = resources.mesh( "cone" );            if( h.isValid() ) { _pickableToHandle[4] = h; _handleToName[h] = "cone"; }
+	h = resources.mesh( "cylinder" );        if( h.isValid() ) { _pickableToHandle[5] = h; _handleToName[h] = "cylinder"; }
+	h = resources.mesh( "capsule" );         if( h.isValid() ) { _pickableToHandle[6] = h; _handleToName[h] = "capsule"; }
 
 	_material.shader = resources.registerShader( "blinnPhong", s2::RenderCore::DefaultShaders.BlinnPhong );
 	_materialInstance = _material.createMaterial();
@@ -902,9 +918,9 @@ void MainWindow::onDraw()
 		_renderer->submit( { .clearColor = Color{ 0.3f, 0.4f, 0.5f, 1.0f } } );
 
 		// For each object: if selected -> draw outline pass first, then regular pass.
-		auto drawWithPossibleOutline = [&]( uint32_t pickableID, const s2::Renderer::Material& mat, const s2::Renderer::ResourceID meshHandle )
+		auto drawWithPossibleOutline = [&]( uint32_t pickableID, const s2::Renderer::Material& mat, s2::Renderer::MeshID meshHandle )
 		{
-			if( _hasSelection && pickableID == _selectedObjectID && _outlineMaterial.shader != s2::Renderer::ResourceInvalidID )
+			if( _hasSelection && pickableID == _selectedObjectID && _outlineMaterial.shader.isValid() )
 			{
 				// outline pass uses same mesh, outline material (we copy and set uniforms that may change)
 				//auto outlineMat = _outlineMaterial; // copy to modify per-draw uniforms if needed
@@ -930,17 +946,17 @@ void MainWindow::onDraw()
 		};
 
 		// cube
-		drawWithPossibleOutline( 1, _materialPBRInstance, resources.mesh( "cube" ) ? resources.mesh( "cube" ) : s2::Renderer::ResourceInvalidID );
+		drawWithPossibleOutline( 1, _materialPBRInstance, resources.mesh( "cube" ) );
 		// sphere
-		drawWithPossibleOutline( 2, _materialPBRInstance, resources.mesh( "sphere" ) ? resources.mesh( "sphere" ) : s2::Renderer::ResourceInvalidID );
+		drawWithPossibleOutline( 2, _materialPBRInstance, resources.mesh( "sphere" ) );
 		// torus
-		drawWithPossibleOutline( 3, _materialPBRInstance, resources.mesh( "torus" ) ? resources.mesh( "torus" ) : s2::Renderer::ResourceInvalidID );
+		drawWithPossibleOutline( 3, _materialPBRInstance, resources.mesh( "torus" ) );
 		// cone
-		drawWithPossibleOutline( 4, _materialPBRInstance, resources.mesh( "cone" ) ? resources.mesh( "cone" ) : s2::Renderer::ResourceInvalidID );
+		drawWithPossibleOutline( 4, _materialPBRInstance, resources.mesh( "cone" ) );
 		// cylinder
-		drawWithPossibleOutline( 5, _materialPBRInstance, resources.mesh( "cylinder" ) ? resources.mesh( "cylinder" ) : s2::Renderer::ResourceInvalidID );
+		drawWithPossibleOutline( 5, _materialPBRInstance, resources.mesh( "cylinder" ) );
 		// capsule
-		drawWithPossibleOutline( 6, _materialPBRInstance, resources.mesh( "capsule" ) ? resources.mesh( "capsule" ) : s2::Renderer::ResourceInvalidID );
+		drawWithPossibleOutline( 6, _materialPBRInstance, resources.mesh( "capsule" ) );
 
 	}
 	_renderer->execute();

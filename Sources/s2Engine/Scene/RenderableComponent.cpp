@@ -5,9 +5,8 @@
 using namespace s2::Scene;
 
 // ------------------------------------------------------------------------------------------------
-RenderableComponent::RenderableComponent( Renderer::ResourceID meshID, Renderer::ResourceID materialID )
+RenderableComponent::RenderableComponent( Renderer::MeshID meshID )
     : _meshID( meshID )
-    , _materialID( materialID )
 {
 }
 

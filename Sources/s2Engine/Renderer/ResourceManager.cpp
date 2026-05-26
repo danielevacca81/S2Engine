@@ -8,25 +8,25 @@ using namespace s2::Renderer;
 
 
 // ------------------------------------------------------------------------------------------------
-ResourceID ResourceManager::registerMesh( const std::string& name, const MeshData3D& mesh )
+MeshID ResourceManager::registerMesh( const std::string& name, const MeshData3D& mesh )
 {
     auto it = _nameToHandle.find( name );
     if( it != _nameToHandle.end() )
-        return it->second;
+        return MeshID{ it->second };
 
-    ResourceID handle = _nextHandle++;
+    uint64_t handle = _nextHandle++;
     _nameToHandle[name] = handle;
     _meshes[handle] = RenderCore::VertexData::New( mesh );
-    return handle;
+    return MeshID{ handle };
 }
 
 
 // ------------------------------------------------------------------------------------------------
-//ResourceID ResourceManager::registerMesh( const std::string& name, const MeshData2D& mesh )
+//MeshID ResourceManager::registerMesh( const std::string& name, const MeshData2D& mesh )
 //{
 //    auto it = _nameToHandle.find( name );
 //    if( it != _nameToHandle.end() )
-//        return it->second;
+//        return MeshID{ it->second };
 //
 //	auto vtx = RenderCore::VertexData::New();	
 //    vtx->setVertices     ( vector_cast<Math::dvec3,Math::vec2>( mesh.vertices ) );
@@ -34,49 +34,49 @@ ResourceID ResourceManager::registerMesh( const std::string& name, const MeshDat
 //	vtx->setTextureCoords( vector_cast<Math::dvec2,Math::vec2>( mesh.uvCoords ) );
 //    vtx->setIndices      ( mesh.indices );
 //
-//    ResourceID handle = _nextHandle++;
+//    uint64_t handle = _nextHandle++;
 //    _nameToHandle[name] = handle;
 //    _meshes[handle] = vtx;
 //}
 
 // ------------------------------------------------------------------------------------------------
-ResourceID ResourceManager::registerMesh( const std::string& name, const RenderCore::VertexDataPtr &mesh )
+MeshID ResourceManager::registerMesh( const std::string& name, const RenderCore::VertexDataPtr &mesh )
 {
     auto it = _nameToHandle.find( name );
     if( it != _nameToHandle.end() )
-        return it->second;
+        return MeshID{ it->second };
 
-    ResourceID handle = _nextHandle++;
+    uint64_t handle = _nextHandle++;
     _nameToHandle[name] = handle;
     _meshes[handle] = mesh;
-    return handle;
+    return MeshID{ handle };
 }
 
 // ------------------------------------------------------------------------------------------------
-ResourceID ResourceManager::registerTexture( const std::string& name, const RenderCore::Texture2DPtr& texture )
+TextureID ResourceManager::registerTexture( const std::string& name, const RenderCore::Texture2DPtr& texture )
 {
     auto it = _nameToHandle.find( name );
     if( it != _nameToHandle.end() )
-        return it->second;
+        return TextureID{ it->second };
     
-    ResourceID handle = _nextHandle++;
+    uint64_t handle = _nextHandle++;
     _nameToHandle[name] = handle;
     _textures[handle] = texture;
-	return handle;
+	return TextureID{ handle };
 }
 
 // ------------------------------------------------------------------------------------------------
-ResourceID ResourceManager::registerTexture( const std::string& name, const std::filesystem::path& filePath)
+TextureID ResourceManager::registerTexture( const std::string& name, const std::filesystem::path& filePath)
 {
     // Check if already loaded
     auto it = _nameToHandle.find( name );
     if( it != _nameToHandle.end() )
-        return it->second;
+        return TextureID{ it->second };
 
     // Load image from file
     auto imageData = Resources::ImageLoader::loadFromFile( filePath.string() );
     if( !imageData || imageData->pixmap.isEmpty() )
-        return ResourceInvalidID;
+        return TextureInvalidID;
 
     // Determine texture format based on channels
     RenderCore::TextureFormat format = RenderCore::TextureFormat::RedGreenBlueAlpha8;
@@ -99,56 +99,56 @@ ResourceID ResourceManager::registerTexture( const std::string& name, const std:
 }
 
 // ------------------------------------------------------------------------------------------------
-ResourceID ResourceManager::registerShader( const std::string& name, const RenderCore::ShaderPtr& shader )
+ShaderID ResourceManager::registerShader( const std::string& name, const RenderCore::ShaderPtr& shader )
 {
     auto it = _nameToHandle.find( name );
     if( it != _nameToHandle.end() )
-        return it->second;
+        return ShaderID{ it->second };
     
-    ResourceID handle = _nextHandle++;
+    uint64_t handle = _nextHandle++;
     _nameToHandle[name] = handle;
     _shaders[handle] = shader;
-	return handle;
+	return ShaderID{ handle };
 }
 
 // ------------------------------------------------------------------------------------------------
-RenderCore::VertexDataPtr ResourceManager::mesh( const ResourceID &handle ) const
+RenderCore::VertexDataPtr ResourceManager::mesh( MeshID id ) const
 {
-    auto it = _meshes.find( handle );
+    auto it = _meshes.find( id.handle );
     return ( it != _meshes.end() ) ? it->second : nullptr;
 }
 
 // ------------------------------------------------------------------------------------------------
-ResourceID ResourceManager::mesh( const std::string& name ) const
+MeshID ResourceManager::mesh( const std::string& name ) const
 {
 	auto it = _nameToHandle.find( name );
-	return it == _nameToHandle.end() ? ResourceInvalidID : it->second;
+	return it == _nameToHandle.end() ? MeshInvalidID : MeshID{ it->second };
 }
 
 // ------------------------------------------------------------------------------------------------
-RenderCore::Texture2DPtr ResourceManager::texture( const ResourceID& handle ) const
+RenderCore::Texture2DPtr ResourceManager::texture( TextureID id ) const
 {
-    auto it = _textures.find( handle );
+    auto it = _textures.find( id.handle );
 	return ( it != _textures.end() ) ? it->second : nullptr;
 }
 
 // ------------------------------------------------------------------------------------------------
-ResourceID ResourceManager::texture( const std::string &name ) const
+TextureID ResourceManager::texture( const std::string &name ) const
 {
     auto it = _nameToHandle.find( name );
-    return it == _nameToHandle.end() ? ResourceInvalidID : it->second;
+    return it == _nameToHandle.end() ? TextureInvalidID : TextureID{ it->second };
 }
 
 // ------------------------------------------------------------------------------------------------
-RenderCore::ShaderPtr ResourceManager::shader( const ResourceID& handle ) const
+RenderCore::ShaderPtr ResourceManager::shader( ShaderID id ) const
 {
-    auto it = _shaders.find( handle );
+    auto it = _shaders.find( id.handle );
 	return ( it != _shaders.end() ) ? it->second : nullptr;
 }
 
 // ------------------------------------------------------------------------------------------------
-ResourceID ResourceManager::shader( const std::string& name ) const
+ShaderID ResourceManager::shader( const std::string& name ) const
 {
     auto it = _nameToHandle.find( name );
-    return it == _nameToHandle.end() ? ResourceInvalidID : it->second;
+    return it == _nameToHandle.end() ? ShaderInvalidID : ShaderID{ it->second };
 }

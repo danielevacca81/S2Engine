@@ -89,16 +89,36 @@ void Material::apply( const ResourceManager& rm ) const
         return;
 	}
 
+	auto applyProperty = [&]( const std::string& id, const MaterialDefinition::Property& val )
+	{
+		if( auto* texID = std::get_if<TextureID>( &val ) )
+		{
+			// Texture property: resolve handle, ensure residency, set bindless handle
+			auto tex = rm.texture( *texID );
+			if( tex && tex->isValid() )
+			{
+				if( !tex->isResident() )
+					tex->makeResident();
+				shader->setUniform( id, tex->bindlessHandle() );
+			}
+		}
+		else
+		{
+			auto* uniform = shader->uniform( id );
+			if( uniform )
+				shader->setUniform( id, *convertProperty( val, uniform->value() ) );
+		}
+	};
+
 	// first apply properties from the material definition, then apply overrides from the instance
 	for( const auto& [id, val] : _definition->defaultProperties ) 
 	{
-		// If not in the override, apply
 		if( _overrides.find( id ) == _overrides.end() )
-			shader->setUniform( id , *convertProperty( val, shader->uniform( id )->value() ) );
+			applyProperty( id, val );
 	}
 	// then apply instance overrides
 	for( const auto& [id, val] : _overrides ) 
-		shader->setUniform( id , *convertProperty( val, shader->uniform( id )->value() ) );
+		applyProperty( id, val );
 }
 
 

@@ -41,7 +41,7 @@ static inline RenderCore::DrawState createDrawState( const RenderCommand& render
 static inline RenderCore::ShaderPtr getShader( const ResourceManager& resourceManager, const RenderCommand& renderCmd )
 {
     // Use material shader or fallback to default
-    if( renderCmd.material.definition().shader == ResourceInvalidID )
+    if( !renderCmd.material.definition().shader.isValid() )
         return RenderCore::DefaultShaders.Simple;
 
     auto shader = resourceManager.shader( renderCmd.material.definition().shader );

@@ -4,7 +4,7 @@
 
 #include "Math/Easing.h"
 
-#include "GameWindow.h"
+//#include "GameWindow.h"
 
 // ------------------------------------------------------------------------------------------------
 void MyApplication::updateState()
@@ -19,6 +19,6 @@ void MyApplication::updateState()
 													  Math::Easing::Mode::PingPong );
 	//scaleFactor = sizeInterpolator.valueAt( elapsedTime_ms() * 1e-3 );
 
-	static_cast<GameWindow*>(_windows[0].get())->update( (elapsedTime_ms() - startTime) * 1e-3f );
+	//static_cast<GameWindow*>(_windows[0].get())->update( (elapsedTime_ms() - startTime) * 1e-3f );
 
 }

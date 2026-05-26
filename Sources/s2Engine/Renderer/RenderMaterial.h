@@ -38,8 +38,8 @@ public:
 public:
     using PropertyID = std::string;
     using Property = std::variant<
-        bool, int, float, double, uint64_t,
-        Color,// ResourceID,
+        bool, int, float, double,
+        Color, TextureID,
         Math::fvec2, Math::fvec3, Math::fvec4,
         Math::dvec2, Math::dvec3, Math::dvec4,
         Math::fmat2, Math::fmat3, Math::fmat4,
@@ -47,7 +47,7 @@ public:
     >;
 
     RenderState state;
-    ResourceID  shader { ResourceInvalidID };
+    ShaderID    shader;
 
     std::unordered_map<PropertyID, Property> defaultProperties;
 };

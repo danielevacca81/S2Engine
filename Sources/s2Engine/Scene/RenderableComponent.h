@@ -19,13 +19,10 @@ class S2ENGINE_API RenderableComponent : public Component
 {
 public:
     RenderableComponent() = default;
-    RenderableComponent( Renderer::ResourceID meshID, Renderer::ResourceID materialID = Renderer::ResourceInvalidID );
+    RenderableComponent( Renderer::MeshID meshID );
 
-    void setMesh( Renderer::ResourceID meshID ) { _meshID = meshID; }
-    Renderer::ResourceID meshID() const { return _meshID; }
-
-    void setMaterial( Renderer::ResourceID materialID ) { _materialID = materialID; }
-    Renderer::ResourceID materialID() const { return _materialID; }
+    void setMesh( Renderer::MeshID meshID ) { _meshID = meshID; }
+    Renderer::MeshID meshID() const { return _meshID; }
 
     // Overrides default material properties
     void setMaterialProperty( const std::string& propertyName, const Renderer::MaterialDefinition::Property& value );
@@ -38,8 +35,7 @@ public:
     void setVisible( bool visible ) { _visible = visible; }
 
 private:
-    Renderer::ResourceID _meshID { Renderer::ResourceInvalidID };
-    Renderer::ResourceID _materialID { Renderer::ResourceInvalidID };
+    Renderer::MeshID _meshID;
     
     bool _visible = true;
     bool _castShadow = true;

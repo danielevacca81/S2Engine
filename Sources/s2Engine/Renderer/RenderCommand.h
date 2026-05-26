@@ -54,7 +54,7 @@ struct S2ENGINE_API RenderCommand
 {
 	RenderMode renderMode { RenderMode::Triangles };
 	Material   material;
-	ResourceID mesh { ResourceInvalidID };
+	MeshID     mesh;
 
 	uint32_t      pickableID { 0 }; // For GPU picking - 0 means non-pickable
 

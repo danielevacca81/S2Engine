@@ -43,7 +43,7 @@ public:
 	void onResizeEvent( uint32_t width, uint32_t height ) override;
 
 private:
-	void loadResources();
+	bool loadResources();
 	void renderThumbnailIfNeeded();
 	void drawImGui();
 
@@ -52,7 +52,7 @@ private:
 
 	s2::Renderer::RenderPasses _renderPasses;
 
-	s2::Renderer::ResourceID _cone     { s2::Renderer::ResourceInvalidID };
+	s2::Renderer::MeshID _cone;
 
 	s2::Renderer::MaterialDefinition _material;
 	s2::Renderer::MaterialDefinition _materialPBR;
@@ -89,11 +89,11 @@ private:
 	size_t _selectedVertexCount = 0;
 
 	// mappings: pickableID -> resource handle, handle -> name
-	std::unordered_map<uint32_t, s2::Renderer::ResourceID> _pickableToHandle;
-	std::unordered_map<s2::Renderer::ResourceID, std::string> _handleToName;
+	std::unordered_map<uint32_t, s2::Renderer::MeshID> _pickableToHandle;
+	std::unordered_map<s2::Renderer::MeshID, std::string> _handleToName;
 
 	// Cache original MeshData (used to compute bounding box for thumbnail framing)
-	std::unordered_map<s2::Renderer::ResourceID, s2::MeshData3D> _meshDataCache;
+	std::unordered_map<s2::Renderer::MeshID, s2::MeshData3D> _meshDataCache;
 
 	// Thumbnail / offscreen rendering
 	std::unique_ptr<s2::RenderCore::RenderTarget> _thumbnailTarget;
