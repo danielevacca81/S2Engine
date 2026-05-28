@@ -5,16 +5,15 @@
 
 -- SOLUTION
 workspace "s2Engine" 
-	location "../Build"
+	location "."
 	architecture "x64"
 	configurations { "Debug", "Release" }
 	startproject "s2Engine"
 	
-    -- solution variables
-	sourcedir  = "../Sources/s2Engine"
-	extlibsdir = "../ExtLibs"
-	outdir     = "../Build"
-	deploydir  = "../s2Engine"
+    -- Usa path assoluti per le variabili di percorso
+	sourcedir   = path.getabsolute("./s2Engine")
+	outdir      = path.getabsolute("./.build")
+	deploydir   = path.getabsolute("../s2Engine")
 	sysbuilddir  = "%{cfg.system}/%{cfg.buildcfg}"
     
     -- Common flags
@@ -59,8 +58,7 @@ project "s2Engine"
 	--vpaths { ["Core"] = {"Core/**.h","Core/**.hpp","Core/**.cpp"} }
 
 	-- list of files
-	files 
-	{
+	files {
 		"%{sourcedir}/**.h",
 		"%{sourcedir}/**.c",
 		"%{sourcedir}/**.hpp",
@@ -68,8 +66,7 @@ project "s2Engine"
 	}
 	
 	-- additional include directories
-	includedirs
-	{ 
+	includedirs { 
 		"%{sourcedir}/",
 	}
 	
@@ -79,6 +76,7 @@ project "s2Engine"
 	
     defines {
         "S2ENGINE_EXPORTS",
+		--"GLEW_STATIC"
     }
 	
 	postbuildcommands {
@@ -86,19 +84,24 @@ project "s2Engine"
 		("{MKDIR} %{deploydir}/include"),
 		("{COPYFILE} %{cfg.buildtarget.relpath} %{deploydir}/bin/%{sysbuilddir}"),
 		("{COPYFILE} %{cfg.linktarget.relpath} %{deploydir}/bin/%{sysbuilddir}"),
+		("{COPYFILE} %{cfg.targetdir}".."/*.*".." %{deploydir}/bin/%{sysbuilddir}"),
 		--
-		("{COPYFILE} %{sourcedir}/s2Engine_API.h %{deploydir}/include"),
-		("{COPYDIR} %{sourcedir}/Application/*.h*    %{deploydir}/include/Application"),
-		("{COPYDIR} %{sourcedir}/Core/*.h*           %{deploydir}/include/Core"),
-		("{COPYDIR} %{sourcedir}/Geometry/*.h*       %{deploydir}/include/Geometry"),
-		("{COPYDIR} %{sourcedir}/Graphics/*.h*       %{deploydir}/include/Graphics"),
-		("{COPYDIR} %{sourcedir}/Math/*.h*           %{deploydir}/include/Math"),
-		("{COPYDIR} %{sourcedir}/RenderCore/*.h*     %{deploydir}/include/RenderCore"),
-		("{COPYDIR} %{sourcedir}/Renderer/*.h*       %{deploydir}/include/Renderer"),
-		("{COPYDIR} %{sourcedir}/Resources/*.h*      %{deploydir}/include/Resources"),
-		("{COPYDIR} %{sourcedir}/Scene/*.h*          %{deploydir}/include/Scene"),
+		("{COPYFILE}  %{sourcedir}/s2Engine_API.h %{deploydir}/include"),
+		("{COPYDIR}   %{sourcedir}/Application/*.h*    %{deploydir}/include/Application"),
+		("{COPYDIR}   %{sourcedir}/Core/*.h*           %{deploydir}/include/Core"),
+		("{COPYDIR}   %{sourcedir}/Geometry/*.h*       %{deploydir}/include/Geometry"),
+		("{COPYDIR}   %{sourcedir}/Graphics/*.h*       %{deploydir}/include/Graphics"),
+		("{COPYDIR}   %{sourcedir}/Math/*.h*           %{deploydir}/include/Math"),
+		("{COPYDIR}   %{sourcedir}/RenderCore/*.h*     %{deploydir}/include/RenderCore"),
+		("{COPYDIR}   %{sourcedir}/Renderer/*.h*       %{deploydir}/include/Renderer"),
+		("{COPYDIR}   %{sourcedir}/Resources/*.h*      %{deploydir}/include/Resources"),
+		("{COPYDIR}   %{sourcedir}/Scene/*.h*          %{deploydir}/include/Scene"),
 	}
     
+
+	filter "system:windows"
+    	links { "gdi32", "user32", "shell32" }
+	filter {}
 	
 	-- -- specifc for windows
 	-- filter "system:windows"

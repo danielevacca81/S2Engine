@@ -237,6 +237,7 @@ function m.generate_launch(wks)
 end
 
 function m.c_cpp_properties(wks)
+	p.utf8()
 	_p('{')
 	_p(1, '"configurations": [')
 
@@ -252,11 +253,12 @@ function m.c_cpp_properties(wks)
 				else
 					_p(1, ',{')
 				end
-				_p(2, '"name": "%s %s",', prj.name, cfg.name)
+				_p(2, '"name": "%s (%s)",', prj.name, cfg.buildcfg)
 				_p(2, '"includePath": [')
 				_p(3, '"${workspaceFolder}/**"')
 				for _, includedir in ipairs(cfg.includedirs) do
-					_p(3, ',"%s"', includedir)
+					local reldir = path.getrelative(wks.location, includedir)
+					_p(3, ',"${workspaceFolder}/%s"', reldir)
 				end
 				_p(2, '],')
 				_p(2, '"defines": [')
@@ -267,20 +269,20 @@ function m.c_cpp_properties(wks)
 					end
 				end
 				_p(2, '],')
-				_p(2, '"compilerPath": "/usr/bin/g++",') --TODO premake toolset
+				if cfg.system == p.WINDOWS then
+					_p(2, '"compilerPath": "cl.exe",')
+					_p(2, '"intelliSenseMode": "windows-msvc-x64",')
+				else
+					_p(2, '"compilerPath": "/usr/bin/g++",')
+					_p(2, '"intelliSenseMode": "linux-gcc-x64",')
+				end
 				if cfg.cdialect ~= nil then
 					_p(2, '"cStandard": "%s",', cfg.cdialect:lower())
 				end
 				if cfg.cppdialect ~= nil then
 					_p(2, '"cppStandard": "%s",', cfg.cppdialect:lower())
 				end
-				_p(2, '"intelliSenseMode": "gcc-x64",') --TODO premake toolset
-				_p(2, '"compilerArgs": [')
-				-- force includes
-				local toolset = m.getcompiler(cfg)
-				local forceincludes = toolset.getforceincludes(cfg)
-				_p(3, '"' .. table.concat(forceincludes, ";") .. '"')
-				_p(2, ']')
+				_p(2, '"configurationProvider": "ms-vscode.cmake-tools"')
 				_p(1, '}')
 			end
 		end,
