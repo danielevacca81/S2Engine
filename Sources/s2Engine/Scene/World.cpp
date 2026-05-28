@@ -76,6 +76,7 @@ std::shared_ptr<Entity> World::findEntity( const std::string& name ) const
     return nullptr;
 }
 
+// ------------------------------------------------------------------------------------------------
 void World::update( double deltaTime )
 {
     // Update all active entities

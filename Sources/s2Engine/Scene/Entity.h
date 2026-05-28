@@ -41,7 +41,7 @@ public:
         static_assert( std::is_base_of_v<Component, T>, "T must derive from Component" );
 
         // Check if component already exists
-        auto existing = getComponent<T>();
+        auto existing = component<T>();
         if( existing ) return existing;
 
         auto component = std::make_shared<T>( std::forward<Args>( args )... );

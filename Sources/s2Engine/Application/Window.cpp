@@ -208,7 +208,6 @@ Window::~Window()
 {
     stopRenderThread();
     
-	_renderer.reset();
     _ui.reset();
     _impl.reset();
 }
@@ -249,6 +248,7 @@ void Window::stopRenderThread()
     {
         onShutdownEvent();
 
+       	_renderer.reset();
         _mainRenderTarget.reset();
         _renderingContext.reset();
 

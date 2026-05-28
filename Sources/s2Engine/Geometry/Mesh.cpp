@@ -177,7 +177,7 @@ void Mesh::computePerVertexNormals()
 			if( _faces[j].v2 == i ) n+= _faces[j].normal;
 		}
 
-		_vtx[i].normal = glm::normalize( n+vec3(1.e-9) );
+		_vtx[i].normal = Math::normalize( n+fvec3( Math::epsilon<float>() ) );
 	}
 
 	_attributes[ Attribute::Normals ] = true;
