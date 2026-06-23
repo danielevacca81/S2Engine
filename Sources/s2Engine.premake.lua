@@ -46,7 +46,7 @@ workspace "s2Engine"
 -- Main Engine Project
 project "s2Engine"
 	kind "SharedLib"
-	location "../Build"	
+	location ("%{outdir}")
 	language "C++"
 	cppdialect "C++20"
 	

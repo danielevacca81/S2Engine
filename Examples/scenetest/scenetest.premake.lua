@@ -9,6 +9,8 @@ workspace "SceneTest"
     configurations { "Debug", "Release" }
     startproject "SceneTest"
 
+    outdir      = path.getabsolute("./.build")
+
     -- Common flags
     flags {
         "MultiProcessorCompile"
@@ -41,8 +43,8 @@ project "SceneTest"
     language "C++"
     cppdialect "C++20"
 
-    targetdir ( "bin/%{cfg.system}/%{cfg.buildcfg}" )
-    objdir    ( "tmp/%{cfg.system}/%{cfg.buildcfg}" )
+	targetdir ( "%{outdir}/bin/%{sysbuilddir}" ) -- i.e. bin/windows/release
+	objdir    ( "%{outdir}/tmp/%{sysbuilddir}" )	
 
     -- Source files
     files

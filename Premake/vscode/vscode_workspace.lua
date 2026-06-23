@@ -122,7 +122,6 @@ function m.generate_tasks(wks)
                 end
 
                 if cfg.system == p.WINDOWS then
-                    local msbuild_cmd = "$msbuild = & 'C:\\\\Program Files (x86)\\\\Microsoft Visual Studio\\\\Installer\\\\vswhere.exe' -latest -requires Microsoft.Component.MSBuild -find 'MSBuild\\\\**\\\\Bin\\\\MSBuild.exe' | Select-Object -First 1; & $msbuild '${workspaceFolder}\\\\" .. wks.name .. ".sln' /p:Configuration=" .. cfg.buildcfg .. " /p:Platform=x64 /m /nologo"
                     _p(2, '"label": "Build %s (%s)",', prj.name, cfg.buildcfg)
                     _p(2, '"type": "process",')
                     _p(2, '"command": "powershell.exe",')
@@ -130,20 +129,20 @@ function m.generate_tasks(wks)
                         _p(3, '"-NoProfile",')
                         _p(3, '"-ExecutionPolicy", "Bypass",')
                         _p(3, '"-Command",')
-                        _p(3, '"%s"', msbuild_cmd)
+                        _p(3, '"& \'C:\\\\Program Files (x86)\\\\Microsoft Visual Studio\\\\2022\\\\BuildTools\\\\MSBuild\\\\Current\\\\Bin\\\\MSBuild.exe\' \'${workspaceFolder}\\\\%s.sln\' /p:Configuration=%s /p:Platform=x64 /m /nologo"', wks.name, cfg.buildcfg)
                     _p(2, '],')
-                    _p(2, '"group": "build",')
+                    _p(2, '"group": { "kind": "build", "isDefault": true },')
                     _p(2, '"problemMatcher": "$msCompile",')
                     _p(2, '"presentation": { "reveal": "always", "panel": "shared" }')
                 else
                     _p(2, '"label": "Build %s (%s)",', prj.name, cfg.buildcfg)
                     _p(2, '"type": "shell",')
                     if os.isfile(prj.location .. '/build.ninja') then
-                        _p(2, '"command": "clear && time ninja",')
+                        _p(2, '"command": "ninja",')
                     else
-                        _p(2, '"command": "clear && time make %s config=%s -r -j$(nproc)",', prj.name, cfg.buildcfg:lower())
+                        _p(2, '"command": "make",')
                     end
-                    _p(2, '"args": [],')
+                    _p(2, '"args": ["%s", "config=%s"],', prj.name, cfg.buildcfg:lower())
                     _p(2, '"group": "build",')
                     _p(2, '"problemMatcher": "$gcc",')
                     _p(2, '"presentation": { "reveal": "always", "panel": "shared" }')
@@ -151,23 +150,20 @@ function m.generate_tasks(wks)
                 _p(1, '}')
             end
 
-            -- Clean task (Windows)
-            if prj.system == p.WINDOWS or os.target() == "windows" then
-                _p(1, ',{')
-                local clean_cmd = "$msbuild = & 'C:\\\\Program Files (x86)\\\\Microsoft Visual Studio\\\\Installer\\\\vswhere.exe' -latest -requires Microsoft.Component.MSBuild -find 'MSBuild\\\\**\\\\Bin\\\\MSBuild.exe' | Select-Object -First 1; & $msbuild '${workspaceFolder}\\\\" .. wks.name .. ".sln' /t:Clean /p:Platform=x64 /m /nologo"
-                _p(2, '"label": "Clean %s",', prj.name)
-                _p(2, '"type": "process",')
-                _p(2, '"command": "powershell.exe",')
-                _p(2, '"args": [')
-                    _p(3, '"-NoProfile",')
-                    _p(3, '"-ExecutionPolicy", "Bypass",')
-                    _p(3, '"-Command",')
-                    _p(3, '"%s"', clean_cmd)
-                _p(2, '],')
-                _p(2, '"problemMatcher": "$msCompile",')
-                _p(2, '"presentation": { "reveal": "always", "panel": "shared" }')
-                _p(1, '}')
-            end
+            -- Clean task
+            _p(1, ',{')
+            _p(2, '"label": "Clean %s",', prj.name)
+            _p(2, '"type": "process",')
+            _p(2, '"command": "powershell.exe",')
+            _p(2, '"args": [')
+                _p(3, '"-NoProfile",')
+                _p(3, '"-ExecutionPolicy", "Bypass",')
+                _p(3, '"-Command",')
+				_p(3, '"& \'C:\\\\Program Files (x86)\\\\Microsoft Visual Studio\\\\2022\\\\BuildTools\\\\MSBuild\\\\Current\\\\Bin\\\\MSBuild.exe\' \'${workspaceFolder}\\\\%s.sln\' /t:Clean /p:Platform=x64 /m /nologo"', wks.name)
+            _p(2, '],')
+            _p(2, '"problemMatcher": "$msCompile",')
+            _p(2, '"presentation": { "reveal": "always", "panel": "shared" }')
+            _p(1, '}')
         end,
     })
     _p(1, ']')
