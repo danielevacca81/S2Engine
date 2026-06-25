@@ -3,18 +3,26 @@
 --     vs2022
 --     gmake2 --os=linux
 
+-- 1. Determina il triplet di vcpkg in base al sistema operativo host
+local vcpkg_triplet = "x64-windows"
+if os.host() == "linux" then
+    vcpkg_triplet = "x64-linux"
+end
+local vcpkg_dir = path.getabsolute("./vcpkg_installed/" .. vcpkg_triplet)
+
+
 -- SOLUTION
 workspace "s2Engine" 
-	location "."
-	architecture "x64"
-	configurations { "Debug", "Release" }
-	startproject "s2Engine"
-	
+    location "."
+    architecture "x64"
+    configurations { "Debug", "Release" }
+    startproject "s2Engine"
+    
     -- Usa path assoluti per le variabili di percorso
-	sourcedir   = path.getabsolute("./s2Engine")
-	outdir      = path.getabsolute("./.build")
-	deploydir   = path.getabsolute("../s2Engine")
-	sysbuilddir  = "%{cfg.system}/%{cfg.buildcfg}"
+    sourcedir   = path.getabsolute("./s2Engine")
+    outdir      = path.getabsolute("./.build")
+    deploydir   = path.getabsolute("../s2Engine")
+    sysbuilddir  = "%{cfg.system}/%{cfg.buildcfg}"
     
     -- Common flags
     flags {
@@ -45,107 +53,81 @@ workspace "s2Engine"
 
 -- Main Engine Project
 project "s2Engine"
-	kind "SharedLib"
-	location ("%{outdir}")
-	language "C++"
-	cppdialect "C++20"
-	
-	
-	targetdir ( "%{outdir}/bin/%{sysbuilddir}" ) -- i.e. bin/windows/release
-	objdir    ( "%{outdir}/tmp/%{sysbuilddir}" )	
-		
-    -- IDE Grouping @todo
-	--vpaths { ["Core"] = {"Core/**.h","Core/**.hpp","Core/**.cpp"} }
+    kind "SharedLib"
+    location ("%{outdir}")
+    language "C++"
+    cppdialect "C++20"
+    
+    targetdir ( "%{outdir}/bin/%{sysbuilddir}" ) -- i.e. bin/windows/release
+    objdir    ( "%{outdir}/tmp/%{sysbuilddir}" )    
 
-	-- list of files
-	files {
-		"%{sourcedir}/**.h",
-		"%{sourcedir}/**.c",
-		"%{sourcedir}/**.hpp",
-		"%{sourcedir}/**.cpp",
-	}
-	
-	-- additional include directories
-	includedirs { 
-		"%{sourcedir}/",
-	}
-	
-    links {
-        "opengl32"
+    -- list of files
+    files {
+        "%{sourcedir}/**.h",
+        "%{sourcedir}/**.c",
+        "%{sourcedir}/**.hpp",
+        "%{sourcedir}/**.cpp",
+        "%{sourcedir}/**.inl",
     }
-	
+    
+    -- additional include directories
+    includedirs { 
+        vcpkg_dir .. "/include",
+        "%{sourcedir}/",
+    }
+
+    libdirs {
+        vcpkg_dir .. "/lib"
+    }
+    
+    -- Librerie comuni a tutti i sistemi
+    links {
+        "glfw3"
+    }
+    
     defines {
         "S2ENGINE_EXPORTS",
-		--"GLEW_STATIC"
+        --"GLEW_STATIC"
     }
-	
-	postbuildcommands {
-	    ("{MKDIR} %{deploydir}/bin/%{sysbuilddir}"),
-		("{MKDIR} %{deploydir}/include"),
-		("{COPYFILE} %{cfg.buildtarget.relpath} %{deploydir}/bin/%{sysbuilddir}"),
-		("{COPYFILE} %{cfg.linktarget.relpath} %{deploydir}/bin/%{sysbuilddir}"),
-		("{COPYFILE} %{cfg.targetdir}".."/*.*".." %{deploydir}/bin/%{sysbuilddir}"),
-		--
-		("{COPYFILE}  %{sourcedir}/s2Engine_API.h %{deploydir}/include"),
-		("{COPYDIR}   %{sourcedir}/Application/*.h*    %{deploydir}/include/Application"),
-		("{COPYDIR}   %{sourcedir}/Core/*.h*           %{deploydir}/include/Core"),
-		("{COPYDIR}   %{sourcedir}/Geometry/*.h*       %{deploydir}/include/Geometry"),
-		("{COPYDIR}   %{sourcedir}/Graphics/*.h*       %{deploydir}/include/Graphics"),
-		("{COPYDIR}   %{sourcedir}/Math/*.h*           %{deploydir}/include/Math"),
-		("{COPYDIR}   %{sourcedir}/RenderCore/*.h*     %{deploydir}/include/RenderCore"),
-		("{COPYDIR}   %{sourcedir}/Renderer/*.h*       %{deploydir}/include/Renderer"),
-		("{COPYDIR}   %{sourcedir}/Resources/*.h*      %{deploydir}/include/Resources"),
-		("{COPYDIR}   %{sourcedir}/Scene/*.h*          %{deploydir}/include/Scene"),
-	}
     
+    postbuildcommands {
+        ("{MKDIR}     %{deploydir}/bin/%{sysbuilddir}"),
+        ("{MKDIR}     %{deploydir}/include"),
+        ("{MKDIR}     %{deploydir}/include/Application"),
+        ("{MKDIR}     %{deploydir}/include/Core"),
+        ("{MKDIR}     %{deploydir}/include/Geometry"),
+        ("{MKDIR}     %{deploydir}/include/Graphics"),
+        ("{MKDIR}     %{deploydir}/include/Math"),
+        ("{MKDIR}     %{deploydir}/include/RenderCore"),
+        ("{MKDIR}     %{deploydir}/include/Renderer"),
+        ("{MKDIR}     %{deploydir}/include/Resources"),
+        ("{MKDIR}     %{deploydir}/include/Scene"),
 
-	filter "system:windows"
-    	links { "gdi32", "user32", "shell32" }
-	filter {}
-	
-	-- -- specifc for windows
-	-- filter "system:windows"
-	  -- --staticruntime "On"
-	  -- systemversion "latest"
-	  -- defines { "S2ENGINE_EXPORTS" }
-	  
-	-- filter "configurations:Debug"
-	  -- --defines { "_DEBUG" }
-	  -- symbols "On"
-
-	-- filter "configurations:Release"
-	  -- defines { "NDEBUG" }
-	  -- optimize "On"
-	  -- symbols "On"	  
-	
-	-- filter{} -- close filters
-
-
-	-- postbuildcommands 
-	-- {
-		-- ("{MKDIR} %{deploydir}/bin"),
-		-- ("{MKDIR} %{deploydir}/include"),
-		-- ("{COPYFILE} %{cfg.buildtarget.relpath} %{deploydir}/%{cfg.buildtarget.directory}"), -- copy .dll
-		-- ("{COPYFILE} %{cfg.buildtarget.relpath} %{deploydir}/%{cfg.buildtarget.directory}"), -- copy .dll
-		-- ("{COPYFILE} %{cfg.longname} %{deploydir}/%{cfg.linktarget.relpath}"),   -- copy .lib
-	-- }
-	
-
-	-- filter { "system:windows","configurations:Release"}
-		-- --buildoptions "/MD"
-		-- copySDK( "x64", "Release", "dll", "%{pkgBinDir}")
-		-- copySDK( "x64", "Release", "lib", "%{pkgBinDir}")
-		
-		
-	-- filter { "system:windows","configurations:Debug"}
-		-- --buildoptions "/MDd"
-		-- copySDK( "x64", "Debug", "dll", "%{pkgBinDir}")
-		-- copySDK( "x64", "Debug", "lib", "%{pkgBinDir}")
-	
-	-- filter { "system:linux","configurations:Release"}		
-		-- copySDK( "Linux64", "Release", "so", "%{pkgBinDir}")
-		
-	-- filter { "system:linux","configurations:Debug"}		
-		-- copySDK( "Linux64", "Debug", "so", "%{pkgBinDir}")		
-   
-   --filter{} -- close filters   
+        ("{COPYFILE}  %{cfg.buildtarget.relpath} %{deploydir}/bin/%{sysbuilddir}"),
+        ("{COPYFILE}  %{cfg.linktarget.relpath} %{deploydir}/bin/%{sysbuilddir}"),
+		--("{COPYFILE} %{cfg.targetdir}".."/*.*".." %{deploydir}/bin/%{sysbuilddir}"),
+        --
+        ("{COPYFILE}  %{sourcedir}/s2Engine_API.h   %{deploydir}/include"),
+        ("{COPYFILE}  %{sourcedir}/Application/*.h* %{deploydir}/include/Application"),
+        ("{COPYFILE}  %{sourcedir}/Core/*.h*        %{deploydir}/include/Core"),
+        ("{COPYFILE}  %{sourcedir}/Geometry/*.h*    %{deploydir}/include/Geometry"),
+        ("{COPYFILE}  %{sourcedir}/Graphics/*.h*    %{deploydir}/include/Graphics"),
+        ("{COPYFILE}  %{sourcedir}/Math/*.h*        %{deploydir}/include/Math"),
+        ("{COPYFILE}  %{sourcedir}/RenderCore/*.h*  %{deploydir}/include/RenderCore"),
+        ("{COPYFILE}  %{sourcedir}/Renderer/*.h*    %{deploydir}/include/Renderer"),
+        ("{COPYFILE}  %{sourcedir}/Resources/*.h*   %{deploydir}/include/Resources"),
+        ("{COPYFILE}  %{sourcedir}/Scene/*.h*       %{deploydir}/include/Scene"),
+    }
+    
+    filter "system:windows"
+        links { "opengl32", "gdi32", "user32", "shell32" }
+        
+    filter "system:linux"
+        links { 
+            "GL",       -- same as opengl32
+            "pthread",  -- Threading
+            "dl",       -- Dynamic loading
+            "m"         -- Math library base di Linux
+        }
+        
+    filter {} -- Reset filters

@@ -1,0 +1,31 @@
+{
+  "dependencies": [
+    {
+      "name": "glm"
+    },
+    {
+      "name": "entt"
+    },
+    {
+      "name": "imgui",
+      "features": [
+        "glfw-binding"
+      ]
+    },
+    {
+      "name": "glew"
+    },
+    {
+      "name": "stb"
+    },
+    {
+      "name": "palsigslot"
+    },
+    {
+      "name": "glfw3",
+      "features": [
+        "wayland"
+      ]
+    }
+  ]
+}
