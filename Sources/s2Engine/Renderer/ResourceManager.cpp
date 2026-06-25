@@ -4,8 +4,8 @@
 
 #include "Resources/ImageLoader.h"
 
+using namespace s2;
 using namespace s2::Renderer;
-
 
 // ------------------------------------------------------------------------------------------------
 MeshID ResourceManager::registerMesh( const std::string& name, const MeshData3D& mesh )

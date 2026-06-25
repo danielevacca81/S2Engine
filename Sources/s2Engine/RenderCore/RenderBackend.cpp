@@ -11,7 +11,9 @@
 
 #include <cassert>
 
+using namespace s2;
 using namespace s2::RenderCore;
+
 
 #pragma region HelperFunctions
 static inline void executeDrawCall( const PrimitiveType& primitive, const VertexArrayPtr& va )

@@ -13,6 +13,8 @@
 namespace s2 {
 namespace RenderCore {
 
+class RenderBackend;
+
 class S2ENGINE_API Context
 {
 public:

@@ -8,6 +8,8 @@
 
 #if defined(_WIN32) || defined(_WIN64)
 #include <windows.h>
+#else
+#include <GL/glx.h>
 #endif
 
 #include <map>
@@ -25,7 +27,7 @@ Context *Context::current()
 #if defined(_WIN32) || defined(_WIN64)
 	uint64_t handle = (uint64_t) wglGetCurrentContext();
 #else
-	uint32_t handle = glXGetCurrentContext();
+	uint64_t handle = (uint64_t) glXGetCurrentContext();
 #endif
 	if( handle == 0x0 )
 		return nullptr;
@@ -44,7 +46,7 @@ Context::Context()
 #if defined(_WIN32) || defined(_WIN64)
 	_nativeHandle = (uint64_t) wglGetCurrentContext();
 #else
-	_nativeHandle = glXGetCurrentContext();
+	_nativeHandle = (uint64_t) glXGetCurrentContext();
 #endif
 	if( !glewInit() == GLEW_OK )
 		throw std::runtime_error( "GLEW initialization failed!" );

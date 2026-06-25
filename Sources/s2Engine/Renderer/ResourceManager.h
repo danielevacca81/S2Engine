@@ -15,6 +15,8 @@
 #include <unordered_map>
 #include <string>
 #include <filesystem>
+#include <atomic>
+#include <cstdint>
 
 
 namespace s2 {

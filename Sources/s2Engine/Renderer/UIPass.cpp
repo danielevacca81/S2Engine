@@ -350,7 +350,7 @@ void UIPass::execute( const RenderBackend& rendererBackend,
             // ImGui stores textures in an opaque ImTextureID type.
             // Our integration uses it to store OpenGL bindles texture handles.
 			// Be sure to make the shader's sampler uniform resident and set it to the correct handle value before drawing.
-			auto bindlessHandle = static_cast<uint64_t>( pcmd.TextureId );
+			auto bindlessHandle = static_cast<uint64_t>( pcmd.GetTexID() );
             if( bindlessHandle != 0 ) // resource ID
                 _shader->setUniform( "u_CurrTextureHandle" , bindlessHandle );
 

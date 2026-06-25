@@ -56,7 +56,7 @@ namespace glm {
 
 	// -----------------------------------------------------------------------------------------------
 	template < typename T, precision P >
-	GLM_FUNC_QUALIFIER typename tvec2<T, P>::value_type
+	GLM_FUNC_QUALIFIER tvec2<T, P>::value_type
 	angleBetween_rad( const tvec2<T, P>& d, const tvec2<T, P>& u )
 	{
 		typename tvec2<T, P>::value_type angle = atan2( u.y, u.x ) - atan2( d.y, d.x );
@@ -65,7 +65,7 @@ namespace glm {
 
 	// -----------------------------------------------------------------------------------------------
 	template < typename T, precision P >
-	GLM_FUNC_QUALIFIER typename tvec3<T, P>::value_type
+	GLM_FUNC_QUALIFIER tvec3<T, P>::value_type
 	angleBetween_rad( const tvec3<T, P>& d, const tvec3<T, P>& u )
 	{
 		typename tvec3<T, P>::value_type angle = atan2( u.y, u.x ) - atan2( d.y, d.x );

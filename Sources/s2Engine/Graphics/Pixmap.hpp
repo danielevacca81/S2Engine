@@ -10,7 +10,7 @@
 #include <limits>   // std::numeric_limits
 #include <algorithm> // std::swap
 
-using namespace s2;
+namespace s2{
 
 // ------------------------------------------------------------------------------------------------
 template<typename T>
@@ -154,4 +154,6 @@ bool Pixmap<T>::dump( const std::string& tgaFilename ) const
 					static_cast<uint16_t>( _numCh ),
 					static_cast<uint16_t>( _w ),
 					static_cast<uint16_t>( _h ) );
+}
+
 }

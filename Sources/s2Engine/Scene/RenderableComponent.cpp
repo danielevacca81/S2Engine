@@ -2,6 +2,7 @@
 //
 #include "RenderableComponent.h"
 
+using namespace s2;
 using namespace s2::Scene;
 
 // ------------------------------------------------------------------------------------------------

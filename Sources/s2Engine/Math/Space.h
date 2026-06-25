@@ -10,7 +10,7 @@
 namespace glm 
 {
 	template<typename T, precision P>
-	GLM_FUNC_QUALIFIER typename tmat3x3<T, P>
+	GLM_FUNC_QUALIFIER tmat3x3<T, P>
 	localFrame( const tvec3<T,P> &dir  )
 	{
 		// compute best candidate direction orthogonal to dir

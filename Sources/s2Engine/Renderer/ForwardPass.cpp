@@ -14,6 +14,7 @@
 
 #include <cassert>
 
+using namespace s2;
 using namespace s2::Renderer;
 
 #pragma region HelperFunctions

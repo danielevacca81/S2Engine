@@ -11,6 +11,7 @@
 #include <cassert>
 #include <algorithm>
 
+using namespace s2;
 using namespace s2::RenderCore;
 
 // ------------------------------------------------------------------------------------------------

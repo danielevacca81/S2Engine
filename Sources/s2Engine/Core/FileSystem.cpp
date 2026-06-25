@@ -363,32 +363,28 @@ Path standardLocation( const LocationType& type )
 		CoTaskMemFree( pszPath );
 	}
 #else
-	//LINUX
-	auto fGetEnv = [] ( char* varName ) {
-		char* value = nullptr;
-		if( varName != nullptr )
-		{
-			value = getenv( varName );
-		}
-		if( !value ) value = "";
+	auto getEnv = [] ( const std::string &varName ) 
+	{
+		if( varName.empty() )
+			return std::string{};
+		
+		auto value = getenv( varName.c_str() );
+		
+		if( !value ) 
+			return std::string{};
 		return std::string( value );
-	);
+	};
 
-
-
-	COMPILER_MESSAGE( "Gestire il nome delle cartelle in base alla localizzazione del sistema operatovo. Si puo' fare con getenv(LANGUAGE)" );
 	switch( type )
 	{
-	case LocationType::Desktop:   _dir = toStdWString( fGetEnv( "HOME" ) ) + L"/Desktop"; break;
-	case LocationType::Documents: _dir = toStdWString( fGetEnv( "HOME" ) ) + L"/Documents"; break;
-	case LocationType::Fonts:     _dir = toStdWString( fGetEnv( "HOME" ) ) + L"/.fonts"; break;
-
-		//From QT: <APPNAME> is usually the organization name, the application name, or both, or a unique name generated at packaging
-	case LocationType::AppData:   _dir = toStdWString( fGetEnv( "HOME" ) ) + L"/.local/share/applications";
-	case LocationType::Pictures:  _dir = toStdWString( fGetEnv( "HOME" ) ) + L"/Pictures";
-	case LocationType::Temp:      _dir = L"/tmp"; break;
-	case LocationType::Downloads: _dir = toStdWString( fGetEnv( "HOME" ) ) + L"/Downloads"; break;
-	case LocationType::Home:      _dir = toStdWString( fGetEnv( "HOME" ) );
+	case LocationType::Desktop:   _dir = std::filesystem::path( getEnv( "HOME" ) ) / "Desktop";   break;
+	case LocationType::Documents: _dir = std::filesystem::path( getEnv( "HOME" ) ) / "Documents"; break;
+	case LocationType::Fonts:     _dir = std::filesystem::path( getEnv( "HOME" ) ) / ".fonts";    break;
+	case LocationType::AppData:   _dir = std::filesystem::path( getEnv( "HOME" ) ) / ".local/share/applications";
+	case LocationType::Pictures:  _dir = std::filesystem::path( getEnv( "HOME" ) ) / "Pictures";
+	case LocationType::Temp:      _dir = std::filesystem::path( "/tmp" ); break;
+	case LocationType::Downloads: _dir = std::filesystem::path( getEnv( "HOME" ) ) / "Downloads"; break;
+	case LocationType::Home:      _dir = std::filesystem::path( getEnv( "HOME" ) );
 	}
 #endif
 	return _dir;
@@ -397,7 +393,6 @@ Path standardLocation( const LocationType& type )
 // ------------------------------------------------------------------------------------------------
 Path exeLocation()
 {
-
 #if defined(_WIN32) || defined(_WIN64)
 	wchar_t tmpPath[MAX_PATH];
 	const DWORD bytes = GetModuleFileNameW( nullptr, tmpPath, MAX_PATH );
@@ -407,24 +402,32 @@ Path exeLocation()
 	Path p( tmpPath );
 	return p.parent_path();
 #else
-	//LINUX
-	char path[PATH_MAX];
-	char dest[PATH_MAX];
-	memset( dest, 0, sizeof( dest ) ); // readlink does not null terminate!
-	pid_t pid = getpid();
+    std::error_code ec;    
+    std::filesystem::path exe_path = std::filesystem::read_symlink("/proc/self/exe", ec);
 
-	const int written = snprintf( path, PATH_MAX, "/proc/%d/exe", pid );
-	if( written < 0 || written >= PATH_MAX )
-		return {};
+    return ec 
+		? std::filesystem::path{}
+		: exe_path.parent_path();
 
-	const ssize_t len = readlink( path, dest, PATH_MAX - 1 );
-	if( len == -1 )
-		return {};
 
-	dest[len] = '\0';
+	// //LINUX
+	// char path[PATH_MAX];
+	// char dest[PATH_MAX];
+	// memset( dest, 0, sizeof( dest ) ); // readlink does not null terminate!
+	// pid_t pid = getpid();
 
-	return makepath( toStdWString( std::string( dest ) ) )
-		.parent_path();
+	// const int written = snprintf( path, PATH_MAX, "/proc/%d/exe", pid );
+	// if( written < 0 || written >= PATH_MAX )
+	// 	return {};
+
+	// const ssize_t len = readlink( path, dest, PATH_MAX - 1 );
+	// if( len == -1 )
+	// 	return {};
+
+	// dest[len] = '\0';
+
+	// return makepath( toStdWString( std::string( dest ) ) )
+	// 	.parent_path();
 #endif
 }
 

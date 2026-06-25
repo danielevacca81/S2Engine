@@ -32,6 +32,7 @@ documentation and/or software.
 
 /* system implementation headers */
 #include <cstdint>
+#include <cstring>
 #include <string>
 
 
