@@ -1,0 +1,13 @@
+{
+    "dependencies":[
+        "glm","palsigslot",
+    {
+      "name": "imgui",
+      "features": [
+        "glfw-binding"
+      ]
+    }
+    ]
+
+    
+}

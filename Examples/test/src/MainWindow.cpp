@@ -16,6 +16,8 @@
 #include "Renderer/ForwardPass.h"
 #include "Renderer/UIPass.h"
 
+#include "Core/Log.h"
+
 
 #include "Geometry/GeometryFactory3D.h"
 
@@ -42,7 +44,11 @@
 bool MainWindow::loadResources()
 {
 	//static std::filesystem::path assetBasePath( R"(E:\@Devel\Assets\Meterials)" );  
-	static std::filesystem::path assetBasePath (R"(F:\Sviluppo\Materials\group14)" );  
+	//static std::filesystem::path assetBasePath (R"(F:\Sviluppo\Materials\group14)" );  
+	static std::filesystem::path assetBasePath (R"(./materials/)" );  
+	
+	LOG(  Info,"Loading resources from '{}'", assetBasePath.generic_string() );
+	
 	struct texturetag  
 	{  
 		std::string           name;
@@ -51,11 +57,11 @@ bool MainWindow::loadResources()
   
 	std::array<texturetag, 5> texturesToLoad =   
 	{  
-		texturetag{ "pbr_albedo",    assetBasePath / R"(g5\g5_basecolor.png)" },  
-		texturetag{ "pbr_normal",    assetBasePath / R"(g5\g5_normal.png)" },  
-		texturetag{ "pbr_metallic",  assetBasePath / R"(g5\g5_metallic.png)" },  
-		texturetag{ "pbr_roughness", assetBasePath / R"(g5\g5_roughness.png)" },  
-		texturetag{ "pbr_ao",        assetBasePath / R"(g5\g5_ao.png)" }  
+		texturetag{ "pbr_albedo",    assetBasePath / R"(g5/g5_basecolor.png)" },  
+		texturetag{ "pbr_normal",    assetBasePath / R"(g5/g5_normal.png)" },  
+		texturetag{ "pbr_metallic",  assetBasePath / R"(g5/g5_metallic.png)" },  
+		texturetag{ "pbr_roughness", assetBasePath / R"(g5/g5_roughness.png)" },  
+		texturetag{ "pbr_ao",        assetBasePath / R"(g5/g5_ao.png)" }  
 	};  
   
   
@@ -65,10 +71,10 @@ bool MainWindow::loadResources()
 	for( const auto& tex : texturesToLoad )  
 	{  
 		if( auto handle = resourceManager.registerTexture( tex.name,  tex.path ); handle.isValid() )
-			std::cout << "Loaded texture: " << tex.name << std::endl;
+			LOG(  Info,"Loaded texture: {} - {:x}", tex.name, handle.handle );
 		else
 		{
-			std::cout << "Failed to load texture: " << tex.name << std::endl;
+			LOG(  Info,"Failed to load texture: {}", tex.name);
 			return false;
 		}
 	}
@@ -108,7 +114,8 @@ bool MainWindow::loadResources()
 	auto fragPBR = s2::RenderCore::ShaderCompiler::compile( s2::RenderCore::ShaderStageType::Fragment,
 	R"(
 		#version 450 core
-		
+		#extension GL_ARB_bindless_texture : require
+
 		const float PI = 3.14159265359;
 		
 		in VS_OUT {
@@ -127,11 +134,11 @@ bool MainWindow::loadResources()
 		uniform float u_AO;
 		
 		// Texture maps
-		layout(binding = 0) uniform sampler2D u_AlbedoMap;
-		layout(binding = 1) uniform sampler2D u_NormalMap;
-		layout(binding = 2) uniform sampler2D u_MetallicMap;
-		layout(binding = 3) uniform sampler2D u_RoughnessMap;
-		layout(binding = 4) uniform sampler2D u_AOMap;
+		layout(location = 0) uniform sampler2D u_AlbedoMap;
+		layout(location = 1) uniform sampler2D u_NormalMap;
+		layout(location = 2) uniform sampler2D u_MetallicMap;
+		layout(location = 3) uniform sampler2D u_RoughnessMap;
+		layout(location = 4) uniform sampler2D u_AOMap;
 		
 		// Texture usage flags
 		uniform bool u_UseAlbedoMap;
@@ -351,20 +358,18 @@ bool MainWindow::loadResources()
 			// Setup single light
 			_materialPBRInstance.set( "u_LightIntensity", 100.0f );
 			
-			std::cout << "PBR Shader compiled and linked successfully" << std::endl;			
+			LOG(  Info,"PBR Shader compiled and linked successfully");
 		}
 		else
 		{
-			std::cout << "Failed to link PBR shader: " << linkResult.errorLog << std::endl;
+			LOG(  Info,"Failed to link PBR shader: {}",linkResult.errorLog);
 			return false;
 		}
 	}
 	else
 	{
-		if( !vtx )
-			std::cout << "Failed to compile PBR vertex shader" << std::endl;
-		if( !fragPBR )
-			std::cout << "Failed to compile PBR fragment shader" << std::endl;
+		LOG_IF( !vtx, Fatal, "Failed to compile PBR vertex shader" );
+		LOG_IF( !fragPBR, Fatal,"Failed to compile PBR fragment shader");
 
 		return false;
 	}
@@ -391,20 +396,18 @@ bool MainWindow::loadResources()
 			_outlineMaterialInstance.set( "u_OutlineColor", Math::fvec4{ 0.7f, 0.5f, 0.f, 0.6f } );
 			_outlineMaterialInstance.set( "u_OutlineWidth", 0.02f );
 			//_outlineMaterial.blendMode = s2::Renderer::BlendMode::AlphaBlend; // enable blending for transparency
-			std::cout << "Outline shader compiled and linked successfully" << std::endl;
+			LOG(  Info,"Outline shader compiled and linked successfully");
 		}
 		else
 		{
-			std::cout << "Failed to link Outline shader: " << linkResult.errorLog << std::endl;
+			LOG(  Info,"Failed to link Outline shader: {}", linkResult.errorLog);
 			return false;
 		}
 	}
 	else
 	{
-		if( !outVtx )
-			std::cout << "Failed to compile Outline vertex shader" << std::endl;
-		if( !outFrag )
-			std::cout << "Failed to compile Outline fragment shader" << std::endl;
+		LOG_IF( !outVtx, Fatal,"Failed to compile Outline vertex shader");
+		LOG_IF( !outFrag, Fatal,"Failed to compile Outline fragment shader");
 
 		return false;
 	}	
@@ -415,6 +418,8 @@ bool MainWindow::loadResources()
 // ------------------------------------------------------------------------------------------------
 void MainWindow::onInitializeEvent()
 {
+	LOG( Info, "Initialization..." );
+
 	// Initialize renderer with the current rendering context
 	_renderer = std::make_unique<s2::Renderer::Renderer>( _renderingContext.get() );
 
@@ -459,13 +464,19 @@ void MainWindow::onInitializeEvent()
 			// request thumbnail update
 			_thumbnailNeedsUpdate = true;
 
-			std::cout << std::dec
-				<< "Pick Result - Object ID: " << result.objectID
-				<< ", Primitive ID: " << result.primitiveID
-				<< ", Screen Pos: (" << result.screenPos.x << ", " << result.screenPos.y << ")"
-				<< " -> Mesh: " << _selectedMeshName
-				<< ", VtxCount: " << _selectedVertexCount
-				<< std::endl;
+			LOG(  Info,
+				"Pick Result - Object ID: {}\n"\
+				"  Primitive ID: {}\n"\
+				"  Screen Pos:   {}, {}\n"\
+				"  Mesh:         {}\n"
+				"  VtXCout:      {}\n"
+				, result.objectID
+				, result.primitiveID
+				, result.screenPos.x
+				, result.screenPos.y
+				, _selectedMeshName
+				, _selectedVertexCount
+				);
 		}
 		else
 		{
@@ -476,14 +487,14 @@ void MainWindow::onInitializeEvent()
 			_selectedVertexCount = 0;
 			_thumbnailNeedsUpdate = true;
 
-			std::cout << "No valid pick result for position (" << result.screenPos.x << ", " << result.screenPos.y << ")" << std::endl;
+			LOG(  Info,"No valid pick result for position ( {} ,{} )", result.screenPos.x, result.screenPos.y);
 		}
 	} );
 
 
 	if (!loadResources())
 	{
-		std::cerr << "Failed to load resources" << std::endl;
+		S2_ASSERT( false, "Failed to load reasources");
 		return;
 	}
 
@@ -503,7 +514,7 @@ void MainWindow::onInitializeEvent()
 		auto handle = resources.registerMesh( "torus", mesh );
 		if( handle.isValid() )
 		{
-			resources.mesh( handle )->setColor( Color::red() );
+			resources.mesh( handle )->setColor( s2::Color::red() );
 			_meshDataCache[handle] = std::move(mesh);
 		}
 	}
@@ -515,7 +526,7 @@ void MainWindow::onInitializeEvent()
 		auto handle = resources.registerMesh( "cone", mesh );
 		if( handle.isValid() )
 		{
-			resources.mesh( handle )->setColor( Color::yellow() );
+			resources.mesh( handle )->setColor( s2::Color::yellow() );
 			_meshDataCache[handle] = std::move(mesh);
 		}
 	}
@@ -526,7 +537,7 @@ void MainWindow::onInitializeEvent()
 		auto handle = resources.registerMesh( "sphere", mesh );
 		if( handle.isValid() )
 		{
-			resources.mesh( handle )->setColor( Color::blue().lighter() );
+			resources.mesh( handle )->setColor( s2::Color::blue().lighter() );
 			_meshDataCache[handle] = std::move(mesh);
 		}
 	}
@@ -537,7 +548,7 @@ void MainWindow::onInitializeEvent()
 		auto handle = resources.registerMesh( "cylinder", mesh );
 		if( handle.isValid() )
 		{
-			resources.mesh( handle )->setColor( Color::cyan() );
+			resources.mesh( handle )->setColor( s2::Color::cyan() );
 			_meshDataCache[handle] = std::move(mesh);
 		}
 	}
@@ -548,7 +559,7 @@ void MainWindow::onInitializeEvent()
 		auto handle = resources.registerMesh( "capsule", mesh );
 		if( handle.isValid() )
 		{
-			resources.mesh( handle )->setColor( Color::magenta() );
+			resources.mesh( handle )->setColor( s2::Color::magenta() );
 			_meshDataCache[handle] = std::move(mesh);
 		}
 	}
@@ -604,7 +615,7 @@ void MainWindow::renderThumbnailIfNeeded()
 				.cameraProjectionMatrix = _camera.projectionMatrix() 
 			} );
 		{
-			_renderer->submit( { .clearColor = Color{ 0.1f, 0.1f, 0.1f, 1.0f } } );
+			_renderer->submit( { .clearColor = s2::Color{ 0.1f, 0.1f, 0.1f, 1.0f } } );
 		}
 		_renderer->execute();
 		return;
@@ -630,7 +641,7 @@ void MainWindow::renderThumbnailIfNeeded()
 				.cameraProjectionMatrix = _camera.projectionMatrix()
 			} );
 		{
-			_renderer->submit( { .clearColor = Color{ 0.1f, 0.1f, 0.1f, 1.0f } } );
+			_renderer->submit( { .clearColor = s2::Color{ 0.1f, 0.1f, 0.1f, 1.0f } } );
 
 			_renderer->submit( {
 				.renderMode  = s2::Renderer::RenderMode::Triangles,
@@ -703,7 +714,7 @@ void MainWindow::renderThumbnailIfNeeded()
 			.cameraProjectionMatrix = thumbCam.projectionMatrix() 
 		} );
 	{
-		_renderer->submit( { .clearColor = Color{ 0.1f, 0.1f, 0.1f, 1.0f } } );
+		_renderer->submit( { .clearColor = s2::Color{ 0.1f, 0.1f, 0.1f, 1.0f } } );
 
 		// Render the mesh centered at its local vertex center (mesh vertices are already in world positions when factories generated them).
 		// If your meshes are in local space you may need to transform them; here factories use world-space centers so we render with identity transform.
@@ -915,7 +926,7 @@ void MainWindow::onDraw()
 			.cameraProjectionMatrix = _camera.projectionMatrix(),
 		} );
 	{
-		_renderer->submit( { .clearColor = Color{ 0.3f, 0.4f, 0.5f, 1.0f } } );
+		_renderer->submit( { .clearColor = s2::Color{ 0.3f, 0.4f, 0.5f, 1.0f } } );
 
 		// For each object: if selected -> draw outline pass first, then regular pass.
 		auto drawWithPossibleOutline = [&]( uint32_t pickableID, const s2::Renderer::Material& mat, s2::Renderer::MeshID meshHandle )
@@ -966,6 +977,7 @@ void MainWindow::onDraw()
 	
 	// if ui layer is enabled, draw it in a separate pass on top of the scene
 	//if( _ui->isEnabled() )
+	if( false )
 	{
 		renderThumbnailIfNeeded();
 		
@@ -994,7 +1006,7 @@ void MainWindow::onMouseMoveEvent( const s2::Input::MouseState& ms )
 
 	// handle dragging of object trackball
 	if( ms.isDragging() && ms.isButtonDown( s2::Input::MouseState::ButtonRight ) )
-		_trackball.update( Scene::TrackBall::DragEvent::Update, ms.position() );
+		_trackball.update( s2::Scene::TrackBall::DragEvent::Update, ms.position() );
 
 	//	ms.dumpStatus( "onMouseMoveEvent" );
 }
@@ -1019,8 +1031,8 @@ void MainWindow::onMouseButtonEvent( const s2::Input::MouseState& ms )
 		_picker->pickObjectAt( ms.position() );
 		//_ui->setEnabled( !_ui->isEnabled() ); // toggle UI on left click for testing
 
-	if( ms.isButtonDown( s2::Input::MouseState::ButtonRight ) )    _trackball.update( Scene::TrackBall::DragEvent::Begin, ms.position() );
-	else if( ms.isButtonUp( s2::Input::MouseState::ButtonRight ) ) _trackball.update( Scene::TrackBall::DragEvent::End, ms.position() );
+	if( ms.isButtonDown( s2::Input::MouseState::ButtonRight ) )    _trackball.update( s2::Scene::TrackBall::DragEvent::Begin, ms.position() );
+	else if( ms.isButtonUp( s2::Input::MouseState::ButtonRight ) ) _trackball.update( s2::Scene::TrackBall::DragEvent::End, ms.position() );
 }
 
 // ------------------------------------------------------------------------------------------------

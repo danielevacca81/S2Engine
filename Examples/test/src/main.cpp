@@ -6,11 +6,15 @@
 //#include "GameWindow.h"
 #include "MyApplication.h"
 
+#include "Core/Log.h"
+
 #include <memory>
 
 
 int main( int argc, char* argv[] )
 {
+	s2::Log::init();
+
 	MyApplication app( "GLFWPP Test");
 	
 	// Aggiungi la finestra di gioco (Maze Game)
