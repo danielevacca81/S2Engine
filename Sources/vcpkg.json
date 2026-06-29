@@ -4,6 +4,8 @@
       "entt",
       "stb",
       "palsigslot",
+      "spdlog",
+      "fmt",
     {
       "name": "imgui",
       "features": [

@@ -19,7 +19,7 @@ workspace "s2Engine"
     startproject "s2Engine"
     
     -- Usa path assoluti per le variabili di percorso
-    sourcedir   = path.getabsolute("./s2Engine")
+    sourcedir   = path.getabsolute("s2Engine")
     outdir      = path.getabsolute("./.build")
     deploydir   = path.getabsolute("../s2Engine")
     sysbuilddir  = "%{cfg.system}/%{cfg.buildcfg}"
@@ -82,6 +82,8 @@ project "s2Engine"
     
     -- Librerie comuni a tutti i sistemi
     links {
+        "spdlog",
+        "fmt",
         "glfw3",
         "glad"
     }
