@@ -2,6 +2,7 @@
 //
 #include "UIPass.h"
 
+#include "Core/Log.h"
 
 #include "RenderCore/OpenGL.h"
 #include "Renderer/CommandBuffer.h"
@@ -52,19 +53,17 @@ void main()
 static const char* kImGuiFragmentShader = R"(
 #version 450 core
 #extension GL_ARB_bindless_texture : require
-#extension GL_ARB_gpu_shader_int64 : require
 
 in vec2 vUV;
 in vec4 vColor;
 
-layout(location = 0) uniform uint64_t u_CurrTextureHandle;
+layout(bindless_sampler, location = 0) uniform sampler2D u_CurrTextureHandle;
 
 layout(location = 0) out vec4 FragColor;
 
 void main()
 {
-    // Trasformiamo l'handle numerico in un sampler "al volo" per usarlo con texture()
-    FragColor = vColor * texture(sampler2D(u_CurrTextureHandle), vUV);
+    FragColor = vColor * texture(u_CurrTextureHandle, vUV);
 }
 )";
 
@@ -83,18 +82,21 @@ UIPass::UIPass()
 // ------------------------------------------------------------------------------------------------
 void UIPass::createShader()
 {
+    S2_ASSERT( GLAD_GL_ARB_bindless_texture, "UI Shader: Required extension not supported - GL_ARB_bindless_texture");
+
     auto vs = ShaderCompiler::compile( ShaderStageType::Vertex,   kImGuiVertexShader );
     auto fs = ShaderCompiler::compile( ShaderStageType::Fragment, kImGuiFragmentShader );
 
-    assert( vs.success && "UIPass: vertex shader compilation failed" );
-    assert( fs.success && "UIPass: fragment shader compilation failed" );
+
+    S2_ASSERT( vs.success, "UIPass: vertex shader compilation failed" );
+    S2_ASSERT( fs.success, "UIPass: fragment shader compilation failed" );
 
     _shader = Shader::New();
     _shader->attachVertexShaderStage( vs.stage );
     _shader->attachFragmentShaderStage( fs.stage );
 
     auto linkResult = ShaderCompiler::linkShader( _shader, "ImGuiPass" );
-    assert( linkResult.success && "ImGuiPass: shader link failed" );
+    S2_ASSERT( linkResult.success, "ImGuiPass: shader link failed" );
 
     _shader->setObjectLabel( "ImGuiPass.Shader" );
     //_resourceManager->registerShader( _shader->name(), _shader );
@@ -110,7 +112,7 @@ void UIPass::createFontTexture()
     int height = 0;
     io.Fonts->GetTexDataAsRGBA32( &pixels, &width, &height );
 
-    assert( pixels && width > 0 && height > 0 && "UIPass: font atlas build failed" );
+    S2_ASSERT( pixels && width > 0 && height > 0, "UIPass: font atlas build failed" );
 
     TextureDescription desc( width, height, TextureFormat::RedGreenBlueAlpha8, false, "UIPass.FontAtlas" );
     _fontTexture = Texture2D::New( desc, pixels );
