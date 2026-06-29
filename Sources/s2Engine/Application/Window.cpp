@@ -11,7 +11,9 @@
 
 #include "Renderer/Renderer.h"
 
-#include "GLFW/glfw3.h"
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
 
 #include <iostream>
 
@@ -52,6 +54,10 @@ struct Window::Impl
 
         if( !impl->window )
             throw std::runtime_error( "Failed to create GLFW window" );
+
+        glfwMakeContextCurrent( impl->window );
+        if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+            throw std::runtime_error("GLAD initialization failed!");          
 
         glfwSetWindowUserPointer( impl->window, owner );
         installCallbacks( impl->window );

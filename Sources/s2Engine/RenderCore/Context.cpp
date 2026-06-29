@@ -9,7 +9,8 @@
 #if defined(_WIN32) || defined(_WIN64)
 #include <windows.h>
 #else
-#include <GL/glx.h>
+#include <EGL/egl.h> // wayland or modern x11
+#include <GL/glx.h>  // classic x11 
 #endif
 
 #include <map>
@@ -26,8 +27,11 @@ Context *Context::current()
 {
 #if defined(_WIN32) || defined(_WIN64)
 	uint64_t handle = (uint64_t) wglGetCurrentContext();
-#else
-	uint64_t handle = (uint64_t) glXGetCurrentContext();
+#elif defined(__linux__)
+    uint64_t handle = (uint64_t) eglGetCurrentContext();
+    
+	if ( handle == 0x0)
+        handle = (uint64_t) glXGetCurrentContext();
 #endif
 	if( handle == 0x0 )
 		return nullptr;
@@ -45,11 +49,21 @@ Context::Context()
 {
 #if defined(_WIN32) || defined(_WIN64)
 	_nativeHandle = (uint64_t) wglGetCurrentContext();
-#else
-	_nativeHandle = (uint64_t) glXGetCurrentContext();
+#elif defined(__linux__)
+	//glewExperimental = GL_TRUE;
+    _nativeHandle = (uint64_t) eglGetCurrentContext();
+    
+	if (_nativeHandle == 0x0)
+        _nativeHandle = (uint64_t) glXGetCurrentContext();
 #endif
-	if( !glewInit() == GLEW_OK )
-		throw std::runtime_error( "GLEW initialization failed!" );
+	// auto ok = glewInit();
+	// if( ok != GLEW_OK )
+	// {
+	// 	std::cout << "GLEW Init returned " << ok << '\n';
+	// 	std::cout << "  - Native Handle: " << _nativeHandle << '\n';
+
+	// 	throw std::runtime_error( "GLEW initialization failed!" );
+	// }
 
 	_info.init();
 	RenderCore::init(); // initialize shaders and samplers for this context
