@@ -4,7 +4,7 @@
 --     gmake2 --os=linux
 
 -- 1. Determina il triplet di vcpkg in base al sistema operativo host
-local vcpkg_triplet = "x64-windows"
+local vcpkg_triplet = "x64-windows-static"
 if os.host() == "linux" then
     vcpkg_triplet = "x64-linux"
 end
@@ -82,12 +82,12 @@ project "s2Engine"
     
     -- Librerie comuni a tutti i sistemi
     links {
-        "glfw3"
+        "glfw3",
+        "glad"
     }
     
     defines {
         "S2ENGINE_EXPORTS",
-        --"GLEW_STATIC"
     }
     
     postbuildcommands {
@@ -120,11 +120,17 @@ project "s2Engine"
     }
     
     filter "system:windows"
-        links { "opengl32", "gdi32", "user32", "shell32" }
+        links { 
+            "opengl32",
+            "gdi32",
+            "user32",
+            "shell32"
+        }
         
     filter "system:linux"
         links { 
             "GL",       -- same as opengl32
+            "EGL",
             "pthread",  -- Threading
             "dl",       -- Dynamic loading
             "m"         -- Math library base di Linux

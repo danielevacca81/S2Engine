@@ -1,11 +1,9 @@
 {
   "dependencies": [
-    {
-      "name": "glm"
-    },
-    {
-      "name": "entt"
-    },
+      "glm",
+      "entt",
+      "stb",
+      "palsigslot",
     {
       "name": "imgui",
       "features": [
@@ -13,18 +11,15 @@
       ]
     },
     {
-      "name": "glew"
-    },
-    {
-      "name": "stb"
-    },
-    {
-      "name": "palsigslot"
-    },
-    {
       "name": "glfw3",
       "features": [
         "wayland"
+      ]
+    },
+    {
+      "name": "glad",
+      "features": [
+        "extensions"
       ]
     }
   ]
