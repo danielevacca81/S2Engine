@@ -22,9 +22,12 @@
 
 #include <iostream>
 
+using namespace s2;
+
 // ------------------------------------------------------------------------------------------------
 bool MainWindow::loadResources()
 {
+	#if 0
 	//static std::filesystem::path assetBasePath( R"(E:\@Devel\Assets\Meterials)" );  
 	static std::filesystem::path assetBasePath (R"(F:\Sviluppo\Materials\group14)" );  
 	struct texturetag  
@@ -57,7 +60,7 @@ bool MainWindow::loadResources()
 		}
 	}
 
-
+#endif
 
 	return true;
 }

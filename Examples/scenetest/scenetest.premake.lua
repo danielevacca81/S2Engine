@@ -2,6 +2,11 @@
 -- actions: 
 --     vs2022
 --     gmake2 --os=linux
+local vcpkg_triplet = "x64-windows-static"
+if os.host() == "linux" then
+    vcpkg_triplet = "x64-linux"
+end
+local vcpkg_dir = path.getabsolute("./vcpkg_installed/" .. vcpkg_triplet)
 
 workspace "SceneTest"
     location "."
@@ -55,30 +60,32 @@ project "SceneTest"
     }
 
     -- Include directories
-    includedirs
-    {
+    includedirs {
         "src/",
         "../../s2Engine/include/",
+        vcpkg_dir .. "/include"
     }
 
     -- Library directories
-    libdirs
-    {
+    libdirs {
         "../../s2Engine/bin/%{cfg.system}/%{cfg.buildcfg}/",
+        vcpkg_dir .. "/lib"
     }
 
     -- Link libraries
-    links
-    {
+    links {
         "s2Engine",
-        "opengl32",
+        "imgui",
     }
+        
+    filter "system:linux"
+        linkoptions { "-Wl,-rpath='$$ORIGIN'" }
+    
+    -- Copy s2Engine to output directory
+    --postbuildcommands {
+    --    ("{COPYFILE} %{wks.location}/../../s2Engine/bin/%{cfg.system}/%{cfg.buildcfg}/s2Engine.dll %{cfg.buildtarget.directory}"),
+    --}
 
-    -- Copy s2Engine DLL to output directory
-    filter "system:windows"
-        postbuildcommands
-        {
-            ("{COPYFILE} %{wks.location}/../../s2Engine/bin/%{cfg.system}/%{cfg.buildcfg}/s2Engine.dll %{cfg.buildtarget.directory}"),
-        }
+    
 
     filter {}
