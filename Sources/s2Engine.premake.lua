@@ -13,14 +13,14 @@ local vcpkg_dir = path.getabsolute("./vcpkg_installed/" .. vcpkg_triplet)
 
 -- SOLUTION
 workspace "s2Engine" 
-    location "."
+    location ".build"
     architecture "x64"
     configurations { "Debug", "Release" }
     startproject "s2Engine"
     
     -- Usa path assoluti per le variabili di percorso
     sourcedir   = path.getabsolute("s2Engine")
-    outdir      = path.getabsolute("./.build")
+    outdir      = path.getabsolute(".build")
     deploydir   = path.getabsolute("../s2Engine")
     sysbuilddir  = "%{cfg.system}/%{cfg.buildcfg}"
     

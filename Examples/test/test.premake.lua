@@ -6,19 +6,19 @@ if os.host() == "linux" then
 end
 local vcpkg_dir = path.getabsolute("./vcpkg_installed/" .. vcpkg_triplet)
 
+-- Usa path assoluti per le variabili di percorso
+sourcedir   = path.getabsolute("src")
+outdir      = path.getabsolute("./.build")
+sysbuilddir = "%{cfg.system}/%{cfg.buildcfg}"
+s2Enginedir = path.getabsolute("../../s2Engine")
 
 -- SOLUTION
 workspace "test" 
-    location "."
+    location "%{outdir}"
     architecture "x64"
     configurations { "Debug", "Release" }
     startproject "test"
-    
-    -- Usa path assoluti per le variabili di percorso
-    sourcedir   = path.getabsolute("src")
-    outdir      = path.getabsolute("./.build")
-    sysbuilddir = "%{cfg.system}/%{cfg.buildcfg}"
-    
+        
     -- Common flags
     flags {
         "MultiProcessorCompile"
@@ -67,12 +67,12 @@ project "test"
     -- additional include directories
     includedirs { 
         "%{sourcedir}/",
-        "../../s2Engine/include/",
+        s2Enginedir .. "/include/",
         vcpkg_dir .. "/include",
     }
 
     libdirs {
-        "../../s2Engine/bin/%{cfg.system}/%{cfg.buildcfg}/",
+        s2Enginedir .. "/bin/%{cfg.system}/%{cfg.buildcfg}/",
         vcpkg_dir .. "/lib"
     }
     
@@ -90,11 +90,12 @@ project "test"
         }
         
     filter "system:linux"
+        postbuildcommands {
+            ("{COPYFILE} %{s2Enginedir}/bin/%{cfg.system}/%{cfg.buildcfg}/libs2Engine.so %{cfg.targetdir}"),
+        }
         linkoptions { "-Wl,-rpath='$$ORIGIN'" }
         links { 
         }
         
     filter {} -- Reset filters
 
-    postbuildcommands {
-    }
