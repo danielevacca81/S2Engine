@@ -24,18 +24,23 @@ function vscode.generateWorkspace(wks)
     p.eol("\r\n")
     p.indent("  ")
 
-    --p.generate(wks, ".code-workspace", vscode.workspace.generate)
-    p.generate(wks, wks.location .. "/.vscode/tasks.json", vscode.workspace.generate_tasks)
-    p.generate(wks, wks.location .. "/.vscode/launch.json", vscode.workspace.generate_launch)
-    p.generate(wks, wks.location .. "/.vscode/c_cpp_properties.json", vscode.workspace.c_cpp_properties)
+    -- Creiamo il path assoluto alla cartella .vscode partendo dalla root del progetto
+    local vscode_dir = path.join(wks.basedir, ".vscode")
+
+    --p.generate(wks, path.join(wks.basedir, wks.name .. ".code-workspace"), vscode.workspace.generate)
+    p.generate(wks, path.join(vscode_dir, "tasks.json"), vscode.workspace.generate_tasks)
+    p.generate(wks, path.join(vscode_dir, "launch.json"), vscode.workspace.generate_launch)
+    p.generate(wks, path.join(vscode_dir, "c_cpp_properties.json"), vscode.workspace.c_cpp_properties)
 end
 
 function vscode.cleanWorkspace(wks)
-    p.clean.file(wks, wks.name .. ".code-workspace")
+    p.clean.file(wks, path.join(wks.basedir, wks.name .. ".code-workspace"))
 end
 
 function vscode.cleanProject(prj)
-    p.clean.file(prj, prj.name .. ".vscode")
+    -- Se volevi pulire la cartella .vscode con il comando clean di premake, 
+    -- potresti voler aggiornare anche questo path:
+    p.clean.directory(path.join(prj.basedir, ".vscode"))
 end
 
 include("vscode_workspace.lua")
