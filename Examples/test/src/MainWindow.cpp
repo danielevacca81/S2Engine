@@ -53,7 +53,7 @@ bool MainWindow::loadResources()
 	{  
 		std::string           name;
 		std::filesystem::path path;
-	};  
+	};
   
 	std::array<texturetag, 5> texturesToLoad =   
 	{  
@@ -134,11 +134,11 @@ bool MainWindow::loadResources()
 		uniform float u_AO;
 		
 		// Texture maps
-		layout(location = 0) uniform sampler2D u_AlbedoMap;
-		layout(location = 1) uniform sampler2D u_NormalMap;
-		layout(location = 2) uniform sampler2D u_MetallicMap;
-		layout(location = 3) uniform sampler2D u_RoughnessMap;
-		layout(location = 4) uniform sampler2D u_AOMap;
+		layout(bindless_sampler, location = 0) uniform sampler2D u_AlbedoMap;
+		layout(bindless_sampler, location = 1) uniform sampler2D u_NormalMap;
+		layout(bindless_sampler, location = 2) uniform sampler2D u_MetallicMap;
+		layout(bindless_sampler, location = 3) uniform sampler2D u_RoughnessMap;
+		layout(bindless_sampler, location = 4) uniform sampler2D u_AOMap;
 		
 		// Texture usage flags
 		uniform bool u_UseAlbedoMap;
