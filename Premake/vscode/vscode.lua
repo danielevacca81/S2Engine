@@ -24,7 +24,6 @@ function vscode.generateWorkspace(wks)
     p.eol("\r\n")
     p.indent("  ")
 
-    -- Creiamo il path assoluto alla cartella .vscode partendo dalla root del progetto
     local vscode_dir = path.join(wks.basedir, ".vscode")
 
     --p.generate(wks, path.join(wks.basedir, wks.name .. ".code-workspace"), vscode.workspace.generate)
@@ -38,8 +37,6 @@ function vscode.cleanWorkspace(wks)
 end
 
 function vscode.cleanProject(prj)
-    -- Se volevi pulire la cartella .vscode con il comando clean di premake, 
-    -- potresti voler aggiornare anche questo path:
     p.clean.directory(path.join(prj.basedir, ".vscode"))
 end
 

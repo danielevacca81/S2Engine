@@ -115,7 +115,7 @@ function m.generate_tasks(wks)
                 if not first_task then _p(1, ',{') else _p(1, '{') first_task = false end
 
                 if cfg.system == p.WINDOWS then
-                    local sln_path = path.translate(vscode_build_path .. "/" .. wks.name .. ".sln", "\\")
+                    local sln_path = path.translate(vscode_build_path .. "/" .. wks.name .. ".sln", "/")
                     
                     _p(2, '"label": "Build %s (%s)",', prj.name, cfg.buildcfg)
                     _p(2, '"type": "process",')
@@ -153,7 +153,7 @@ function m.generate_tasks(wks)
             _p(2, '"label": "Clean %s",', prj.name)
             
             if sys == p.WINDOWS then
-                local sln_path = path.translate(vscode_build_path .. "/" .. wks.name .. ".sln", "\\")
+                local sln_path = path.translate(vscode_build_path .. "/" .. wks.name .. ".sln", "/")
                 _p(2, '"type": "process",')
                 _p(2, '"command": "powershell.exe",')
                 _p(2, '"args": [')
