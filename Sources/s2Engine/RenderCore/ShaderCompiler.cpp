@@ -373,6 +373,12 @@ std::string ShaderCompiler::getShaderInfo( const ShaderPtr& shader, bool verbose
         glGetProgramiv( shader->id(), GL_ACTIVE_UNIFORMS, &params );
         msg << "GL_ACTIVE_UNIFORMS = " << params << std::endl;
 
+        for( const auto &[loc,u] : shader->_uniforms )
+            msg << "   Uniform ["    << u->name()<< "] ("
+                << " location: "     << u->location() << ", "
+                << " value (type): " << u->value().index() << ", "
+                << " handle: "       << u->handle().id << " )"
+                << std::endl;
         // Check if separable
         glGetProgramiv( shader->id(), GL_PROGRAM_SEPARABLE, &params );
         msg << "GL_PROGRAM_SEPARABLE = " << (params ? "TRUE" : "FALSE") << std::endl;

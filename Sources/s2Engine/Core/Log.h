@@ -24,8 +24,7 @@ class S2ENGINE_API Log
 {
 
 public:
-    static void init();
-
+    static void init( const std::string& loggerName = "s2Engine", LogLevel level = LogLevel::Trace );
     static void logMessage( const LogLevel &level, std::string_view message );
 };
 
@@ -43,6 +42,7 @@ public:
 
 
 #if defined(_WIN32)
+    #define FMT_UNICODE 0
     #define S2_DEBUG_BREAK() __debugbreak()
 #elif defined(__linux__)
     #include <signal.h>
