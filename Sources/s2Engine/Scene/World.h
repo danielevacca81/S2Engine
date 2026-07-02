@@ -4,55 +4,51 @@
 #define S2_SCENE_WORLD_H
 
 #include "s2Engine_API.h"
+
 #include "Entity.h"
 
-#include <vector>
-#include <unordered_map>
+#include <entt/fwd.hpp>
+
 #include <memory>
-#include <string>
+#include <functional>
 
 namespace s2 {
 namespace Scene {
 
-class S2ENGINE_API World
+class S2ENGINE_API World 
 {
 public:
-    World( const std::string& name = "World" );
+    World();
     ~World();
 
-    const std::string& name() const { return _name; }
-
-    // Entity management
-    std::shared_ptr<Entity> createEntity( const std::string& name = "Entity" );
-    void destroyEntity( EntityID id );
-    void destroyEntity( std::shared_ptr<Entity> entity );
-
-    std::shared_ptr<Entity> findEntity( EntityID id ) const;
-    std::shared_ptr<Entity> findEntity( const std::string& name ) const;
-
-    const std::vector<std::shared_ptr<Entity>>& entities() const { return _entities; }
-
-    size_t entityCount() const { return _entities.size(); }
-
-    // Update - call once per frame
-    void update( double deltaTime );
-
-    // Clear all entities
+    Entity createEntity();
+    void destroyEntity(Entity entity);
     void clear();
 
-private:
-    EntityID generateEntityID() { return _nextEntityID++; }
+    // Component Management (Called by Entity or directly by Systems)
+    template<typename T, typename... Args>
+    T& addProperty(Entity entity, Args&&... args);
+
+    template<typename T>
+    T& property(Entity entity);
+
+    template<typename T>
+    bool hasProperty(Entity entity) const;
+
+    template<typename T>
+    void removeProperty(Entity entity);
+
+    // System View Utility
+    template<typename... Properties>
+    void each(std::function<void(Entity, Properties&...)> func);
 
 private:
-    std::string _name;
-    std::vector<std::shared_ptr<Entity>> _entities;
-    std::unordered_map<EntityID, std::shared_ptr<Entity>> _entitiesById;
-    std::unordered_map<std::string, std::shared_ptr<Entity>> _entitiesByName;
-
-    EntityID _nextEntityID = 1;
+    std::unique_ptr<entt::registry> _registry;
 };
 
 } // namespace Scene
 } // namespace s2
+
+#include "World.inl"
 
 #endif // !S2_SCENE_WORLD_H

@@ -2,26 +2,36 @@
 //
 #include "Entity.h"
 
+#include "World.h"
+
 using namespace s2::Scene;
 
 // ------------------------------------------------------------------------------------------------
-Entity::Entity( EntityID id, const std::string& name )
-    : _id( id )
-    , _name( name )
+bool Entity::isValid() const 
 {
-    // Every entity has a Transform by default
-    _transform = std::make_shared<Transform>();
-    _transform->_owner = this;
-    _transform->onAttach();
-    _components.push_back( _transform );
-    _componentsByType[typeid( Transform ).hash_code()] = _transform;
+    return _id != EntityInvalidID && _world != nullptr; // Add custom registry validation if needed
 }
 
 // ------------------------------------------------------------------------------------------------
-Entity::~Entity()
+void Entity::destroy() 
 {
-    for( auto& component : _components )
-        component->onDetach();
-    // _components.clear();
-    // _componentsByType.clear();
+    _world->destroyEntity(*this);
+    _id = EntityInvalidID;
+    _world = nullptr;
 }
+
+// ------------------------------------------------------------------------------------------------
+template<typename T, typename... Args>
+T& Entity::addProperty(Args&&... args) { return _world->addProperty<T>(*this, std::forward<Args>(args)...); }
+
+// ------------------------------------------------------------------------------------------------
+template<typename T>
+T& Entity::property() { return _world->property<T>(*this); }
+
+// ------------------------------------------------------------------------------------------------
+template<typename T>
+bool Entity::hasProperty() const { return _world->hasProperty<T>(*this); }
+
+// ------------------------------------------------------------------------------------------------
+template<typename T>
+void Entity::removeProperty() { _world->removeProperty<T>(*this); }
