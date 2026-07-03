@@ -580,10 +580,7 @@ void MainWindow::onInitializeEvent()
 	
 	_materialInstance.set( "u_UseDiffuseMap", false );
 
-	_camera.set( Math::dvec3( 0.0, 0.0, 8.0 ),
-				 Math::dvec3( 0.0, 0.0, 0.0 ),
-				 Math::dvec3( 0.0, 1.0, 0.0 )
-	);
+	_view.setViewMatrix( Math::lookAt( Math::dvec3( 0.0, 0.0, 8.0 ), Math::dvec3( 0.0, 0.0, 0.0 ), Math::dvec3( 0.0, 1.0, 0.0 ) ) );
 
 	// thumbnail target (offscreen)
 	_thumbnailTarget = std::make_unique<s2::RenderCore::RenderTarget>();
@@ -611,8 +608,7 @@ void MainWindow::renderThumbnailIfNeeded()
 			{
 				.renderPasses = { _renderPasses["forward"] },
 				.renderTarget = _thumbnailTarget.get(),
-				.cameraViewMatrix = _camera.worldToCameraMatrix(),
-				.cameraProjectionMatrix = _camera.projectionMatrix() 
+				.view         = _view
 			} );
 		{
 			_renderer->submit( { .clearColor = s2::Color{ 0.1f, 0.1f, 0.1f, 1.0f } } );
@@ -637,8 +633,7 @@ void MainWindow::renderThumbnailIfNeeded()
 			{
 				.renderPasses = { _renderPasses["forward"] },
 				.renderTarget = _thumbnailTarget.get(),
-				.cameraViewMatrix = _camera.worldToCameraMatrix(),
-				.cameraProjectionMatrix = _camera.projectionMatrix()
+				.view         = _view
 			} );
 		{
 			_renderer->submit( { .clearColor = s2::Color{ 0.1f, 0.1f, 0.1f, 1.0f } } );
@@ -682,9 +677,9 @@ void MainWindow::renderThumbnailIfNeeded()
 	}
 
 	// Choose a view direction: use main camera direction so thumbnail orientation feels consistent
-	Math::dvec3 mainCamDir = Math::normalize( _camera.position() - _camera.target() );
-	if( Math::length( mainCamDir ) < 1e-6 )
-		mainCamDir = Math::dvec3{ 0.0, 0.0, 1.0 };
+	// Math::dvec3 mainCamDir = Math::normalize( _camera.position() - _camera.target() );
+	// if( Math::length( mainCamDir ) < 1e-6 )
+	Math::dvec3 mainCamDir = Math::dvec3{ 0.0, 0.0, 1.0 };
 
 	// Field of view: use same vertical fov as main (we set 45deg when resizing). Use 45 deg if unknown.
 	const double fovYdeg = 45.0;
@@ -697,21 +692,20 @@ void MainWindow::renderThumbnailIfNeeded()
 
 	// Position the thumbnail camera along mainCamDir at computed distance from center
 	Math::dvec3 eye = center + mainCamDir * distance;
-	Math::dvec3 up = _camera.up(); // keep same up vector
+	Math::dvec3 up = Math::dvec3{ 0.0, 1.0, 0.0 };
 
 	// Construct a temporary camera for thumbnail
-	s2::Scene::Camera thumbCam;
-	thumbCam.set( eye, center, up );
-	thumbCam.setProjectionTransform( Math::ProjectionTransform::createPerspective( 1.0, fovYdeg, std::max( 0.01, distance - radius*2.0 ), distance + radius*2.0 ) );
-	thumbCam.setViewport( Math::irect( 0, 0, static_cast<int>( _thumbnailTarget->width() ), static_cast<int>( _thumbnailTarget->height() ) ) );
+	s2::Renderer::View thumbView;
+	thumbView.setViewMatrix( Math::lookAt( eye, center, up ) );
+	thumbView.setProjectionTransform( Math::ProjectionTransform::createPerspective( 1.0, fovYdeg, std::max( 0.01, distance - radius*2.0 ), distance + radius*2.0 ) );
+	thumbView.setViewport( Math::irect( 0, 0, static_cast<int>( _thumbnailTarget->width() ), static_cast<int>( _thumbnailTarget->height() ) ) );
 
 	// Render into thumbnail target with the thumb camera
 	_renderer->begin(
 		{
 			.renderPasses = { _renderPasses["forward"] },
 			.renderTarget = _thumbnailTarget.get(),
-			.cameraViewMatrix = thumbCam.worldToCameraMatrix(),
-			.cameraProjectionMatrix = thumbCam.projectionMatrix() 
+			.view = thumbView
 		} );
 	{
 		_renderer->submit( { .clearColor = s2::Color{ 0.1f, 0.1f, 0.1f, 1.0f } } );
@@ -747,8 +741,8 @@ void MainWindow::onResizeEvent( uint32_t width, uint32_t height )
 	if( vp.isEmpty() )
 		return;
 
-	_camera.setViewport( vp );
-	_camera.setProjectionTransform( Math::ProjectionTransform::createPerspective( width / (double) height, 45.0, 0.1, 100.0 ) );
+	_view.setViewport( vp );
+	_view.setProjectionTransform( Math::ProjectionTransform::createPerspective( width / (double) height, 45.0, 0.1, 100.0 ) );
 
 	_trackball.resize( width, height );
 	_trackballLight.resize( width, height );
@@ -904,7 +898,7 @@ void MainWindow::onDraw()
 	_materialPBRInstance.set( "u_LightPosition",  Math::vec3( _trackballLight.matrix() * lightPos ) );
 	_materialPBRInstance.set( "u_LightColor",     Math::vec3( _uiLightColor[0], _uiLightColor[1], _uiLightColor[2] ) );
 	_materialPBRInstance.set( "u_LightIntensity", _uiLightIntensity );
-	_materialPBRInstance.set( "u_CamPos",         Math::vec3( _camera.position() ) );
+	_materialPBRInstance.set( "u_CamPos",         Math::vec3( _view.cameraEye() ) );
 
 
 	// setup material properties and shader
@@ -922,8 +916,7 @@ void MainWindow::onDraw()
 		{
 			.renderPasses           = { _renderPasses["forward"], _renderPasses["pick"] },
 			.renderTarget           = _mainRenderTarget.get(),
-			.cameraViewMatrix       = _camera.worldToCameraMatrix(),
-			.cameraProjectionMatrix = _camera.projectionMatrix(),
+			.view                   = _view,
 		} );
 	{
 		_renderer->submit( { .clearColor = s2::Color{ 0.3f, 0.4f, 0.5f, 1.0f } } );

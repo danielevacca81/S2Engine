@@ -9,9 +9,9 @@
 #include "Geometry/MeshData.h"
 #include "Resources/ImageLoader.h"
 
-#include "Scene/Camera.h"
 #include "Scene/TrackBall.h"
 
+#include "Renderer/View.h"
 #include "Renderer/Renderer.h"
 #include "Renderer/RenderMaterial.h"
 #include "Renderer/Picker.h"
@@ -61,8 +61,8 @@ private:
 	s2::Renderer::Material  _materialInstance;
 	s2::Renderer::Material  _materialPBRInstance;
 	s2::Renderer::Material  _outlineMaterialInstance;
+	s2::Renderer::View      _view;
 
-	s2::Scene::Camera    _camera;
 	s2::Scene::TrackBall _trackball;
 	s2::Scene::TrackBall _trackballLight;
 
