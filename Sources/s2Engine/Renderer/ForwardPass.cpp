@@ -25,8 +25,8 @@ static inline RenderCore::DrawState createDrawState( const RenderCommand& render
 
     // Transform matrices
     drawState.transform.modelMatrix      = renderCmd.modelMatrix;
-    drawState.transform.viewMatrix       = frameData.cameraViewMatrix;
-    drawState.transform.projectionMatrix = frameData.cameraProjectionMatrix;
+    drawState.transform.viewMatrix       = frameData.view.viewMatrix();
+    drawState.transform.projectionMatrix = frameData.view.projectionMatrix();
 
     // Viewport
     drawState.viewport.rect = frameData.renderTarget->size();
@@ -59,13 +59,13 @@ static inline void setupShaderUniforms( const RenderCore::ShaderPtr& shader,cons
 
     // ===== Standard Transform Uniforms (DSA) =====
     shader->setUniform( "u_ModelMatrix", renderCmd.modelMatrix );
-    shader->setUniform( "u_ViewMatrix", frameData.cameraViewMatrix );
-    shader->setUniform( "u_ProjectionMatrix", frameData.cameraProjectionMatrix );
+    shader->setUniform( "u_ViewMatrix", frameData.view.viewMatrix() );
+    shader->setUniform( "u_ProjectionMatrix", frameData.view.projectionMatrix() );
     
-    // Derived matrices
-    const auto modelView = frameData.cameraViewMatrix * renderCmd.modelMatrix;
-    const auto modelViewProjection = frameData.cameraProjectionMatrix * modelView;
-    const auto normalMatrix = Math::transpose( Math::inverse( Math::fmat3( modelView ) ) );
+    // Derived matrices (consider fmat3)
+    const auto modelView           = frameData.view.viewMatrix() * renderCmd.modelMatrix;
+    const auto modelViewProjection = frameData.view.projectionMatrix() * modelView;
+    const auto normalMatrix        = Math::transpose( Math::inverse( Math::fmat3( modelView ) ) );
 
     shader->setUniform( "u_ModelViewMatrix", modelView );
     shader->setUniform( "u_ModelViewProjectionMatrix", modelViewProjection );

@@ -29,9 +29,10 @@ public:
 
 public:
 	// -----------------------------------------------------------------------------------------------
-	GLM_FUNC_DECL tplane()					                                                {}
-	GLM_FUNC_DECL tplane( const tvec3<T,P> &normal, T distance )	: n(normal),d(distance) {}
-	GLM_FUNC_DECL tplane( const tvec4<T,P> &coeff  )	                                    { n = tvec3<T,P>(coeff.x,coeff.y,coeff.z); d = coeff.w; }
+	GLM_FUNC_DECL tplane() = default;
+	GLM_FUNC_DECL tplane( const tvec3<T,P> &normal, T distance              ) : n(normal),d(distance) {}
+	GLM_FUNC_DECL tplane( const T a, const T b, const T c, const T distance ) : n(a,b,c),d(distance) {}
+	GLM_FUNC_DECL tplane( const tvec4<T,P> &coeff  )	                      { n = tvec3<T,P>(coeff.x,coeff.y,coeff.z); d = coeff.w; }
 
 	GLM_FUNC_DECL bool       isPointFront ( const tvec3<T,P> &p ) const { return (distanceFrom(p) > T(0)) ? true: false; }
 	GLM_FUNC_DECL bool       isPointBehind( const tvec3<T,P> &p ) const { return !(isPointFront(p)); }

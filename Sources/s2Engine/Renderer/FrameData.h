@@ -6,6 +6,7 @@
 #include "s2Engine_API.h"
 
 #include "RenderPipeline.h"
+#include "View.h"
 
 #include <unordered_map>
 #include <string>
@@ -23,8 +24,8 @@ struct S2ENGINE_API FrameData
 
     RenderCore::RenderTarget* renderTarget = nullptr; // Main render target for this frame
 
-	Math::dmat4 cameraViewMatrix;                     // View matrix from the camera
-	Math::dmat4 cameraProjectionMatrix;               // Projection matrix from the camera
+    View                      view;                   // Camera view and projection for this frame
+
 
     // Shared data between passes (e.g., shadow maps, intermediate textures)
     std::unordered_map<std::string, std::any> passData;

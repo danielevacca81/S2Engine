@@ -91,8 +91,7 @@ void PickPass::execute( const RenderCore::RenderBackend& renderBackend,
         if( !mesh )
             continue;
 
-        const auto mvp = frameData.cameraProjectionMatrix *
-                         frameData.cameraViewMatrix        *
+        const auto mvp = frameData.view.viewProjectionMatrix() *
                          cmd.modelMatrix;
 
         _pickShader->setUniform( "u_MVP",      mvp );

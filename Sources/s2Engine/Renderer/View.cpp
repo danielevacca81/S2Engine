@@ -2,21 +2,17 @@
 // 
 #include "View.h"
 
-using namespace glm;
+using namespace s2::Renderer;
 
 // -------------------------------------------------------------------------------------
-void View::update()
+void View::computeFrustum()
 {
-	const Math::dmat4 mv = modelViewMatrix();
-	const Math::dvec4 modelViewTransl = mv[3];
-	const Math::dmat4 modelViewMatrix( mv[0], mv[1], mv[2], Math::dvec4( 0, 0, 0, 1 ) );
+	const auto inverseViewMatrix = Math::inverse( _viewMatrix );
+	_cameraEye    = inverseViewMatrix[3]; // center of the frustrum in worldspace (camera position)
 
-	_cameraEye    = Math::inverse( modelViewMatrix ) * modelViewTransl;
-	_normalMatrix = Math::inverseTranspose( mv );
-
-	_frustumPlanes = [] ( const Math::dmat4& projection, const Math::dmat4& modelView ) -> std::array<Math::dplane, 6>
+	_frustumPlanes = [] ( const Math::dmat4& projection, const Math::dmat4& viewMatrix ) -> std::array<Math::dplane, 6>
 	{
-		const Math::dmat4 clipMatrix = projection * modelView;
+		const Math::dmat4 clipMatrix = projection * viewMatrix;
 
 		const Math::dvec4 col0 = Math::row( clipMatrix, 0 );
 		const Math::dvec4 col1 = Math::row( clipMatrix, 1 );
@@ -32,7 +28,7 @@ void View::update()
 			Math::normalize( Math::dplane( col3 - col2 ) ),
 			Math::normalize( Math::dplane( col3 + col2 ) ),
 		};
-	}( _projectionMatrix, mv );
+	}( _projectionTransform.matrix(), _viewMatrix );
 }
 
 
@@ -40,10 +36,10 @@ void View::update()
 Math::dvec3 View::worldPointF( const Math::dvec2 &screenCoord ) const
 {
 	return Math::unProject( Math::dvec3( screenCoord, 0.0 ),
-							_viewMatrix * _modelMatrix,
-							_projectionMatrix,
+							_viewMatrix,
+							_projectionTransform.matrix(),
 
-							Math::vec4( _viewport.left(),
+							Math::vec4( _viewport.left(),							
 							_viewport.bottom(),
 							_viewport.width(),
 							_viewport.height() )
@@ -55,8 +51,8 @@ Math::dvec3 View::worldPointF( const Math::dvec2 &screenCoord ) const
 Math::ivec2 View::screenPoint( const Math::dvec3 &worldCoord ) const
 {
 	return Math::project( worldCoord,
-						  _viewMatrix * _modelMatrix,
-						  _projectionMatrix,
+						  _viewMatrix,
+						  _projectionTransform.matrix(),
 
 						  Math::vec4( _viewport.left(),
 						  _viewport.bottom(),
@@ -84,7 +80,7 @@ double View::pixelToWorldSize( int pixels ) const
 	Math::dvec3 skew;
 	Math::dvec4 perspective;
 
-	Math::decompose( _projectionMatrix, scale, rotation, translation, skew, perspective ); // @todo_dv: need to decompose modelviewpersp?
+	Math::decompose( _projectionTransform.matrix(), scale, rotation, translation, skew, perspective ); // @todo_dv: need to decompose modelviewpersp?
 
 	const double horizontalScaleFactor = std::abs( scale.x ) * 0.5; // const double horizontalScaleFactor = _projectionMatrix[0][0] * 0.5; 
 
@@ -105,8 +101,8 @@ int View::worldToPixelSize( double worldSize ) const
 	const Math::dvec3 t( worldSize, 0, 0 );
 
 	Math::dvec3 zero = Math::project( Math::dvec3( 0.0 ),
-									  /*Math::dmat4(1.0),*/_viewMatrix * _modelMatrix,
-									  _projectionMatrix,
+									  /*Math::dmat4(1.0),*/_viewMatrix,
+									  _projectionTransform.matrix(),
 
 									  Math::vec4( _viewport.left(),
 									  _viewport.bottom(),
@@ -115,8 +111,8 @@ int View::worldToPixelSize( double worldSize ) const
 	);
 
 	Math::dvec3 out = Math::project( t,
-									 /*Math::dmat4(1.0),*/ _viewMatrix * _modelMatrix,
-									 _projectionMatrix,
+									 /*Math::dmat4(1.0),*/ _viewMatrix,
+									 _projectionTransform.matrix(),
 
 									 Math::vec4( _viewport.left(),
 									 _viewport.bottom(),
@@ -132,47 +128,53 @@ int View::worldToPixelSize( double worldSize ) const
 }
 
 // -------------------------------------------------------------------------------------
+Math::dray View::rayAt( const Math::ivec2 &screenCoord ) const
+{
+	const Math::dvec3 tn( screenCoord, 0.0 );
+	const Math::dvec3 tf( screenCoord, 0.0 );
+
+	const Math::ivec4 vp( _viewport.left(), _viewport.bottom(), _viewport.width(), _viewport.height() );
+
+	const Math::dvec3 n = Math::unProject( tn, _viewMatrix, _projectionTransform.matrix(), vp );
+	const Math::dvec3 f = Math::unProject( tf, _viewMatrix, _projectionTransform.matrix(), vp );
+
+	return Math::dray( _cameraEye, Math::normalize(f-n) );
+
+}
+
+// -------------------------------------------------------------------------------------
 bool View::isOrthographic() const
 {
-	// check if last row is ( 0,0,0,1 )
-	return Math::all( Math::equal( _projectionMatrix[3], Math::dvec4( 0.0, 0.0, 0.0, 1.0 ) ) );
+	return _projectionTransform.isOrthographic();
 }
 
 // -------------------------------------------------------------------------------------
 bool View::isPerspective()  const
 {
-	return !isOrthographic();
+	return _projectionTransform.isPerspective();
 }
 
 // -------------------------------------------------------------------------------------
-bool View::equals( const View &otherView ) const
+bool View::operator==( const View &otherView ) const
 {
-	return _viewport         == otherView._viewport
-		&& _projectionMatrix == otherView._projectionMatrix
-		&& _viewMatrix       == otherView._viewMatrix
-		&& _modelMatrix      == otherView._modelMatrix
+	return _viewport            == otherView._viewport
+		&& _projectionTransform.matrix() == otherView._projectionTransform.matrix()
+		&& _viewMatrix          == otherView._viewMatrix
 		;
 }
 
-// -------------------------------------------------------------------------------------
-Math::dmat4 View::screenSpaceProjectionMatrix() const
-{
-	return  Math::ortho( 0.0, (double) _viewport.width(), 0.0, (double) _viewport.height(), -50.0, 50.0 ) *
-		Math::lookAt( Math::dvec3( 0.0, 0.0, 1.0 ), Math::dvec3( 0.0, 0.0, 0.0 ), Math::dvec3( 0.0, 1.0, 0.0 ) );
-}
+// // -------------------------------------------------------------------------------------
+// Math::dmat4 View::modelViewMatrixRelativeToEye() const
+// {
+// 	const Math::dmat4 mv = modelViewMatrix();
+// 	const Math::dvec4 modelViewTransl = mv[3];
 
-// -------------------------------------------------------------------------------------
-Math::dmat4 View::modelViewMatrixRelativeToEye() const
-{
-	const Math::dmat4 mv = modelViewMatrix();
-	const Math::dvec4 modelViewTransl = mv[3];
+// 	return Math::dmat4( mv[0], mv[1], mv[2], Math::dvec4( 0, 0, 0, 1 ) );
+// }
 
-	return Math::dmat4( mv[0], mv[1], mv[2], Math::dvec4( 0, 0, 0, 1 ) );
-}
+// // -------------------------------------------------------------------------------------
+// Math::dmat4 View::modelViewMatrixProjectionRelatveToEye() const
+// {
+// 	return projectionMatrix() * modelViewMatrixRelativeToEye();
+// }
 
-// -------------------------------------------------------------------------------------
-Math::dmat4 View::modelViewMatrixProjectionRelatveToEye() const
-{
-	return projectionMatrix() * modelViewMatrixRelativeToEye();
-}
-
