@@ -5,7 +5,7 @@
 #include <entt/entt.hpp>
 
 namespace s2 {
-namespace Scene {
+namespace ECS {
 
 // ------------------------------------------------------------------------------------------------
 template<typename T, typename... Args>
@@ -48,5 +48,5 @@ void World::each(std::function<void(Entity, Properties&...)> func)
     }
 }
 
-} // namespace Scene
+} // namespace ECS
 } // namespace s2

@@ -1,14 +1,14 @@
 // Entity.h
 //
-#ifndef S2_SCENE_ENTITY_H
-#define S2_SCENE_ENTITY_H
+#ifndef S2_ECS_ENTITY_H
+#define S2_ECS_ENTITY_H
 
 #include "s2Engine_API.h"
 
 #include <cstdint>
 
 namespace s2 {
-namespace Scene {
+namespace ECS {
 
 class World;
 
@@ -43,13 +43,12 @@ public:
     template<typename T>
     void removeProperty();
 
-
 private:
     EntityID _id { EntityInvalidID };
-    World* _world {nullptr};
+    World* _world { nullptr };
 };
 
 }
 }
 
-#endif // !S2_SCENE_ENTITY_H
+#endif // !S2_ECS_ENTITY_H

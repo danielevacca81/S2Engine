@@ -6,7 +6,7 @@
 
 #include <entt/entt.hpp>
 
-using namespace s2::Scene;
+using namespace s2::ECS;
 
 // ------------------------------------------------------------------------------------------------
 World::World() 

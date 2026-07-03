@@ -1,12 +1,12 @@
 // Properties.h
 //
-#ifndef S2_SCENE_PROPERTIES
-#define S2_SCENE_PROPERTIES
+#ifndef S2_ECS_PROPERTIES
+#define S2_ECS_PROPERTIES
 
 #include "Entity.h"
 
 namespace s2{
-namespace Scene{
+namespace ECS{
 
 struct Hierarchy
 {
@@ -29,4 +29,4 @@ struct WorldTransform
 }
 }
 
-#endif //!S2_SCENE_PROPERTIES
+#endif //!S2_ECS_PROPERTIES

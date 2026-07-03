@@ -4,7 +4,7 @@
 
 #include "World.h"
 
-using namespace s2::Scene;
+using namespace s2::ECS;
 
 // ------------------------------------------------------------------------------------------------
 bool Entity::isValid() const 

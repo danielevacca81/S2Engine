@@ -1,7 +1,7 @@
 // World.h
 //
-#ifndef S2_SCENE_WORLD_H
-#define S2_SCENE_WORLD_H
+#ifndef S2_ECS_WORLD_H
+#define S2_ECS_WORLD_H
 
 #include "s2Engine_API.h"
 
@@ -13,7 +13,7 @@
 #include <functional>
 
 namespace s2 {
-namespace Scene {
+namespace ECS {
 
 class S2ENGINE_API World 
 {
@@ -46,9 +46,9 @@ private:
     std::unique_ptr<entt::registry> _registry;
 };
 
-} // namespace Scene
+} // namespace ECS
 } // namespace s2
-
+    
 #include "World.inl"
 
 #endif // !S2_SCENE_WORLD_H
