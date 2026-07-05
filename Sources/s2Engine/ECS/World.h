@@ -42,6 +42,9 @@ public:
     template<typename... Properties>
     void each(std::function<void(Entity, Properties&...)> func);
 
+    template<typename... Properties, typename Func>
+    void each(Func&& func);
+
 private:
     std::unique_ptr<entt::registry> _registry;
 };
@@ -49,6 +52,6 @@ private:
 } // namespace ECS
 } // namespace s2
     
-#include "World.inl"
+#include "World.hpp"
 
 #endif // !S2_SCENE_WORLD_H

@@ -40,11 +40,18 @@ void World::removeProperty(Entity entity)
 template<typename... Properties>
 void World::each(std::function<void(Entity, Properties&...)> func)
 {
+    each<std::function<void(Entity, Properties&...)>, Properties...>(std::move(func));
+}
+
+// ------------------------------------------------------------------------------------------------
+template<typename... Properties, typename Func>
+void World::each(Func&& func)
+{
     auto view = _registry->view<Properties...>();
-    for (auto enttId : view) 
+    for (auto enttId : view)
     {
         Entity entity(static_cast<Entity::EntityID>(enttId), this);
-        func(entity, view.template get<Properties>(enttId)...);
+        std::forward<Func>(func)(entity, view.template get<Properties>(enttId)...);
     }
 }
 
