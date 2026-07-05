@@ -1,14 +1,15 @@
 // Context.cpp
 //
 #include "Context.h"
-#include "RenderBackend.h"
 
-#include "OpenGL.h"
+#include "RenderBackend.h"
 #include "Device.h"
 
 #if defined(_WIN32) || defined(_WIN64)
 #include <windows.h>
+#include "OpenGL.h"
 #else
+#include "OpenGL.h"
 #include <EGL/egl.h> // wayland or modern x11
 #include <GL/glx.h>  // classic x11 
 #endif

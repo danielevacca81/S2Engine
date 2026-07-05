@@ -63,7 +63,7 @@ static inline std::optional<ImageData> loadWithSTB( const std::filesystem::path&
     // Set flip flag  
     stbi_set_flip_vertically_on_load( flipVertically );  
   
-    int width, height, channels;  
+    int32_t width, height, channels;  
     uint8_t* pixels = stbi_load( filename.string().c_str(), &width, &height, &channels, 0 );  
   
     if( !pixels )  
@@ -72,8 +72,8 @@ static inline std::optional<ImageData> loadWithSTB( const std::filesystem::path&
     // Create Pixmap and copy data  
     s2::Pixmap<uint8_t> pixmap( width, height, channels, nullptr );  
   
-    const size_t totalBytes = size_t(width * height * channels);  
-    for( size_t i = 0; i < totalBytes; ++i )  
+    const int32_t totalBytes = int32_t(width * height * channels);  
+    for( int32_t i = 0; i < totalBytes; ++i )  
         pixmap[i] = pixels[i];  
   
     // Free STB memory  
@@ -97,7 +97,7 @@ static inline std::optional<ImageData> loadWithSTBFromMemory( const uint8_t* dat
 {  
     stbi_set_flip_vertically_on_load( flipVertically );  
   
-    int width, height, channels;  
+    int32_t width, height, channels;  
     uint8_t* pixels = stbi_load_from_memory(   
         data,   
         static_cast<int>( size ),   
@@ -111,8 +111,8 @@ static inline std::optional<ImageData> loadWithSTBFromMemory( const uint8_t* dat
   
     s2::Pixmap<uint8_t> pixmap( width, height, channels, nullptr );  
       
-    const size_t totalBytes = size_t(width * height * channels);  
-    for( size_t i = 0; i < totalBytes; ++i )  
+    const auto totalBytes = int32_t(width * height * channels);  
+    for( int32_t i = 0; i < totalBytes; ++i )  
         pixmap[i] = pixels[i];  
   
     stbi_image_free( pixels );  

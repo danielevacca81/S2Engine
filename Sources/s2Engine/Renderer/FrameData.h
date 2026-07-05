@@ -10,7 +10,6 @@
 
 #include <unordered_map>
 #include <string>
-#include <vector>
 #include <any>
 
 namespace s2 {
