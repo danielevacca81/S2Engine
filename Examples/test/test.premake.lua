@@ -1,14 +1,12 @@
 -- test.premake.lua
 
-local vcpkg_triplet = "x64-windows-static"
-if os.host() == "linux" then
-    vcpkg_triplet = "x64-linux"
-end
+local vcpkg_triplet = (os.host() == "windows") and "x64-windows-static-md" or "x64-linux"
 local vcpkg_dir = path.getabsolute("./vcpkg_installed/" .. vcpkg_triplet)
+
 
 -- Usa path assoluti per le variabili di percorso
 sourcedir   = path.getabsolute("src")
-outdir      = path.getabsolute("./.build")
+outdir      = path.getabsolute(".build")
 sysbuilddir = "%{cfg.system}/%{cfg.buildcfg}"
 s2Enginedir = path.getabsolute("../../s2Engine")
 
@@ -19,17 +17,13 @@ workspace "test"
     configurations { "Debug", "Release" }
     startproject "test"
         
-    -- Common flags
-    flags {
-        "MultiProcessorCompile"
-    }
-    
-    -- C++ standard
+    flags { "MultiProcessorCompile"}
     cppdialect "C++20"
     
     -- Platform specific settings
     filter "system:windows"
         systemversion "latest"
+    filter {}
     
     filter "configurations:Debug"
         defines { "_DEBUG" }
@@ -42,14 +36,15 @@ workspace "test"
         runtime "Release"
         symbols "On"
         optimize "Speed"
-        flags { "LinkTimeOptimization" }
-    
+        --flags { "LinkTimeOptimization" }
     filter {}
+    
+    
 
 -- test
 project "test"
     kind "ConsoleApp"
-    location ("%{outdir}")
+    location "%{outdir}"
     language "C++"
     cppdialect "C++20"
     
@@ -67,35 +62,80 @@ project "test"
     -- additional include directories
     includedirs { 
         "%{sourcedir}/",
-        s2Enginedir .. "/include/",
         vcpkg_dir .. "/include",
+        s2Enginedir .. "/include/",
     }
 
     libdirs {
         s2Enginedir .. "/bin/%{cfg.system}/%{cfg.buildcfg}/",
-        vcpkg_dir .. "/lib"
     }
-    
-    -- Librerie comuni a tutti i sistemi
+
     links {
         "s2Engine",
-        "imgui",
     }
-    
-    defines {
-    }
+
        
-    filter "system:windows"
-        links { 
+    defines {}
+
+    filter { "configurations:Debug" }
+        defines { "_DEBUG" }
+        symbols "On"
+        optimize "Off"
+    filter { "configurations:Release" }
+        defines { "NDEBUG" }
+        symbols "On"
+        optimize "Speed"
+        --flags { "LinkTimeOptimization" }
+    filter {}
+
+    filter "system:linux"
+        libdirs {
+            vcpkg_dir .. "/lib"
         }
+        links {
+            -- "spdlog",
+            -- "fmt",
+            -- "glfw3",
+            -- "glad",
+            "imgui",
+        }
+
+    filter { "system:windows", "configurations:Debug" }
+        staticruntime "Off"
+        runtime "Debug"
+        libdirs {
+            vcpkg_dir .. "/debug/lib",
+        }
+        links{
+            "imguid"
+        }
+
+    filter { "system:windows", "configurations:Release" }
+        staticruntime "Off"
+        runtime "Release"
+        defines { }
+        libdirs {
+            vcpkg_dir .. "/lib"
+        }
+        links{
+            "imgui"
+        }        
+    filter {}
+
+
+
+
+
+    filter "system:windows"
+        postbuildcommands {
+            ("{COPYFILE} %{s2Enginedir}/bin/%{cfg.system}/%{cfg.buildcfg}/s2Engine.dll %{cfg.targetdir}"),
+        }    
         
     filter "system:linux"
         postbuildcommands {
             ("{COPYFILE} %{s2Enginedir}/bin/%{cfg.system}/%{cfg.buildcfg}/libs2Engine.so %{cfg.targetdir}"),
         }
         linkoptions { "-Wl,-rpath='$$ORIGIN'" }
-        links { 
-        }
         
     filter {} -- Reset filters
 

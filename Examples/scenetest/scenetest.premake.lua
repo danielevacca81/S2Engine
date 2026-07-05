@@ -2,90 +2,116 @@
 -- actions: 
 --     vs2022
 --     gmake2 --os=linux
-local vcpkg_triplet = "x64-windows-static"
-if os.host() == "linux" then
-    vcpkg_triplet = "x64-linux"
-end
+local vcpkg_triplet = (os.host() == "windows") and "x64-windows-static-md" or "x64-linux"
 local vcpkg_dir = path.getabsolute("./vcpkg_installed/" .. vcpkg_triplet)
 
+
+sourcedir   = path.getabsolute("src")
+outdir      = path.getabsolute("./.build")
+sysbuilddir = "%{cfg.system}/%{cfg.buildcfg}"
+s2Enginedir = path.getabsolute("../../s2Engine")
+
 workspace "SceneTest"
-    location "."
+    location "%{outdir}"
     architecture "x64"
     configurations { "Debug", "Release" }
     startproject "SceneTest"
 
-    outdir      = path.getabsolute("./.build")
-
     -- Common flags
-    flags {
-        "MultiProcessorCompile"
+    flags {"MultiProcessorCompile"}
+    cppdialect "C++20"
+ 
+-- SceneTest Project
+project "SceneTest"
+    kind "ConsoleApp"
+    location "%{outdir}"
+    language "C++"
+    cppdialect "C++20"
+    
+    targetdir ( "%{outdir}/bin/%{sysbuilddir}" ) -- i.e. bin/windows/release
+    objdir    ( "%{outdir}/tmp/%{sysbuilddir}" )    
+
+    -- Source files
+    files {
+        "%{sourcedir}/**.h",
+        "%{sourcedir}/**.c",
+        "%{sourcedir}/**.hpp",
+        "%{sourcedir}/**.cpp",
+    }
+    
+    -- additional include directories
+    includedirs { 
+        "%{sourcedir}/",
+        vcpkg_dir .. "/include",
+        s2Enginedir .. "/include/",
     }
 
-    -- C++ standard
-    cppdialect "C++20"
+    libdirs {
+        s2Enginedir .. "/bin/%{cfg.system}/%{cfg.buildcfg}/",
+    }
+    
+    -- Librerie comuni a tutti i sistemi
+    links {
+        "s2Engine",
+    }
+        
+    defines {}
 
     -- Platform specific settings
     filter "system:windows"
         systemversion "latest"
-
+    filter {}
+    
     filter "configurations:Debug"
         defines { "_DEBUG" }
         runtime "Debug"
         symbols "On"
         optimize "Off"
-
+    
     filter "configurations:Release"
         defines { "NDEBUG" }
         runtime "Release"
         symbols "On"
         optimize "Speed"
+        --flags { "LinkTimeOptimization" }
+    filter {}    
 
+    filter { "system:windows", "configurations:Debug" }
+        staticruntime "Off"
+        libdirs {
+            vcpkg_dir .. "/debug/lib",
+        }
+        links{
+            "imguid"
+        }
+
+    filter { "system:windows", "configurations:Release" }
+        staticruntime "Off"
+        defines { }
+        libdirs {
+            vcpkg_dir .. "/lib"
+        }
+        links{
+            "imgui"
+        }        
     filter {}
 
--- SceneTest Project
-project "SceneTest"
-    kind "ConsoleApp"
-    language "C++"
-    cppdialect "C++20"
 
-	targetdir ( "%{outdir}/bin/%{sysbuilddir}" ) -- i.e. bin/windows/release
-	objdir    ( "%{outdir}/tmp/%{sysbuilddir}" )	
 
-    -- Source files
-    files
-    {
-        "src/**.h",
-        "src/**.hpp",
-        "src/**.cpp",
-    }
-
-    -- Include directories
-    includedirs {
-        "src/",
-        "../../s2Engine/include/",
-        vcpkg_dir .. "/include"
-    }
-
-    -- Library directories
-    libdirs {
-        "../../s2Engine/bin/%{cfg.system}/%{cfg.buildcfg}/",
-        vcpkg_dir .. "/lib"
-    }
-
-    -- Link libraries
-    links {
-        "s2Engine",
-        "imgui",
-    }
+    -- post build events
+    filter "system:windows"
+        postbuildcommands {
+            ("{COPYFILE} %{s2Enginedir}/bin/%{cfg.system}/%{cfg.buildcfg}/s2Engine.dll %{cfg.targetdir}"),
+        }    
+        links { 
+        }
         
     filter "system:linux"
+        postbuildcommands {
+            ("{COPYFILE} %{s2Enginedir}/bin/%{cfg.system}/%{cfg.buildcfg}/libs2Engine.so %{cfg.targetdir}"),
+        }
         linkoptions { "-Wl,-rpath='$$ORIGIN'" }
-    
-    -- Copy s2Engine to output directory
-    --postbuildcommands {
-    --    ("{COPYFILE} %{wks.location}/../../s2Engine/bin/%{cfg.system}/%{cfg.buildcfg}/s2Engine.dll %{cfg.buildtarget.directory}"),
-    --}
-
-    
-
-    filter {}
+        links { 
+        }
+        
+    filter {} -- Reset filters

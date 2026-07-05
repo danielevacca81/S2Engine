@@ -1,67 +1,38 @@
 -- Solution.lua
--- actions: 
+-- actions:
 --     vs2022
 --     gmake2 --os=linux
 
--- 1. Determina il triplet di vcpkg in base al sistema operativo host
-local vcpkg_triplet = "x64-windows-static"
-if os.host() == "linux" then
-    vcpkg_triplet = "x64-linux"
-end
+local vcpkg_triplet = (os.host() == "windows") and "x64-windows-static-md" or "x64-linux"
 local vcpkg_dir = path.getabsolute("./vcpkg_installed/" .. vcpkg_triplet)
 
-
--- SOLUTION
-workspace "s2Engine" 
+workspace "s2Engine"
     location ".build"
     architecture "x64"
     configurations { "Debug", "Release" }
     startproject "s2Engine"
-    
-    -- Usa path assoluti per le variabili di percorso
+
     sourcedir   = path.getabsolute("s2Engine")
     outdir      = path.getabsolute(".build")
     deploydir   = path.getabsolute("../s2Engine")
-    sysbuilddir  = "%{cfg.system}/%{cfg.buildcfg}"
-    
-    -- Common flags
-    flags {
-        "MultiProcessorCompile"
-    }
-    
-    -- C++ standard
+    sysbuilddir = "%{cfg.system}/%{cfg.buildcfg}"
+
+    flags { "MultiProcessorCompile" }
     cppdialect "C++20"
-    
-    -- Platform specific settings
+
     filter "system:windows"
         systemversion "latest"
-    
-    filter "configurations:Debug"
-        defines { "_DEBUG" }
-        runtime "Debug"
-        symbols "On"
-        optimize "Off"
-    
-    filter "configurations:Release"
-        defines { "NDEBUG" }
-        runtime "Release"
-        symbols "On"
-        optimize "Speed"
-        flags { "LinkTimeOptimization" }
-    
     filter {}
 
--- Main Engine Project
 project "s2Engine"
     kind "SharedLib"
-    location ("%{outdir}")
+    location "%{outdir}"
     language "C++"
     cppdialect "C++20"
-    
-    targetdir ( "%{outdir}/bin/%{sysbuilddir}" ) -- i.e. bin/windows/release
-    objdir    ( "%{outdir}/tmp/%{sysbuilddir}" )    
 
-    -- list of files
+    targetdir("%{outdir}/bin/%{sysbuilddir}")
+    objdir("%{outdir}/tmp/%{sysbuilddir}")
+
     files {
         "%{sourcedir}/**.h",
         "%{sourcedir}/**.c",
@@ -69,34 +40,84 @@ project "s2Engine"
         "%{sourcedir}/**.cpp",
         "%{sourcedir}/**.inl",
     }
-    
-    -- additional include directories
-    includedirs { 
-        vcpkg_dir .. "/include",
+
+    includedirs {
         "%{sourcedir}/",
+        vcpkg_dir .. "/include",
     }
 
-    libdirs {
-        vcpkg_dir .. "/lib"
-    }
+    defines { "S2ENGINE_EXPORTS", "SPDLOG_COMPILED_LIB" }
     
-    -- Librerie comuni a tutti i sistemi
-    links {
-        "spdlog",
-        "fmt",
-        "glfw3",
-        "glad"
-    }
-    
-    defines {
-        "S2ENGINE_EXPORTS",
-    }
-    
+    filter { "configurations:Debug" }
+        defines { "_DEBUG" }
+        symbols "On"
+        optimize "Off"
+    filter { "configurations:Release" }
+        defines { "NDEBUG" }
+        symbols "On"
+        optimize "Speed"
+        --flags { "LinkTimeOptimization" }
+    filter {}
+
+    filter "system:linux"
+        libdirs {
+            vcpkg_dir .. "/lib"
+        }
+        links {
+            "spdlog",
+            "fmt",
+            "glfw3",
+            "glad",
+            "imgui",
+        }
+
+    filter { "system:windows", "configurations:Debug" }
+        staticruntime "Off"
+        runtime "Debug"        
+        defines { "GLFW_STATIC" }
+
+        libdirs {
+            vcpkg_dir .. "/debug/lib",
+        }
+        links {
+            "spdlogd",
+            "fmtd",
+            "glfw3",
+            "glad",
+            "imguid",
+            "opengl32",
+            "gdi32",
+            "user32",
+            "shell32",
+        }
+
+    filter { "system:windows", "configurations:Release" }
+        staticruntime "Off"
+        runtime "Release"
+        defines { "GLFW_STATIC" }
+
+        libdirs {
+            vcpkg_dir .. "/lib"
+        }
+        links {
+            "spdlog",
+            "fmt",
+            "glfw3",
+            "glad",
+            "imgui",
+            "opengl32",
+            "gdi32",
+            "user32",
+            "shell32",
+        }
+    filter {}
+
     postbuildcommands {
         ("{MKDIR}     %{deploydir}/bin/%{sysbuilddir}"),
         ("{MKDIR}     %{deploydir}/include"),
         ("{MKDIR}     %{deploydir}/include/Application"),
         ("{MKDIR}     %{deploydir}/include/Core"),
+        ("{MKDIR}     %{deploydir}/include/ECS"),
         ("{MKDIR}     %{deploydir}/include/Geometry"),
         ("{MKDIR}     %{deploydir}/include/Graphics"),
         ("{MKDIR}     %{deploydir}/include/Math"),
@@ -107,11 +128,11 @@ project "s2Engine"
 
         ("{COPYFILE}  %{cfg.buildtarget.relpath} %{deploydir}/bin/%{sysbuilddir}"),
         ("{COPYFILE}  %{cfg.linktarget.relpath} %{deploydir}/bin/%{sysbuilddir}"),
-		--("{COPYFILE} %{cfg.targetdir}".."/*.*".." %{deploydir}/bin/%{sysbuilddir}"),
-        --
+
         ("{COPYFILE}  %{sourcedir}/s2Engine_API.h   %{deploydir}/include"),
         ("{COPYFILE}  %{sourcedir}/Application/*.h* %{deploydir}/include/Application"),
         ("{COPYFILE}  %{sourcedir}/Core/*.h*        %{deploydir}/include/Core"),
+        ("{COPYFILE}  %{sourcedir}/ECS/*.h*         %{deploydir}/include/ECS"),
         ("{COPYFILE}  %{sourcedir}/Geometry/*.h*    %{deploydir}/include/Geometry"),
         ("{COPYFILE}  %{sourcedir}/Graphics/*.h*    %{deploydir}/include/Graphics"),
         ("{COPYFILE}  %{sourcedir}/Math/*.h*        %{deploydir}/include/Math"),
@@ -120,22 +141,3 @@ project "s2Engine"
         ("{COPYFILE}  %{sourcedir}/Resources/*.h*   %{deploydir}/include/Resources"),
         ("{COPYFILE}  %{sourcedir}/Scene/*.h*       %{deploydir}/include/Scene"),
     }
-    
-    filter "system:windows"
-        links { 
-            "opengl32",
-            "gdi32",
-            "user32",
-            "shell32"
-        }
-        
-    filter "system:linux"
-        links { 
-            "GL",       -- same as opengl32
-            "EGL",
-            "pthread",  -- Threading
-            "dl",       -- Dynamic loading
-            "m"         -- Math library base di Linux
-        }
-        
-    filter {} -- Reset filters
