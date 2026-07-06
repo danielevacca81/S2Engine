@@ -15,7 +15,6 @@
 // ------------------------------------------------------------------------------------------------
 static inline bool supportMemoryQuery()
 {
-	//return glewIsSupported( "GL_NVX_gpu_memory_info" );
 	return GLAD_GL_NVX_gpu_memory_info;
 }
 // ------------------------------------------------------------------------------------------------

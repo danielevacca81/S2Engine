@@ -8,6 +8,7 @@
 #include <memory>
 #include <format>
 #include <string_view>
+#include <string>
 
 namespace s2 {
 
@@ -20,11 +21,33 @@ enum class LogLevel
     Fatal,
 };
 
+struct LogParams
+{
+    struct FileLogger
+    {
+        uint64_t maxSize       { 0 };
+        uint64_t maxFilesCount { 0 };
+        bool     rotating      { false };
+        bool     enabled       { false };
+    };
+
+    struct ConsoleLogger
+    {
+        bool enabled { true };
+    };
+
+
+    ConsoleLogger  console;
+    FileLogger     file;
+
+    std::string    pattern;
+};
+
 class S2ENGINE_API Log
 {
 
 public:
-    static void init( const std::string& loggerName = "s2Engine", LogLevel level = LogLevel::Trace );
+    static void init( const std::string& loggerName = "s2Engine", const LogLevel &level = LogLevel::Trace, const LogParams &params = {});
     static void logMessage( const LogLevel &level, std::string_view message );
 };
 

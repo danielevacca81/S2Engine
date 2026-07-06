@@ -6,8 +6,6 @@
 
 #include "GLFW/glfw3.h"
 
-#include <memory>
-
 using namespace s2;
 
 static Application* gGlobalAppInstance = nullptr;
@@ -17,7 +15,15 @@ struct Application::Impl
 {
     static std::unique_ptr<Impl> create()
     {
+        if( !glfwInit() )
+            throw std::runtime_error( "Failed to initialize GLFW" );
+
         return std::make_unique<Impl>();
+    }
+
+    ~Impl()
+    {
+        glfwTerminate();
     }
 };
 
@@ -25,12 +31,10 @@ struct Application::Impl
 // ------------------------------------------------------------------------------------------------
 Application::Application( const std::string& name )
     : _impl( Impl::create() )
+    , _name( name )
 {
     if( gGlobalAppInstance )
         throw std::runtime_error( "Only one application instance is allowed" );
-
-    if( !glfwInit() )
-        throw std::runtime_error( "Failed to initialize GLFW" );
 
     gGlobalAppInstance = this;
 }
@@ -41,7 +45,7 @@ Application::~Application()
     for( auto& w : _windows )
         w.reset();
 
-    glfwTerminate();
+    _impl.reset();
     gGlobalAppInstance = nullptr;
 }
 
@@ -49,6 +53,12 @@ Application::~Application()
 Application* Application::instance()
 {
     return gGlobalAppInstance;
+}
+
+// ------------------------------------------------------------------------------------------------
+void Application::enableLogging( const std::string &loggerName, const LogLevel &level, const LogParams &params )
+{
+    Log::init(loggerName, level, params );
 }
 
 // ------------------------------------------------------------------------------------------------

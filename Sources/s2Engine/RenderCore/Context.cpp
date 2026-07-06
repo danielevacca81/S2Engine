@@ -14,9 +14,10 @@
 #include <GL/glx.h>  // classic x11 
 #endif
 
+#include "Core/Log.h"
+
 #include <map>
 #include <mutex>
-#include <iostream>
 
 using namespace s2::RenderCore;
 
@@ -51,20 +52,11 @@ Context::Context()
 #if defined(_WIN32) || defined(_WIN64)
 	_nativeHandle = (uint64_t) wglGetCurrentContext();
 #elif defined(__linux__)
-	//glewExperimental = GL_TRUE;
     _nativeHandle = (uint64_t) eglGetCurrentContext();
     
 	if (_nativeHandle == 0x0)
         _nativeHandle = (uint64_t) glXGetCurrentContext();
 #endif
-	// auto ok = glewInit();
-	// if( ok != GLEW_OK )
-	// {
-	// 	std::cout << "GLEW Init returned " << ok << '\n';
-	// 	std::cout << "  - Native Handle: " << _nativeHandle << '\n';
-
-	// 	throw std::runtime_error( "GLEW initialization failed!" );
-	// }
 
 	_info.init();
 	RenderCore::init(); // initialize shaders and samplers for this context
@@ -72,11 +64,10 @@ Context::Context()
 	// Create renderer backend (primary interface for rendering operations)
 	_rendererBackend = std::make_unique<RenderBackend>( *this );
 
-	std::cout
-		<< "Registering Context: 0x" << std::hex << (uint32_t) _nativeHandle << '\n'
-		<< _info.toString()
-		<< std::endl
-		;
+	LOG( Info, "Registering Context: 0x{:x}\n{}"
+		, (uint32_t) _nativeHandle
+		, _info.toString()
+	);
 
 	// add this context to registry for lookup in Context::current()
 	{
@@ -88,20 +79,22 @@ Context::Context()
 // ------------------------------------------------------------------------------------------------
 Context::~Context()
 {
-	std::cout << "Destroying context: 0x" << std::hex << (uint32_t) _nativeHandle << '\n';
+	LOG( Info,"Destroying Context: 0x{:x}\n"
+		, (uint32_t) _nativeHandle
+	);
 
 	std::lock_guard lock( gRegistryMutex );
 	gRegistry.erase( _nativeHandle );
 
 	if( gRegistry.empty() )
 	{
-		std::cout << "No more Contexts. Destroying RenderCore resources." << '\n';
+		LOG( Info, "No more Contexts. Destroying RenderCore resources.");
 		RenderCore::destroy();
 	}
 	else
 	{
-		std::cout << "Contexts: " << '\n';
+		LOG( Info, "Contexts: " );
 		for( auto& i : gRegistry )
-			std::cout << "   handle " << std::hex << (uint32_t) i.first << " ContextPtr " << i.second << '\n';
+			LOG( Info, "   handle {:x}", (uint32_t) i.first);
 	}
 }

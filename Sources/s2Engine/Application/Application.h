@@ -6,6 +6,7 @@
 #include "s2Engine_API.h"
 
 #include "Core/TimePoint.h"
+#include "Core/Log.h"
 
 #include <string>
 #include <memory>
@@ -29,11 +30,14 @@ public:
     Application( Application&& )       = delete;
     void operator=( const Application& ) = delete;
     void operator=( Application&& )      = delete;
-	    
+	
+    virtual void                           enableLogging( const std::string &loggerName, const LogLevel &level = {}, const LogParams &params = {} );
     virtual void                           addWindow( std::unique_ptr<Window> w );
     virtual const std::unique_ptr<Window>& mainWindow() const;
     virtual uint64_t                       elapsedTime_ms() const;
     virtual int32_t                        run();
+
+    virtual std::string name() const { return _name; }
 
 protected:
     virtual void updateState() {}
@@ -41,6 +45,7 @@ protected:
 protected:
     std::vector<std::unique_ptr<Window>> _windows;
     HighResTimePoint                     _appTimer;
+    std::string                          _name;
 
 private:
     struct Impl;

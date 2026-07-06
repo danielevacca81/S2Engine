@@ -10,20 +10,33 @@ namespace s2 {
 static std::shared_ptr<spdlog::logger> s2Logger;
 
 // ------------------------------------------------------------------------------------------------
-void Log::init( const std::string& loggerName, LogLevel level )
+void Log::init( const std::string& loggerName, const LogLevel &level, const LogParams &params )
 {
-    // es. "[12:34:56] s2Engine: initialization completed"
-    spdlog::set_pattern("%^[%T] %n: %v%$");
+    if( s2Logger ) 
+        return;
+
+    spdlog::set_pattern( params.pattern.empty()
+        ? "%^[%T][%-8l] %n:: %v%$"      // es. "[12:34:56][ info ] s2Engine: initialization completed"
+        : params.pattern
+    );
+   
+    if( params.console.enabled )
+        s2Logger = spdlog::stdout_color_mt(loggerName);
     
-    s2Logger = spdlog::stdout_color_mt(loggerName);
-    switch (level) 
+    // @todo...
+    
+    //
+    if( s2Logger )
     {
-    case LogLevel::Trace: s2Logger->set_level(spdlog::level::trace); break;
-    case LogLevel::Info:  s2Logger->set_level(spdlog::level::info); break;
-    case LogLevel::Warn:  s2Logger->set_level(spdlog::level::warn); break;
-    case LogLevel::Error: s2Logger->set_level(spdlog::level::err); break;
-    case LogLevel::Fatal: s2Logger->set_level(spdlog::level::critical); break;
-    default: s2Logger->set_level(spdlog::level::trace); break;
+        switch (level) 
+        {
+            case LogLevel::Trace: s2Logger->set_level(spdlog::level::trace);    break;
+            case LogLevel::Info:  s2Logger->set_level(spdlog::level::info);     break;
+            case LogLevel::Warn:  s2Logger->set_level(spdlog::level::warn);     break;
+            case LogLevel::Error: s2Logger->set_level(spdlog::level::err);      break;
+            case LogLevel::Fatal: s2Logger->set_level(spdlog::level::critical); break;
+            default:              s2Logger->set_level(spdlog::level::off);      break;
+        }
     }
 }
 
@@ -31,6 +44,9 @@ void Log::init( const std::string& loggerName, LogLevel level )
 // ------------------------------------------------------------------------------------------------
 void Log::logMessage( const LogLevel &level, std::string_view message )
 {
+    if( !s2Logger )
+        return;
+
     switch (level) 
     {
     case LogLevel::Trace: s2Logger->trace(message); break;
