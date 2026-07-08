@@ -4,6 +4,7 @@
 #define S2_ECS_PROPERTIES
 
 #include "Entity.h"
+
 #include "Math/Math.h"
 
 #include <string>
@@ -11,11 +12,7 @@
 namespace s2{
 namespace ECS{
 
-struct Name
-{
-    std::string value;
-};
-
+struct Name { std::string value;};
 struct Hierarchy
 {
     Entity::EntityID parent { Entity::EntityInvalidID };
@@ -35,6 +32,35 @@ struct WorldTransform
 {
     Math::dmat4 matrix { 1.0 };
 };
+
+struct LightData
+{
+    //Type type { Type::Directional };
+    Math::dvec3 color { 1.0, 1.0, 1.0 };
+    double intensity { 1.0 };
+    double range { 10.0 };
+};
+
+
+struct CameraData
+{
+    double fov { 60.0 };
+    double nearPlane { 0.1 };
+    double farPlane { 1000.0 };
+    Math::ivec2 viewportSize { 1920, 1080 };
+};
+
+
+struct ActiveCameraTag {};
+
+struct BodyData
+{
+    double mass { 1.0 };
+    bool isStatic { false };
+};
+
+
+
 
 }
 }

@@ -81,7 +81,7 @@ std::vector<Camera> Scene::cameras() const
 {
     std::vector<Camera> result;
     auto& world = const_cast<World&>(this->world());
-    world.each<Camera::CameraData>([&](Entity entity, Camera::CameraData&)
+    world.each<ECS::CameraData>([&](Entity entity, ECS::CameraData&)
     {
         result.emplace_back(const_cast<Scene*>(this), entity);
     });
@@ -93,7 +93,7 @@ std::vector<Light> Scene::lights() const
 {
     std::vector<Light> result;
     auto& world = const_cast<World&>(this->world());
-    world.each<Light::LightData>([&](Entity entity, Light::LightData&)
+    world.each<ECS::LightData>([&](Entity entity, ECS::LightData&)
     {
         result.emplace_back(const_cast<Scene*>(this), entity);
     });
@@ -105,7 +105,7 @@ std::vector<Body> Scene::bodies() const
 {
     std::vector<Body> result;
     auto& world = const_cast<World&>(this->world());
-    world.each<Body::BodyData>([&](Entity entity, Body::BodyData&)
+    world.each<ECS::BodyData>([&](Entity entity, ECS::BodyData&)
     {
         result.emplace_back(const_cast<Scene*>(this), entity);
     });
@@ -157,6 +157,28 @@ World& Scene::world()
 const World& Scene::world() const
 {
     return *_world;
+}
+
+// ------------------------------------------------------------------------------------------------
+void Scene::setActiveCamera( const Camera &camera )
+{
+    // find any other active camera and set remove the ActiveTag from it
+    _world->each<ECS::ActiveCameraTag>([this](ECS::Entity e)
+                                       { _world->removeProperty<ECS::ActiveCameraTag>(e); });
+
+    if( !camera.isValid() )
+        return;
+    
+    _world->addProperty<ECS::ActiveCameraTag>(camera.entity());
+}
+
+// ------------------------------------------------------------------------------------------------
+Camera Scene::activeCamera() const
+{
+    Camera cam;
+    _world->each<ECS::ActiveCameraTag>([&](ECS::Entity e)
+                                        { cam = Camera(const_cast<Scene*>(this), e); });
+    return cam;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -595,7 +617,7 @@ void Camera::setViewportSize(const Math::ivec2& size)
 }
 
 // ------------------------------------------------------------------------------------------------
-Camera::CameraData& Camera::cameraData()
+s2::ECS::CameraData& Camera::cameraData()
 {
     if (!isValid())
     {
@@ -613,7 +635,7 @@ Camera::CameraData& Camera::cameraData()
 }
 
 // ------------------------------------------------------------------------------------------------
-const Camera::CameraData& Camera::cameraData() const
+const s2::ECS::CameraData& Camera::cameraData() const
 {
     return const_cast<Camera*>(this)->cameraData();
 }
@@ -622,59 +644,59 @@ const Camera::CameraData& Camera::cameraData() const
 Light::Light(Scene* scene, ECS::Entity entity)
 : SceneObject(scene, entity)
 {
-    lightData();
+    //lightData();
 }
 
 // ------------------------------------------------------------------------------------------------
 Light::Type Light::type() const
 {
-    return lightData().type;
+    return lightType;
 }
 
 // ------------------------------------------------------------------------------------------------
 void Light::setType(Type value)
 {
-    lightData().type = value;
+    lightType = value;
 }
 
 // ------------------------------------------------------------------------------------------------
 Math::dvec3 Light::color() const
 {
-    return lightData().color;
+    return _lightData.color;
 }
 
 // ------------------------------------------------------------------------------------------------
 void Light::setColor(const Math::dvec3& value)
 {
-    lightData().color = value;
+    _lightData.color = value;
 }
 
 // ------------------------------------------------------------------------------------------------
 double Light::intensity() const
 {
-    return lightData().intensity;
+    return _lightData.intensity;
 }
 
 // ------------------------------------------------------------------------------------------------
 void Light::setIntensity(double value)
 {
-    lightData().intensity = value;
+    _lightData.intensity = value;
 }
 
 // ------------------------------------------------------------------------------------------------
 double Light::range() const
 {
-    return lightData().range;
+    return _lightData.range;
 }
 
 // ------------------------------------------------------------------------------------------------
 void Light::setRange(double value)
 {
-    lightData().range = value;
+    _lightData.range = value;
 }
 
 // ------------------------------------------------------------------------------------------------
-Light::LightData& Light::lightData()
+s2::ECS::LightData& Light::lightData()
 {
     if (!isValid())
     {
@@ -692,7 +714,7 @@ Light::LightData& Light::lightData()
 }
 
 // ------------------------------------------------------------------------------------------------
-const Light::LightData& Light::lightData() const
+const s2::ECS::LightData& Light::lightData() const
 {
     return const_cast<Light*>(this)->lightData();
 }
@@ -729,7 +751,7 @@ void Body::setStatic(bool value)
 }
 
 // ------------------------------------------------------------------------------------------------
-Body::BodyData& Body::bodyData()
+s2::ECS::BodyData& Body::bodyData()
 {
     if (!isValid())
     {
@@ -747,7 +769,7 @@ Body::BodyData& Body::bodyData()
 }
 
 // ------------------------------------------------------------------------------------------------
-const Body::BodyData& Body::bodyData() const
+const s2::ECS::BodyData& Body::bodyData() const
 {
     return const_cast<Body*>(this)->bodyData();
 }

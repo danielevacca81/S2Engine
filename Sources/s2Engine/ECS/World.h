@@ -27,10 +27,10 @@ public:
 
     // Component Management (Called by Entity or directly by Systems)
     template<typename T, typename... Args>
-    T& addProperty(Entity entity, Args&&... args);
+    decltype(auto) addProperty(Entity entity, Args&&... args);
 
     template<typename T>
-    T& property(Entity entity);
+    decltype(auto) property(Entity entity);
 
     template<typename T>
     bool hasProperty(Entity entity) const;

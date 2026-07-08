@@ -1,4 +1,4 @@
-// World.inl
+// World.hpp
 //
 #pragma once
 
@@ -9,14 +9,14 @@ namespace ECS {
 
 // ------------------------------------------------------------------------------------------------
 template<typename T, typename... Args>
-T& World::addProperty(Entity entity, Args&&... args) 
+decltype(auto) World::addProperty(Entity entity, Args&&... args) 
 {
     return _registry->emplace<T>(static_cast<entt::entity>(entity.id()), std::forward<Args>(args)...);
 }
 
 // ------------------------------------------------------------------------------------------------
 template<typename T>
-T& World::property(Entity entity) 
+decltype(auto) World::property(Entity entity) 
 {
     return _registry->get<T>(static_cast<entt::entity>(entity.id()));
 }
@@ -48,11 +48,19 @@ template<typename... Properties, typename Func>
 void World::each(Func&& func)
 {
     auto view = _registry->view<Properties...>();
-    for (auto enttId : view)
-    {
+    view.each([this, &func](auto enttId, auto&... components) {
+        
         Entity entity(static_cast<Entity::EntityID>(enttId), this);
-        std::forward<Func>(func)(entity, view.template get<Properties>(enttId)...);
-    }
+        func(entity, components...);
+        
+    });
+
+
+    // for (auto enttId : view)
+    // {
+    //     Entity entity(static_cast<Entity::EntityID>(enttId), this);
+    //     std::forward<Func>(func)(entity, view.template get<Properties>(enttId)...);
+    // }
 }
 
 } // namespace ECS

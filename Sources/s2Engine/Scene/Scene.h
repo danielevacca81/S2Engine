@@ -92,17 +92,11 @@ public:
     void setViewportSize(const Math::ivec2& size);
 
 public:
-    struct CameraData
-    {
-        double fov { 60.0 };
-        double nearPlane { 0.1 };
-        double farPlane { 1000.0 };
-        Math::ivec2 viewportSize { 1920, 1080 };
-    };
+    ECS::CameraData camera;
 
 private:
-    CameraData& cameraData();
-    const CameraData& cameraData() const;
+    ECS::CameraData& cameraData();
+    const ECS::CameraData& cameraData() const;
 };
 
 class S2ENGINE_API Light : public SceneObject
@@ -131,17 +125,12 @@ public:
     void setRange(double value);
 
 public:
-    struct LightData
-    {
-        Type type { Type::Directional };
-        Math::dvec3 color { 1.0, 1.0, 1.0 };
-        double intensity { 1.0 };
-        double range { 10.0 };
-    };
+    Type lightType;
+    ECS::LightData _lightData;
 
 private:
-    LightData& lightData();
-    const LightData& lightData() const;
+    ECS::LightData& lightData();
+    const ECS::LightData& lightData() const;
 };
 
 class S2ENGINE_API Body : public SceneObject
@@ -157,15 +146,11 @@ public:
     void setStatic(bool value);
 
 public:
-    struct BodyData
-    {
-        double mass { 1.0 };
-        bool isStatic { false };
-    };
+    ECS::BodyData _bodyData;
 
 private:
-    BodyData& bodyData();
-    const BodyData& bodyData() const;
+    ECS::BodyData& bodyData();
+    const ECS::BodyData& bodyData() const;
 };
 
 class S2ENGINE_API Scene
@@ -181,6 +166,9 @@ public:
     Camera createCamera(const std::string& name = {});
     Light createLight(const std::string& name = {});
     Body createBody(const std::string& name = {});
+
+    void setActiveCamera( const Camera &camera );
+    Camera activeCamera() const;
 
     std::vector<SceneObject> objects() const;
     std::vector<Camera> cameras() const;
