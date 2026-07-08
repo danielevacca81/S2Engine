@@ -6,8 +6,8 @@
 #include "Application/Window.h"
 #include "Application/MouseState.h"
 
-#include "Scene/World.h"
-#include "Scene/Camera.h"
+#include "Scene/Scene.h"
+#include "Renderer/View.h"
 #include "Renderer/RenderPass.h"
 
 #include <string>
@@ -40,8 +40,7 @@ private:
 private:
 	s2::Renderer::RenderPasses _renderPasses;
 
-	s2::Scene::World _world;
-	s2::Scene::Camera _camera;
+	s2::Renderer::View _view;
 };
 
 #endif // !MAINWINDOW_H

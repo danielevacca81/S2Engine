@@ -106,9 +106,9 @@ void MainWindow::onInitializeEvent()
 
 	
 
-	auto cube = _world.createEntity( "cubeEntity" )->addComponent<s2::Scene::RenderableComponent>();
-	cube->setMesh( resources->mesh( "cube" ) );
-	cube->setMaterialProperty( "BaseColor", Color{ 1.0f, 0.5f, 0.31f } );
+	// auto cube = _world.createEntity( "cubeEntity" )->addComponent<s2::Scene::RenderableComponent>();
+	// cube->setMesh( resources->mesh( "cube" ) );
+	// cube->setMaterialProperty( "BaseColor", Color{ 1.0f, 0.5f, 0.31f } );
 
 
 }
@@ -130,9 +130,8 @@ void MainWindow::onResizeEvent( uint32_t width, uint32_t height )
 	if( vp.isEmpty() )
 		return;
 
-	_camera.setProjectionTransform(  Math::ProjectionTransform::createPerspective( width / (double) height, 45.0, 0.1, 100.0 ) );
-	_camera.setViewport( vp );
-
+	_view.setProjectionTransform(  Math::ProjectionTransform::createPerspective( width / (double) height, 45.0, 0.1, 100.0 ) );
+	_view.setViewport( vp );
 }
 
 
@@ -155,10 +154,9 @@ void MainWindow::onDraw()
 
 	_renderer->begin(
 		{
-			.renderPasses           = { _renderPasses["forward"] },
-			.renderTarget           = _mainRenderTarget.get(),
-			.cameraViewMatrix       = _camera.worldToCameraMatrix(),
-			.cameraProjectionMatrix = _camera.projectionMatrix(),
+			.renderPasses = { _renderPasses["forward"] },
+			.renderTarget = _mainRenderTarget.get(),
+			.view         = _view,
 		} );
 
 	_renderer->submit( { .clearColor = Color{ 0.3f, 0.4f, 0.5f, 1.0f } } );

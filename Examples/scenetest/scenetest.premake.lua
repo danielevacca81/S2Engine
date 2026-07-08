@@ -56,12 +56,7 @@ project "SceneTest"
     }
         
     defines {}
-
-    -- Platform specific settings
-    filter "system:windows"
-        systemversion "latest"
-    filter {}
-    
+   
     filter "configurations:Debug"
         defines { "_DEBUG" }
         runtime "Debug"
@@ -76,8 +71,14 @@ project "SceneTest"
         --flags { "LinkTimeOptimization" }
     filter {}    
 
+    -- Platform specific settings
+    filter "system:windows"
+        systemversion "latest"
+    filter {}
+
     filter { "system:windows", "configurations:Debug" }
         staticruntime "Off"
+        defines { }
         libdirs {
             vcpkg_dir .. "/debug/lib",
         }
@@ -96,6 +97,33 @@ project "SceneTest"
         }        
     filter {}
 
+    filter "system:linux"
+        links {
+            "GL",
+            "EGL",
+            "pthread",
+            "dl"
+        }
+
+
+    filter { "system:linux", "configurations:Debug" }
+        defines { }
+        libdirs {
+            vcpkg_dir .. "/debug/lib",
+        }
+        links{
+            "imguid"
+        }
+
+    filter { "system:linux", "configurations:Release" }
+        defines { }
+        libdirs {
+            vcpkg_dir .. "/lib"
+        }
+        links{
+            "imgui"
+        }        
+    filter {}
 
 
     -- post build events
