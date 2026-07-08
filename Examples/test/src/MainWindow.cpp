@@ -970,7 +970,7 @@ void MainWindow::onDraw()
 	
 	// if ui layer is enabled, draw it in a separate pass on top of the scene
 	//if( _ui->isEnabled() )
-	if( false )
+	if( true )
 	{
 		renderThumbnailIfNeeded();
 		
