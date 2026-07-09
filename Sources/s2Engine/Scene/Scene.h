@@ -79,8 +79,15 @@ public:
     Camera() = default;
     Camera(Scene* scene, ECS::Entity entity);
 
+// --- Metodi di utilità per interrogare il tipo ---
+    bool isPerspective() const;
+    bool isOrthographic() const;
+
     double fov() const;
-    void setFov(double value);
+    void setPerspective(double fov); // Setta la modalità a prospettica e ne imposta il FOV
+
+    double orthoHeight() const;
+    void setOrthographic(double orthoHeight);
 
     double nearPlane() const;
     void setNearPlane(double value);
@@ -90,9 +97,6 @@ public:
 
     Math::ivec2 viewportSize() const;
     void setViewportSize(const Math::ivec2& size);
-
-public:
-    ECS::CameraData camera;
 
 private:
     ECS::CameraData& cameraData();

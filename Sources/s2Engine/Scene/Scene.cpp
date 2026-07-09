@@ -5,6 +5,7 @@
 #include "ECS/World.h"
 
 #include <utility>
+#include <variant>
 
 using namespace s2::Scene;
 using namespace s2::ECS;
@@ -564,20 +565,51 @@ const s2::ECS::Hierarchy& SceneObject::hierarchy() const
 // ------------------------------------------------------------------------------------------------
 Camera::Camera(Scene* scene, ECS::Entity entity)
 : SceneObject(scene, entity)
+{}
+
+// ------------------------------------------------------------------------------------------------
+bool Camera::isPerspective() const
 {
-    cameraData();
+    return std::holds_alternative<ECS::CameraData::Perspective>(cameraData().projection);
+}
+
+// ------------------------------------------------------------------------------------------------
+bool Camera::isOrthographic() const
+{
+    return std::holds_alternative<ECS::CameraData::Orthographic>(cameraData().projection);
 }
 
 // ------------------------------------------------------------------------------------------------
 double Camera::fov() const
 {
-    return cameraData().fov;
+    // Se è prospettica restituisce il FOV, altrimenti un valore sicuro/default (o potresti lanciare un assert)
+    if (const auto* p = std::get_if<ECS::CameraData::Perspective>(&cameraData().projection))
+        return p->fov;
+    
+    return 0.0; 
 }
 
 // ------------------------------------------------------------------------------------------------
-void Camera::setFov(double value)
+void Camera::setPerspective(double value)
 {
-    cameraData().fov = value;
+    // Riassegnare la variant la commuta automaticamente al tipo Perspective
+    cameraData().projection = ECS::CameraData::Perspective{ value };
+}
+
+// ------------------------------------------------------------------------------------------------
+double Camera::orthoHeight() const
+{
+    if (const auto* o = std::get_if<ECS::CameraData::Orthographic>(&cameraData().projection))
+        return o->orthoHeight;
+    
+    return 0.0;
+}
+
+// ------------------------------------------------------------------------------------------------
+void Camera::setOrthographic(double value)
+{
+    // Riassegnare la variant la commuta automaticamente al tipo Orthographic
+    cameraData().projection = ECS::CameraData::Orthographic{ value };
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -627,9 +659,7 @@ s2::ECS::CameraData& Camera::cameraData()
 
     auto& world = scene()->world();
     if (!world.hasProperty<CameraData>(entity()))
-    {
         world.addProperty<CameraData>(entity());
-    }
 
     return world.property<CameraData>(entity());
 }

@@ -8,11 +8,13 @@
 #include "Math/Math.h"
 
 #include <string>
+#include <variant>
 
 namespace s2{
 namespace ECS{
 
 struct Name { std::string value;};
+
 struct Hierarchy
 {
     Entity::EntityID parent { Entity::EntityInvalidID };
@@ -44,10 +46,14 @@ struct LightData
 
 struct CameraData
 {
-    double fov { 60.0 };
+    struct Perspective  { double fov { 60.0 }; };
+    struct Orthographic { double orthoHeight{ 10.0 }; };
+
+    double othoHeight { 10.0 };
     double nearPlane { 0.1 };
     double farPlane { 1000.0 };
     Math::ivec2 viewportSize { 1920, 1080 };
+    std::variant<Perspective,Orthographic> projection;
 };
 
 

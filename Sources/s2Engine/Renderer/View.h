@@ -20,14 +20,16 @@ class S2ENGINE_API View
 {
 public:
 	void setViewport           ( const Math::irect &viewport )                          { _viewport            = viewport;            computeFrustum(); }
-	void setViewMatrix         ( const Math::dmat4 &viewMatrix )                        { _viewMatrix          = viewMatrix;          computeFrustum(); }
+	void setViewMatrix         ( const Math::dmat4 &viewMatrix );
+	void setViewMatrix         ( const Math::dmat4 &viewMatrix, const Math::dvec3 &cameraWorldPos );
+	void setPosition           ( const Math::dvec3 &worldPos );
 	void setProjectionTransform( const Math::ProjectionTransform &projectionTransform ) { _projectionTransform = projectionTransform; computeFrustum(); }
 
 	inline Math::irect                        viewport()              const { return _viewport; }
 	inline Math::dmat4                        viewMatrix()            const { return _viewMatrix; }
 	inline Math::dmat4                        projectionMatrix()      const { return _projectionTransform.matrix(); }
 	inline Math::dmat4                        viewProjectionMatrix()  const { return projectionMatrix() * viewMatrix(); }
-	inline Math::dvec4                        cameraEye()             const { return _cameraEye; } // camera position in worldspace
+	inline Math::dvec4                        position()              const { return _cameraEye; } // camera position in worldspace
 	inline const std::array<Math::dplane, 6>& frustumPlanes()         const { return _frustumPlanes; }
 
 	Math::dray  rayAt( const Math::ivec2 &screenCoord ) const;

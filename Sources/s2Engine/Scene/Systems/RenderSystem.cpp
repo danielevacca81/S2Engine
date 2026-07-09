@@ -25,18 +25,34 @@ void RenderSystem::render(Scene& scene, Renderer::Renderer& renderer)
     // extract the entity that is flagged as activecamera with all relevant properties
     world.each<ECS::WorldTransform, ECS::CameraData, ECS::ActiveCameraTag>(
     [&](ECS::Entity e, auto& transform, auto& camProp) 
-    {                
-        mainView.setViewMatrix( Math::inverse(transform.matrix) );
+    {
+        const auto cameraPosition = Math::column( transform.matrix, 3); 
+        mainView.setViewMatrix( Math::inverse(transform.matrix), cameraPosition );
 
-        const Math::ProjectionTransform proj = Math::ProjectionTransform::createPerspective(
-            static_cast<double>(camProp.viewportSize.x) / camProp.viewportSize.y, 
-            camProp.fov,
-            camProp.nearPlane, 
-            camProp.farPlane);
-        
+        const double aspect = static_cast<double>(camProp.viewportSize.x) / camProp.viewportSize.y;
+        Math::ProjectionTransform proj;
+
+        std::visit([&](auto&& params)
+        {
+            using T = std::decay_t<decltype(params)>;
+            
+            if constexpr (std::is_same_v<T, ECS::CameraData::Perspective>) 
+            {
+                proj = Math::ProjectionTransform::createPerspective(
+                    aspect, params.fov, camProp.nearPlane, camProp.farPlane
+                );
+            } 
+            else if constexpr (std::is_same_v<T, ECS::CameraData::Orthographic>) 
+            {
+                double halfHeight = params.orthoHeight * 0.5;
+                double halfWidth = halfHeight * aspect;
+                proj = Math::ProjectionTransform::createOrthographic(
+                    -halfWidth, halfWidth, -halfHeight, halfHeight, camProp.nearPlane, camProp.farPlane
+                );
+            }
+        }, camProp.projection);        
         mainView.setProjectionTransform(proj);
         mainView.setViewport(Math::irect(0, 0, camProp.viewportSize.x, camProp.viewportSize.y));
-
         hasActiveCamera = true;
     });
 

@@ -5,28 +5,67 @@
 using namespace s2::Renderer;
 
 // -------------------------------------------------------------------------------------
+void View::setViewMatrix( const Math::dmat4 &viewMatrix )
+{
+    _viewMatrix = viewMatrix;
+    Math::dvec3 r0( _viewMatrix[0] );
+    Math::dvec3 r1( _viewMatrix[1] );
+    Math::dvec3 r2( _viewMatrix[2] );
+    Math::dvec3 t ( _viewMatrix[3] );
+
+    _cameraEye.x = -Math::dot( r0, t );
+    _cameraEye.y = -Math::dot( r1, t );
+    _cameraEye.z = -Math::dot( r2, t );
+    _cameraEye.w = 1.0;
+
+    computeFrustum();
+}
+
+// -------------------------------------------------------------------------------------
+void View::setViewMatrix( const Math::dmat4 &viewMatrix, const Math::dvec3 &cameraWorldPos )
+{
+    _viewMatrix = viewMatrix;
+    _cameraEye  = Math::dvec4( cameraWorldPos, 1.0 );
+    
+    computeFrustum();
+}
+
+// -------------------------------------------------------------------------------------
+void View::setPosition( const Math::dvec3 &worldPos )
+{
+    _cameraEye = Math::dvec4( worldPos, 1.0 );
+
+    Math::dvec3 r0( _viewMatrix[0] );
+    Math::dvec3 r1( _viewMatrix[1] );
+    Math::dvec3 r2( _viewMatrix[2] );
+
+    _viewMatrix[3].x = -Math::dot( r0, worldPos );
+    _viewMatrix[3].y = -Math::dot( r1, worldPos );
+    _viewMatrix[3].z = -Math::dot( r2, worldPos );
+
+    computeFrustum();
+}
+
+// -------------------------------------------------------------------------------------
 void View::computeFrustum()
 {
-	const auto inverseViewMatrix = Math::inverse( _viewMatrix );
-	_cameraEye    = inverseViewMatrix[3]; // center of the frustrum in worldspace (camera position)
-
 	_frustumPlanes = [] ( const Math::dmat4& projection, const Math::dmat4& viewMatrix ) -> std::array<Math::dplane, 6>
 	{
 		const Math::dmat4 clipMatrix = projection * viewMatrix;
 
-		const Math::dvec4 col0 = Math::row( clipMatrix, 0 );
-		const Math::dvec4 col1 = Math::row( clipMatrix, 1 );
-		const Math::dvec4 col2 = Math::row( clipMatrix, 2 );
-		const Math::dvec4 col3 = Math::row( clipMatrix, 3 );
+		const Math::dvec4 row0 = Math::row( clipMatrix, 0 );
+		const Math::dvec4 row1 = Math::row( clipMatrix, 1 );
+		const Math::dvec4 row2 = Math::row( clipMatrix, 2 );
+		const Math::dvec4 row3 = Math::row( clipMatrix, 3 );
 
 		return 
 		{
-			Math::normalize( Math::dplane( col3 - col0 ) ),
-			Math::normalize( Math::dplane( col3 + col0 ) ),
-			Math::normalize( Math::dplane( col3 - col1 ) ),
-			Math::normalize( Math::dplane( col3 + col1 ) ),
-			Math::normalize( Math::dplane( col3 - col2 ) ),
-			Math::normalize( Math::dplane( col3 + col2 ) ),
+			Math::normalize( Math::dplane( row3 - row0 ) ),
+			Math::normalize( Math::dplane( row3 + row0 ) ),
+			Math::normalize( Math::dplane( row3 - row1 ) ),
+			Math::normalize( Math::dplane( row3 + row1 ) ),
+			Math::normalize( Math::dplane( row3 - row2 ) ),
+			Math::normalize( Math::dplane( row3 + row2 ) ),
 		};
 	}( _projectionTransform.matrix(), _viewMatrix );
 }
