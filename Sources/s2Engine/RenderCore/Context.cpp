@@ -79,9 +79,7 @@ Context::Context()
 // ------------------------------------------------------------------------------------------------
 Context::~Context()
 {
-	LOG( Info,"Destroying Context: 0x{:x}\n"
-		, (uint32_t) _nativeHandle
-	);
+	LOG( Info,"Destroying Context: 0x{:x}", (uint32_t) _nativeHandle );
 
 	std::lock_guard lock( gRegistryMutex );
 	gRegistry.erase( _nativeHandle );

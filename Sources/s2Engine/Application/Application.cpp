@@ -84,10 +84,16 @@ const std::unique_ptr<Window>& Application::mainWindow() const
 // ------------------------------------------------------------------------------------------------
 int32_t Application::run()
 {
+    // @todo: allow headless applications (hidden mainwindow?)
     if( _windows.empty() )
         throw std::runtime_error( "Application::run() - No window available in the application" );
 
+    // before any window setup
+    // emit event for application-level initializations
+    signal_initEvent();
+
     // Initialize all windows before entering the main loop
+    // @todo: foreach w in _windows call w->init()
     for( auto& w : _windows )
     {
         int fbWidth, fbHeight;
@@ -116,8 +122,13 @@ int32_t Application::run()
     }
 
     // the main loop has exited, which means the application is shutting down.
+    // @todo: foreach w in _windows call w->deinit()
+    // or simply just call _windows.clear and let the Window distructor freeing the resources?
     for( auto& w : _windows )
-        w->stopRenderThread();
+        w->stopRenderThread();    
+
+    // after every window has been closed
+    signal_closeEvent();
 
     return 0;
 }

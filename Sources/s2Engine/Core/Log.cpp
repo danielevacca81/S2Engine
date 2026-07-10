@@ -15,15 +15,23 @@ void Log::init( const std::string& loggerName, const LogLevel &level, const LogP
     if( s2Logger ) 
         return;
 
+    // es. "[12:34:56][ info ][s2Engine] initialization completed"
+    const auto defaultPattern = std::format("%^{}{}{} {}%$"
+        , "[%T]"
+        , "[%-8l]"
+        , loggerName.empty() ? "" : "[%n]"
+        , "%v"
+    );
+
     spdlog::set_pattern( params.pattern.empty()
-        ? "%^[%T][%-8l] %n:: %v%$"      // es. "[12:34:56][ info ] s2Engine: initialization completed"
+        ? defaultPattern
         : params.pattern
     );
    
     if( params.console.enabled )
-        s2Logger = spdlog::stdout_color_mt(loggerName);
+        s2Logger = spdlog::stdout_color_mt( loggerName.empty() ? "s2Engine":loggerName );
     
-    // @todo...
+    // @todo...params
     
     //
     if( s2Logger )

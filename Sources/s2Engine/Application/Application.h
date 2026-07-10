@@ -8,6 +8,8 @@
 #include "Core/TimePoint.h"
 #include "Core/Log.h"
 
+#include "sigslot/signal.hpp"
+
 #include <string>
 #include <memory>
 #include <vector>
@@ -21,6 +23,9 @@ class S2ENGINE_API Application : public std::enable_shared_from_this<Application
 {
 public:
     static Application* instance();
+
+    sigslot::signal<> signal_initEvent;
+    sigslot::signal<> signal_closeEvent;
 
 public:
     Application( const std::string& name );
