@@ -40,7 +40,10 @@ private:
 private:
 	s2::Renderer::RenderPasses _renderPasses;
 
-	s2::Renderer::View _view;
+	//s2::Renderer::View _view;
+	s2::Scene::Scene   _mainScene;
+	s2::Scene::Camera  _cam;
+
 };
 
 #endif // !MAINWINDOW_H

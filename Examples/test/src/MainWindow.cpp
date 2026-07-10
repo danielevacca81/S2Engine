@@ -57,11 +57,11 @@ bool MainWindow::loadResources()
   
 	std::array<texturetag, 5> texturesToLoad =   
 	{  
-		texturetag{ "pbr_albedo",    assetBasePath / R"(g5/g5_basecolor.png)" },  
-		texturetag{ "pbr_normal",    assetBasePath / R"(g5/g5_normal.png)" },  
-		texturetag{ "pbr_metallic",  assetBasePath / R"(g5/g5_metallic.png)" },  
-		texturetag{ "pbr_roughness", assetBasePath / R"(g5/g5_roughness.png)" },  
-		texturetag{ "pbr_ao",        assetBasePath / R"(g5/g5_ao.png)" }  
+		texturetag{ "pbr_albedo",    assetBasePath / R"(Food_Cheese/Food_Cheese_basecolor.jpg)" },  
+		texturetag{ "pbr_normal",    assetBasePath / R"(Food_Cheese/Food_Cheese_normal.jpg)" },  
+		texturetag{ "pbr_metallic",  assetBasePath / R"(Food_Cheese/Food_Cheese_metallic.jpg)" },  
+		texturetag{ "pbr_roughness", assetBasePath / R"(Food_Cheese/Food_Cheese_roughness.jpg)" },  
+		texturetag{ "pbr_ao",        assetBasePath / R"(Food_Cheese/Food_Cheese_ambientocclusion.jpg)" }  
 	};  
   
   

@@ -79,12 +79,11 @@ public:
     Camera() = default;
     Camera(Scene* scene, ECS::Entity entity);
 
-// --- Metodi di utilità per interrogare il tipo ---
     bool isPerspective() const;
     bool isOrthographic() const;
 
     double fov() const;
-    void setPerspective(double fov); // Setta la modalità a prospettica e ne imposta il FOV
+    void setPerspective(double fov);
 
     double orthoHeight() const;
     void setOrthographic(double orthoHeight);

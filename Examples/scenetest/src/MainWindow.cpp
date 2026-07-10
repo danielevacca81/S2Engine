@@ -104,6 +104,15 @@ void MainWindow::onInitializeEvent()
 
 	auto cubeMat = blinnPhongMaterialDef.createMaterial();
 
+	//_view.setViewMatrix( Math::lookAt( Math::dvec3( 0.0, 0.0, 8.0 ), Math::dvec3( 0.0, 0.0, 0.0 ), Math::dvec3( 0.0, 1.0, 0.0 ) ) );
+	
+	_cam.setPerspective(  45.0 );
+	_cam.setViewportSize( { width(), height() } );
+	_cam.setPosition( { 0.0, 0.0, 8.0 } );
+
+
+	_mainScene.setActiveCamera( _cam );
+
 	
 
 	// auto cube = _world.createEntity( "cubeEntity" )->addComponent<s2::Scene::RenderableComponent>();
@@ -152,15 +161,15 @@ void MainWindow::onDraw()
 
 	using namespace s2::Renderer;
 
-	_renderer->begin(
-		{
-			.renderPasses = { _renderPasses["forward"] },
-			.renderTarget = _mainRenderTarget.get(),
-			.view         = _view,
-		} );
+	// _renderer->begin(
+	// 	{
+	// 		.renderPasses = { _renderPasses["forward"] },
+	// 		.renderTarget = _mainRenderTarget.get(),
+	// 		.view         = _view,
+	// 	} );
 
-	_renderer->submit( { .clearColor = Color{ 0.3f, 0.4f, 0.5f, 1.0f } } );
-	_renderer->execute();
+	// _renderer->submit( { .clearColor = Color{ 0.3f, 0.4f, 0.5f, 1.0f } } );
+	// _renderer->execute();
 }
 
 // ------------------------------------------------------------------------------------------------

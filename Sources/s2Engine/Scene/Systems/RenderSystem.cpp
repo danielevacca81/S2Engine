@@ -46,8 +46,11 @@ void RenderSystem::render(Scene& scene, Renderer::Renderer& renderer)
             {
                 double halfHeight = params.orthoHeight * 0.5;
                 double halfWidth = halfHeight * aspect;
-                proj = Math::ProjectionTransform::createOrthographic(
-                    -halfWidth, halfWidth, -halfHeight, halfHeight, camProp.nearPlane, camProp.farPlane
+                proj = Math::ProjectionTransform::createOrthographic
+                (
+                    -halfWidth, halfWidth, 
+                    -halfHeight, halfHeight, 
+                    camProp.nearPlane, camProp.farPlane
                 );
             }
         }, camProp.projection);        
@@ -80,7 +83,6 @@ void RenderSystem::render(Scene& scene, Renderer::Renderer& renderer)
     //         objState.projectionMatrix = mainView.projectionMatrix();
     //         ...
     //
-    //         // Accodiamo il comando nel renderer
     //         renderer.submit(mesh.handle, material.handle, objState);
     //     }
     // );

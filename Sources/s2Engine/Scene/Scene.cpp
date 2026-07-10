@@ -582,17 +582,15 @@ bool Camera::isOrthographic() const
 // ------------------------------------------------------------------------------------------------
 double Camera::fov() const
 {
-    // Se è prospettica restituisce il FOV, altrimenti un valore sicuro/default (o potresti lanciare un assert)
-    if (const auto* p = std::get_if<ECS::CameraData::Perspective>(&cameraData().projection))
+    if (const auto *p = std::get_if<ECS::CameraData::Perspective>(&cameraData().projection))
         return p->fov;
-    
-    return 0.0; 
+
+    return 0.0;
 }
 
 // ------------------------------------------------------------------------------------------------
 void Camera::setPerspective(double value)
 {
-    // Riassegnare la variant la commuta automaticamente al tipo Perspective
     cameraData().projection = ECS::CameraData::Perspective{ value };
 }
 
@@ -608,7 +606,6 @@ double Camera::orthoHeight() const
 // ------------------------------------------------------------------------------------------------
 void Camera::setOrthographic(double value)
 {
-    // Riassegnare la variant la commuta automaticamente al tipo Orthographic
     cameraData().projection = ECS::CameraData::Orthographic{ value };
 }
 

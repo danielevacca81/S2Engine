@@ -53,7 +53,7 @@ struct CameraData
     double nearPlane { 0.1 };
     double farPlane { 1000.0 };
     Math::ivec2 viewportSize { 1920, 1080 };
-    std::variant<Perspective,Orthographic> projection;
+    std::variant<Perspective,Orthographic> projection = Perspective{};
 };
 
 
