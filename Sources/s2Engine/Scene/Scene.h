@@ -20,13 +20,12 @@ class World;
 
 namespace Scene {
 
-class S2ENGINE_API Scene;
+class Scene;
 
 class S2ENGINE_API SceneObject
 {
 public:
     SceneObject() = default;
-    SceneObject(Scene* scene, ECS::Entity entity);
 
     bool isValid() const;
     void destroy();
@@ -59,6 +58,8 @@ public:
     bool isAncestorOf(const SceneObject& object) const;
 
 protected:
+    SceneObject(Scene* scene, ECS::Entity entity);
+
     void ensureProperties() const;
     ECS::Transform& transform();
     const ECS::Transform& transform() const;
@@ -68,16 +69,17 @@ protected:
     void detachFromParent();
     bool isDescendantOf(const ECS::Entity::EntityID ancestorId) const;
 
-private:
+protected:
     Scene* _scene { nullptr };
     ECS::Entity _entity;
+    
+    friend class Scene;
 };
 
 class S2ENGINE_API Camera : public SceneObject
 {
 public:
     Camera() = default;
-    Camera(Scene* scene, ECS::Entity entity);
 
     bool isPerspective() const;
     bool isOrthographic() const;
@@ -98,10 +100,15 @@ public:
     void setViewportSize(const Math::ivec2& size);
 
 private:
+    Camera(Scene* scene, ECS::Entity entity);
+
     ECS::CameraData& cameraData();
     const ECS::CameraData& cameraData() const;
+
+    friend class Scene;
 };
 
+#if 0
 class S2ENGINE_API Light : public SceneObject
 {
 public:
@@ -155,7 +162,7 @@ private:
     ECS::BodyData& bodyData();
     const ECS::BodyData& bodyData() const;
 };
-
+#endif 
 class S2ENGINE_API Scene
 {
 public:
@@ -167,26 +174,27 @@ public:
 
     SceneObject createObject(const std::string& name = {});
     Camera createCamera(const std::string& name = {});
-    Light createLight(const std::string& name = {});
-    Body createBody(const std::string& name = {});
+    //Light createLight(const std::string& name = {});
+    //Body createBody(const std::string& name = {});
 
     void setActiveCamera( const Camera &camera );
     Camera activeCamera() const;
 
     std::vector<SceneObject> objects() const;
     std::vector<Camera> cameras() const;
-    std::vector<Light> lights() const;
-    std::vector<Body> bodies() const;
+    //std::vector<Light> lights() const;
+    //std::vector<Body> bodies() const;
     SceneObject findByName(const std::string& name) const;
     std::vector<SceneObject> findAllByName(const std::string& name) const;
 
     void clear();
-
+   
     ECS::World& world();
     const ECS::World& world() const;
 
 private:
     std::unique_ptr<ECS::World> _world;
+
 };
 
 } // namespace Scene

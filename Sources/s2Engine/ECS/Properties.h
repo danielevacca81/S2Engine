@@ -6,6 +6,8 @@
 #include "Entity.h"
 
 #include "Math/Math.h"
+#include "Math/Box.h"
+#include "Graphics/Color.h"
 
 #include <string>
 #include <variant>
@@ -14,6 +16,15 @@ namespace s2{
 namespace ECS{
 
 struct Name { std::string value;};
+
+struct Spatial // spatial hierarchy? consider adding also parent-child relationships
+{
+    Math::dmat4 localTransform;
+    Math::dmat4 worldTransform;
+
+    Math::dbox3 localBounds;
+    Math::dbox3 WorldBounds;
+};
 
 struct Hierarchy
 {
@@ -46,9 +57,12 @@ struct LightData
 
 struct CameraData
 {
-    struct Perspective  { double fov { 60.0 }; };
-    struct Orthographic { double orthoHeight{ 10.0 }; };
+    struct Perspective   { double fov { 60.0 }; };
+    struct Orthographic  { double orthoHeight{ 10.0 }; };
+    enum class ClearMode { ColorAndDepth, DepthOnly, None };
 
+    ClearMode clearMode{ ClearMode::ColorAndDepth };
+    Color  clearColor {0.1f, 0.1f, 0.1f, 0.1f };
     double othoHeight { 10.0 };
     double nearPlane { 0.1 };
     double farPlane { 1000.0 };

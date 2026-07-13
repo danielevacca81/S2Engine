@@ -2,6 +2,8 @@
 //
 #include "RenderSystem.h"
 
+#include "Core/Log.h"
+
 #include "Renderer/FrameData.h"
 #include "Renderer/View.h"
 
@@ -12,8 +14,20 @@
 using namespace s2::Scene;
 
 // ------------------------------------------------------------------------------------------------
-void RenderSystem::render(Scene& scene, Renderer::Renderer& renderer)
+void RenderSystem::render(Scene& scene, Renderer::Renderer& renderer, const FrameDescriptor &desc )
 {
+    if( desc.renderPasses.empty() )
+    {
+        LOG(Warn,"Attempt to render with an empty pipeline [SKIPPED]");
+        return;
+    }
+
+    if( !desc.renderTarget )
+    {
+        LOG(Warn,"Attempt to render on a null render target [SKIPPED]");
+        return;
+    }
+
     ECS::World& world = scene.world();
     
     // ====================================================================
@@ -67,9 +81,17 @@ void RenderSystem::render(Scene& scene, Renderer::Renderer& renderer)
     // Step2: frame setup
     // ====================================================================
     Renderer::FrameData frameData;
+    frameData.renderPasses = Renderer::RenderPipeline( desc.renderPasses );
+    frameData.renderTarget = desc.renderTarget;
     frameData.view = mainView;
 
+
     renderer.begin(frameData);
+
+    renderer.submit( Renderer::ClearCommand
+        {
+            .clearColor = Color{ .1f,.2f,.3f,1.f}
+        } );
 
     // ====================================================================
     // Step3: drawcalls (stub), suppose we have mesh and material property
@@ -92,3 +114,30 @@ void RenderSystem::render(Scene& scene, Renderer::Renderer& renderer)
     // ====================================================================
     renderer.execute();
 }
+
+#if 0
+void RenderSystem::submitPass(Scene& scene, Renderer::Renderer& renderer, const std::string& passName)
+{
+    auto& world = scene.world();
+
+    if (passName == "forward" || passName == "shadow")
+    {
+        world.each<ECS::WorldTransform, ECS::Mesh, ECS::Material>(
+            [&](ECS::Entity e, const auto& transform, const auto& mesh, const auto& mat) 
+        {
+            // Filtra in base alla pass richiesta
+            if (passName == "shadow" && !mat.castShadows) return;
+
+            renderer.submit(passName, createDrawCall(transform, mesh, mat));
+        });
+    }
+    else if (passName == "ui")
+    {
+        world.each<ECS::UITransform, ECS::UIWidget>(
+            [&](ECS::Entity e, const auto& transform, const auto& widget) 
+        {
+            renderer.submit(passName, createUIDrawCall(transform, widget));
+        });
+    }
+}
+#endif

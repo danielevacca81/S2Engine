@@ -2,6 +2,8 @@
 //
 #include "Scene.h"
 
+#include "Core/Log.h"
+
 #include "ECS/World.h"
 
 #include <utility>
@@ -11,14 +13,11 @@ using namespace s2::Scene;
 using namespace s2::ECS;
 
 namespace {
-
 template<typename T>
-T& ensureProperty(World& world, Entity entity)
+static inline T& ensureProperty(World& world, Entity entity)
 {
     if (!world.hasProperty<T>(entity))
-    {
         return world.addProperty<T>(entity);
-    }
 
     return world.property<T>(entity);
 }
@@ -49,6 +48,7 @@ Camera Scene::createCamera(const std::string& name)
     return camera;
 }
 
+#if 0
 // ------------------------------------------------------------------------------------------------
 Light Scene::createLight(const std::string& name)
 {
@@ -64,7 +64,7 @@ Body Scene::createBody(const std::string& name)
     body.setName(name);
     return body;
 }
-
+#endif
 // ------------------------------------------------------------------------------------------------
 std::vector<SceneObject> Scene::objects() const
 {
@@ -72,7 +72,7 @@ std::vector<SceneObject> Scene::objects() const
     auto& world = const_cast<World&>(this->world());
     world.each<s2::ECS::Transform>([&](Entity entity, s2::ECS::Transform&)
     {
-        result.emplace_back(const_cast<Scene*>(this), entity);
+        result.push_back(SceneObject( const_cast<Scene*>(this), entity) );
     });
     return result;
 }
@@ -84,11 +84,11 @@ std::vector<Camera> Scene::cameras() const
     auto& world = const_cast<World&>(this->world());
     world.each<ECS::CameraData>([&](Entity entity, ECS::CameraData&)
     {
-        result.emplace_back(const_cast<Scene*>(this), entity);
+        result.push_back(Camera(const_cast<Scene*>(this), entity) );
     });
     return result;
 }
-
+#if 0
 // ------------------------------------------------------------------------------------------------
 std::vector<Light> Scene::lights() const
 {
@@ -112,19 +112,14 @@ std::vector<Body> Scene::bodies() const
     });
     return result;
 }
-
+#endif
 // ------------------------------------------------------------------------------------------------
 SceneObject Scene::findByName(const std::string& name) const
 {
     auto& world = const_cast<World&>(this->world());
     for (auto object : objects())
-    {
         if (object.name() == name)
-        {
             return object;
-        }
-    }
-
     return {};
 }
 
@@ -133,12 +128,8 @@ std::vector<SceneObject> Scene::findAllByName(const std::string& name) const
 {
     std::vector<SceneObject> result;
     for (auto object : objects())
-    {
         if (object.name() == name)
-        {
             result.push_back(object);
-        }
-    }
     return result;
 }
 
@@ -163,6 +154,12 @@ const World& Scene::world() const
 // ------------------------------------------------------------------------------------------------
 void Scene::setActiveCamera( const Camera &camera )
 {
+    if( camera._scene != this )
+    {
+        LOG(Error, "Setting active camera to wrong Scene");
+        return;
+    }
+
     // find any other active camera and set remove the ActiveTag from it
     _world->each<ECS::ActiveCameraTag>([this](ECS::Entity e)
                                        { _world->removeProperty<ECS::ActiveCameraTag>(e); });
@@ -210,16 +207,12 @@ void SceneObject::destroy()
 std::string SceneObject::name() const
 {
     if (!isValid())
-    {
         return {};
-    }
 
     ensureProperties();
     auto& world = const_cast<World&>(_scene->world());
     if (!world.hasProperty<Name>(_entity))
-    {
         return {};
-    }
 
     return world.property<Name>(_entity).value;
 }
@@ -228,9 +221,7 @@ std::string SceneObject::name() const
 void SceneObject::setName(const std::string& name)
 {
     if (!isValid())
-    {
         return;
-    }
 
     ensureProperties();
     auto& world = _scene->world();
@@ -278,9 +269,7 @@ void SceneObject::setScale(const Math::dvec3& scale)
 Math::dmat4 SceneObject::worldTransform() const
 {
     if (!isValid())
-    {
         return Math::dmat4(1.0);
-    }
 
     updateWorldTransform();
     return _scene->world().property<s2::ECS::WorldTransform>(_entity).matrix;
@@ -329,9 +318,7 @@ bool SceneObject::hasParent() const
 SceneObject SceneObject::parent() const
 {
     if (!isValid() || !hasParent())
-    {
         return {};
-    }
 
     return SceneObject(_scene, Entity(hierarchy().parent, &_scene->world()));
 }
@@ -341,17 +328,13 @@ std::vector<SceneObject> SceneObject::children() const
 {
     std::vector<SceneObject> result;
     if (!isValid())
-    {
         return result;
-    }
 
     auto& world = const_cast<World&>(_scene->world());
     world.each<Hierarchy>([&](Entity child, Hierarchy& hierarchy)
     {
         if (hierarchy.parent == _entity.id())
-        {
-            result.emplace_back(_scene, child);
-        }
+            result.push_back( SceneObject( _scene, child) );
     });
 
     return result;
@@ -361,9 +344,7 @@ std::vector<SceneObject> SceneObject::children() const
 void SceneObject::setParent(const SceneObject& parent)
 {
     if (!isValid())
-    {
         return;
-    }
 
     detachFromParent();
     if (parent.isValid())
@@ -414,9 +395,7 @@ void SceneObject::removeParent()
 bool SceneObject::isAncestorOf(const SceneObject& object) const
 {
     if (!isValid() || !object.isValid())
-    {
         return false;
-    }
 
     return object.isDescendantOf(_entity.id());
 }
@@ -425,15 +404,11 @@ bool SceneObject::isAncestorOf(const SceneObject& object) const
 void SceneObject::updateWorldTransform() const
 {
     if (!isValid())
-    {
         return;
-    }
 
     auto& world = const_cast<World&>(_scene->world());
     if (!world.hasProperty<s2::ECS::WorldTransform>(_entity))
-    {
         world.addProperty<s2::ECS::WorldTransform>(_entity);
-    }
 
     auto& local = transform();
     auto& worldTransform = world.property<s2::ECS::WorldTransform>(_entity);
@@ -457,15 +432,11 @@ void SceneObject::updateWorldTransform() const
 void SceneObject::detachFromParent()
 {
     if (!isValid() || !hasParent())
-    {
         return;
-    }
 
     auto& parentHierarchy = _scene->world().property<s2::ECS::Hierarchy>(Entity(hierarchy().parent, &_scene->world()));
     if (parentHierarchy.firstChild == _entity.id())
-    {
         parentHierarchy.firstChild = hierarchy().nextSibling;
-    }
     else
     {
         auto current = parentHierarchy.firstChild;
@@ -490,17 +461,13 @@ void SceneObject::detachFromParent()
 bool SceneObject::isDescendantOf(const ECS::Entity::EntityID ancestorId) const
 {
     if (!isValid())
-    {
         return false;
-    }
 
     auto current = hierarchy().parent;
     while (current != ECS::Entity::EntityInvalidID)
     {
         if (current == ancestorId)
-        {
             return true;
-        }
         current = _scene->world().property<s2::ECS::Hierarchy>(Entity(current, &_scene->world())).parent;
     }
 
@@ -511,27 +478,13 @@ bool SceneObject::isDescendantOf(const ECS::Entity::EntityID ancestorId) const
 void SceneObject::ensureProperties() const
 {
     if (!_scene || !_entity.isValid())
-    {
         return;
-    }
 
     auto& world = const_cast<World&>(_scene->world());
-    if (!world.hasProperty<s2::ECS::Transform>(_entity))
-    {
-        world.addProperty<s2::ECS::Transform>(_entity);
-    }
-    if (!world.hasProperty<s2::ECS::Hierarchy>(_entity))
-    {
-        world.addProperty<s2::ECS::Hierarchy>(_entity);
-    }
-    if (!world.hasProperty<s2::ECS::Name>(_entity))
-    {
-        world.addProperty<s2::ECS::Name>(_entity);
-    }
-    if (!world.hasProperty<s2::ECS::WorldTransform>(_entity))
-    {
-        world.addProperty<s2::ECS::WorldTransform>(_entity);
-    }
+    if (!world.hasProperty<s2::ECS::Transform>(_entity))      world.addProperty<s2::ECS::Transform>(_entity);
+    if (!world.hasProperty<s2::ECS::Hierarchy>(_entity))      world.addProperty<s2::ECS::Hierarchy>(_entity);
+    if (!world.hasProperty<s2::ECS::Name>(_entity))           world.addProperty<s2::ECS::Name>(_entity);
+    if (!world.hasProperty<s2::ECS::WorldTransform>(_entity)) world.addProperty<s2::ECS::WorldTransform>(_entity);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -648,11 +601,7 @@ void Camera::setViewportSize(const Math::ivec2& size)
 // ------------------------------------------------------------------------------------------------
 s2::ECS::CameraData& Camera::cameraData()
 {
-    if (!isValid())
-    {
-        static CameraData fallback;
-        return fallback;
-    }
+    S2_ASSERT( isValid(), "Attempt to use uninitialized Camera object. Use Scene::createCamera() first!");
 
     auto& world = scene()->world();
     if (!world.hasProperty<CameraData>(entity()))
@@ -667,6 +616,7 @@ const s2::ECS::CameraData& Camera::cameraData() const
     return const_cast<Camera*>(this)->cameraData();
 }
 
+#if 0
 // ------------------------------------------------------------------------------------------------
 Light::Light(Scene* scene, ECS::Entity entity)
 : SceneObject(scene, entity)
@@ -800,3 +750,4 @@ const s2::ECS::BodyData& Body::bodyData() const
 {
     return const_cast<Body*>(this)->bodyData();
 }
+#endif
