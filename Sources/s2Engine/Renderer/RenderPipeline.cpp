@@ -2,6 +2,8 @@
 //
 #include "RenderPipeline.h"
 
+#include "Core/Log.h"
+
 #include "ForwardPass.h"
 
 #include <algorithm>
@@ -10,16 +12,25 @@
 using namespace s2::Renderer;
 
 // ------------------------------------------------------------------------------------------------
+RenderPipeline::RenderPipeline( const RenderPasses &passes )
+{
+    _passes.reserve( passes.size() );
+    for( auto &[name,p] : passes )
+    {
+        S2_ASSERT( !name.empty() && p, "RenderPipeline cannot contain null or empty passes.");
+        _passes.push_back( p );
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
 RenderPipeline& RenderPipeline::addPass( const std::shared_ptr<RenderPass> &pass )
 {
-    // Avoid adding duplicate passes with the same name
     auto existingPass = findPass( pass->name() );
-    if( existingPass )
-    {
-        assert( false && "RenderPipeline already contains a pass with the same name!" );
-        return *this;
-    }
+    
+    S2_ASSERT( existingPass, "RenderPipeline already contains a pass with the same name!" );
+    S2_ASSERT( pass, "RenderPipeline cannot contain null or empty passes.");
 
+    
     _passes.push_back( pass );
     return *this;
 }
@@ -52,7 +63,7 @@ std::shared_ptr<RenderPass> RenderPipeline::findPass( const std::string& name ) 
 // ------------------------------------------------------------------------------------------------
 void RenderPipeline::execute( const RenderCore::RenderBackend& backend, const ResourceManager& resourceManager, const CommandBuffer& queue, FrameData& frameData )
 {
-    assert( !_passes.empty() && "RenderPipeline has no passes to execute!" );
+    S2_ASSERT( !_passes.empty(), "RenderPipeline has no passes to execute!" );
     if( _passes.empty() )
         return;
 

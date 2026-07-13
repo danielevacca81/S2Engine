@@ -62,9 +62,10 @@ class S2ENGINE_API RenderPipeline
 {
 public:
 	RenderPipeline() = default;
-	RenderPipeline( const std::initializer_list<std::shared_ptr<RenderPass>>& passes ) 
+	explicit RenderPipeline( const std::initializer_list<std::shared_ptr<RenderPass>>& passes ) 
         : _passes( passes ) 
     {}
+    explicit RenderPipeline( const RenderPasses &passes );
     
     void clear();
 	bool isEmpty() const { return _passes.empty(); }
